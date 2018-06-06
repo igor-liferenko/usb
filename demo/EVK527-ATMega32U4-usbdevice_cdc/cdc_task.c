@@ -88,9 +88,6 @@ void cdc_task_init(void)
 {
    uart_init();
    Uart_enable_it_rx();
-   Leds_init();
-   Joy_init();
-   Hwb_button_init();
    Usb_enable_sof_interrupt();
    fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
 }
@@ -116,37 +113,12 @@ void cdc_task(void)
              while (rx_counter)
             {
                uart_putchar(uart_usb_getchar());   // loop back USB to USART
-               Led1_toggle();
             }
          }
       }
 
       if ( cpt_sof>=REPEAT_KEY_PRESSED)   //Debounce joystick events
       {
-         if (Is_joy_select()) {
-         printf ("Select Pressed !\r\n");
-         }
-         if (Is_joy_right()) {
-            printf ("Right Pressed !\r\n");
-            serial_state.bDCD = TRUE;
-         }
-         else
-            serial_state.bDCD = FALSE;
-
-         if (Is_joy_left()) {
-            printf ("Left Pressed !\r\n");
-            serial_state.bDSR = TRUE;
-         }
-         else
-            serial_state.bDSR = FALSE;
-
-         if (Is_joy_down())
-         printf ("Down Pressed !\r\n");
-
-         if (Is_joy_up())
-         printf ("Up Pressed !\r\n");
-
-         if(Is_hwb())
          printf("Hello from ATmega32U4 !\r\n");
          
          cdc_update_serial_state();
@@ -155,7 +127,6 @@ void cdc_task(void)
       if(usb_request_break_generation==TRUE)
       {
          usb_request_break_generation=FALSE;
-         Led2_toggle();
          start_boot();
       }
    }

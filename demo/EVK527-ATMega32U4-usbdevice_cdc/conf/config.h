@@ -54,13 +54,6 @@
 //! Enable or not the ADC usage
 #undef  USE_ADC
 
-// Board defines (do not change these settings)
-#define  EVK527   1
-
-// Select board
-#define  TARGET_BOARD EVK527
-#include "lib_board/evk_527/evk_527.h"
-
 //! CPU core frequency in kHz
 #define FOSC 8000
 #define PLL_OUT_FRQ  PLL_OUT_96MHZ
