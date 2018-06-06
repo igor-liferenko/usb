@@ -100,14 +100,10 @@
 int main(void)
 {
    Usb_enable_regulator();
-#ifndef  __GNUC__
-   Wdt_off();
-#else
    wdt_reset();
    Wdt_clear_flag();
    Wdt_change_enable();
    Wdt_stop();
-#endif
    start_boot_if_required();
    Clear_prescaler();
    scheduler();
@@ -116,22 +112,12 @@ int main(void)
 
 //! \name Procedure to speed up the startup code
 //! This one increment the CPU clock before RAM initialisation
-//! @{
-#ifdef  __GNUC__
 // Locate low level init function before RAM init (init3 section)
 // and remove std prologue/epilogue
 char __low_level_init(void) __attribute__ ((section (".init3"),naked));
-#endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 char __low_level_init()
 {
   Clear_prescaler();
   return 1;
 }
-#ifdef __cplusplus
-}
-#endif
-//! @}

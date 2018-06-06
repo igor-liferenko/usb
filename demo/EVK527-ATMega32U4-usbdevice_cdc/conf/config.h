@@ -43,14 +43,7 @@
 
 // Compiler switch (do not change these settings)
 #include "lib_mcu/compiler.h"             // Compiler definitions
-#ifdef __GNUC__
    #include <avr/io.h>                    // Use AVR-GCC library
-#elif __ICCAVR__
-   #define ENABLE_BIT_DEFINITIONS
-   #include <ioavr.h>                     // Use IAR-AVR library
-#else
-   #error Current COMPILER not supported
-#endif
 
 
 //! @defgroup global_config Application configuration
@@ -81,9 +74,6 @@
 #define UART_U2
 
 //#define uart_putchar putchar
-#ifndef __GNUC__
-   #define uart_usb_putchar putchar
-#endif
 #define r_uart_ptchar int
 #define p_uart_ptchar int
 

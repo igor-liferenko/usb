@@ -362,10 +362,6 @@ typedef char      r_uart_ptchar;
 
 
 
-/******************************************************************************/
-/* GCC COMPILER                                                               */
-/******************************************************************************/
-   #ifdef __GNUC__
 #define _CONST_TYPE_
 #define _ConstType_   __flash
 #define _MemType_
@@ -385,6 +381,5 @@ typedef char      r_uart_ptchar;
    #define Enable_interrupt() sei()
    #define Disable_interrupt() cli()
 
-   #endif
 #endif /* _COMPILER_H_ */
 

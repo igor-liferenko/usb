@@ -44,10 +44,8 @@
 
 //_____ I N C L U D E S ____________________________________________________
 
-#ifdef __GNUC__
    #include <avr/io.h>
    #include <avr/wdt.h>
-#endif
 
 
 //_____ M A C R O S ________________________________________________________
@@ -67,12 +65,8 @@
 //For compatibility with Tinyx61 code
 #define WDTCR WDTCSR
 
-#ifdef __GNUC__
 //#define Wdt_reset_instruction()   (asm("WDR"))
 #define Wdt_reset_instruction()  (wdt_reset())
-#else
-#define Wdt_reset_instruction()  (__watchdog_reset())
-#endif
 #define Wdt_clear_flag()         (Ack_wdt_reset())
 #define Wdt_change_enable()      (WDTCSR |= (1<<WDCE) )
 #define Wdt_enable_16ms()        (WDTCSR =  (1<<WDE))

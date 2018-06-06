@@ -45,46 +45,10 @@
 #ifndef _POWER_DRV_H_
 #define _POWER_DRV_H_
 
-#ifdef  __GNUC__
    #include <avr/power.h>
    
-   #if (__AVR_LIBC_VERSION__<=10602UL) //for AVRLIBC bug #23871 : clock_prescale_set() not available for ATmega32U4
-   typedef enum
-   {
-       clock_div_1 = 0,
-       clock_div_2 = 1,
-       clock_div_4 = 2,
-       clock_div_8 = 3,
-       clock_div_16 = 4,
-       clock_div_32 = 5,
-       clock_div_64 = 6,
-       clock_div_128 = 7,
-       clock_div_256 = 8
-   } clock_div_t;
-
-   #define clock_prescale_set(x) \
-   { \
-           uint8_t tmp = _BV(CLKPCE); \
-           __asm__ __volatile__ ( \
-                   "in __tmp_reg__,__SREG__" "\n\t" \
-                   "cli" "\n\t" \
-                   "sts %1, %0" "\n\t" \
-                   "sts %1, %2" "\n\t" \
-                   "out __SREG__, __tmp_reg__" \
-                   : /* no outputs */ \
-                   : "d" (tmp), \
-                     "M" (_SFR_MEM_ADDR(CLKPR)), \
-                     "d" (x) \
-                   : "r0"); \
-   }
 
 
-   #define clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)|(1<<CLKPS3)))
-
-   #endif
-
-
-#endif
 //! @defgroup powermode Power management drivers
 //!
 //! @{
@@ -107,11 +71,7 @@
 //!
 //! @return none.
 //!
-#ifdef  __GNUC__
    #define Clear_prescaler()                       (clock_prescale_set(0))
-#else
-   #define Clear_prescaler()                       (Set_cpu_prescaler(0))
-#endif
 
 //! Set_prescaler.
 //!
@@ -122,11 +82,7 @@
 //!
 //! @return none.
 //!
-#ifdef  __GNUC__
    #define Set_cpu_prescaler(x)                        (clock_prescale_set(x))
-#else
-   extern void Set_cpu_prescaler(U8 x);
-#endif
 
 
 #define Sleep_instruction()              {asm("SLEEP");}

@@ -41,12 +41,7 @@
 #ifndef _UART_BDR_H
 #define _UART_BDR_H
 
-#ifndef __GNUC__
-   #define Uart_set_baudrate(bdr)  ( UBRRH = (Uchar)((((Uint32)FOSC*1000L)/((Uint32)bdr*16)-1)>>8),\
-                                  UBRRL = (Uchar)(((Uint32)FOSC*1000 )/((Uint32)bdr*16)-1)    )
-#else
   #define Uart_set_baudrate(bdr)  ( UBRR = (U16)(((U32)FOSC*1000L)/((U32)bdr*16)-1))
-#endif
 
 #define Uart_double_bdr()          (UCSRA |= (1<<U2X1))
 

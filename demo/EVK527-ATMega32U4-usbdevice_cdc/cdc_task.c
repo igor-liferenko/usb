@@ -92,9 +92,7 @@ void cdc_task_init(void)
    Joy_init();
    Hwb_button_init();
    Usb_enable_sof_interrupt();
-#ifdef __GNUC__
    fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
-#endif
 }
 
 
@@ -185,12 +183,7 @@ void sof_action()
 //! @param none
 //!
 //! @return none
-#ifdef __GNUC__
  ISR(USART1_RX_vect)
-#else
-#pragma vector = USART1_RX_vect
-__interrupt void usart_receive_interrupt()
-#endif
 {
    U8 i=0;
    U8 save_ep;

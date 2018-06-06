@@ -50,26 +50,6 @@
 
 //_____ D E C L A R A T I O N ______________________________________________
 
-//! Set_cpu_prescaler.
-//!
-//! This function write the CPU prescaler register to a define value
-//!
-//! @param U8 the precaler value to be written
-//!
-//! @return none.
-//!
-#ifndef __GNUC__
-   #pragma optimize=none 
-   void Set_cpu_prescaler(U8 x)
-   {
-      U8 save_int=SREG&0x80;
-      Disable_interrupt();
-      CLKPR=(1<<CLKPCE);
-      CLKPR=x;
-      if(save_int) { Enable_interrupt(); }
-   }
-#endif
-
 //! set_power_down_mode.
 //!
 //! This function makes the AVR core enter power down mode.

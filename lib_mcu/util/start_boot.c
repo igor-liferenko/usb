@@ -44,11 +44,7 @@
 
 void (*start_bootloader) (void)=(void (*)(void))0x3800;
 
-#ifdef __GNUC__
    U32 boot_key __attribute__ ((section (".noinit")));
-#else
-   __no_init U32 boot_key; 
-#endif
    
 
 void start_boot_if_required(void)
@@ -65,13 +61,9 @@ void start_boot(void)
    boot_key=0x55AAAA55;
    
    // Enable the WDT for reset mode
-   #ifndef  __GNUC__
-      Wdt_change_16ms();
-   #else
       wdt_reset();
       Wdt_change_enable();
       Wdt_enable_16ms();
-   #endif
    while(1);
 }
 

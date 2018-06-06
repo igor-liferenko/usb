@@ -189,12 +189,7 @@ void usb_task(void)
 //! @param none
 //!
 //! @return none
-#ifdef __GNUC__
  ISR(USB_GEN_vect)
-#else
-#pragma vector = USB_General_vect
-__interrupt void usb_general_interrupt()
-#endif
 {
   //- VBUS state detection
    if (Is_usb_vbus_transition() && Is_usb_vbus_interrupt_enabled())
