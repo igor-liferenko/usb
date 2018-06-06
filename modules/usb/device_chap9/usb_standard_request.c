@@ -88,11 +88,7 @@ static  bit  zlp;
 static  U8   endpoint_status[MAX_EP_NB];
 static  U8   device_status=DEVICE_STATUS;
 
-#ifdef __GNUC__
         PGM_VOID_P pbuffer;
-#else
-        U8   code *pbuffer;
-#endif
         U8   data_to_transfer;
 
         U16  wInterface;
@@ -322,11 +318,7 @@ U8   nb_byte;
             break;
          }
 
-#ifndef __GNUC__
-         Usb_write_byte(*pbuffer++);
-#else    // AVRGCC does not support point to PGM space
          Usb_write_byte(pgm_read_byte_near((unsigned int)pbuffer++));
-#endif
          data_to_transfer --;
       }
 
