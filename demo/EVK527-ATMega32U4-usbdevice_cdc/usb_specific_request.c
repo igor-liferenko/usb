@@ -58,7 +58,7 @@
 
 //_____ P R I V A T E   D E C L A R A T I O N ______________________________
 
-extern U8   code *pbuffer;
+extern U8   *pbuffer;
 extern U8   data_to_transfer;
 extern S_line_coding   line_coding;
 extern S_line_status line_status;
