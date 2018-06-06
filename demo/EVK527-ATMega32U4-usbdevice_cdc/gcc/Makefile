@@ -6,7 +6,7 @@ OUTPUT = default
 
 # General Flags
 TARGET = $(PROJECT).elf
-CC = avr-gcc.exe
+CC = avr-gcc
 MAKECFG   = config.mk
 
 # Options common to compile, link and assembly rules
