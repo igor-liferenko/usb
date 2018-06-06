@@ -61,7 +61,7 @@
 //_____ D E F I N I T I O N ________________________________________________
 
 // usb_user_device_descriptor
-code S_usb_device_descriptor usb_dev_desc =
+code const S_usb_device_descriptor usb_dev_desc =
 {
   sizeof(usb_dev_desc)
 , DESCRIPTOR_DEVICE
@@ -80,7 +80,7 @@ code S_usb_device_descriptor usb_dev_desc =
 };
 
 // usb_user_configuration_descriptor FS
-code S_usb_user_configuration_descriptor usb_conf_desc = {
+code const S_usb_user_configuration_descriptor usb_conf_desc = {
  { sizeof(S_usb_configuration_descriptor)
  , DESCRIPTOR_CONFIGURATION
  //, Usb_write_word_enum_struc(sizeof(usb_conf_desc_kbd))
@@ -146,7 +146,7 @@ code S_usb_user_configuration_descriptor usb_conf_desc = {
 
 
                                       // usb_user_manufacturer_string_descriptor
-code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor = {
+code const S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor = {
   sizeof(usb_user_manufacturer_string_descriptor)
 , DESCRIPTOR_STRING
 , USB_MANUFACTURER_NAME
@@ -155,7 +155,7 @@ code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descripto
 
                                       // usb_user_product_string_descriptor
 
-code S_usb_product_string_descriptor usb_user_product_string_descriptor = {
+code const S_usb_product_string_descriptor usb_user_product_string_descriptor = {
   sizeof(usb_user_product_string_descriptor)
 , DESCRIPTOR_STRING
 , USB_PRODUCT_NAME
@@ -164,7 +164,7 @@ code S_usb_product_string_descriptor usb_user_product_string_descriptor = {
 
                                       // usb_user_serial_number
 
-code S_usb_serial_number usb_user_serial_number = {
+code const S_usb_serial_number usb_user_serial_number = {
   sizeof(usb_user_serial_number)
 , DESCRIPTOR_STRING
 , USB_SERIAL_NUMBER
@@ -173,7 +173,7 @@ code S_usb_serial_number usb_user_serial_number = {
 
                                       // usb_user_language_id
 
-code S_usb_language_id usb_user_language_id = {
+code const S_usb_language_id usb_user_language_id = {
   sizeof(usb_user_language_id)
 , DESCRIPTOR_STRING
 , Usb_write_word_enum_struc(LANGUAGE_ID)

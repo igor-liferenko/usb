@@ -101,8 +101,6 @@ static  U8   bmRequestType;
         U8      remote_wakeup_feature=DISABLE; 
         U8   usb_configuration_nb;
 extern  bit     usb_connected;
-extern  code    S_usb_device_descriptor             usb_user_device_descriptor;
-extern  code    S_usb_user_configuration_descriptor usb_user_configuration_descriptor;
 
 U8      usb_remote_wup_feature;  // Store ENABLED value if a SetFeature(RemoteWakeUp) has been received
 

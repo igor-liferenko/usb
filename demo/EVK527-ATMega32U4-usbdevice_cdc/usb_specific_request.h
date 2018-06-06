@@ -47,14 +47,12 @@
 
 /*_____ M A C R O S ________________________________________________________*/
 
-extern  code S_usb_device_descriptor usb_dev_desc;
-extern  code S_usb_user_configuration_descriptor usb_conf_desc;
-extern  code S_usb_user_configuration_descriptor usb_other_conf_desc;
-extern  code S_usb_device_qualifier_descriptor usb_qual_desc;
-extern  code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor;
-extern  code S_usb_product_string_descriptor usb_user_product_string_descriptor;
-extern  code S_usb_serial_number usb_user_serial_number;
-extern  code S_usb_language_id usb_user_language_id;
+extern  code const S_usb_device_descriptor usb_dev_desc;
+extern  code const S_usb_user_configuration_descriptor usb_conf_desc;
+extern  code const S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor;
+extern  code const S_usb_product_string_descriptor usb_user_product_string_descriptor;
+extern  code const S_usb_serial_number usb_user_serial_number;
+extern  code const S_usb_language_id usb_user_language_id;
 
 
 
