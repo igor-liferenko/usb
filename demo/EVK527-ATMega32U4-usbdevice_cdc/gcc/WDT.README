@@ -1,3 +1,5 @@
+When reboot is done in cdc_task() via watchdog, WDRF is set.
+So, we need to clear it, and we also need to clear WDE because it depends on WDRF (?).
 See "The sequence for clearing WDE" in datasheet:
 wdt_reset();
 MCUSR &= ~(1<<WDRF);
