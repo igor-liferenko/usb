@@ -28,10 +28,8 @@ The sample dual role application is based on two different tasks:
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-   wdt_reset();
-   Wdt_clear_flag();
-   Wdt_change_enable();
-   Wdt_stop();
+  DDRC |= 1<<PC7;
+  if (WDTCSR & (1<<WDE)) PORTC |= 1<<PC7; /* check that this does not happen and remove */
    start_boot_if_required();
    Clear_prescaler();
    scheduler();
