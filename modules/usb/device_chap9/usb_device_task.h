@@ -81,17 +81,6 @@ void usb_start_device  (void);
 //! @return none
 void usb_device_task   (void);
 
-#ifdef USE_USB_AUTOBAUD
-//! @brief USB based autobaud function
-//!
-//! This function configures the pll prescaler to get USB functionnnal with current XTAL
-//!
-//! @param none
-//!
-//! @return none
-void usb_autobaud(void);
-#endif
-
 //! @}
 
 #endif /* _USB_DEVICE_TASK_H_ */

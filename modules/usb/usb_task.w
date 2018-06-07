@@ -203,11 +203,7 @@ void usb_task(void)
    {
       if(Is_pll_ready()==FALSE)
       {
-         #ifdef USE_USB_AUTOBAUD
-            usb_autobaud();
-         #else
             Pll_start_auto();
-         #endif
          Wait_pll_ready();
       }
       Usb_unfreeze_clock();

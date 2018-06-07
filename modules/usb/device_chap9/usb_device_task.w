@@ -27,9 +27,6 @@
 #include "usb_descriptors.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
 #include "lib_mcu/pll/pll_drv.h"
-#ifdef USE_USB_AUTOBAUD
-#include "lib_mcu/wdt/wdt_drv.h"
-#endif
 
 //_____ M A C R O S ________________________________________________________
 
@@ -102,11 +99,7 @@ void usb_device_task_init(void)
 void usb_start_device (void)
 {
    Usb_freeze_clock();
-#ifndef USE_USB_AUTOBAUD
    Pll_start_auto();
-#else
-   usb_autobaud();
-#endif
    Wait_pll_ready();
    Usb_unfreeze_clock();
    Usb_attach();
@@ -158,53 +151,3 @@ void usb_device_task(void)
       usb_process_request();
    }
 }
-
-
-#ifdef USE_USB_AUTOBAUD
-#warning CAUTION Preliminary USB autobaud for USB DFU bootloader Only... 
-//! @brief USB devive autobaud
-//!
-//! This function performs an autobaud configuration for the USB interface.
-//! the autobaud function performs the configuration of the PLL dedicated to the USB interface.
-//! The autobaud algorithm consists in trying each USB PLL until the correct detection of Start
-//! of Frame (USB SOF).
-//!
-//! @warning Code:?? bytes (function code length)
-//!
-//! @param none
-//!
-//! @return none
-void usb_autobaud(void)
-{
-
-   U16 count_rc=0;
-
-   volatile U16 tempo;
-   
-   Wdt_change_interrupt_16ms();
-   TCCR1B=0x00; TCCR1A=0x00;
-   TCNT1=0x00;  TIFR1=0x01;            //! Clear TOV2 flag and counter value
-   
-   TCCR1B|=(1<<CS01) |(1<<CS00);       // ClkIO/64, with prescaler /2 -> XTAL/128
-
-   while(Is_not_wdt_interrupt());
-   Wdt_ack_interrupt();
-   TCCR1B=0;
-   Wdt_off();
-
-   
-   count_rc=TCNT1;
-   TCCR1B=0x00; TCCR1A=0x00;
-   TCNT1=0x00;  TIFR1=0x01;            //! Clear TOV2 flag and counter value  
-   if(count_rc>1500)                   // 16MHz/128 with 16ms watchdog gives 2000 ticks
-   {
-      Start_pll(PLL_IN_PRESCAL_ENABLE);               //! FOSC 16MHz
-   }
-   else
-   {
-      Start_pll(PLL_IN_PRESCAL_DISABLE);                //! FOSC 8MHz
-   }
-   
-}
-#endif
-
