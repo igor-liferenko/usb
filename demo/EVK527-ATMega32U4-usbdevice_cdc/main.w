@@ -27,7 +27,8 @@ int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
   DDRC |= 1<<PC7;
-  if (WDTCSR & (1<<WDE)) PORTC |= 1<<PC7; /* check that this does not happen and remove */
+  if (WDTCSR & (1<<WDE)) PORTC |= 1<<PC7; /* check that this does not happen and remove and add
+    result to WDT.README */
    Clear_prescaler();
    scheduler();
    return 0;
