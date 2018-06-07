@@ -1,3 +1,4 @@
+@ @c
 /*This file has been prepared for Doxygen automatic documentation generation.*/
 //! \file *********************************************************************
 //!
