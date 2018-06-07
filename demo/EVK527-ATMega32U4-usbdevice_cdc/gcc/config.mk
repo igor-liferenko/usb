@@ -8,7 +8,6 @@ MCU = atmega32u4
 
 # Source files
 CSRCS = \
-  ../../../lib_mcu/util/start_boot.c\
   ../../../lib_mcu/uart/uart_lib.c\
   ../uart_usb_lib.c\
   ../usb_descriptors.c\

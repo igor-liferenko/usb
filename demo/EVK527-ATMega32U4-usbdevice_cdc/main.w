@@ -23,14 +23,12 @@ The sample dual role application is based on two different tasks:
 #include "lib_mcu/wdt/wdt_drv.h"
 #include "lib_mcu/power/power_drv.h"
 #include "lib_mcu/usb/usb_drv.h"
-#include "lib_mcu/util/start_boot.h"
 
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
   DDRC |= 1<<PC7;
   if (WDTCSR & (1<<WDE)) PORTC |= 1<<PC7; /* check that this does not happen and remove */
-   start_boot_if_required();
    Clear_prescaler();
    scheduler();
    return 0;

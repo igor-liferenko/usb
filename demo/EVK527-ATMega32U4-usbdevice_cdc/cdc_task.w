@@ -23,7 +23,6 @@
 #include "usb_specific_request.h"
 #include "lib_mcu/uart/uart_lib.h"
 #include "uart_usb_lib.h"
-#include "lib_mcu/util/start_boot.h"
 #include <stdio.h>
 
 
@@ -101,7 +100,8 @@ void cdc_task(void)
       if(usb_request_break_generation==TRUE)
       {
          usb_request_break_generation=FALSE;
-         start_boot();
+         PORTC |= 1<<PC7; /* see \.{start\_boot} in git lg and enable watchdog timer - see
+           commit previous to the commit where this comment was added */
       }
    }
 }
