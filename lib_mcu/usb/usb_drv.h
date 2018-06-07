@@ -142,17 +142,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
                                                        Host_build_pipe_config1(size, bank)    ))
 //! @}
 
-//! @defgroup USB_regulator USB Pads Regulator drivers
-//! Turns ON/OFF USB pads regulator
-//! @{
-   //! Enable internal USB pads regulator
-#define Usb_enable_regulator()          (UHWCON |= (1<<UVREGE))
-   //! Disable internal USB pads regulator
-#define Usb_disable_regulator()         (UHWCON &= ~(1<<UVREGE))
-   //! Check regulator enable bit
-#define Is_usb_regulator_enabled()      ((UHWCON &  (1<<UVREGE))  ? TRUE : FALSE)
-//! @}
-
 //! @defgroup gen_usb USB common management drivers
 //! These macros manage the USB controller
 //! @{

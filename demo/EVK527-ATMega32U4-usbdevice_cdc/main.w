@@ -27,7 +27,7 @@ The sample dual role application is based on two different tasks:
 
 int main(void)
 {
-   Usb_enable_regulator();
+   UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
    wdt_reset();
    Wdt_clear_flag();
    Wdt_change_enable();

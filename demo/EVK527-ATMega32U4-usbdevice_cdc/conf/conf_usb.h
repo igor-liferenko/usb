@@ -37,21 +37,6 @@
 
    //! @}
 
-   // _________________ USB REGULATOR CONFIGURATION _______________________
-   //
-   //! @defgroup USB_reg_mode USB regulator configuration
-   //! @{
-
-   //! @brief Enable the internal regulator for USB pads
-   //!
-   //! When the application voltage is lower than 3.5V, to optimize power consumption
-   //! the internal USB pads regulatr can be disabled.
-#ifndef USE_USB_PADS_REGULATOR
-   #define USE_USB_PADS_REGULATOR   DISABLE      // Possible values ENABLE or DISABLE
-#endif
-   //! @}
-
-
 // _________________ DEVICE MODE CONFIGURATION __________________________
 
    //! @defgroup USB_device_mode_cfg USB device operating mode configuration

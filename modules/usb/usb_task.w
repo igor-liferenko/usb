@@ -36,10 +36,6 @@
 #include "lib_mcu/pll/pll_drv.h"
 #include "modules/usb/device_chap9/usb_device_task.h"
 
-#ifndef  USE_USB_PADS_REGULATOR
-   #error "USE_USB_PADS_REGULATOR" should be defined as ENABLE or DISABLE in conf_usb.h file
-#endif
-
 //_____ M A C R O S ________________________________________________________
 
 
@@ -122,9 +118,6 @@ extern volatile S_pipe_int   it_pipe_str[MAX_EP_NB];
  */
 void usb_task_init(void)
 {
-   #if (USE_USB_PADS_REGULATOR==ENABLE)  // Otherwise assume USB PADs regulator is not used
-   Usb_enable_regulator();
-   #endif
    usb_device_task_init();
 #if (USB_REMOTE_WAKEUP == ENABLED)
    usb_remote_wup_feature = DISABLED;
