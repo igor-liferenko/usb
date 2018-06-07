@@ -17,7 +17,7 @@
 #ifndef _POWER_DRV_H_
 #define _POWER_DRV_H_
 
-   #include <avr/power.h>
+   #include <avr/power.h> /* |clock_prescale_set| */
    
 
 
@@ -33,17 +33,6 @@
 #define Setup_power_save_mode()                  (SMCR=0,SMCR |= (1<<SE)+(1<<SM1)+(1<<SM0))
 #define Setup_standby_mode()                     (SMCR=0,SMCR |= (1<<SE)+(1<<SM2)+(1<<SM1))
 #define Setup_ext_standby_mode()                  (SMCR=0,SMCR |= (1<<SE)+(1<<SM2)+(1<<SM1)+(1<<SM0))
-
-//! Clear_prescaler.
-//!
-//! This function reset the internal CPU core clock prescaler
-//!
-//!
-//! @param none
-//!
-//! @return none.
-//!
-   #define Clear_prescaler()                       (clock_prescale_set(0))
 
 //! Set_prescaler.
 //!

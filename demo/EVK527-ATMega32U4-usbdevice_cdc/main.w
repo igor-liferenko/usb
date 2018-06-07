@@ -29,7 +29,7 @@ int main(void)
   DDRC |= 1<<PC7;
   if (WDTCSR & (1<<WDE)) PORTC |= 1<<PC7; /* check that this does not happen and remove and
     uncomment PC7 in \.{cdc\_task.w} and add result to WDT.README */
-   Clear_prescaler();
+  clock_prescale_set(0); /* clear the internal CPU core clock prescaler */
    scheduler();
    return 0;
 }
@@ -43,6 +43,6 @@ and remove std prologue/epilogue
 char __low_level_init(void) __attribute__ ((section (".init3"),naked));
 char __low_level_init()
 {
-  Clear_prescaler();
+  clock_prescale_set(0); /* clear the internal CPU core clock prescaler */
   return 1;
 }
