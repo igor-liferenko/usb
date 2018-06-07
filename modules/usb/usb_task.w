@@ -32,7 +32,6 @@
 #include "lib_mcu/usb/usb_drv.h"
 #include "usb_descriptors.h"
 #include "lib_mcu/power/power_drv.h"
-#include "lib_mcu/wdt/wdt_drv.h"
 #include "lib_mcu/pll/pll_drv.h"
 #include "modules/usb/device_chap9/usb_device_task.h"
 

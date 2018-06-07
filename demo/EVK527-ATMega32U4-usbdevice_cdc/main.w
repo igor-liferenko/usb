@@ -20,7 +20,6 @@ The sample dual role application is based on two different tasks:
 @c
 #include "config.h"
 #include "modules/scheduler/scheduler.h"
-#include "lib_mcu/wdt/wdt_drv.h"
 #include "lib_mcu/power/power_drv.h"
 #include "lib_mcu/usb/usb_drv.h"
 
