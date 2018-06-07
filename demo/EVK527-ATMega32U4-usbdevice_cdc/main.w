@@ -2,7 +2,7 @@
 with the ATmega32U4 controller.
 
 This application will enumerate as a CDC (communication device class) virtual COM port.
-The application can be used as a USB to serial converter. 
+The application can be used as a USB to serial converter.
 
 Changes: now does not allow to send data before end enumeration AND open port detection.
 
