@@ -1,0 +1,5 @@
+See "The sequence for clearing WDE" in datasheet:
+wdt_reset();
+MCUSR &= ~(1<<WDRF);
+WDTCSR |= (1<<WDCE) | (1<<WDE);
+WDTCSR &= ~((1<<WDCE) | (1<<WDE));
