@@ -1,29 +1,6 @@
 @ @c
-/*This file has been prepared for Doxygen automatic documentation generation.*/
-//! \file *********************************************************************
-//!
-//! \brief This file provides a minimal VT100 terminal access through UART
-//! and compatibility with Custom I/O support
-//!
-//! - Compiler:           IAR EWAVR and GNU GCC for AVR
-//! - Supported devices:  ATmega32U4
-//!
-//! \author               Atmel Corporation: http://www.atmel.com \n
-//!                       Support and FAQ: http://support.atmel.no/
-//!
-//! ***************************************************************************
-
-/*_____ I N C L U D E S ____________________________________________________*/
 #include "config.h"
 #include "lib_mcu/uart/uart_lib.h"
-
-
-/*_____ G L O B A L    D E F I N I T I O N _________________________________*/
-
-
-/*_____ D E F I N I T I O N ________________________________________________*/
-
-/*_____ M A C R O S ________________________________________________________*/
 
 
 bit uart_test_hit (void)
@@ -31,19 +8,11 @@ bit uart_test_hit (void)
 return Uart_rx_ready();
 }
 
-
 bit uart_init (void)
 {
-#ifndef UART_U2
-  Uart_set_baudrate(BAUDRATE);
-  Uart_hw_init(UART_CONFIG);
-#else
-  Uart_set_baudrate(BAUDRATE/2);
-  Uart_double_bdr();
-  Uart_hw_init(UART_CONFIG);
-
-#endif
-  Uart_enable();
+  UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)57600/2*16)-1); @+ UCSR1A |= 1 << U2X1; /* 57600 */
+  UCSR1C = 0x06; /* 8N1 */
+  UCSR1B |= (1 << RXEN1) | (1 << TXEN1); /* enable uart */
   return TRUE;
 }
 
@@ -69,5 +38,4 @@ char uart_getchar (void)
   Uart_ack_rx_byte();
   return c;
 }
-
 

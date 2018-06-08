@@ -193,11 +193,7 @@ void cdc_set_line_coding (void)
 
      Usb_send_control_in();                // send a ZLP for STATUS phase
      while(!(Is_usb_read_control_enabled()));
-#ifdef UART_U2
-   Uart_set_baudrate((line_coding.dwDTERate)/2);
-#else
-   Uart_set_baudrate(line_coding.dwDTERate);
-#endif
+   UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)line_coding.dwDTERate*16)-1);
 }
 
 

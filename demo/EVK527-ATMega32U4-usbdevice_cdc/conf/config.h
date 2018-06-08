@@ -34,11 +34,6 @@
 
 // -------- END Generic Configuration -------------------------------------
 
-// UART Sample configuration, if we have one ... __________________________
-#define BAUDRATE        57600
-#define USE_UART2
-#define UART_U2
-
 //#define uart_putchar putchar
 #define r_uart_ptchar int
 #define p_uart_ptchar int

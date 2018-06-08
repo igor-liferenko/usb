@@ -8,7 +8,7 @@ Changes: now does not allow to send data before end enumeration AND open port de
 
 Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
 unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
-(use ``\.{http://www.engbedded.com/fusecalc}'').
+(use \.{http://www.engbedded.com/fusecalc}).
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
