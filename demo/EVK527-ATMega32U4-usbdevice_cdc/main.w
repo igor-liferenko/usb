@@ -26,7 +26,6 @@ The sample dual role application is based on two different tasks:
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-  DDRC |= 1 << PC7;
    scheduler();
    return 0;
 }
