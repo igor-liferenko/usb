@@ -100,7 +100,7 @@ void cdc_task(void)
       if(usb_request_break_generation==TRUE)
       {
          usb_request_break_generation=FALSE;
-         /*PORTC |= 1<<PC7;*/ /* see \.{start\_boot} in git lg and enable watchdog timer - see
+         PORTC |= 1<<PC7; /* see \.{start\_boot} in git lg and enable watchdog timer - see
            commit previous to the commit where this comment was added */
       }
    }
