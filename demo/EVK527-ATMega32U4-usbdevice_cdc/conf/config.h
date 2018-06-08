@@ -28,14 +28,14 @@
 #undef  USE_ADC
 
 //! CPU core frequency in kHz
-#define FOSC 8000
+#define FOSC 16000
 #define PLL_OUT_FRQ  PLL_OUT_96MHZ
 
 
 // -------- END Generic Configuration -------------------------------------
 
 // UART Sample configuration, if we have one ... __________________________
-#define BAUDRATE        38400
+#define BAUDRATE        57600
 #define USE_UART2
 #define UART_U2
 
