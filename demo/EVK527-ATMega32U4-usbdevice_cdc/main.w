@@ -6,14 +6,15 @@ The application can be used as a USB to serial converter.
 
 Changes: now does not allow to send data before end enumeration AND open port detection.
 
-Ensure that the following fuses are unprogrammed: WDTON, CKDIV8, CKSEL3.
-Use ``\.{avrdude -c usbasp -p m32u4}'' + ``\.{http://www.engbedded.com/fusecalc}''.
+Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
+unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
+(use ``\.{http://www.engbedded.com/fusecalc}'').
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
-The scheduler is a simple infinite loop calling all its tasks defined in the conf_scheduler.h file.
-No real time schedule is performed, when a task ends, the scheduler calls the next task defined in
-the configuration file (\.{conf\_scheduler.h}).
+The scheduler is a simple infinite loop calling all its tasks defined in the \.{conf\_scheduler.h}
+file. No real time schedule is performed, when a task ends, the scheduler calls the next task
+defined in the configuration file (\.{conf\_scheduler.h}).
 
 The sample dual role application is based on two different tasks:
 \item{-} The |usb_task| (\.{usb\_task.c} associated source file), is the task performing the USB
