@@ -1,9 +1,15 @@
-When reboot is done in cdc_task() via watchdog, WDRF is set.
-So, we need to clear it, and we also need to clear WDE because it depends on WDRF (?).
-See "The sequence for clearing WDE" in datasheet:
-wdt_reset();
-MCUSR &= ~(1<<WDRF);
+When reboot is done in cdc_task() via watchdog, WDRF (WatchDog Reset Flag) is set, which
+in turn sets WDE (WatchDog system reset Enable). To clear WDE, WDRF must be cleared first.
+To avoid unintentional changes of WDE, a special write procedure must be followed
+to change the WDE bit.
+If you revert reboot to cdc_task() (if green led is turned on), put the following lines to the very beginning of main() (see last paragraph in "MCU Status Register – MCUSR" + "The sequence for clearing WDE" in datasheet):
+MCUSR = 0;
 WDTCSR |= (1<<WDCE) | (1<<WDE);
 WDTCSR &= ~((1<<WDCE) | (1<<WDE));
+
+-------------------------------------------------
+
+in cdc_task wdt_reset() is necessary - see Note to "function for changing the time-out
+value of the Watchdog Timer" in datasheet
 
 #include <avr/wdt.h> /* |wdt_reset| */
