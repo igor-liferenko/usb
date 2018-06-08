@@ -29,7 +29,7 @@
 
 //! CPU core frequency in kHz
 #define FOSC 16000
-#define PLL_OUT_FRQ  PLL_OUT_96MHZ
+#define PLL_OUT_FRQ  PLL_OUT_48MHZ
 
 
 // -------- END Generic Configuration -------------------------------------
