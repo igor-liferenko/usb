@@ -6,6 +6,9 @@ The application can be used as a USB to serial converter.
 
 Changes: now does not allow to send data before end enumeration AND open port detection.
 
+Ensure that the following fuses are unprogrammed: WDTON, CKDIV8, CKSEL3.
+Use ``\.{avrdude -c usbasp -p m32u4}'' + ``\.{http://www.engbedded.com/fusecalc}''.
+
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
 The scheduler is a simple infinite loop calling all its tasks defined in the conf_scheduler.h file.
