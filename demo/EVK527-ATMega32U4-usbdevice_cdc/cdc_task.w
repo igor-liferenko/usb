@@ -58,10 +58,6 @@ volatile U8 rs2usb[10];
 //!/
 void cdc_task_init(void)
 {
-  UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)57600/2*16)-1); @+ UCSR1A |= 1 << U2X1; /* 57600 */
-  UCSR1C = (1 << UCSZ11) | (1 << UCSZ10); /* 8N1 */
-  UCSR1B |= (1 << RXEN1) | (1 << TXEN1); /* enable uart */
-   UCSR1B |= 1 << RXCIE1;
    Usb_enable_sof_interrupt();
    fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
 }
