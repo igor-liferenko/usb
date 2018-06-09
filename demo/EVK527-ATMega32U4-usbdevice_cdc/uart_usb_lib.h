@@ -16,9 +16,7 @@
 
 void  uart_usb_init(void);
 bit   uart_usb_test_hit(void);
-char uart_usb_getchar(void);
 bit   uart_usb_tx_ready(void);
-int  uart_usb_putchar(int);
 void  uart_usb_flush(void);
 void uart_usb_send_buffer(U8 *buffer, U8 nb_data);
 

@@ -22,8 +22,6 @@
 #include "modules/usb/device_chap9/usb_standard_request.h"
 #include "usb_specific_request.h"
 #include "uart_usb_lib.h"
-#include <stdio.h>
-
 
 //_____ M A C R O S ________________________________________________________
 
@@ -59,7 +57,6 @@ volatile U8 rs2usb[10];
 void cdc_task_init(void)
 {
    Usb_enable_sof_interrupt();
-   fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
 }
 
 
@@ -79,28 +76,44 @@ void cdc_task(void)
         while (rx_counter) {
           while(!(UCSR1A & (1<<UDRE1))) ;
           (void) 0; /* always set Busy flag before sending (not implemented) */
-          UDR1 = uart_usb_getchar();
+          @<Read one byte from the USB bus...@>@;
         }
       }
     }
 
-      if ( cpt_sof>=REPEAT_KEY_PRESSED)   //Debounce joystick events
-      {
-         printf("Hello from ATmega32U4 !\r\n");
-         
-         cdc_update_serial_state();
-      }
+    if ( cpt_sof>=REPEAT_KEY_PRESSED) { //Debounce joystick events
+      @<Put byte to the USB transmit buffer@>@;
+      cdc_update_serial_state();
+    }
 
-      if(usb_request_break_generation==TRUE)
-      {
+    if (usb_request_break_generation==TRUE) {
          usb_request_break_generation=FALSE;
          DDRC |= 1 << PC7;
          PORTC |= 1<<PC7; /* see \.{start\_boot} in git lg and enable watchdog timer - see
            commit previous to the commit where this comment was added */
-      }
+    }
   }
 }
 
+@ If one byte is present in the USB fifo, this byte is returned. If no data
+is present in the USB fifo, wait for USB data.
+
+@<Read one byte from the USB bus and send it to UART@>=
+Usb_select_endpoint(RX_EP);
+if (!rx_counter) while (!uart_usb_test_hit());
+UDR1 = Usb_read_byte();
+rx_counter--;
+if (!rx_counter) Usb_ack_receive_out();
+
+@ The buffer is sent if complete. To flush this buffer before waiting full, launch
+|uart_usb_flush|.
+
+@<Put byte to the USB transmit buffer@>=
+int data_to_send = 'X';
+uart_usb_send_buffer((U8*)&data_to_send, 1);
+
+
+@ @c
 //! @brief sof_action
 //!
 //! This function increments the cpt_sof counter each times

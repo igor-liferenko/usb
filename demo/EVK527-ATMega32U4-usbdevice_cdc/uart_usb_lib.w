@@ -59,25 +59,6 @@ bit uart_usb_test_hit(void)
   return (rx_counter!=0);
 }
 
-/** 
-  * @brief This function reads one byte from the USB bus
-  *
-  * If one byte is present in the USB fifo, this byte is returned. If no data
-  * is present in the USB fifo, this function waits for USB data.
-  * 
-  * @return U8 byte received
-  */
-char uart_usb_getchar(void)
-{
-  register Uchar data_rx;
-
-  Usb_select_endpoint(RX_EP);
-  if (!rx_counter) while (!uart_usb_test_hit());
-  data_rx=Usb_read_byte();
-  rx_counter--;
-  if (!rx_counter) Usb_ack_receive_out();
-  return data_rx;
-}
 
 
 /** 
@@ -95,20 +76,6 @@ bit uart_usb_tx_ready(void)
   return TRUE;
 }
 
-/** 
-  * @brief This function fills the USB transmit buffer with the new data. This buffer
-  * is sent if complete. To flush this buffer before waiting full, launch
-  * the uart_usb_flush() function.
-  * 
-  * @param data_to_send 
-  * 
-  * @return 
-  */
-int uart_usb_putchar(int data_to_send)
-{
-   uart_usb_send_buffer((U8*)&data_to_send, 1);
-   return data_to_send;
-}
 
 
 
