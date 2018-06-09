@@ -11,7 +11,7 @@ return Uart_rx_ready();
 bit uart_init (void)
 {
   UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)57600/2*16)-1); @+ UCSR1A |= 1 << U2X1; /* 57600 */
-  UCSR1C = 0x06; /* 8N1 */
+  UCSR1C = (1 << UCSZ11) | (1 << UCSZ10); /* 8N1 */
   UCSR1B |= (1 << RXEN1) | (1 << TXEN1); /* enable uart */
   return TRUE;
 }
