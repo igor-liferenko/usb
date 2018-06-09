@@ -2,12 +2,6 @@
 #include "config.h"
 #include "lib_mcu/uart/uart_lib.h"
 
-
-bit uart_test_hit (void)
-{
-return Uart_rx_ready();
-}
-
 bit uart_init (void)
 {
   UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)57600/2*16)-1); @+ UCSR1A |= 1 << U2X1; /* 57600 */
@@ -16,26 +10,12 @@ bit uart_init (void)
   return TRUE;
 }
 
-
+// used to transfer from USB to USART in cdc_task.w
 r_uart_ptchar uart_putchar (p_uart_ptchar ch)
 {
-  while(!Uart_tx_ready());
-  Uart_set_tx_busy(); // Set Busy flag before sending (always)
-  Uart_send_byte(ch);
+  while(!(UCSR1A & (1<<UDRE1))) ;
+  (void) 0; /* always set Busy flag before sending (not implemented) */
+  UDR1=ch;
    
   return ch;
 }
-
-
-
-
-char uart_getchar (void)
-{
-  register char c;
-
-  while(!Uart_rx_ready());
-  c = Uart_get_byte();
-  Uart_ack_rx_byte();
-  return c;
-}
-

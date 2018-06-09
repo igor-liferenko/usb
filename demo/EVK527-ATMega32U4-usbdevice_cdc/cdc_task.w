@@ -60,7 +60,7 @@ volatile U8 rs2usb[10];
 void cdc_task_init(void)
 {
    uart_init();
-   Uart_enable_it_rx();
+   UCSR1B |= 1 << RXCIE1;
    Usb_enable_sof_interrupt();
    fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
 }
@@ -79,8 +79,7 @@ void cdc_task(void)
       
    if(Is_device_enumerated() && line_status.DTR) //Enumeration processs OK and COM port openned ?
         {
-      if (Uart_tx_ready())    //USART free ?
-      {
+      if (UCSR1A & (1<<UDRE1)) { /* can we send? */
          if (uart_usb_test_hit())   // Something received from the USB ?
          {
              while (rx_counter)
@@ -140,9 +139,8 @@ void sof_action()
       Usb_select_endpoint(TX_EP);
       do 
       {
-         if(Uart_rx_ready())
-         {
-            rs2usb[i]=Uart_get_byte();
+         if(UCSR1A & (1<<RXC1)) { /* if a character was received */
+            rs2usb[i]=UDR1;
             i++;
          }
       }while(Is_usb_write_enabled()==FALSE );
