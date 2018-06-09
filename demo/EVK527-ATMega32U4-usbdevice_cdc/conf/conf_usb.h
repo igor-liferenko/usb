@@ -61,7 +61,6 @@
    // be carefull not to waste time in order not disturbing the functions
 #define Usb_resume_action()
 #define Usb_reset_action()
-#define Usb_vbus_off_action()
 #define Usb_set_configuration_action()
    //! @}
 
