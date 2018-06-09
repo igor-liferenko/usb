@@ -26,10 +26,49 @@ The sample dual role application is based on two different tasks:
 #include "modules/scheduler/scheduler.h"
 #include "lib_mcu/power/power_drv.h"
 #include "lib_mcu/usb/usb_drv.h"
+#include "modules/usb/device_chap9/usb_device_task.h"
+#include "modules/usb/usb_task.h"
+#include "modules/usb/device_chap9/usb_standard_request.h"
+
+extern U8    usb_configuration_nb;
 
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-   scheduler();
+   usb_task_init();
+   while (1) {
+         @<USB device task@>@;
+         cdc_task();
+   }
    return 0;
 }
+
+@ This function is the entry point of the USB management. Each USB
+event is checked here in order to launch the appropriate action.
+If a Setup request occurs on the Default Control Endpoint,
+the usb_process_request() function is call in the usb_standard_request.c file
+
+@<USB device task@>=
+   if (usb_connected == FALSE)
+   {
+     if (Is_usb_vbus_high())    // check if Vbus ON to attach
+     {
+       Usb_enable();
+       usb_connected = TRUE;
+       usb_start_device();
+     }
+   }
+
+   if(Is_usb_event(EVT_USB_RESET))
+   {
+      Usb_ack_event(EVT_USB_RESET);
+      Usb_reset_endpoint(0);
+      usb_configuration_nb=0;
+   }
+
+   // Here connection to the device enumeration process
+   Usb_select_endpoint(EP_CONTROL);
+   if (Is_usb_receive_setup())
+   {
+      usb_process_request();
+   }

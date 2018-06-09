@@ -70,19 +70,5 @@ extern U8 g_usb_mode;
  */
 void usb_task_init     (void);
 
-/**
- *  @brief Entry point of the USB mamnagement
- *
- *  Depending on the mode supported (HOST/DEVICE/DUAL_ROLE) the function
- *  calls the corespong usb management function
- *
- *  @param none
- *
- *  @return none
-*/
-void usb_task          (void);
-
-//! @}
-
 #endif /* _USB_TASK_H_ */
 

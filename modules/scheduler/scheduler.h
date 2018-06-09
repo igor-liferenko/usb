@@ -55,34 +55,11 @@
 
 
 
-#ifdef Scheduler_time_init
-  extern  void Scheduler_time_init   (void);
-#endif
-
   extern  void usb_task_init(void);
 
 
-  extern  void usb_task(void);
   extern  void cdc_task(void);
 
-
-#ifdef TOKEN_MODE
-extern Uchar token;
-#define TOKEN_FREE      0
-#endif
-
-//!_____ D E C L A R A T I O N ______________________________________________
-void scheduler_init         (void);
-void scheduler_tasks        (void);
-void scheduler              (void);
-void scheduler_empty_fct    (void);
-
-  #define Scheduler_set_tick_flag()
-  #define Scheduler_reset_tick_flag()
-
-#ifndef Scheduler_new_schedule
-  #define Scheduler_new_schedule()
-#endif
 
 #endif //! _SCHEDULER_H_
 

@@ -90,20 +90,6 @@ void usb_task_init(void)
    usb_device_task_init();
 }
 
-/**
- *  @brief Entry point of the USB mamnagement
- *
- *  The function calls the coresponding usb management function.
- *
- *  @param none
- *
- *  @return none
-*/
-void usb_task(void)
-{
-   usb_device_task();
-}
-
 //! @brief USB interrupt subroutine
 //!
 //! This function is called each time a USB interrupt occurs.
@@ -124,27 +110,6 @@ void usb_task(void)
 //! @return none
  ISR(USB_GEN_vect)
 {
-  //- VBUS state detection
-   if (Is_usb_vbus_transition() && Is_usb_vbus_interrupt_enabled())
-   {
-      Usb_ack_vbus_transition();
-      if (Is_usb_vbus_high())
-      {
-         usb_connected = TRUE;
-         Usb_vbus_on_action();
-         Usb_send_event(EVT_USB_POWERED);
-         Usb_enable_reset_interrupt();
-         usb_start_device();
-         Usb_attach();
-      }
-      else
-      {
-         Usb_vbus_off_action();
-         usb_connected = FALSE;
-         usb_configuration_nb = 0;
-         Usb_send_event(EVT_USB_UNPOWERED);
-      }
-   }
   // - Resume state bus detection
    if (Is_usb_resume() && Is_resume_interrupt_enabled())
    {

@@ -62,19 +62,5 @@ void usb_device_task_init     (void);
 //!
 void usb_start_device  (void);
 
-//! @brief Entry point of the USB device mamagement
-//!
-//! This function is the entry point of the USB management. Each USB
-//! event is checked here in order to launch the appropriate action.
-//! If a Setup request occurs on the Default Control Endpoint,
-//! the usb_process_request() function is call in the usb_standard_request.c file
-//!
-//! @param none
-//!
-//! @return none
-void usb_device_task   (void);
-
-//! @}
-
 #endif /* _USB_DEVICE_TASK_H_ */
 

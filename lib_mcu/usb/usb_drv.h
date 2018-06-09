@@ -1,146 +1,39 @@
-/*This file has been prepared for Doxygen automatic documentation generation.*/
-//! \file *********************************************************************
-//!
-//! \brief This file contains the USB low level driver definition
-//!
-//! - Compiler:           IAR EWAVR and GNU GCC for AVR
-//! - Supported devices:  ATmega32U4
-//!
-//! \author               Atmel Corporation: http://www.atmel.com \n
-//!                       Support and FAQ: http://support.atmel.no/
-//!
-//! ***************************************************************************
-
 #ifndef _USB_DRV_H_
 #define _USB_DRV_H_
-
-//_____ I N C L U D E S ____________________________________________________
-
-
-typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank, nyet_status} t_endpoint_parameter;
-
-//! @defgroup USB_low_level_drivers USB low level drivers
-//! USB low level drivers Module
-//! @{
-
-//_____ M A C R O S ________________________________________________________
 
 #define MAX_EP_NB             7
 
 #define EP_CONTROL            0
-#define EP_1                  1
-#define EP_2                  2
-#define EP_3                  3
-#define EP_4                  4
-#define EP_5                  5
-#define EP_6                  6
-#define EP_7                  7
-
-#define PIPE_CONTROL          0
-#define PIPE_0                0
-#define PIPE_1                1
-#define PIPE_2                2
-#define PIPE_3                3
-#define PIPE_4                4
-#define PIPE_5                5
-#define PIPE_6                6
-#define PIPE_7                7
 
 // USB EndPoint
 #define MSK_EP_DIR            0x7F
 #define MSK_UADD              0x7F
-#define MSK_EPTYPE            0xC0
-#define MSK_EPSIZE            0x70
-#define MSK_EPBK              0x0C
-#define MSK_DTSEQ             0x0C
-#define MSK_NBUSYBK           0x03
-#define MSK_CURRBK            0x03
-#define MSK_DAT               0xFF  // UEDATX
-#define MSK_BYCTH             0x07  // UEBCHX
-#define MSK_BYCTL             0xFF  // UEBCLX
-#define MSK_EPINT             0x7F  // UEINT
-#define MSK_HADDR             0xFF  // UHADDR
-
-// USB Pipe
-#define MSK_PNUM              0x07  // UPNUM
-#define MSK_PRST              0x7F  // UPRST
-#define MSK_PTYPE             0xC0  // UPCFG0X
-#define MSK_PTOKEN            0x30
-#define MSK_PEPNUM            0x0F
-#define MSK_PSIZE             0x70  // UPCFG1X
-#define MSK_PBK               0x0C
-
-#define MSK_NBUSYBK           0x03
-
-#define MSK_ERROR             0x1F
-
-#define MSK_PTYPE             0xC0  // UPCFG0X
-#define MSK_PTOKEN            0x30
-#define MSK_TOKEN_SETUP       0x30
-#define MSK_TOKEN_IN          0x10
-#define MSK_TOKEN_OUT         0x20
-#define MSK_PEPNUM            0x0F
-
-#define MSK_PSIZE             0x70  // UPCFG1X
-#define MSK_PBK               0x0C
-
 
 // Parameters for endpoint configuration
 // These define are the values used to enable and configure an endpoint.
 #define TYPE_CONTROL             0
-#define TYPE_ISOCHRONOUS         1
 #define TYPE_BULK                2
 #define TYPE_INTERRUPT           3
- //typedef enum ep_type {TYPE_CONTROL, TYPE_BULK, TYPE_ISOCHRONOUS, TYPE_INTERRUPT} e_ep_type;
 
 #define DIRECTION_OUT            0
 #define DIRECTION_IN             1
- //typedef enum ep_dir {DIRECTION_OUT, DIRECTION_IN} e_ep_dir;
 
-#define SIZE_8                   0
-#define SIZE_16                  1
 #define SIZE_32                  2
-#define SIZE_64                  3
-#define SIZE_128                 4
-#define SIZE_256                 5
-#define SIZE_512                 6
-#define SIZE_1024                7
- //typedef enum ep_size {SIZE_8,   SIZE_16,  SIZE_32,  SIZE_64,
- //                      SIZE_128, SIZE_256, SIZE_512, SIZE_1024} e_ep_size;
 
 #define ONE_BANK                 0
-#define TWO_BANKS                1
- //typedef enum ep_bank {ONE_BANK, TWO_BANKS} e_ep_bank;
 
 #define NYET_ENABLED             0
 #define NYET_DISABLED            1
- //typedef enum ep_nyet {NYET_DISABLED, NYET_ENABLED} e_ep_nyet;
-
-#define TOKEN_SETUP              0
-#define TOKEN_IN                 1
-#define TOKEN_OUT                2
 
 #define Is_ep_addr_in(x)         (  (x&USB_ENDPOINT_DIR_MASK)?   TRUE : FALSE)
 
-
-//! @defgroup Endpoints_configuration Configuration macros for endpoints
-//! List of the standard macro used to configure pipes and endpoints
-//! @{
+// Configuration macros for endpoints
 #define Usb_build_ep_config0(type, dir, nyet)     ((type<<6) | (nyet<<1) | (dir))
 #define Usb_build_ep_config1(size, bank     )     ((size<<4) | (bank<<2)        )
 #define usb_configure_endpoint(num, type, dir, size, bank, nyet)             \
                                     ( Usb_select_endpoint(num),              \
                                       usb_config_ep(Usb_build_ep_config0(type, dir, nyet),\
                                                     Usb_build_ep_config1(size, bank)    ))
-
-#define Host_build_pipe_config0(type, token, ep_num)     ((type<<6) | (token<<4) | (ep_num))
-#define Host_build_pipe_config1(size, bank     )         ((size<<4) | (bank<<2)        )
-#define host_configure_pipe(num, type, token,ep_num, size, bank, freq)             \
-                                    ( Host_select_pipe(num),              \
-                                      Host_set_interrupt_frequency(freq), \
-                                      host_config_pipe(Host_build_pipe_config0(type, token, ep_num),\
-                                                       Host_build_pipe_config1(size, bank)    ))
-//! @}
 
 //! @defgroup gen_usb USB common management drivers
 //! These macros manage the USB controller
@@ -180,14 +73,7 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 #define Is_usb_cache_id_transition(x)    (((x) &   (1<<IDTI))  )
 #define Is_usb_cache_vbus_transition(x)  (((x) &   (1<<VBUSTI)))
 
-#define Usb_enable_vbus_interrupt()   (USBCON  |=  (1<<VBUSTE))
-#define Usb_disable_vbus_interrupt()  (USBCON  &= ~(1<<VBUSTE))
-#define Is_usb_vbus_interrupt_enabled() ((USBCON &  (1<<VBUSTE))     ? TRUE : FALSE)
 #define Is_usb_vbus_high()            ((USBSTA &   (1<<VBUS))    ? TRUE : FALSE)
-#define Is_usb_vbus_low()             ((USBSTA &   (1<<VBUS))    ? FALSE : TRUE)
-#define Usb_ack_vbus_transition()     (USBINT  = ~(1<<VBUSTI))
-#define Is_usb_vbus_transition()      ((USBINT &   (1<<VBUSTI))  ? TRUE : FALSE)
-//! @}
 
 
 //! @defgroup USB_device_driver USB device controller drivers
@@ -218,8 +104,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 
    //! enables USB reset interrupt
 #define Usb_enable_reset_interrupt()              (UDIEN   |=  (1<<EORSTE))
-   //! disables USB reset interrupt
-#define Usb_disable_reset_interrupt()             (UDIEN   &= ~(1<<EORSTE))
 #define Is_reset_interrupt_enabled()              ((UDIEN &  (1<<EORSTE))   ? TRUE : FALSE)
    //! acks USB reset
 #define Usb_ack_reset()                           (UDINT   = ~(1<<EORSTI))
@@ -436,12 +320,7 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 U8      usb_config_ep                (U8, U8);
 U8      usb_select_enpoint_interrupt (void);
 U16     usb_get_nb_byte_epw          (void);
-U8      usb_send_packet              (U8 , U8*, U8);
-U8      usb_read_packet              (U8 , U8*, U8);
-void    usb_halt_endpoint            (U8);
-void    usb_reset_endpoint           (U8);
 U8      usb_init_device              (void);
 
 
 #endif  // _USB_DRV_H_
-

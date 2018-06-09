@@ -70,7 +70,6 @@ void usb_device_task_init(void)
    Usb_low_speed_mode();
 #endif
    Usb_enable_vbus_pad();
-   Usb_enable_vbus_interrupt();
    Enable_interrupt();
 }
 
@@ -97,42 +96,4 @@ void usb_start_device (void)
    Usb_enable_reset_interrupt();
    Enable_interrupt();
    usb_init_device();         // configure the USB controller EP0
-}
-
-//! @brief Entry point of the USB device mamagement
-//!
-//! This function is the entry point of the USB management. Each USB
-//! event is checked here in order to launch the appropriate action.
-//! If a Setup request occurs on the Default Control Endpoint,
-//! the usb_process_request() function is call in the usb_standard_request.c file
-//!
-//! @param none
-//!
-//! @return none
-void usb_device_task(void)
-{
-   if (usb_connected == FALSE)
-   {
-     if (Is_usb_vbus_high())    // check if Vbus ON to attach
-     {
-       Usb_enable();
-       usb_connected = TRUE;
-       usb_start_device();
-       Usb_vbus_on_action();
-     }
-   }
-
-   if(Is_usb_event(EVT_USB_RESET))
-   {
-      Usb_ack_event(EVT_USB_RESET);
-      Usb_reset_endpoint(0);
-      usb_configuration_nb=0;
-   }
-
-   // Here connection to the device enumeration process
-   Usb_select_endpoint(EP_CONTROL);
-   if (Is_usb_receive_setup())
-   {
-      usb_process_request();
-   }
 }

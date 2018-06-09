@@ -14,7 +14,6 @@ CSRCS = \
   ../../../lib_mcu/usb/usb_drv.c\
   ../usb_specific_request.c\
   ../../../lib_mcu/power/power_drv.c\
-  ../../../modules/scheduler/scheduler.c\
   ../cdc_task.c\
   ../main.c\
   ../../../modules/usb/device_chap9/usb_standard_request.c\

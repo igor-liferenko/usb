@@ -89,6 +89,7 @@ if (!rx_counter) Usb_ack_receive_out();
    {
       save_ep=Usb_get_selected_endpoint();   
       Usb_select_endpoint(TX_EP);
+
       do 
       {
          if(UCSR1A & (1<<RXC1)) { /* if a character was received */
