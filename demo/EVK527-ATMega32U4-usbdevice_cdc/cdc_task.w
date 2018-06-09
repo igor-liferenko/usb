@@ -21,7 +21,6 @@
 #include "usb_descriptors.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
 #include "usb_specific_request.h"
-#include "lib_mcu/uart/uart_lib.h"
 #include "uart_usb_lib.h"
 #include <stdio.h>
 
@@ -59,7 +58,9 @@ volatile U8 rs2usb[10];
 //!/
 void cdc_task_init(void)
 {
-   uart_init();
+  UBRR1 = (U16)(((U32)FOSC*1000L)/((U32)57600/2*16)-1); @+ UCSR1A |= 1 << U2X1; /* 57600 */
+  UCSR1C = (1 << UCSZ11) | (1 << UCSZ10); /* 8N1 */
+  UCSR1B |= (1 << RXEN1) | (1 << TXEN1); /* enable uart */
    UCSR1B |= 1 << RXCIE1;
    Usb_enable_sof_interrupt();
    fdevopen((int (*)(char, FILE*))(uart_usb_putchar),(int (*)(FILE*))uart_usb_getchar); //for printf redirection
@@ -76,18 +77,16 @@ void cdc_task_init(void)
 //! @return none
 void cdc_task(void)
 {
-      
-   if(Is_device_enumerated() && line_status.DTR) //Enumeration processs OK and COM port openned ?
-        {
-      if (UCSR1A & (1<<UDRE1)) { /* can we send? */
-         if (uart_usb_test_hit())   // Something received from the USB ?
-         {
-             while (rx_counter)
-            {
-               uart_putchar(uart_usb_getchar());   // loop back USB to USART
-            }
-         }
+  if (Is_device_enumerated() && line_status.DTR) { //Enumeration processs OK and COM port openned ?
+    if (UCSR1A & (1<<UDRE1)) { /* can we send? */
+      if (uart_usb_test_hit()) { // Something received from the USB ?
+        while (rx_counter) {
+          while(!(UCSR1A & (1<<UDRE1))) ;
+          (void) 0; /* always set Busy flag before sending (not implemented) */
+          UDR1 = uart_usb_getchar();
+        }
       }
+    }
 
       if ( cpt_sof>=REPEAT_KEY_PRESSED)   //Debounce joystick events
       {
@@ -103,7 +102,7 @@ void cdc_task(void)
          PORTC |= 1<<PC7; /* see \.{start\_boot} in git lg and enable watchdog timer - see
            commit previous to the commit where this comment was added */
       }
-   }
+  }
 }
 
 //! @brief sof_action

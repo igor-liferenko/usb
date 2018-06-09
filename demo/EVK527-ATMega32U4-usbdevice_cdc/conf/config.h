@@ -34,7 +34,6 @@
 
 // -------- END Generic Configuration -------------------------------------
 
-//#define uart_putchar putchar
 #define r_uart_ptchar int
 #define p_uart_ptchar int
 

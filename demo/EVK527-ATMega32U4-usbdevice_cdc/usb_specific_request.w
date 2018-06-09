@@ -23,7 +23,6 @@
 #include "usb_descriptors.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
 #include "usb_specific_request.h"
-#include "lib_mcu/uart/uart_lib.h"
 
 //_____ M A C R O S ________________________________________________________
 
