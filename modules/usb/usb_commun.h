@@ -62,9 +62,7 @@
 //! @{
 #define USB_CONFIG_ATTRIBUTES_RESERVED    0x80
 #define USB_CONFIG_BUSPOWERED             (USB_CONFIG_ATTRIBUTES_RESERVED | 0x00)
-#define USB_CONFIG_REMOTEWAKEUP           (USB_CONFIG_ATTRIBUTES_RESERVED | 0x20)
 #define USB_CONFIG_SELFPOWERED            (USB_CONFIG_ATTRIBUTES_RESERVED | 0x40)
-#define USB_STATUS_REMOTEWAKEUP           0x02
 //! @}
 
 
@@ -176,7 +174,6 @@
 
    //! \name Feature types for SETUP_X_FEATURE standard request
    //! @{
-#define  FEATURE_DEVICE_REMOTE_WAKEUP        0x01
 #define  FEATURE_DEVICE_TEST                 0x02
 #define  FEATURE_DEVICE_OTG_B_HNP_ENABLE     0x03
 #define  FEATURE_DEVICE_OTG_A_HNP_SUPPORT    0x04

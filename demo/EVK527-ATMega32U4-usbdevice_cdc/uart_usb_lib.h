@@ -14,10 +14,6 @@
 #ifndef _UART_USB_LIB_H_
 #define _UART_USB_LIB_H_
 
-void  uart_usb_init(void);
 bit   uart_usb_test_hit(void);
-bit   uart_usb_tx_ready(void);
-void  uart_usb_flush(void);
-void uart_usb_send_buffer(U8 *buffer, U8 nb_data);
 
 #endif /* _UART_USB_LIB_H_ */

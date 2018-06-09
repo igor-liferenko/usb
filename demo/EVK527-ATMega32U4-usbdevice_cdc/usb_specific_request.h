@@ -36,8 +36,6 @@ void  usb_user_endpoint_init(U8);
 void  cdc_get_line_coding();
 void  cdc_set_line_coding();
 void  cdc_set_control_line_state(U16);   
-void  cdc_send_break(U16);
-Bool  cdc_update_serial_state();   
 
 // ____ T Y P E  D E F I N I T I O N _______________________________________
 
@@ -61,25 +59,5 @@ typedef union
    };
 }S_line_status;
 
-// type for hardware handshake support 
-// cdc spec 1.1 chapter 6.3.5
-typedef union
-{
-   U16 all;
-   struct {
-      U16 bDCD:1;
-      U16 bDSR:1;
-      U16 bBreak:1;
-      U16 bRing:1;
-      U16 bFraming:1;
-      U16 bParity:1;
-      U16 bOverRun:1;
-      U16 reserved:9;
-   };
-}S_serial_state;
-   
-      
-   
-   
 #endif
 

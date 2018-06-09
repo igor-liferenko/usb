@@ -36,13 +36,6 @@ extern S_line_coding   line_coding;
 extern S_line_status line_status;
 
 
-// We buffer the old state as it is wize only to send this interrupt message if
-// sstate has changed.
-extern S_serial_state serial_state;         // actual state
-static S_serial_state serial_state_saved;   // buffered previously sent state
-volatile U8 usb_request_break_generation=FALSE;
-
-
 //_____ D E C L A R A T I O N ______________________________________________
 
 //! @breif This function checks the specific request and if known then processes it
@@ -73,11 +66,6 @@ Bool usb_user_read_request(U8 type, U8 request)
          cdc_set_control_line_state(wValue); // according cdc spec 1.1 chapter 6.2.14
          return TRUE;
          break;
-   
-         case SETUP_CDC_SEND_BREAK:
-         cdc_send_break(wValue);             // wValue contains break lenght
-         return TRUE;
-         break;
       }
    }
    if( USB_SETUP_GET_CLASS_INTER == type )
@@ -90,6 +78,7 @@ Bool usb_user_read_request(U8 type, U8 request)
          break;
       }
    }
+   PORTD |= 1 << PD5; /* indicate error */
    return FALSE;  // No supported request
 }
 
@@ -266,67 +255,3 @@ void cdc_set_control_line_state (U16 state)
      while(!(Is_usb_read_control_enabled()));
 
 }
-
-//! cdc_update_serial_state.
-//!
-//! @brief This function checks if serial state has changed and updates host with that information.
-//!
-//! @todo Return TRUE only if update was accepted by host, to detect need for resending
-//!
-//! @param none
-//!
-//! @return TRUE if updated state was sent otherwise FALSE
-//!
-//! @comment upr: Added for hardware handshake support according cdc spec 1.1 chapter 6.3.5
-//!
-Bool cdc_update_serial_state()
-{
-   if( serial_state_saved.all != serial_state.all)
-   {
-      serial_state_saved.all = serial_state.all;
-      
-      Usb_select_endpoint(INT_EP);
-      if (Is_usb_write_enabled())
-      {
-         Usb_write_byte(USB_SETUP_GET_CLASS_INTER);   // bmRequestType
-         Usb_write_byte(SETUP_CDC_BN_SERIAL_STATE);   // bNotification
-         
-         Usb_write_byte(0x00);   // wValue (zero)
-         Usb_write_byte(0x00);
-         
-         Usb_write_byte(0x00);   // wIndex (Interface)
-         Usb_write_byte(0x00);
-         
-         Usb_write_byte(0x02);   // wLength (data count = 2)
-         Usb_write_byte(0x00);
-         
-         Usb_write_byte(LSB(serial_state.all));   // data 0: LSB first of serial state
-         Usb_write_byte(MSB(serial_state.all));   // data 1: MSB follows
-         Usb_ack_in_ready();
-      }
-      return TRUE;
-   }
-   return FALSE;
-}
-
-//! cdc_send_break.
-//!
-//! @brief This function manages the SEND_BREAK CDC request.
-//!
-//! @todo Manages here hardware flow control...
-//!
-//! @param break lenght
-//!
-//! @return none
-//!
-void cdc_send_break(U16 break_duration)
-{
-     Usb_ack_receive_setup();
-   Usb_send_control_in();
-   usb_request_break_generation=TRUE;
-   
-     while(!(Is_usb_read_control_enabled()));
-
-}
-
-

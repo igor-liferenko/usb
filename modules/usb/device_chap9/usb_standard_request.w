@@ -49,13 +49,6 @@ static  void    usb_get_interface (void);
 static  void    usb_set_interface (void);
 
 
-#ifndef USB_REMOTE_WAKEUP_FEATURE
-   #error USB_REMOTE_WAKEUP_FEATURE should be defined as ENABLE or DISABLE in conf_usb.h
-#endif
-
-
-
-
 //_____ D E C L A R A T I O N ______________________________________________
 
 static  bit  zlp;
@@ -68,11 +61,8 @@ static  U8   device_status=DEVICE_STATUS;
         U16  wInterface;
 
 static  U8   bmRequestType;
-        U8      remote_wakeup_feature=DISABLE; 
         U8   usb_configuration_nb;
 extern  bit     usb_connected;
-
-U8      usb_remote_wup_feature;  // Store ENABLED value if a SetFeature(RemoteWakeUp) has been received
 
 
 //! usb_process_request.
@@ -408,30 +398,8 @@ U8 dummy;
    {
     case USB_SETUP_SET_STAND_DEVICE:
       wValue = Usb_read_byte();
-      switch (wValue)
-      {
-         case USB_REMOTE_WAKEUP:
-            if ((wValue == FEATURE_DEVICE_REMOTE_WAKEUP) && (USB_REMOTE_WAKEUP_FEATURE == ENABLED))
-            {
-                device_status |= USB_STATUS_REMOTEWAKEUP;
-                remote_wakeup_feature = ENABLED;
-                Usb_ack_receive_setup();
-                Usb_send_control_in();
-            }
-            else
-            {
-               Usb_enable_stall_handshake();
-               Usb_ack_receive_setup();
-            }
-            break;
-            
-            
-            
-         default:
          Usb_enable_stall_handshake();
          Usb_ack_receive_setup();
-         break;
-      }
       break;
 
   case USB_SETUP_SET_STAND_INTERFACE:
@@ -505,18 +473,8 @@ U8 dummy;
    if (bmRequestType == USB_SETUP_SET_STAND_DEVICE)
    {
      wValue = Usb_read_byte();
-      if ((wValue == FEATURE_DEVICE_REMOTE_WAKEUP) && (USB_REMOTE_WAKEUP_FEATURE == ENABLED))
-     {
-       device_status &= ~USB_STATUS_REMOTEWAKEUP;
-         remote_wakeup_feature = DISABLED;
-       Usb_ack_receive_setup();
-       Usb_send_control_in();
-     }
-     else
-     {
       Usb_enable_stall_handshake();
       Usb_ack_receive_setup();
-     }
       return;
    }
    else if (bmRequestType == USB_SETUP_SET_STAND_INTERFACE)
@@ -604,26 +562,3 @@ void usb_set_interface (void)
   Usb_send_control_in();                    //!< send a ZLP for STATUS phase
   while(!Is_usb_in_ready());
 }
-
-//! usb_generate_remote_wakeup
-//!
-//! This function manages the remote wake up generation
-//!
-//! @param none
-//!
-//! @return none
-//!
-void usb_generate_remote_wakeup(void)
-{
-   if(Is_pll_ready()==FALSE)
-   {
-      Pll_start_auto();
-      Wait_pll_ready();
-   }
-   Usb_unfreeze_clock();
-   if (remote_wakeup_feature == ENABLED)
-   {
-      Usb_initiate_remote_wake_up();
-      remote_wakeup_feature = DISABLED;
-   }
-}  

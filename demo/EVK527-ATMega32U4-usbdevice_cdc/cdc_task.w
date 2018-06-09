@@ -16,7 +16,6 @@
 
 #include "config.h"
 #include "conf_usb.h"
-#include "cdc_task.h"
 #include "lib_mcu/usb/usb_drv.h"
 #include "usb_descriptors.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
@@ -34,31 +33,13 @@
 //_____ D E C L A R A T I O N S ____________________________________________
 
 
-volatile U8 cpt_sof;
 extern U8    rx_counter;
 extern U8    tx_counter;
-extern volatile U8 usb_request_break_generation;
 
 S_line_coding line_coding;
 S_line_status line_status;      // for detection of serial state input lines
-S_serial_state serial_state;   // for serial state output lines
 
 volatile U8 rs2usb[10];
-
-
-//! @brief This function initializes the hardware ressources required for CDC demo.
-//!
-//!
-//! @param none
-//!
-//! @return none
-//!
-//!/
-void cdc_task_init(void)
-{
-   Usb_enable_sof_interrupt();
-}
-
 
 
 //! @brief Entry point of the uart cdc management
@@ -80,18 +61,6 @@ void cdc_task(void)
         }
       }
     }
-
-    if ( cpt_sof>=REPEAT_KEY_PRESSED) { //Debounce joystick events
-      @<Put byte to the USB transmit buffer@>@;
-      cdc_update_serial_state();
-    }
-
-    if (usb_request_break_generation==TRUE) {
-         usb_request_break_generation=FALSE;
-         DDRC |= 1 << PC7;
-         PORTC |= 1<<PC7; /* see \.{start\_boot} in git lg and enable watchdog timer - see
-           commit previous to the commit where this comment was added */
-    }
   }
 }
 
@@ -105,32 +74,7 @@ UDR1 = Usb_read_byte();
 rx_counter--;
 if (!rx_counter) Usb_ack_receive_out();
 
-@ The buffer is sent if complete. To flush this buffer before waiting full, launch
-|uart_usb_flush|.
-
-@<Put byte to the USB transmit buffer@>=
-int data_to_send = 'X';
-uart_usb_send_buffer((U8*)&data_to_send, 1);
-
-
 @ @c
-//! @brief sof_action
-//!
-//! This function increments the cpt_sof counter each times
-//! the USB Start Of Frame interrupt subroutine is executed (1ms)
-//! Usefull to manage time delays
-//!
-//! @warning Code:?? bytes (function code length)
-//!
-//! @param none
-//!
-//! @return none
-void sof_action()
-{
-   cpt_sof++;
-}
-
-
 //! @brief Uart Receive interrupt subroutine
 //!
 //! @param none
@@ -152,7 +96,37 @@ void sof_action()
             i++;
          }
       }while(Is_usb_write_enabled()==FALSE );
-      uart_usb_send_buffer((U8*)&rs2usb,i);
+      @<Transmit RAM buffer content to USB@>@;
       Usb_select_endpoint(save_ep);
    }
 }
+
+@ This is mode efficient in term of USB bandwith transfer.
+FIXME: handling of |buffer| is strange here - why use pointer to pointer?
+@^FIXME@>
+
+@<Transmit RAM...@>=
+   U8 *buffer = (U8*)&rs2usb;
+   U8 nb_data = i;
+   U8 zlp;
+   // Compute if zlp required
+   if(nb_data%TX_EP_SIZE)
+   { zlp=FALSE;}
+   else { zlp=TRUE; }
+
+   Usb_select_endpoint(TX_EP);
+   while (nb_data)
+   {
+      while(Is_usb_write_enabled()==FALSE); // Wait Endpoint ready
+      while(Is_usb_write_enabled() && nb_data)
+      {
+         Usb_write_byte(*buffer);
+         buffer++;
+         nb_data--;
+   }
+      Usb_ack_in_ready();
+   }
+   if (zlp) {
+      while(Is_usb_write_enabled()==FALSE); // Wait Endpoint ready
+      Usb_ack_in_ready();
+   }

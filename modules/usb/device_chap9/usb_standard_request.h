@@ -44,8 +44,6 @@
 #define CONFIGURED                        4
 #define SUSPENDED                         5
 
-#define USB_REMOTE_WAKEUP       1
-
 //_____ D E C L A R A T I O N ______________________________________________
 
    //! @brief Returns true when device connected and correctly enumerated with an host.
@@ -77,19 +75,7 @@
 //!
 void    usb_process_request( void);
 
-//! @brief This function manages the remote wakeup generation to wake up the host controlle.
-//!
-//! If the received request is not supported or a none USB standard request, the function
-//! will call for custom decoding function in usb_specific_request module.
-//!
-//! @param none
-//!
-//! @return none
-//!
-void     usb_generate_remote_wakeup(void);
-
 extern  U8   usb_configuration_nb;
-extern  U8   remote_wakeup_feature; 
 
 //! @}
 

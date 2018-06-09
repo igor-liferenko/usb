@@ -38,8 +38,6 @@
 #define EVT_USB_UNPOWERED             2         // USB un-plugged
 #define EVT_USB_DEVICE_FUNCTION       3         // USB in device
 #define EVT_USB_HOST_FUNCTION         4         // USB in host
-#define EVT_USB_SUSPEND               5         // USB suspend
-#define EVT_USB_WAKE_UP               6         // USB wake up
 #define EVT_USB_RESUME                7         // USB resume
 #define EVT_USB_RESET                 8         // USB reset
 #define EVT_HOST_SOF                  9         // Host start of frame sent
@@ -56,7 +54,6 @@
 
 extern volatile U16 g_usb_event;
 extern U8 g_usb_mode;
-extern U8 usb_remote_wup_feature;
 
 /**
  * @brief This function initializes the USB proces.
@@ -84,10 +81,6 @@ void usb_task_init     (void);
  *  @return none
 */
 void usb_task          (void);
-
-extern volatile U8 private_sof_counter;
-
-
 
 //! @}
 

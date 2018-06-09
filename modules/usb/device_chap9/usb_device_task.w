@@ -39,15 +39,6 @@
 //!/
 bit   usb_connected=0;
 
-//!
-//! Public : (bit) usb_suspended
-//! usb_suspended is set to TRUE when USB is in suspend mode
-//! usb_suspended is set to FALSE otherwise
-//!/
-bit   usb_suspended=0;
-
-
-
 
 //!
 //! Public : (U8) usb_configuration_nb
@@ -103,12 +94,6 @@ void usb_start_device (void)
    Wait_pll_ready();
    Usb_unfreeze_clock();
    Usb_attach();
-#if (USB_RESET_CPU == ENABLED)
-   Usb_reset_all_system();
-#else
-   Usb_reset_macro_only();
-#endif
-   Usb_enable_suspend_interrupt();
    Usb_enable_reset_interrupt();
    Enable_interrupt();
    usb_init_device();         // configure the USB controller EP0

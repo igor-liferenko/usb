@@ -48,8 +48,6 @@
 #define RX_EP                0x02
 #define INT_EP              0x03
 
-#define USB_REMOTE_WAKEUP_FEATURE     DISABLED   //! don't allow remote wake up
-
 #define VBUS_SENSING_IO       DISABLED   //! device will connect directly on reset
 
 #define USB_RESET_CPU         DISABLED   //! an USB reset does not reset the CPU
@@ -61,18 +59,13 @@
    //! @{
    // write here the action to associate to each USB event
    // be carefull not to waste time in order not disturbing the functions
-#define Usb_sof_action()         sof_action();
-#define Usb_wake_up_action()
 #define Usb_resume_action()
-#define Usb_suspend_action()
 #define Usb_reset_action()
 #define Usb_vbus_on_action()
 #define Usb_vbus_off_action()
 #define Usb_set_configuration_action()
    //! @}
 
-extern void sof_action(void);
-extern void suspend_action(void);
    //! @}
 
 

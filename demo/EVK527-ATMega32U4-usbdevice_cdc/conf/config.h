@@ -22,8 +22,6 @@
 //! @defgroup global_config Application configuration
 //! @{
 
-#include "conf/conf_scheduler.h" //!< Scheduler tasks declaration
-
 //! Enable or not the ADC usage
 #undef  USE_ADC
 

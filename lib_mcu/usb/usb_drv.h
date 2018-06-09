@@ -159,8 +159,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 
 #define Usb_enable_device()           (USBCON |= (1<<USBE))
 #define Usb_disable_device()          (USBCON &= ~(1<<USBE))
-#define Usb_reset_macro_only()        (UDCON &= ~(1<<RSTCPU))
-#define Usb_reset_all_system()        (UDCON |= (1<<RSTCPU))
 
    //! Enable VBUS pad
 #define Usb_enable_vbus_pad()         (USBCON |= (1<<OTGPADE))
@@ -195,14 +193,10 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 //! @defgroup USB_device_driver USB device controller drivers
 //! These macros manage the USB Device controller.
 //! @{
-   //! initiates a remote wake-up
-   #define Usb_initiate_remote_wake_up()             (UDCON   |=  (1<<RMWKUP))
    //! detaches from USB bus
    #define Usb_detach()                              (UDCON   |=  (1<<DETACH))
    //! attaches to USB bus
    #define Usb_attach()                              (UDCON   &= ~(1<<DETACH))
-   //! test if remote wake-up still running
-   #define Is_usb_pending_remote_wake_up()           ((UDCON & (1<<RMWKUP)) ? TRUE : FALSE)
    //! test if the device is detached
    #define Is_usb_detached()                         ((UDCON & (1<<DETACH)) ? TRUE : FALSE)
 
@@ -211,15 +205,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
    //! acks the USB device interrupts (interrupt enabled)
    #define Usb_ack_all_device_interrupt()            (UDINT   =  ~(1<<UDIEN))
 
-   //! enables remote wake-up interrupt
-   #define Usb_enable_remote_wake_up_interrupt()     (UDIEN   |=  (1<<UPRSME))
-   //! disables remote wake-up interrupt
-   #define Usb_disable_remote_wake_up_interrupt()    (UDIEN   &= ~(1<<UPRSME))
-#define Is_remote_wake_up_interrupt_enabled()     ((UDIEN &  (1<<UPRSME))   ? TRUE : FALSE)
-   //! acks remote wake-up
-#define Usb_ack_remote_wake_up_start()            (UDINT   = ~(1<<UPRSMI))
-   //! tests if remote wake-up still running
-#define Is_usb_remote_wake_up_start()             ((UDINT &   (1<<UPRSMI))  ? TRUE : FALSE)
 
    //! enables resume interrupt
 #define Usb_enable_resume_interrupt()             (UDIEN   |=  (1<<EORSME))
@@ -231,16 +216,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
    //! tests if resume occurs
 #define Is_usb_resume()                           ((UDINT &   (1<<EORSMI))  ? TRUE : FALSE)
 
-   //! enables wake-up interrupt
-#define Usb_enable_wake_up_interrupt()            (UDIEN   |=  (1<<WAKEUPE))
-   //! disables wake-up interrupt
-#define Usb_disable_wake_up_interrupt()           (UDIEN   &= ~(1<<WAKEUPE))
-#define Is_wake_up_interrupt_enabled()           ((UDIEN &  (1<<WAKEUPE))   ? TRUE : FALSE)
-   //! acks wake-up
-#define Usb_ack_wake_up()                         (UDINT   = ~(1<<WAKEUPI))
-   //! tests if wake-up occurs
-#define Is_usb_wake_up()                          ((UDINT &   (1<<WAKEUPI)) ? TRUE : FALSE)
-
    //! enables USB reset interrupt
 #define Usb_enable_reset_interrupt()              (UDIEN   |=  (1<<EORSTE))
    //! disables USB reset interrupt
@@ -250,27 +225,6 @@ typedef enum endpoint_parameter{ep_num, ep_type, ep_direction, ep_size, ep_bank,
 #define Usb_ack_reset()                           (UDINT   = ~(1<<EORSTI))
    //! tests if USB reset occurs
 #define Is_usb_reset()                            ((UDINT &   (1<<EORSTI))  ? TRUE : FALSE)
-
-   //! enables Start Of Frame Interrupt
-#define Usb_enable_sof_interrupt()                (UDIEN   |=  (1<<SOFE))
-   //! disables Start Of Frame Interrupt
-#define Usb_disable_sof_interrupt()               (UDIEN   &= ~(1<<SOFE))
-#define Is_sof_interrupt_enabled()                ((UDIEN &  (1<<SOFE))   ? TRUE : FALSE)
-   //! acks Start Of Frame
-#define Usb_ack_sof()                             (UDINT   = ~(1<<SOFI))
-   //! tests if Start Of Frame occurs
-#define Is_usb_sof()                              ((UDINT &   (1<<SOFI))    ? TRUE : FALSE)
-
-   //! enables suspend state interrupt
-#define Usb_enable_suspend_interrupt()            (UDIEN   |=  (1<<SUSPE))
-   //! disables suspend state interrupt
-#define Usb_disable_suspend_interrupt()           (UDIEN   &= ~(1<<SUSPE))
-   //! test if suspend interrupt is enabled
-#define Is_suspend_interrupt_enabled()            ((UDIEN &  (1<<SUSPE))   ? TRUE : FALSE)
-   //! acks Suspend
-#define Usb_ack_suspend()                         (UDINT   = ~(1<<SUSPI))
-   //! tests if Suspend state detected
-#define Is_usb_suspend()                          ((UDINT &   (1<<SUSPI))   ? TRUE : FALSE)
 
    //! enables USB device address
 #define Usb_enable_address()                      (UDADDR  |=  (1<<ADDEN))
