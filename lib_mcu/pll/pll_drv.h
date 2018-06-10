@@ -25,32 +25,12 @@
    //! These functions allow to control the PLL
    //! @{
 
-#ifndef PLL_OUT_FRQ
-   #define  PLL_OUT_FRQ  PLL_OUT_96MHZ
-   #warning PLL_OUT_FRQ not defined in config file using 96MHz Default
-#endif
-           
-
 #define PLL_IN_PRESCAL_DISABLE         ( 0<<PINDIV )
 #define PLL_IN_PRESCAL_ENABLE          ( 1<<PINDIV )
 
-#define PLL_OUT_32MHZ     ( (0<<PDIV3)| (O<<PDIV2) | (1<<PDIV1)| (0<<PDIV0))
-#define PLL_OUT_40MHZ     ( (0<<PDIV3)| (O<<PDIV2) | (1<<PDIV1)| (1<<PDIV0))
 #define PLL_OUT_48MHZ     ( (0<<PDIV3)| (1<<PDIV2) | (0<<PDIV1)| (0<<PDIV0))
-#define PLL_OUT_56MHZ     ( (0<<PDIV3)| (1<<PDIV2) | (0<<PDIV1)| (1<<PDIV0))
-#define PLL_OUT_64MHZ     ( (0<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (0<<PDIV0))
-#define PLL_OUT_72MHZ     ( (0<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIVO))
-#define PLL_OUT_80MHZ     ( (1<<PDIV3)| (0<<PDIV2) | (0<<PDIV1)| (0<<PDIVO))
-#define PLL_OUT_88MHZ     ( (1<<PDIV3)| (0<<PDIV2) | (0<<PDIV1)| (1<<PDIV0))
-#define PLL_OUT_96MHZ     ( (1<<PDIV3)| (0<<PDIV2) | (1<<PDIV1)| (0<<PDIV0))
 #define PLL_OUT_MSK       ( (1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0))
 
-#if (PLL_OUT_FRQ==PLL_OUT_96MHZ)
-   #define PLL_USB_DIV  (1<<PLLUSB) 
-#else
-   #define PLL_USB_DIV  (0<<PLLUSB)    
-#endif       
-      
 #define PLL_HS_TMR_PSCAL_NULL          ( (0<<PLLTM1) | (0<<PLLTM0) )
 #define PLL_HS_TMR_PSCAL_1             ( (0<<PLLTM1) | (1<<PLLTM0) )
 #define PLL_HS_TMR_PSCAL_1DOT5         ( (1<<PLLTM1) | (0<<PLLTM0) )
@@ -63,12 +43,8 @@
 #define Pll_set_hs_tmr_pscal_1dot5()   (PLLFRQ&=~PLL_HS_TMR_PSCAL_MSK,PLLFRQ|=PLL_HS_TMR_PSCAL_1DOT5)
 #define Pll_set_hs_tmr_pscal_2()       (PLLFRQ&=~PLL_HS_TMR_PSCAL_MSK,PLLFRQ|=PLL_HS_TMR_PSCAL_2)
 
-
-      //! @brief Start the PLL at only 48 MHz, regarding CPU frequency
-      //! Start the USB PLL with clockfactor
-      //! clockfactor can be PLLx06 or PLLx03
 #define Start_pll(in_prescal)       \
-           (PLLFRQ &= ~PLL_OUT_MSK,PLLFRQ|= PLL_OUT_FRQ| PLL_USB_DIV , PLLCSR = (in_prescal | (1<<PLLE)))
+  (PLLFRQ &= ~PLL_OUT_MSK,PLLFRQ|= PLL_OUT_FRQ, PLLCSR = (in_prescal | (1<<PLLE)))
 
       //! return 1 when PLL locked
 #define Is_pll_ready()       (PLLCSR & (1<<PLOCK) )
@@ -85,48 +61,9 @@
       //! Select XTAL as clock source for PLL
 #define Set_XTAL_pll_clock()    (PLLFRQ &= ~(1<<PINMUX))        
 
-      // Start the PLL in autofactor mode
-      // regarding FOSC define
-#if   (FOSC==8000)
-      //! Start the PLL in autofactor mode
-      //! regarding FOSC define
-   #define Pll_start_auto()   Start_pll(PLL_IN_PRESCAL_DISABLE)
-#elif (FOSC==16000)
-   #define Pll_start_auto()   Start_pll(PLL_IN_PRESCAL_ENABLE)
-#else
-   #error   "FOSC should be defined in config.h"
-#endif
-
    //! @}
 
-
-/*
-      Example 
-      
-   Pll_start_auto();
-   Pll_set_hs_tmr_pscal_1dot5();
-   Timerhs_clear();
-   Timerhs_set_waveform_mode(TIMERHS_WGM_FAST_PWM);
-   Timerhs_set_nb_bit(8);
-   
-   Timerhs_enable_pwm_a_and_na();
-   Timerhs_enable_pwm_b_and_nb();
-   Timerhs_enable_pwm_d_and_nd();
-   
-   Timerhs_set_compare_a(dt);
-   Timerhs_set_compare_b(dt);
-   Timerhs_set_compare_d(dt);
-   Timerhs_set_clock(TIMERHS_CLK_BY_1);
-
-   while (1)
-   {  
-      for(tempo=1;tempo;tempo++);
-      Timerhs_set_compare_a(dt++);
-      Timerhs_set_compare_b(dt++);
-      Timerhs_set_compare_d(dt++);
-   }
-*/
-
+#define Pll_start_auto()   Start_pll(PLL_IN_PRESCAL_ENABLE)
 
 //! @}
 #endif  // PLL_DRV_H
