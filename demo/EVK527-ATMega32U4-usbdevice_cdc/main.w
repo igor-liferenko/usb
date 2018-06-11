@@ -51,7 +51,7 @@ If a Setup request occurs on the Default Control Endpoint,
 the usb_process_request() function is call in the usb_standard_request.c file
 
 @<USB device task@>=
-/*use PC7 to check if these checks are needed*/
+/*use PC7 to check if these checks are needed, and compare procedure here with usbttl/ */
    if (usb_connected == FALSE) {
      if (Is_usb_vbus_high()) {    // check if Vbus ON to attach
        Usb_enable();
