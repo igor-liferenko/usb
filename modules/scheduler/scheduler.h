@@ -55,9 +55,6 @@
 
 
 
-  extern  void usb_task_init(void);
-
-
   extern  void cdc_task(void);
 
 

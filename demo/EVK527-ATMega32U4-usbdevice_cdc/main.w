@@ -35,7 +35,9 @@ extern U8    usb_configuration_nb;
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-   usb_task_init();
+   usb_device_task_init(); /* enable the USB controller and init the USB interrupts;
+     the aim is to allow the USB connection detection in order to send
+     the appropriate USB event to the operating mode manager */
    while (1) {
          @<USB device task@>@;
          cdc_task();
@@ -49,10 +51,9 @@ If a Setup request occurs on the Default Control Endpoint,
 the usb_process_request() function is call in the usb_standard_request.c file
 
 @<USB device task@>=
-   if (usb_connected == FALSE)
-   {
-     if (Is_usb_vbus_high())    // check if Vbus ON to attach
-     {
+/*use PC7 to check if these checks are needed*/
+   if (usb_connected == FALSE) {
+     if (Is_usb_vbus_high()) {    // check if Vbus ON to attach
        Usb_enable();
        usb_connected = TRUE;
        usb_start_device();

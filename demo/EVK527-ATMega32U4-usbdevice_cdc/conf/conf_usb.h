@@ -37,36 +37,11 @@
 
    //! @}
 
-// _________________ DEVICE MODE CONFIGURATION __________________________
-
-   //! @defgroup USB_device_mode_cfg USB device operating mode configuration
-   //!
-   //! @{
-
-#define NB_ENDPOINTS          4  //!  number of endpoints in the application including control endpoint
+#define NB_ENDPOINTS 4 /* number of endpoints in the application including control endpoint */
 #define TX_EP                0x01
 #define RX_EP                0x02
 #define INT_EP              0x03
 
-#define VBUS_SENSING_IO       DISABLED   //! device will connect directly on reset
-
-#define USB_RESET_CPU         DISABLED   //! an USB reset does not reset the CPU
-
 #define Usb_unicode(a)         ((U16)(a))
-
-   //! @defgroup device_cst_actions USB device custom actions
-   //!
-   //! @{
-   // write here the action to associate to each USB event
-   // be carefull not to waste time in order not disturbing the functions
-#define Usb_resume_action()
-#define Usb_reset_action()
-#define Usb_set_configuration_action()
-   //! @}
-
-   //! @}
-
-
-//! @}
 
 #endif // _CONF_USB_H_

@@ -55,20 +55,5 @@
 extern volatile U16 g_usb_event;
 extern U8 g_usb_mode;
 
-/**
- * @brief This function initializes the USB proces.
- *
- *  This function enables the USB controller and init the USB interrupts.
- *  The aim is to allow the USB connection detection in order to send
- *  the appropriate USB event to the operating mode manager.
- *  Depending on the mode supported (HOST/DEVICE/DUAL_ROLE) the function
- *  calls the corespong usb mode initialization function
- *
- *  @param none
- *
- *  @return none
- */
-void usb_task_init     (void);
-
 #endif /* _USB_TASK_H_ */
 

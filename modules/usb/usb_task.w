@@ -54,41 +54,13 @@
 volatile U16 g_usb_event=0;
 
 
-#if (USB_DEVICE_FEATURE == ENABLED)
-//!
-//! Public : (bit) usb_connected
 //! usb_connected is set to TRUE when VBUS has been detected
 //! usb_connected is set to FALSE otherwise
-//! Used with USB_DEVICE_FEATURE == ENABLED only
-//!/
 extern bit   usb_connected;
 
-//!
-//! Public : (U8) usb_configuration_nb
-//! Store the number of the USB configuration used by the USB device
-//! when its value is different from zero, it means the device mode is enumerated
-//! Used with USB_DEVICE_FEATURE == ENABLED only
-//!/
+// number of the USB configuration used by the USB device
+// when its value is different from zero, it means the device mode is enumerated
 extern U8    usb_configuration_nb;
-
-#endif
-
-
-//_____ D E C L A R A T I O N S ____________________________________________
-
-/**
- * @brief This function initializes the USB process.
- *
- *  The function calls the coresponding usb mode initialization function
- *
- *  @param none
- *
- *  @return none
- */
-void usb_task_init(void)
-{
-   usb_device_task_init();
-}
 
 //! @brief USB interrupt subroutine
 //!
@@ -115,7 +87,6 @@ void usb_task_init(void)
    {
       Usb_ack_resume();
       Usb_disable_resume_interrupt();
-      Usb_resume_action();
       Usb_send_event(EVT_USB_RESUME);
    }
   // - USB bus reset detection
@@ -123,7 +94,6 @@ void usb_task_init(void)
    {
       Usb_ack_reset();
       usb_init_device();
-      Usb_reset_action();
       Usb_send_event(EVT_USB_RESET);
    }
 

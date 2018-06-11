@@ -206,7 +206,6 @@ U8 configuration_number;
    Usb_send_control_in();                    //!< send a ZLP for STATUS phase
 
    usb_user_endpoint_init(usb_configuration_nb);  //!< endpoint configuration
-   Usb_set_configuration_action();
 }
 
 
