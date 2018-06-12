@@ -1,3 +1,2 @@
 check via objdump what is the effect of removed code (e.g., __low_level_init)
 If you encounter other datasheets, see via section "Datasheet Revision History" if there are revisions newer than 7766F
-on original usb-arduino fuses are: E:CB, H:D8, L:FF - compare with chinese usb-arduino
