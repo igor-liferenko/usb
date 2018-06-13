@@ -38,7 +38,6 @@
 #define EVT_USB_UNPOWERED             2         // USB un-plugged
 #define EVT_USB_DEVICE_FUNCTION       3         // USB in device
 #define EVT_USB_HOST_FUNCTION         4         // USB in host
-#define EVT_USB_RESUME                7         // USB resume
 #define EVT_USB_RESET                 8         // USB reset
 #define EVT_HOST_SOF                  9         // Host start of frame sent
 #define EVT_HOST_HWUP                 10        // Host wakeup detected
