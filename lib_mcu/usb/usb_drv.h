@@ -91,17 +91,6 @@
    //! acks the USB device interrupts (interrupt enabled)
    #define Usb_ack_all_device_interrupt()            (UDINT   =  ~(1<<UDIEN))
 
-
-   //! enables resume interrupt
-#define Usb_enable_resume_interrupt()             (UDIEN   |=  (1<<EORSME))
-   //! disables resume interrupt
-#define Usb_disable_resume_interrupt()            (UDIEN   &= ~(1<<EORSME))
-#define Is_resume_interrupt_enabled()             ((UDIEN &  (1<<EORSME))   ? TRUE : FALSE)
-   //! acks resume
-#define Usb_ack_resume()                          (UDINT   = ~(1<<EORSMI))
-   //! tests if resume occurs
-#define Is_usb_resume()                           ((UDINT &   (1<<EORSMI))  ? TRUE : FALSE)
-
    //! enables USB reset interrupt
 #define Usb_enable_reset_interrupt()              (UDIEN   |=  (1<<EORSTE))
 #define Is_reset_interrupt_enabled()              ((UDIEN &  (1<<EORSTE))   ? TRUE : FALSE)
