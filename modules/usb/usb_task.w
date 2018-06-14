@@ -10,19 +10,12 @@
 
 //!
 //! Public : U16 g_usb_event
-//! usb_connected is used to store USB events detected upon
-//! USB general interrupt subroutine
+//! is used to store detected USB events
 //! Its value is managed by the following macros (See usb_task.h file)
 //! Usb_send_event(x)
 //! Usb_ack_event(x)
-//! Usb_clear_all_event()
 //! Is_usb_event(x)
-//! Is_not_usb_event(x)
 volatile U16 g_usb_event=0;
-
-//! usb_connected is set to TRUE when VBUS has been detected
-//! usb_connected is set to FALSE otherwise
-extern bit   usb_connected;
 
 // number of the USB configuration used by the USB device
 // when its value is different from zero, it means the device mode is enumerated

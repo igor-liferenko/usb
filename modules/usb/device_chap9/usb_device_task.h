@@ -15,23 +15,6 @@
 #define _USB_DEVICE_TASK_H_
 
 //! @defgroup usb_device_task USB device task
-//! @{
-
-//_____ I N C L U D E S ____________________________________________________
-
-
-//_____ M A C R O S ________________________________________________________
-
-
-//_____ D E C L A R A T I O N S ____________________________________________
-
-
-//! Public : (bit) usb_connected
-//! usb_connected is set to TRUE when VBUS has been detected
-//! usb_connected is set to FALSE otherwise
-//!/
-extern bit   usb_connected;
-
 
 //!
 //! @brief This function initializes the USB device controller.

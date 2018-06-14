@@ -62,8 +62,6 @@ static  U8   device_status=DEVICE_STATUS;
 
 static  U8   bmRequestType;
         U8   usb_configuration_nb;
-extern  bit     usb_connected;
-
 
 //! usb_process_request.
 //!

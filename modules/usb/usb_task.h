@@ -27,10 +27,7 @@
       //! @{
 #define Usb_send_event(x)               (g_usb_event |= (1<<x))
 #define Usb_ack_event(x)                (g_usb_event &= ~(1<<x))
-#define Usb_clear_all_event()           (g_usb_event = 0)
 #define Is_usb_event(x)                 ((g_usb_event & (1<<x)) ? TRUE : FALSE)
-#define Is_not_usb_event(x)             ((g_usb_event & (1<<x)) ? FALSE: TRUE)
-#define Is_host_emergency_exit()        (Is_usb_event(EVT_HOST_DISCONNECTION) || Is_usb_event(EVT_USB_DEVICE_FUNCTION))
 #define Is_usb_device()                 (g_usb_mode==USB_MODE_DEVICE ? TRUE : FALSE)
 #define Is_usb_host()                   (g_usb_mode==USB_MODE_HOST   ? TRUE : FALSE)
 

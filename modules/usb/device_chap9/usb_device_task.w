@@ -28,18 +28,6 @@
 #include "modules/usb/device_chap9/usb_standard_request.h"
 #include "lib_mcu/pll/pll_drv.h"
 
-//_____ M A C R O S ________________________________________________________
-
-//_____ D E F I N I T I O N S ______________________________________________
-
-//!
-//! Public : (bit) usb_connected
-//! usb_connected is set to TRUE when VBUS has been detected
-//! usb_connected is set to FALSE otherwise
-//!/
-bit   usb_connected=0;
-
-
 //!
 //! Public : (U8) usb_configuration_nb
 //! Store the number of the USB configuration used by the USB device
