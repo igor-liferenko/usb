@@ -33,22 +33,20 @@ The sample dual role application is based on two different tasks:
 extern U8    usb_configuration_nb;
 
 /* see 21.13 in datasheet for order of steps */
+/* read "21.9 Memory management" in datasheet */
 int main(void)
 {
-  UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
   @#
-  PLLCSR |= 1<<PINDIV;
-  PLLCSR |= 1<<PLLE;
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
   @#
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   @#
-  UECFG0X = (TYPE_CONTROL << 6) | DIRECTION_OUT;
-  UECFG1X = (1 << ALLOC) | (SIZE_32 << 4) | (ONE_BANK << 2);
-  @#
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
   sei();
   UDIEN |= 1 << EORSTE;
