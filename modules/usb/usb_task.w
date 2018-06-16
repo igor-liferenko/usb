@@ -17,19 +17,24 @@
 //! Is_usb_event(x)
 volatile U16 g_usb_event=0;
 
-// number of the USB configuration used by the USB device
-// when its value is different from zero, it means the device mode is enumerated
-extern U8    usb_configuration_nb;
-
 // general USB interrupt subroutine. This subroutine is used
 // to detect asynchronous USB events.
 ISR(USB_GEN_vect)
 {
   // - USB bus reset detection
-   if (Is_usb_reset()&& Is_reset_interrupt_enabled())
-   {
-      Usb_ack_reset();
-      usb_init_device();
-      Usb_send_event(EVT_USB_RESET);
+  if (Is_usb_reset()&& Is_reset_interrupt_enabled()) {
+    UDINT   = ~(1<<EORSTI);
+
+   Usb_select_endpoint(EP_CONTROL);
+   if (!(UECONX & (1<<EPEN)))
+     usb_configure_endpoint(EP_CONTROL,
+                            TYPE_CONTROL,
+                            DIRECTION_OUT,
+                            SIZE_32,
+                            ONE_BANK,
+                            NYET_DISABLED);
+
+
+     g_usb_event |= 1<<EVT_USB_RESET;
    }
 }

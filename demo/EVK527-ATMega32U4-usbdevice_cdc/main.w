@@ -35,38 +35,29 @@ extern U8    usb_configuration_nb;
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-  @<Initialize usb device task@>@;
+  sei();
+  @#
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
-  Usb_enable();
-  usb_start_device();
+  @#
+  USBCON |= 1 << USBE; /* enable usb controller */
+
+
+   PLLFRQ &= ~((1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0));
+   PLLFRQ |= 1<<PDIV2;
+   PLLCSR = (1<<PINDIV) | (1<<PLLE);
+   while (!(PLLCSR & (1<<PLOCK))) ;
+   Usb_unfreeze_clock();
+
+   Usb_enable_reset_interrupt();
+   Usb_attach();
+
    while (1) {
          @<USB device task@>@;
          cdc_task();
    }
    return 0;
 }
-
-@ enable the USB controller and init the USB
-interrupts;
-     the aim is to allow the USB connection detection in order to send
-     the appropriate USB event to the operating mode manager
-
-This initializes the USB device controller and system interrupt
-This enables the USB controller and init the USB interrupts.
-The aim is to allow the USB connection detection in order to send
-the appropriate USB event to the operating mode manager.
-
-This function initializes the USB device controller.
-
-This function enables the USB controller and init the USB interrupts.
-The aim is to allow the USB connection detection in order to send
-the appropriate USB event to the operating mode manager.
-
-@<Initialize usb device task@>=
-Usb_disable();
-Usb_enable();
-Usb_enable_vbus_pad();
-Enable_interrupt();
 
 @ This is the entry point of the USB management. Each USB
 event is checked here in order to launch the appropriate action.

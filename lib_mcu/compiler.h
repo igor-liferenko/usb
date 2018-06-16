@@ -115,48 +115,7 @@ typedef char      r_uart_ptchar;
 #define idata
 #define data
 #endif
-/**********************************************************************************/
-/* IAR COMPILER (__IAR_SYSTEMS_ICC__)                                             */
-/**********************************************************************************/
-#ifdef __IAR_SYSTEMS_ICC__
-#include "inavr.h"
-#define _ConstType_   __flash
-#define _MemType_
-#define _GenericType_ __generic
-#define code __flash
-#define farcode __flash
-#define xdata
-#define idata
-#define data
-#define At(x) @ x
-#define pdata
-#define bdata
-// Memory Type Location
-#ifndef _CONST_TYPE_
-#  define _CONST_TYPE_ code
-#endif
 
-#define Enable_interrupt() __enable_interrupt()
-#define Disable_interrupt() __disable_interrupt()
-
-#include <iomacro.h>
-#define SFR_W_EXT(a,b) SFR_W_R(b,a)
-#endif
-
-
-/* General purpose defines */
-/*#define _ConstType_   __farflash
-#define _MemType_
-#define _GenericType_ __generic
-#define code __farflash
-#define xdata
-#define idata
-#define data*/
-
-
-
-
-/*_____ M A C R O S ________________________________________________________*/
 /* little-big endian management */
 #define INTEL_ALIGNMENT     LITTLE_ENDIAN
 #define MOTOROLA_ALIGNMENT  BIG_ENDIAN
