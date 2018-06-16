@@ -38,7 +38,7 @@ int main(void)
    usb_device_task_init(); /* enable the USB controller and init the USB interrupts;
      the aim is to allow the USB connection detection in order to send
      the appropriate USB event to the operating mode manager */
-  while (!(USBSTA & (1<<VBUS))) ;
+  while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
   Usb_enable();
   usb_start_device();
    while (1) {

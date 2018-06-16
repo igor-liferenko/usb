@@ -73,9 +73,6 @@
 #define Is_usb_cache_id_transition(x)    (((x) &   (1<<IDTI))  )
 #define Is_usb_cache_vbus_transition(x)  (((x) &   (1<<VBUSTI)))
 
-#define Is_usb_vbus_high()            ((USBSTA &   (1<<VBUS))    ? TRUE : FALSE)
-
-
 //! @defgroup USB_device_driver USB device controller drivers
 //! These macros manage the USB Device controller.
 //! @{
