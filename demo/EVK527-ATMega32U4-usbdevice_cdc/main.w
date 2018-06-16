@@ -32,6 +32,7 @@ The sample dual role application is based on two different tasks:
 
 extern U8    usb_configuration_nb;
 
+/* see 21.13 in datasheet for order of steps */
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
