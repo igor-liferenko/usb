@@ -9,13 +9,7 @@
 #include "modules/usb/device_chap9/usb_device_task.h"
 
 //!
-//! Public : U16 g_usb_event
-//! is used to store detected USB events
-//! Its value is managed by the following macros (See usb_task.h file)
-//! Usb_send_event(x)
-//! Usb_ack_event(x)
-//! Is_usb_event(x)
-volatile U16 g_usb_event=0;
+
 
 // general USB interrupt subroutine. This subroutine is used
 // to detect asynchronous USB events.
@@ -26,15 +20,15 @@ ISR(USB_GEN_vect)
     UDINT   = ~(1<<EORSTI);
 
    Usb_select_endpoint(EP_CONTROL);
-   if (!(UECONX & (1<<EPEN)))
-     usb_configure_endpoint(EP_CONTROL,
-                            TYPE_CONTROL,
-                            DIRECTION_OUT,
-                            SIZE_32,
-                            ONE_BANK,
-                            NYET_DISABLED);
+   if (!(UECONX & (1<<EPEN))) {
+    UECONX |= (1 << EPEN); /* activate control endpoint */
+/*FIXME: is the following needed? and see last command commented in |main| */
+    UECFG0X = Usb_build_ep_config0(TYPE_CONTROL, DIRECTION_OUT, NYET_DISABLED);
+    UECFG1X = (UECFG1X & (1<<ALLOC)) | Usb_build_ep_config1(SIZE_32, ONE_BANK);
+    UECFG1X |=  (1<<ALLOC);
 
 
-     g_usb_event |= 1<<EVT_USB_RESET;
+   }
+
    }
 }

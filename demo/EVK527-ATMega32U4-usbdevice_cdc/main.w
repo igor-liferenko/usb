@@ -35,23 +35,24 @@ extern U8    usb_configuration_nb;
 /* see 21.13 in datasheet for order of steps */
 int main(void)
 {
-   UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-  sei();
+  UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
+  @#
+/*PLLFRQ &= ~((1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0)); ????????
+   PLLFRQ |= 1<<PDIV2;*/
+  PLLCSR |= 1<<PINDIV;
+  PLLCSR |= 1<<PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+  @#
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+/*UECFG1X = (1 << ALLOC);???*/
   @#
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
   @#
-  USBCON |= 1 << USBE; /* enable usb controller */
-
-
-   PLLFRQ &= ~((1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0));
-   PLLFRQ |= 1<<PDIV2;
-   PLLCSR = (1<<PINDIV) | (1<<PLLE);
-   while (!(PLLCSR & (1<<PLOCK))) ;
-   Usb_unfreeze_clock();
-
-   Usb_enable_reset_interrupt();
-   Usb_attach();
+  sei();
+   UDIEN   |=  1<<EORSTE;
+   UDCON   &= ~(1<<DETACH);
 
    while (1) {
          @<USB device task@>@;
@@ -66,12 +67,6 @@ If a Setup request occurs on the Default Control Endpoint,
 the usb_process_request() function is call in the usb_standard_request.c file
 
 @<USB device task@>=
-if (Is_usb_event(EVT_USB_RESET)) {
-  Usb_ack_event(EVT_USB_RESET);
-  Usb_reset_endpoint(0);
-  usb_configuration_nb=0;
-}
-
 // Here connection to the device enumeration process
 Usb_select_endpoint(EP_CONTROL);
 if (Is_usb_receive_setup()) {
