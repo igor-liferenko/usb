@@ -35,9 +35,7 @@ extern U8    usb_configuration_nb;
 int main(void)
 {
    UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
-   usb_device_task_init(); /* enable the USB controller and init the USB interrupts;
-     the aim is to allow the USB connection detection in order to send
-     the appropriate USB event to the operating mode manager */
+  @<Initialize usb device task@>@;
   while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
   Usb_enable();
   usb_start_device();
@@ -48,22 +46,42 @@ int main(void)
    return 0;
 }
 
-@ This function is the entry point of the USB management. Each USB
+@ enable the USB controller and init the USB
+interrupts;
+     the aim is to allow the USB connection detection in order to send
+     the appropriate USB event to the operating mode manager
+
+This initializes the USB device controller and system interrupt
+This enables the USB controller and init the USB interrupts.
+The aim is to allow the USB connection detection in order to send
+the appropriate USB event to the operating mode manager.
+
+This function initializes the USB device controller.
+
+This function enables the USB controller and init the USB interrupts.
+The aim is to allow the USB connection detection in order to send
+the appropriate USB event to the operating mode manager.
+
+@<Initialize usb device task@>=
+Usb_disable();
+Usb_enable();
+Usb_enable_vbus_pad();
+Enable_interrupt();
+
+@ This is the entry point of the USB management. Each USB
 event is checked here in order to launch the appropriate action.
 If a Setup request occurs on the Default Control Endpoint,
 the usb_process_request() function is call in the usb_standard_request.c file
 
 @<USB device task@>=
-   if(Is_usb_event(EVT_USB_RESET))
-   {
-      Usb_ack_event(EVT_USB_RESET);
-      Usb_reset_endpoint(0);
-      usb_configuration_nb=0;
-   }
+if (Is_usb_event(EVT_USB_RESET)) {
+  Usb_ack_event(EVT_USB_RESET);
+  Usb_reset_endpoint(0);
+  usb_configuration_nb=0;
+}
 
-   // Here connection to the device enumeration process
-   Usb_select_endpoint(EP_CONTROL);
-   if (Is_usb_receive_setup())
-   {
-      usb_process_request();
-   }
+// Here connection to the device enumeration process
+Usb_select_endpoint(EP_CONTROL);
+if (Is_usb_receive_setup()) {
+  usb_process_request();
+}

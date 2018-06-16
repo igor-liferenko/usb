@@ -14,22 +14,6 @@
 #ifndef _USB_DEVICE_TASK_H_
 #define _USB_DEVICE_TASK_H_
 
-//! @defgroup usb_device_task USB device task
-
-//!
-//! @brief This function initializes the USB device controller.
-//!
-//! This function enables the USB controller and init the USB interrupts.
-//! The aim is to allow the USB connection detection in order to send
-//! the appropriate USB event to the operating mode manager.
-//!
-//!
-//! @param none
-//!
-//! @return none
-//!
-void usb_device_task_init     (void);
-
 //!
 //! @brief This function initializes the USB device controller
 //!

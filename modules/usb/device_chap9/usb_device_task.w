@@ -36,31 +36,6 @@
 //!/
 extern U8  usb_configuration_nb;
 
-//_____ D E C L A R A T I O N S ____________________________________________
-
-//!
-//! @brief This function initializes the USB device controller and system interrupt
-//!
-//! This function enables the USB controller and init the USB interrupts.
-//! The aim is to allow the USB connection detection in order to send
-//! the appropriate USB event to the operating mode manager.
-//!
-//! @param none
-//!
-//! @return none
-//!
-//!/
-void usb_device_task_init(void)
-{
-   Usb_disable();
-   Usb_enable();
-#if (USB_LOW_SPEED_DEVICE==ENABLE)
-   Usb_low_speed_mode();
-#endif
-   Usb_enable_vbus_pad();
-   Enable_interrupt();
-}
-
 //!
 //! @brief This function initializes the USB device controller
 //!
