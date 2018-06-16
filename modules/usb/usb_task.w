@@ -19,16 +19,7 @@ ISR(USB_GEN_vect)
   if (Is_usb_reset()&& Is_reset_interrupt_enabled()) {
     UDINT   = ~(1<<EORSTI);
 
-   Usb_select_endpoint(EP_CONTROL);
-   if (!(UECONX & (1<<EPEN))) {
+    UENUM = EP_CONTROL;
     UECONX |= (1 << EPEN); /* activate control endpoint */
-/*FIXME: is the following needed? and see last command commented in |main| */
-    UECFG0X = Usb_build_ep_config0(TYPE_CONTROL, DIRECTION_OUT, NYET_DISABLED);
-    UECFG1X = (UECFG1X & (1<<ALLOC)) | Usb_build_ep_config1(SIZE_32, ONE_BANK);
-    UECFG1X |=  (1<<ALLOC);
-
-
-   }
-
-   }
+  }
 }
