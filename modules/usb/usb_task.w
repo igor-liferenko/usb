@@ -19,7 +19,7 @@ ISR(USB_GEN_vect)
   if (Is_usb_reset()&& Is_reset_interrupt_enabled()) {
     UDINT   = ~(1<<EORSTI);
 
-    UENUM = EP_CONTROL;
+    UENUM = EP_CONTROL; /* FIXME: check with green led if it is necessary */
     UECONX |= (1 << EPEN); /* activate control endpoint */
   }
 }
