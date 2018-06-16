@@ -17,9 +17,12 @@ ISR(USB_GEN_vect)
 {
   // - USB bus reset detection
   if (Is_usb_reset()&& Is_reset_interrupt_enabled()) {
-    UDINT   = ~(1<<EORSTI);
+    UDINT = ~(1<<EORSTI);
 
     UENUM = EP_CONTROL; /* FIXME: check with green led if it is necessary */
-    UECONX |= (1 << EPEN); /* activate control endpoint */
+    UECONX |= 1 << EPEN; /* FIXME: check with green led if it is already enabled */
+
+    UECFG0X = (TYPE_CONTROL << 6) | DIRECTION_OUT; /* according to documentation, it must remain */
+    UECFG1X = (1 << ALLOC) | (SIZE_32 << 4) | (ONE_BANK << 2); /* configured - ????????????? */
   }
 }
