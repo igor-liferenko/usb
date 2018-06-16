@@ -43,7 +43,9 @@ int main(void)
   @#
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
-/*UECFG1X = (1 << ALLOC);???*/
+  @#
+  UECFG0X = (TYPE_CONTROL << 6) | DIRECTION_OUT;
+  UECFG1X = (1 << ALLOC) | (SIZE_32 << 4) | (ONE_BANK << 2);
   @#
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
