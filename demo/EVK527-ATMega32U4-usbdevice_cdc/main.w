@@ -37,8 +37,6 @@ int main(void)
 {
   UHWCON |= (1<<UVREGE); /* enable internal USB pads regulator */
   @#
-/*PLLFRQ &= ~((1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0)); ????????
-   PLLFRQ |= 1<<PDIV2;*/
   PLLCSR |= 1<<PINDIV;
   PLLCSR |= 1<<PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
