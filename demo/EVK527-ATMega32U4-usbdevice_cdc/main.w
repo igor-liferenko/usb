@@ -49,8 +49,8 @@ int main(void)
   while (!(USBSTA & (1<<VBUS))) ; /* wait until VBUS line detects power from host */
   @#
   sei();
-   UDIEN   |=  1<<EORSTE;
-   UDCON   &= ~(1<<DETACH);
+  UDIEN |= 1 << EORSTE;
+  UDCON &= ~(1 << DETACH);
 
    while (1) {
          @<USB device task@>@;
