@@ -1,0 +1,25 @@
+Steps to convert original Atmel's code to CWEB:
+1. github init avr-usb
+2. md5sum of the usb-cdc archive (from ub0ali in 2 emails and from ub0ali in dropbox) - ensure that it is the same
+3. unpack
+4. git add
+5. delete unused files (see git lg here - except flash_drv.s)
+6. git st + check + git add
+7. remove trailing \r from all files
+8. git st + check + git add
+9. git ci "initial import"
+10. make it compile (fix usb_specific_request.c like this:
+-extern U8   code *pbuffer;
++#ifdef __GNUC__
++  extern PGM_VOID_P pbuffer;
++#else
++  extern U8   code *pbuffer;
++#endif
+)
+11. configure (change "#define FOSC" to 16000 and "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ and
+"#define BAUDRATE" to 57600) + flash and check that it actually works (if it will not work - see
+what else must be configured in commits up to commit "it is working now" here)
+12. remove copyright
+13. remove "#ifdef _GNUC_" to use avr-gcc
+14. do maximum purging to preserve md5 of resulting .hex file (use "alias chk='md5sum -c /tex_tmp/md5'")
+15. convert to CWEB (rename .c to .w and add @ @c at the beginning of each .w file)
