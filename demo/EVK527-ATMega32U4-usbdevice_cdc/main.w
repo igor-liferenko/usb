@@ -48,8 +48,8 @@ int main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
-  UECFG0X = (TYPE_CONTROL << 6) | DIRECTION_OUT;
-  UECFG1X |= (SIZE_32 << 4) | (ONE_BANK << 2);
+  UECFG0X |= 0; /* type control, direction out */
+  UECFG1X |= 1 << 5; /* size 32 bytes, one bank */
   UECFG1X |= 1 << ALLOC;
   @#
   sei();

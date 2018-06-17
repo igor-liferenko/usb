@@ -20,8 +20,6 @@ ISR(USB_GEN_vect)
     UDINT = ~(1 << EORSTI);
 
     UECONX |= 1 << EPEN;
-    UECFG1X |= (SIZE_32 << 4) | (ONE_BANK << 2); /* it seems configuration is reset
-      (datasheet says that it isn't) because enumeration fails without reconfiguring
-      after reset */
+    UECFG1X |= 1 << 5; /* repeat configuration (???) */
   }
 }
