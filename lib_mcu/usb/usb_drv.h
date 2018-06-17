@@ -35,35 +35,6 @@
                                       usb_config_ep(Usb_build_ep_config0(type, dir, nyet),\
                                                     Usb_build_ep_config1(size, bank)    ))
 
-//! @defgroup gen_usb USB common management drivers
-//! These macros manage the USB controller
-//! @{
-
-   //! Enable USB interface
-#define Usb_enable()                  (USBCON |= ((1<<USBE) ))
-   //! Disable  USB interface
-#define Usb_disable()                   (USBCON &= ~((1<<USBE)))
-   //! Use device full speed mode (default mode)
-#define Usb_full_speed_mode()           (UDCON &= ~(1<<MSM))
-   //! For device mode, force low speed mode
-#define Usb_low_speed_mode()            (UDCON |= (1<<LSM))
-
-#define Is_usb_enabled()              ((USBCON  &   (1<<USBE))   ? TRUE : FALSE)
-
-#define Usb_enable_device()           (USBCON |= (1<<USBE))
-#define Usb_disable_device()          (USBCON &= ~(1<<USBE))
-
-   //! Enable VBUS pad
-#define Usb_enable_vbus_pad()         (USBCON |= (1<<OTGPADE))
-   //! Disable VBUS pad
-#define Usb_disable_vbus_pad()        (USBCON &= ~(1<<OTGPADE))
-
-   //! Stop internal USB clock in interface (freeze the interface register)
-#define Usb_freeze_clock()            (USBCON  |=  (1<<FRZCLK))
-#define Usb_unfreeze_clock()          (USBCON  &= ~(1<<FRZCLK))
-#define Is_usb_clock_freezed()        ((USBCON  &   (1<<FRZCLK)) ? TRUE : FALSE)
-
-
    //! returns the USB general interrupts (interrupt enabled)
 #define Usb_get_general_interrupt()      (USBINT & (USBCON & MSK_IDTE_VBUSTE))
    //! acks the general interrupts (interrupt enabled)
@@ -76,13 +47,6 @@
 //! @defgroup USB_device_driver USB device controller drivers
 //! These macros manage the USB Device controller.
 //! @{
-   //! detaches from USB bus
-   #define Usb_detach()                              (UDCON   |=  (1<<DETACH))
-   //! attaches to USB bus
-   #define Usb_attach()                              (UDCON   &= ~(1<<DETACH))
-   //! test if the device is detached
-   #define Is_usb_detached()                         ((UDCON & (1<<DETACH)) ? TRUE : FALSE)
-
    //! returns the USB device interrupts (interrupt enabled)
    #define Usb_get_device_interrupt()                (UDINT   &   (1<<UDIEN))
    //! acks the USB device interrupts (interrupt enabled)
