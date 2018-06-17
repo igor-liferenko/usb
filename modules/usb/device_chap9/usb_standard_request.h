@@ -19,5 +19,7 @@
 
 extern  U8   usb_configuration_nb;
 
+void    usb_process_request( void);
+
 #endif  // _USB_STANDARD_REQUEST_H_
 
