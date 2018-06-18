@@ -163,8 +163,6 @@
 #define Is_usb_read_control_enabled()             (UEINTX&(1<<TXINI))
    //! tests if a NAK has been sent
 #define Is_usb_nak_out_sent()                     (UEINTX&(1<<NAKOUTI))
-   //! tests if SETUP received
-#define Is_usb_receive_setup()                    (UEINTX&(1<<RXSTPI))
    //! tests if OUT received
 #define Is_usb_receive_out()                      (UEINTX&(1<<RXOUTI))
    //! tests if IN ready

@@ -36,9 +36,7 @@ extern U8    usb_configuration_nb;
 
 @<EOR interrupt handler@>@;
 
-/* see 21.13 in datasheet for order of steps */
-/* read "21.9 Memory management" in datasheet */
-int main(void)
+void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
   @#
@@ -56,22 +54,15 @@ int main(void)
   UDIEN |= 1 << EORSTE;
   UDCON &= ~(1 << DETACH);
 
-   while (1) {
-         @<USB device task@>@;
-         cdc_task();
-   }
-   return 0;
+  while (1) {
+    @<Check for a setup packet@>@;
+    cdc_task();
+  }
 }
 
-@ This is the entry point of the USB management. Each USB
-event is checked here in order to launch the appropriate action.
-If a Setup request occurs on the Default Control Endpoint,
-the usb_process_request() function is call in the usb_standard_request.c file
-
-@<USB device task@>=
-// Here connection to the device enumeration process
-Usb_select_endpoint(EP_CONTROL);
-if (Is_usb_receive_setup()) {
+@ @<Check for a setup packet@>=
+UENUM = 0;
+if (UEINTX & (1 << RXSTPI)) {
   usb_process_request();
 }
 
