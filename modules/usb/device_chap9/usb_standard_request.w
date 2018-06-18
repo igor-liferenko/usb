@@ -44,7 +44,6 @@ static  void    usb_set_configuration(void);
 static  void    usb_clear_feature(    void);
 static  void    usb_set_feature(      void);
 static  void    usb_get_status(       void);
-static  void    usb_get_configuration(void);
 static  void    usb_get_interface (void);
 static  void    usb_set_interface (void);
 
@@ -97,9 +96,13 @@ void usb_process_request(void)
          break;
 
     case SETUP_GET_CONFIGURATION:
-         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) { usb_get_configuration(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
-         break;
+      if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) {
+        @<Process GET CONFIGURATION request@>@;
+      }
+      else {
+        usb_user_read_request(bmRequestType, bmRequest);
+      }
+      break;
 
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
@@ -303,29 +306,18 @@ U8   nb_byte;
 
 }
 
+@ This manages GET CONFIGURATION request.
 
-//! usb_get_configuration.
-//!
-//! This function manages the GET CONFIGURATION request. The current
-//! configuration number is returned.
-//!
-//! @warning Code:xx bytes (function code length)
-//!
-//! @param none
-//!
-//! @return none
-//!
-void usb_get_configuration(void)
-{
-   Usb_ack_receive_setup();
+@<Process GET CONFIGURATION request@>=
+Usb_ack_receive_setup();
 
-   Usb_write_byte(usb_configuration_nb);
-   Usb_ack_in_ready();
+Usb_write_byte(usb_configuration_nb);
+Usb_ack_in_ready();
 
-   while( !Is_usb_receive_out() );
-   Usb_ack_receive_out();
-}
+while( !Is_usb_receive_out() );
+Usb_ack_receive_out();
 
+@ @c
 //! usb_get_status.
 //!
 //! This function manages the GET STATUS request. The device, interface or
