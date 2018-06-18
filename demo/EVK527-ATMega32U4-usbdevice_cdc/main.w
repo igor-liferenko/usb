@@ -58,12 +58,12 @@ void main(void)
 
   while (!reset_done) ;
   while (1) {
-    @<Check for a setup packet@>@;
+    @<If setup packet is received, process it and |continue|@>@;
     cdc_task(); /* fixme: do not call it on get descriptor and set address packets */
   }
 }
 
-@ @<Check for a setup packet@>=
+@ @<If setup packet is received...@>=
 UENUM = 0;
 if (UEINTX & (1 << RXSTPI)) {
   usb_process_request();
