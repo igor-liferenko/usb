@@ -34,6 +34,7 @@ The sample dual role application is based on two different tasks:
 
 extern U8    usb_configuration_nb;
 
+volatile int reset_done = 0;
 @<EOR interrupt handler@>@;
 
 void main(void)
@@ -51,12 +52,14 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
   sei();
-  UDIEN |= 1 << EORSTE;
+  UDIEN |= 1 << EORSTE; /* fixme: try to disable it after set address request, especially
+    check by rebooting computer */
   UDCON &= ~(1 << DETACH);
 
+  while (!reset_done) ;
   while (1) {
     @<Check for a setup packet@>@;
-    cdc_task();
+    cdc_task(); /* fixme: do not call it on get descriptor and set address packets */
   }
 }
 
@@ -90,6 +93,7 @@ ISR(USB_GEN_vect)
     UDINT = ~(1 << EORSTI);
     UECONX |= 1 << EPEN;
     @<Configure EP0@>@;
+    reset_done = 1;
   }
 }
 
