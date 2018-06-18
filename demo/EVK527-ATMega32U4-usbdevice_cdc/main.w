@@ -99,14 +99,9 @@ ISR(USB_GEN_vect)
 This can be shown by calling this section before attaching instead of in reset interrupt
 handler and checking the cofigured values in reset interrupt handler --- they will be all zero.
 
-@d CONTROL 0
-@d OUT 0
-@d 32_BYTES 2 /* binary 10 */
-@d ONE 0
-
 @<Configure EP0@>=
-UECFG0X |= CONTROL << EPTYPE0;
-UECFG0X |= OUT << EPDIR;
-UECFG1X |= 32_BYTES << EPSIZE0;
-UECFG1X |= ONE << EPBK0;
+UECFG0X |= 0 << EPTYPE0; /* control */
+UECFG0X |= 0 << EPDIR; /* out */
+UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) */
+UECFG1X |= 0 << EPBK0; /* one */
 UECFG1X |= 1 << ALLOC;
