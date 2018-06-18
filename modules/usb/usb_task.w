@@ -8,15 +8,10 @@
 #include "lib_mcu/pll/pll_drv.h"
 #include "modules/usb/device_chap9/usb_device_task.h"
 
-//!
-
-
-// general USB interrupt subroutine. This subroutine is used
-// to detect asynchronous USB events.
 ISR(USB_GEN_vect)
 {
   // - USB bus reset detection
-  if (Is_usb_reset()&& Is_reset_interrupt_enabled()) {
+  if ((UDINT & (1<<EORSTI)) && (UDIEN & (1<<EORSTE))) {
     UDINT = ~(1 << EORSTI);
 
     UECONX |= 1 << EPEN;

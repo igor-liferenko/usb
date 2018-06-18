@@ -52,14 +52,6 @@
    //! acks the USB device interrupts (interrupt enabled)
    #define Usb_ack_all_device_interrupt()            (UDINT   =  ~(1<<UDIEN))
 
-   //! enables USB reset interrupt
-#define Usb_enable_reset_interrupt()              (UDIEN   |=  (1<<EORSTE))
-#define Is_reset_interrupt_enabled()              ((UDIEN &  (1<<EORSTE))   ? TRUE : FALSE)
-   //! acks USB reset
-#define Usb_ack_reset()                           (UDINT   = ~(1<<EORSTI))
-   //! tests if USB reset occurs
-#define Is_usb_reset()                            ((UDINT &   (1<<EORSTI))  ? TRUE : FALSE)
-
    //! enables USB device address
 #define Usb_enable_address()                      (UDADDR  |=  (1<<ADDEN))
    //! disables USB device address

@@ -32,6 +32,8 @@ The sample dual role application is based on two different tasks:
 
 extern U8    usb_configuration_nb;
 
+@<EOR interrupt handler@>@;
+
 /* see 21.13 in datasheet for order of steps */
 /* read "21.9 Memory management" in datasheet */
 int main(void)
@@ -47,12 +49,6 @@ int main(void)
   @#
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  @#
-  UECFG0X |= 0 << EPTYPE0; // 0: control
-  UECFG0X |= 0 << EPDIR; // 0: out
-  UECFG1X |= 2 << EPSIZE0; // 2: 32 bytes
-  UECFG1X |= 0 << EPBK0; // 0: one bank
-  UECFG1X |= 1 << ALLOC;
   @#
   sei();
   UDIEN |= 1 << EORSTE;
@@ -76,3 +72,34 @@ Usb_select_endpoint(EP_CONTROL);
 if (Is_usb_receive_setup()) {
   usb_process_request();
 }
+
+@ При обнаружении на линии состояния ``Сброс'' устройство должно перейти в исходное состояние
+(Default state). На практике, нам нужно присвоить устройству ``нулевой'' адрес и подготовить
+``нулевую контрольную точку'' к приему и обработке стандартных USB запросов от хоста. Хост
+всегда выставляет ``Сброс'' на шине сразу после того, как определит подключение устройства. До
+``сброса'' устройство не должно передавать какие-либо данные в т. ч. в ответ на запрос по адресу
+0 (благодаря этому, как я понимаю, решается проблема коллизии, возникающей в случае одновременного
+подключения к хосту нескольких новых устройств).
+
+@<EOR interrupt handler@>=
+ISR(USB_GEN_vect)
+{
+  if ((UDINT & (1<<EORSTI)) && (UDIEN & (1<<EORSTE))) {
+    UDINT = ~(1 << EORSTI);
+
+    UECONX |= 1 << EPEN;
+    @<Configure EP0@>@;
+  }
+}
+
+@ @d CONTROL 0
+@d OUT 0
+@d 32_BYTES 2 /* binary 10 */
+@d ONE 0
+
+@<Configure EP0@>=
+UECFG0X |= CONTROL << EPTYPE0;
+UECFG0X |= OUT << EPDIR;
+UECFG1X |= 32_BYTES << EPSIZE0;
+UECFG1X |= ONE << EPBK0;
+UECFG1X |= 1 << ALLOC;
