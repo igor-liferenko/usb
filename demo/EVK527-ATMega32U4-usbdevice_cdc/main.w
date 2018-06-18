@@ -74,9 +74,14 @@ if (UEINTX & (1 << RXSTPI)) {
 0 (благодаря этому, как я понимаю, решается проблема коллизии, возникающей в случае одновременного
 подключения к хосту нескольких новых устройств).
 
-EPEN is necessary because without it EP0 will not be able to receive the first setup packet.
+EPEN is necessary because without it RXSTPI flag will not be set when first setup packet
+arrives.
 But EPEN will have no effect if ALLOC is not done (either before attach of in eor handler - todo:
 check if trace of these two cases differs in wireshark).
+EPEN can only be enabled in eor handler.
+also check if wireshark trace differs if epsize is set before alloc before attach with when it is
+not set
+and with when it is set before alloc in eor handler
 
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
