@@ -16,7 +16,6 @@ CSRCS = \
   ../cdc_task.c\
   ../main.c\
   ../../../modules/usb/device_chap9/usb_standard_request.c\
-  ../../../modules/usb/usb_task.c\
 
 # Assembler source files
 ASSRCS = \

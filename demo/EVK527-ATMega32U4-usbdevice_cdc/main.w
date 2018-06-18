@@ -30,6 +30,9 @@ The sample dual role application is based on two different tasks:
 #include "modules/usb/usb_task.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
 
+#include "config.h"
+#include "conf_usb.h"
+
 extern U8    usb_configuration_nb;
 
 @<EOR interrupt handler@>@;
@@ -84,15 +87,19 @@ if (Is_usb_receive_setup()) {
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
-  if ((UDINT & (1<<EORSTI)) && (UDIEN & (1<<EORSTE))) {
+  if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT = ~(1 << EORSTI);
-
     UECONX |= 1 << EPEN;
     @<Configure EP0@>@;
   }
 }
 
-@ @d CONTROL 0
+@ There is a quirk in atmega32u4 that it deconfigures control endpoint on usb reset
+(contrary to what is said in datasheet section 22.4).
+This can be shown by calling this section before attaching instead of in reset interrupt
+handler and checking the cofigured values in reset interrupt handler --- they will be all zero.
+
+@d CONTROL 0
 @d OUT 0
 @d 32_BYTES 2 /* binary 10 */
 @d ONE 0
