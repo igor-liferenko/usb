@@ -82,7 +82,7 @@ arrives.
 But EPEN will have no effect if ALLOC is not done (either before attach of in eor handler - todo:
 check if trace of these two cases differs in wireshark).
 EPEN can only be enabled in eor handler.
-also check if wireshark trace differs if epsize is set before alloc before attach with when it is
+todo: also check if wireshark trace differs if epsize is set before alloc before attach with when it is
 not set
 and with when it is set before alloc in eor handler
 
