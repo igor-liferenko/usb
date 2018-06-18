@@ -1,7 +1,6 @@
 #ifndef _USB_STANDARD_REQUEST_H_
 #define _USB_STANDARD_REQUEST_H_
 
-#include "modules/usb/usb_task.h"
 #include "usb_descriptors.h"
 
         // Device State
