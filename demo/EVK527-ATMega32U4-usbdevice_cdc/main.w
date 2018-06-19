@@ -111,6 +111,6 @@ handler and checking the cofigured values in reset interrupt handler --- they wi
 @<Configure EP0@>=
 UECFG0X |= 0 << EPTYPE0; /* control */
 UECFG0X |= 0 << EPDIR; /* out */
-UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) */
+UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with |EP_CONTROL_LENGTH| */
 UECFG1X |= 0 << EPBK0; /* one */
 UECFG1X |= 1 << ALLOC;

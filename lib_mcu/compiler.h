@@ -15,13 +15,8 @@
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
-/*_____ I N C L U D E S ____________________________________________________*/
-
-
-/*_____ D E C L A R A T I O N S ____________________________________________*/
 #define LITTLE_ENDIAN
 
-#ifndef ASM_INCLUDE // define ASM_INCLUDE in your a51 source code before include of .h file
 typedef float               Float16;
 
 typedef unsigned char       U8 ;
@@ -30,35 +25,20 @@ typedef unsigned long       U32;
 typedef signed char         S8 ;
 typedef signed short        S16;
 typedef long                S32;
-#if (defined __C51__)
-typedef bit                 Bool;    // Shall be used with _MEM_TYPE_BIT_ to optimize the memory.
-#else
 typedef unsigned char       Bool;
-#endif
 
 typedef U8                  Status;
 typedef Bool                Status_bool;
 #define PASS 0
 #define FAIL 1
 
-
-
-#if (defined __C51__)
-#  define _MEM_TYPE_BIT_              bdata  // Used for bit accesses
-#  define _MEM_TYPE_FAST_              data
-#  define _MEM_TYPE_MEDFAST_          idata
-#  define _MEM_TYPE_MEDSLOW_          pdata
-#  define _MEM_TYPE_SLOW_             xdata
-#else
-#  define _MEM_TYPE_BIT_
-#  define _MEM_TYPE_FAST_
-#  define _MEM_TYPE_MEDFAST_
-#  define _MEM_TYPE_MEDSLOW_
-#  define _MEM_TYPE_SLOW_
-#endif
+#define _MEM_TYPE_BIT_
+#define _MEM_TYPE_FAST_
+#define _MEM_TYPE_MEDFAST_
+#define _MEM_TYPE_MEDSLOW_
+#define _MEM_TYPE_SLOW_
 
 typedef unsigned char       Uchar;
-
 
 typedef unsigned char       Uint8;
 typedef unsigned int        Uint16;
@@ -85,69 +65,25 @@ typedef union
   Uint8  b[2];
 } Union16;
 
-#ifdef __IAR_SYSTEMS_ICC__
-typedef char     bit;
-typedef int      p_uart_ptchar;
-typedef int      r_uart_ptchar;
-#define ENABLE_BIT_DEFINITIONS
-#endif
-#ifdef __CODEVISIONAVR__
-typedef char     bit;
-typedef int      p_uart_ptchar;
-typedef char     r_uart_ptchar;
-#endif
-#if !defined(__IAR_SYSTEMS_ICC__) && !defined(___ICC__)
 typedef char      p_uart_ptchar;
 typedef char      r_uart_ptchar;
-#endif
-
-#endif
-
-/**********************************************************************************/
-/* codevision COMPILER (__CODEVISIONAVR__)                                                 */
-/**********************************************************************************/
-#ifdef __ICC__
-#define _ConstType_   lit
-#define _MemType_
-#define _GenericType_ __generic
-#define code lit
-#define xdata
-#define idata
-#define data
-#endif
 
 /* little-big endian management */
 #define INTEL_ALIGNMENT     LITTLE_ENDIAN
 #define MOTOROLA_ALIGNMENT  BIG_ENDIAN
 
-// U16/U32 endian handlers
-#ifdef LITTLE_ENDIAN     // => 16bit: (LSB,MSB), 32bit: (LSW,MSW) or (LSB0,LSB1,LSB2,LSB3) or (MSB3,MSB2,MSB1,MSB0)
-#  define MSB(u16)        (((U8* )&u16)[1])
-#  define LSB(u16)        (((U8* )&u16)[0])
-#  define MSW(u32)        (((U16*)&u32)[1])
-#  define LSW(u32)        (((U16*)&u32)[0])
-#  define MSB0(u32)       (((U8* )&u32)[3])
-#  define MSB1(u32)       (((U8* )&u32)[2])
-#  define MSB2(u32)       (((U8* )&u32)[1])
-#  define MSB3(u32)       (((U8* )&u32)[0])
-#  define LSB0(u32)       MSB3(u32)
-#  define LSB1(u32)       MSB2(u32)
-#  define LSB2(u32)       MSB1(u32)
-#  define LSB3(u32)       MSB0(u32)
-#else // BIG_ENDIAN         => 16bit: (MSB,LSB), 32bit: (MSW,LSW) or (LSB3,LSB2,LSB1,LSB0) or (MSB0,MSB1,MSB2,MSB3)
-#  define MSB(u16)        (((U8* )&u16)[0])
-#  define LSB(u16)        (((U8* )&u16)[1])
-#  define MSW(u32)        (((U16*)&u32)[0])
-#  define LSW(u32)        (((U16*)&u32)[1])
-#  define MSB0(u32)       (((U8* )&u32)[0])
-#  define MSB1(u32)       (((U8* )&u32)[1])
-#  define MSB2(u32)       (((U8* )&u32)[2])
-#  define MSB3(u32)       (((U8* )&u32)[3])
-#  define LSB0(u32)       MSB3(u32)
-#  define LSB1(u32)       MSB2(u32)
-#  define LSB2(u32)       MSB1(u32)
-#  define LSB3(u32)       MSB0(u32)
-#endif
+#define MSB(u16)        (((U8* )&u16)[1])
+#define LSB(u16)        (((U8* )&u16)[0])
+#define MSW(u32)        (((U16*)&u32)[1])
+#define LSW(u32)        (((U16*)&u32)[0])
+#define MSB0(u32)       (((U8* )&u32)[3])
+#define MSB1(u32)       (((U8* )&u32)[2])
+#define MSB2(u32)       (((U8* )&u32)[1])
+#define MSB3(u32)       (((U8* )&u32)[0])
+#define LSB0(u32)       MSB3(u32)
+#define LSB1(u32)       MSB2(u32)
+#define LSB2(u32)       MSB1(u32)
+#define LSB3(u32)       MSB0(u32)
 
 // Endian converters
 #define Le16(b)                        \

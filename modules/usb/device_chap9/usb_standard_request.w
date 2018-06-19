@@ -224,19 +224,19 @@ U8   string_type;
 U8   dummy;
 U8   nb_byte;
 
-   zlp             = FALSE;                  /* no zero length packet */
-   string_type     = Usb_read_byte();        /* read LSB of wValue    */
-   descriptor_type = Usb_read_byte();        /* read MSB of wValue    */
+   zlp             = FALSE;         /* no zero length packet */
+   string_type     = UEDATX;        /* read LSB of wValue    */
+   descriptor_type = UEDATX;        /* read MSB of wValue    */
 
    switch (descriptor_type)
    {
     case DESCRIPTOR_DEVICE:
-      data_to_transfer = Usb_get_dev_desc_length(); //!< sizeof (usb_user_device_descriptor);
-      pbuffer          = Usb_get_dev_desc_pointer();
+      data_to_transfer = sizeof (usb_dev_desc);
+      pbuffer          = &usb_dev_desc.bLength;
       break;
     case DESCRIPTOR_CONFIGURATION:
-      data_to_transfer = Usb_get_conf_desc_length(); //!< sizeof (usb_user_configuration_descriptor);
-      pbuffer          = Usb_get_conf_desc_pointer();
+      data_to_transfer = sizeof (usb_conf_desc);
+      pbuffer          = &usb_conf_desc.cfg.bLength;
       break;
     default:
       if( usb_user_get_descriptor(descriptor_type, string_type)==FALSE )
@@ -248,28 +248,22 @@ U8   nb_byte;
       break;
    }
 
-   dummy = Usb_read_byte();                     //!< don't care of wIndex field
-   dummy = Usb_read_byte();
-   LSB(wLength) = Usb_read_byte();              //!< read wLength
-   MSB(wLength) = Usb_read_byte();
-   Usb_ack_receive_setup() ;                  //!< clear the receive setup flag
+   (void) UEDATX; /* don't care of wIndex */
+   (void) UEDATX;
+   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
+   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
+   UEINTX &= ~(1<<RXSTPI);
 
-   if (wLength > data_to_transfer)
-   {
-      if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) { zlp = TRUE; }
-      else { zlp = FALSE; }                   //!< no need of zero length packet
+   if (data_to_transfer < wLength) {
+      if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
+      else zlp = FALSE;                   //!< no need of zero length packet
    }
    else
-   {
-      data_to_transfer = (U8)wLength;         //!< send only requested number of data
-   }
+     data_to_transfer = (U8) wLength;         /* send only requested number of data */
 
-   Usb_ack_nak_out();
-
-   while((data_to_transfer != 0) && (!Is_usb_nak_out_sent()))
-   {
-      while(!Is_usb_read_control_enabled())
-      {
+   UEINTX &= ~(1<<NAKOUTI);
+   while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
+      while (!(UEINTX & (1 << TXINI))) {
         if (Is_usb_nak_out_sent())
           break;    // don't clear the flag now, it will be cleared after
       }
@@ -309,7 +303,8 @@ U8   nb_byte;
 @ This manages GET CONFIGURATION request.
 
 @<Process GET CONFIGURATION request@>=
-Usb_ack_receive_setup();
+UEINTX &= ~(1 << RXSTPI); /* clear RXSTPI to determine if a new setup packet is received
+  FIXME: do this in main.w in the end of "if" in |@<If setup packet is received...@>|? */
 
 Usb_write_byte(usb_configuration_nb);
 Usb_ack_in_ready();
