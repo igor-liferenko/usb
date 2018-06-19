@@ -91,7 +91,10 @@ void usb_process_request(void)
    switch (bmRequest)
    {
     case SETUP_GET_DESCRIPTOR:
-         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) { usb_get_descriptor(); }
+         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) {
+           usb_get_descriptor();
+           reset_done = 0;
+         }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 

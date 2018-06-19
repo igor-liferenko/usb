@@ -58,8 +58,8 @@ int main(void)
     check by rebooting computer */
   UDCON &= ~(1 << DETACH);
 
-  while (!reset_done) ;
   while (1) {
+    if (!reset_done) continue;
     @<If setup packet is received, process it and |continue|@>@;
     cdc_task(); /* fixme: do not call it on get descriptor and set address packets */
   }
@@ -88,6 +88,10 @@ EPEN can only be enabled in eor handler.
 todo: also check if wireshark trace differs if epsize is set before alloc before attach with when it is
 not set
 and with when it is set before alloc in eor handler
+
+|reset_done| is set to 0 in GET DESCRIPTOR request processing, because after this request
+will arrive request to set address, which is also destined to zero address, so the same
+precaution must be done not to process request which is not destined to us.
 
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
