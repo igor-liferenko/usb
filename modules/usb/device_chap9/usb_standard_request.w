@@ -80,6 +80,7 @@ static  U8   bmRequestType;
 //! SETUP_SET_FEATURE
 //! SETUP_GET_STATUS
 //!
+extern volatile int reset_done;
 void usb_process_request(void)
 {
    U8  bmRequest;
