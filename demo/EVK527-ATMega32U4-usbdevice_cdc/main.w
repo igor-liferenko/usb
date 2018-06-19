@@ -39,7 +39,7 @@ volatile int reset_done = 0;
 
 volatile int first_reset_done = 0;
 
-void main(void)
+int main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
   @#

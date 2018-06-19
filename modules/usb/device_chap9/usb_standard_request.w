@@ -221,7 +221,6 @@ void usb_get_descriptor(void)
 U16  wLength;
 U8   descriptor_type ;
 U8   string_type;
-U8   dummy;
 U8   nb_byte;
 
    zlp             = FALSE;         /* no zero length packet */
@@ -239,10 +238,9 @@ U8   nb_byte;
       pbuffer          = &usb_conf_desc.cfg.bLength;
       break;
     default:
-      if( usb_user_get_descriptor(descriptor_type, string_type)==FALSE )
-      {
-         Usb_enable_stall_handshake();
-         Usb_ack_receive_setup();
+      if(usb_user_get_descriptor(descriptor_type, string_type) == FALSE) {
+         UECONX |= 1 << STALLRQ;
+         UEINTX &= ~(1 << RXSTPI);
          return;
       }
       break;
@@ -264,40 +262,33 @@ U8   nb_byte;
    UEINTX &= ~(1<<NAKOUTI);
    while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
       while (!(UEINTX & (1 << TXINI))) {
-        if (Is_usb_nak_out_sent())
+        if (UEINTX & (1 << NAKOUTI))
           break;    // don't clear the flag now, it will be cleared after
       }
 
       nb_byte=0;
-      while(data_to_transfer != 0)        //!< Send data until necessary
-      {
-         if(nb_byte++==EP_CONTROL_LENGTH) //!< Check endpoint 0 size
-         {
+      while(data_to_transfer != 0) { /* Send data until necessary */
+         if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
             break;
-         }
 
-         Usb_write_byte(pgm_read_byte_near((unsigned int)pbuffer++));
-         data_to_transfer --;
+         UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
+         data_to_transfer--;
       }
 
-      if (Is_usb_nak_out_sent())
+      if (UEINTX & (1 << NAKOUTI))
         break;
       else
-        Usb_send_control_in();
+        UEINTX &= ~(1 << TXINI);
    }
 
-   if((zlp == TRUE) && (!Is_usb_nak_out_sent()))
-   {
-     while(!Is_usb_read_control_enabled());
-     Usb_send_control_in();
+   if ((zlp == TRUE) && !(UEINTX & (1 << NAKOUTI))) {
+     while (!(UEINTX & (1 << TXINI))) ;
+     UEINTX &= ~(1 << TXINI);
    }
 
-   while (!(Is_usb_nak_out_sent()));
-   Usb_ack_nak_out();       // clear NAKOUTI
-   Usb_ack_control_out();   // clear RXOUTI
-
-
-
+   while (!(UEINTX & (1 << NAKOUTI))) ;
+   UEINTX &= ~(1 << NAKOUTI);
+   UEINTX &= ~(1 << RXOUTI);
 }
 
 @ This manages GET CONFIGURATION request.
@@ -306,11 +297,13 @@ U8   nb_byte;
 UEINTX &= ~(1 << RXSTPI); /* clear RXSTPI to determine if a new setup packet is received
   FIXME: do this in main.w in the end of "if" in |@<If setup packet is received...@>|? */
 
-Usb_write_byte(usb_configuration_nb);
-Usb_ack_in_ready();
+UEDATX = usb_configuration_nb;
+UEINTX &= ~(1 << TXINI);
+UEINTX &= ~(1 << FIFOCON);
 
-while( !Is_usb_receive_out() );
-Usb_ack_receive_out();
+while (!(UEINTX & (1 << RXOUTI))) ;
+UEINTX &= ~(1 << RXOUTI);
+UEINTX &= ~(1 << FIFOCON);
 
 @ @c
 //! usb_get_status.
