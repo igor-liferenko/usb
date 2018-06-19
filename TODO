@@ -1,5 +1,3 @@
-check that in previous commit order of events is preserved and compare current with usb.w
-
 See datasheets for these:
 AT90USB82
 ATMEGA8U2
