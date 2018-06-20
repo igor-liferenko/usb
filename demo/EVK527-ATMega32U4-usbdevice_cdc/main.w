@@ -43,6 +43,8 @@ int connected = 0;
 
 int main(void)
 {
+  sei();
+  @#
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
   @#
   PLLCSR |= 1 << PINDIV;
@@ -55,7 +57,6 @@ int main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
-  sei();
   UDIEN |= 1 << EORSTE;
   UDCON &= ~(1 << DETACH);
 
@@ -117,19 +118,12 @@ ISR(USB_GEN_vect)
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT = ~(1 << EORSTI);
     UECONX |= 1 << EPEN;
-    @<Configure EP0@>@;
+    UECFG0X |= 0 << EPTYPE0; /* control */
+    UECFG0X |= 0 << EPDIR; /* out */
+    UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with
+      |EP_CONTROL_LENGTH| */
+    UECFG1X |= 0 << EPBK0; /* one */
+    UECFG1X |= 1 << ALLOC;
     reset_done = 1;
   }
 }
-
-@ There is a quirk in atmega32u4 that it deconfigures control endpoint on usb reset
-(contrary to what is said in datasheet section 22.4).
-This can be shown by calling this section before attaching instead of in reset interrupt
-handler and checking the cofigured values in reset interrupt handler --- they will be all zero.
-
-@<Configure EP0@>=
-UECFG0X |= 0 << EPTYPE0; /* control */
-UECFG0X |= 0 << EPDIR; /* out */
-UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with |EP_CONTROL_LENGTH| */
-UECFG1X |= 0 << EPBK0; /* one */
-UECFG1X |= 1 << ALLOC;
