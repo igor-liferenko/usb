@@ -37,7 +37,7 @@ extern U8    usb_configuration_nb;
 volatile int reset_done = 0;
 @<EOR interrupt handler@>@;
 
-int first_reset = 1; /* to determine first GET DESCRIPTOR request */
+int first_reset = 1;
 
 int main(void)
 {
@@ -92,10 +92,9 @@ todo: also check if wireshark trace differs if epsize is set before alloc before
 not set
 and with when it is set before alloc in eor handler
 
-|reset_done| is set to 0 in GET DESCRIPTOR request processing (but only on first
-GET DESCRIPTOR request, because there will be more GET DESCRIPTOR requests after address is set),
-because after this request
-will arrive request to set address, which is also destined to zero address, so the same
+|reset_done| is set to 0 before second reset,
+because after second reset will arrive request to set address, which is also destined to
+zero address, so the same
 precaution must be done not to process request which is not destined to us.
 
 |reset_done| is used because in atmega32u4 response packet is sent even if endpoint is not enabled,
