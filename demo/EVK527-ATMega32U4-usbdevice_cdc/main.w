@@ -28,7 +28,7 @@ The sample dual role application is based on two different tasks:
 #include "lib_mcu/usb/usb_drv.h"
 #include "modules/usb/device_chap9/usb_device_task.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
-
+#include <util/delay.h>
 #include "config.h"
 #include "conf_usb.h"
 
@@ -118,7 +118,7 @@ begin:
   while (!(UDINT & (1 << EORSTI))) ;
 again:
   UDINT &= ~(1 << EORSTI);
-  //_delay_ms(4);
+  _delay_ms(10);
   if (UDINT & (1 << EORSTI)) goto again;
 
 @ @<Allocate memory for EP0@>=
