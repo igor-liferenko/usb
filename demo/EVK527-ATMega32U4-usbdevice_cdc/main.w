@@ -58,14 +58,19 @@ int main(void)
     check by rebooting computer */
   UDCON &= ~(1 << DETACH);
 
-  while (1) {
+  int connected = 0; /* todo: set it to 1 when enumeration finished */
+  while (!connected) {
     if (!reset_done) continue;
-    @<If setup packet is received, process it and |continue|@>@;
-    cdc_task(); /* fixme: do not call it on get descriptor and set address packets */
+    @<Check for a setup packet@>@;
+  }
+
+  while (1) {
+    @<Check for a setup packet@>@;
+    cdc_task();
   }
 }
 
-@ @<If setup packet is received...@>=
+@ @<Check for a setup packet@>=
 UENUM = 0;
 if (UEINTX & (1 << RXSTPI)) {
   if (first_reset) {
