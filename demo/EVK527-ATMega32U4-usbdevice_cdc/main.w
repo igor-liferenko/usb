@@ -37,8 +37,7 @@ extern U8    usb_configuration_nb;
 volatile int reset_done = 0;
 @<EOR interrupt handler@>@;
 
-volatile int first_reset_done = 0;
-int get_descriptor_for_the_first_time = 1; /* to determine first GET DESCRIPTOR request */
+int first_reset = 1; /* to determine first GET DESCRIPTOR request */
 
 int main(void)
 {
@@ -69,7 +68,10 @@ int main(void)
 @ @<If setup packet is received...@>=
 UENUM = 0;
 if (UEINTX & (1 << RXSTPI)) {
-  first_reset_done = 1;
+  if (first_reset) {
+    reset_done = 0;
+    first_reset = 0;
+  }
   usb_process_request();
 }
 
@@ -105,11 +107,8 @@ ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT = ~(1 << EORSTI);
-//TODO: try to uncomment this and check if wireshark will show the same as in usbttl/*.pcapng
-//if (!first_reset_done) {
     UECONX |= 1 << EPEN;
     @<Configure EP0@>@;
-//}
     reset_done = 1;
   }
 }

@@ -80,8 +80,6 @@ static  U8   bmRequestType;
 //! SETUP_SET_FEATURE
 //! SETUP_GET_STATUS
 //!
-extern volatile int reset_done;
-extern int get_descriptor_for_the_first_time;
 void usb_process_request(void)
 {
    U8  bmRequest;
@@ -94,10 +92,6 @@ void usb_process_request(void)
    {
     case SETUP_GET_DESCRIPTOR:
          if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) {
-           if (get_descriptor_for_the_first_time) {
-             reset_done = 0;
-             get_descriptor_for_the_first_time = 0;
-           }
            usb_get_descriptor();
          }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
