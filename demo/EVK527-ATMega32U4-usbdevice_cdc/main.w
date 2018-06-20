@@ -93,6 +93,10 @@ and with when it is set before alloc in eor handler
 will arrive request to set address, which is also destined to zero address, so the same
 precaution must be done not to process request which is not destined to us.
 
+|reset_done| is used because in atmega32u4 response packet is sent even if endpoint is not enabled,
+so we cannot deal with the fact that nothing should be responded until reset is detected by
+disabling EP0 on first GET_DESCRIPTOR and not enabling it in the beginning
+
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
