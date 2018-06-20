@@ -127,3 +127,6 @@ ISR(USB_GEN_vect)
     reset_done = 1;
   }
 }
+
+/* TODO: connect clone arduino micro because original arduino sometimes hangs on avrdude, which
+   spoils wireshark dump */
