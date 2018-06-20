@@ -38,6 +38,7 @@ volatile int reset_done = 0;
 @<EOR interrupt handler@>@;
 
 volatile int first_reset_done = 0;
+int get_descriptor_for_the_first_time = 1; /* to determine first GET DESCRIPTOR request */
 
 int main(void)
 {
@@ -89,7 +90,9 @@ todo: also check if wireshark trace differs if epsize is set before alloc before
 not set
 and with when it is set before alloc in eor handler
 
-|reset_done| is set to 0 in GET DESCRIPTOR request processing, because after this request
+|reset_done| is set to 0 in GET DESCRIPTOR request processing (but only on first
+GET DESCRIPTOR request, because there will be more GET DESCRIPTOR requests after address is set),
+because after this request
 will arrive request to set address, which is also destined to zero address, so the same
 precaution must be done not to process request which is not destined to us.
 
