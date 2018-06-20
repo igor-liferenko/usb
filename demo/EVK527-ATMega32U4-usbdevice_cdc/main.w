@@ -39,6 +39,8 @@ volatile int reset_done = 0;
 
 int first_reset = 1;
 
+int connected = 0;
+
 int main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
@@ -58,7 +60,6 @@ int main(void)
     check by rebooting computer */
   UDCON &= ~(1 << DETACH);
 
-  int connected = 0;
   while (!connected) {
     if (!reset_done) continue;
     @<Check for a setup packet@>@;
