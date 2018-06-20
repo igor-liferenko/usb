@@ -116,7 +116,7 @@ This interrupt is disabled after setting address, because it is not needed anymo
 ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
-    UDINT = ~(1 << EORSTI);
+    UDINT &= ~(1 << EORSTI);
     UECONX |= 1 << EPEN;
     UECFG0X |= 0 << EPTYPE0; /* control */
     UECFG0X |= 0 << EPDIR; /* out */
