@@ -98,15 +98,6 @@ void usb_process_request(void)
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
-    case SETUP_GET_CONFIGURATION:
-      if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) {
-        @<Process GET CONFIGURATION request@>@;
-      }
-      else {
-        usb_user_read_request(bmRequestType, bmRequest);
-      }
-      break;
-
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
@@ -295,20 +286,6 @@ U8   nb_byte;
    UEINTX &= ~(1 << NAKOUTI);
    UEINTX &= ~(1 << RXOUTI);
 }
-
-@ This manages GET CONFIGURATION request.
-
-@<Process GET CONFIGURATION request@>=
-UEINTX &= ~(1 << RXSTPI); /* clear RXSTPI to determine if a new setup packet is received
-  FIXME: do this in main.w in the end of "if" in |@<If setup packet is received...@>|? */
-
-UEDATX = usb_configuration_nb;
-UEINTX &= ~(1 << TXINI);
-UEINTX &= ~(1 << FIFOCON);
-
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI);
-UEINTX &= ~(1 << FIFOCON);
 
 @ @c
 //! usb_get_status.
