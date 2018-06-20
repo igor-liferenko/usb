@@ -38,7 +38,6 @@
 
 //_____ P R I V A T E   D E C L A R A T I O N ______________________________
 
-static  void    usb_get_descriptor(   void);
 static  void    usb_set_address(      void);
 static  void    usb_set_configuration(void);
 static  void    usb_clear_feature(    void);
@@ -92,12 +91,10 @@ void usb_process_request(void)
    switch (bmRequest)
    {
     case SETUP_GET_DESCRIPTOR:
-         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) {
-           usb_get_descriptor();
-         }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+    {
+         @<Process GET DESCRIPTOR request@>@;
          break;
-
+    }
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
@@ -205,15 +202,7 @@ U8 configuration_number;
    usb_user_endpoint_init(usb_configuration_nb);  //!< endpoint configuration
 }
 
-
-//! This function manages the GET DESCRIPTOR request. The device descriptor,
-//! the configuration descriptor and the device qualifier are supported. All
-//! other descriptors must be supported by the usb_user_get_descriptor
-//! function.
-//! Only 1 configuration is supported.
-//!
-void usb_get_descriptor(void)
-{
+@ @<Process GET DESCRIPTOR request@>=
 U16  wLength;
 U8   descriptor_type ;
 U8   string_type;
@@ -285,7 +274,6 @@ U8   nb_byte;
    while (!(UEINTX & (1 << NAKOUTI))) ;
    UEINTX &= ~(1 << NAKOUTI);
    UEINTX &= ~(1 << RXOUTI);
-}
 
 @ @c
 //! usb_get_status.
