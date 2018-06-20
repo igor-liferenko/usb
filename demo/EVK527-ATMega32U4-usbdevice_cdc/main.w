@@ -66,9 +66,9 @@ int main(void)
 
   while (1) { /* main application loop */
     @<Check for a setup packet@>@;
-    if (line_status.DTR) {
+    //if (line_status.DTR) {
       /* send a character (see cdc_task.w) */
-    }
+    //}
     //_delay_ms(1000);
   }
 }
