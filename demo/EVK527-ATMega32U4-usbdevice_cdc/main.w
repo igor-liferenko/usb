@@ -28,11 +28,16 @@ The sample dual role application is based on two different tasks:
 #include "lib_mcu/usb/usb_drv.h"
 #include "modules/usb/device_chap9/usb_device_task.h"
 #include "modules/usb/device_chap9/usb_standard_request.h"
-#include <util/delay.h>
+
 #include "config.h"
 #include "conf_usb.h"
 
 extern U8    usb_configuration_nb;
+
+volatile int reset_done = 0;
+@<EOR interrupt handler@>@;
+
+int first_reset = 1;
 
 int connected = 0;
 
@@ -52,21 +57,11 @@ int main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
+  UDIEN |= 1 << EORSTE;
   UDCON &= ~(1 << DETACH);
 
-  int first_reset = 1;
-  @<Wait EOR@>@;
-  @<Allocate memory for EP0@>@;
-  if (!first_reset) goto next;
-  first_reset = 0;
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  usb_process_request();
-  UECONX &= ~(1 << EPEN);
-  UECFG1X &= ~(1 << ALLOC);
-  goto begin;
-
-next:
   while (!connected) {
+    if (!reset_done) continue;
     @<Check for a setup packet@>@;
   }
 
@@ -82,6 +77,10 @@ next:
 @ @<Check for a setup packet@>=
 UENUM = 0;
 if (UEINTX & (1 << RXSTPI)) {
+  if (first_reset) {
+    reset_done = 0;
+    first_reset = 0;
+  }
   usb_process_request();
 }
 
@@ -113,19 +112,18 @@ disabling EP0 on first GET_DESCRIPTOR and not enabling it in the beginning
 
 This interrupt is disabled after setting address, because it is not needed anymore.
 
-@<Wait EOR@>=
-begin:
-  while (!(UDINT & (1 << EORSTI))) ;
-again:
-  UDINT &= ~(1 << EORSTI);
-  _delay_ms(10);
-  if (UDINT & (1 << EORSTI)) goto again;
-
-@ @<Allocate memory for EP0@>=
-UECONX |= 1 << EPEN;
-UECFG0X |= 0 << EPTYPE0; /* control */
-UECFG0X |= 0 << EPDIR; /* out */
-UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with
-  |EP_CONTROL_LENGTH| */
-UECFG1X |= 0 << EPBK0; /* one */
-UECFG1X |= 1 << ALLOC;
+@<EOR interrupt handler@>=
+ISR(USB_GEN_vect)
+{
+  if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
+    UDINT &= ~(1 << EORSTI);
+    UECONX |= 1 << EPEN;
+    UECFG0X |= 0 << EPTYPE0; /* control */
+    UECFG0X |= 0 << EPDIR; /* out */
+    UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with
+      |EP_CONTROL_LENGTH| */
+    UECFG1X |= 0 << EPBK0; /* one */
+    UECFG1X |= 1 << ALLOC;
+    reset_done = 1;
+  }
+}

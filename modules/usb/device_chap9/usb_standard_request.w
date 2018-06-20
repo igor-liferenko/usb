@@ -110,6 +110,7 @@ void usb_process_request(void)
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         UDIEN &= ~(1 << EORSTE);
          break;
 
     case SETUP_SET_CONFIGURATION:
@@ -251,10 +252,10 @@ U8   nb_byte;
    }
 
    (void) UEDATX; /* don't care of wIndex */
-   (void) UEDATX; /* ditto */
+   (void) UEDATX;
    ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
    ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-   UEINTX &= ~(1<<RXSTPI); /* finish reading setup packet */
+   UEINTX &= ~(1<<RXSTPI);
 
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
