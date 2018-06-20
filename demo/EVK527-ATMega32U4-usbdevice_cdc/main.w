@@ -56,8 +56,7 @@ int main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
   sei();
-  UDIEN |= 1 << EORSTE; /* fixme: try to disable it after set address request, especially
-    check by rebooting computer */
+  UDIEN |= 1 << EORSTE;
   UDCON &= ~(1 << DETACH);
 
   while (!connected) {
@@ -109,6 +108,8 @@ precaution must be done not to process request which is not destined to us.
 |reset_done| is used because in atmega32u4 response packet is sent even if endpoint is not enabled,
 so we cannot deal with the fact that nothing should be responded until reset is detected by
 disabling EP0 on first GET_DESCRIPTOR and not enabling it in the beginning
+
+This interrupt is disabled after setting address, because it is not needed anymore.
 
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
