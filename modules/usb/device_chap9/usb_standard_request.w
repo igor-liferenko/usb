@@ -80,6 +80,7 @@ static  U8   bmRequestType;
 //! SETUP_SET_FEATURE
 //! SETUP_GET_STATUS
 //!
+extern int connected;
 void usb_process_request(void)
 {
    U8  bmRequest;
@@ -114,6 +115,7 @@ void usb_process_request(void)
     case SETUP_SET_CONFIGURATION:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_configuration(); }
          else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         connected = 1;
          break;
 
     case SETUP_CLEAR_FEATURE:

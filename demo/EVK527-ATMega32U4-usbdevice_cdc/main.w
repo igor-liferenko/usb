@@ -58,15 +58,18 @@ int main(void)
     check by rebooting computer */
   UDCON &= ~(1 << DETACH);
 
-  int connected = 0; /* todo: set it to 1 when enumeration finished */
+  int connected = 0;
   while (!connected) {
     if (!reset_done) continue;
     @<Check for a setup packet@>@;
   }
 
-  while (1) {
+  while (1) { /* main application loop */
     @<Check for a setup packet@>@;
-    cdc_task();
+    if (line_status.DTR) {
+      /* send a character (see cdc_task.w) */
+    }
+    //_delay_ms(1000);
   }
 }
 
