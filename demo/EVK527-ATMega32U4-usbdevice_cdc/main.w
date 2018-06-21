@@ -35,6 +35,7 @@ The sample dual role application is based on two different tasks:
 extern U8    usb_configuration_nb;
 
 volatile int reset_done = 0;
+volatile int eor_disabled = 0;
 @<EOR interrupt handler@>@;
 
 int first_reset = 1;
@@ -122,6 +123,10 @@ ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT &= ~(1 << EORSTI);
+if (eor_disabled) {
+  DDRC|=1<<PC7;PORTC|=1<<PC7;
+}
+else {
     UECONX |= 1 << EPEN;
     UECFG0X |= 0 << EPTYPE0; /* control */
     UECFG0X |= 0 << EPDIR; /* out */
@@ -130,6 +135,7 @@ ISR(USB_GEN_vect)
     UECFG1X |= 0 << EPBK0; /* one */
     UECFG1X |= 1 << ALLOC;
     reset_done = 1;
+}
   }
 }
 

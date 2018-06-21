@@ -39,7 +39,7 @@ code const S_usb_device_descriptor usb_dev_desc =
 {
   sizeof(usb_dev_desc)
 , DESCRIPTOR_DEVICE
-, Usb_write_word_enum_struc(USB_SPECIFICATION)
+, Usb_write_word_enum_struc(0x0110) /* bcdUSB */
 , DEVICE_CLASS
 , DEVICE_SUB_CLASS
 , DEVICE_PROTOCOL
@@ -47,9 +47,9 @@ code const S_usb_device_descriptor usb_dev_desc =
 , Usb_write_word_enum_struc(VENDOR_ID)
 , Usb_write_word_enum_struc(PRODUCT_ID)
 , Usb_write_word_enum_struc(RELEASE_NUMBER)
-, MAN_INDEX
-, PROD_INDEX
-, SN_INDEX
+, 0x00 /* iManufacturer ("Mfr=" in kern.log) */
+, 0x00 /* iProduct ("Product=" in kern.log) */
+, 0x00 /* iSerialNumber ("SerialNumber=" in kern.log) */
 , NB_CONFIGURATION
 };
 

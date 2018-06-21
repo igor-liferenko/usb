@@ -41,9 +41,6 @@
 #define VENDOR_ID             VID_ATMEL
 #define PRODUCT_ID            PID_MegaCDC
 #define RELEASE_NUMBER        0x1000
-#define MAN_INDEX             0x00
-#define PROD_INDEX            0x00
-#define SN_INDEX              0x00
 #define NB_CONFIGURATION      1
 
                // CDC CONFIGURATION

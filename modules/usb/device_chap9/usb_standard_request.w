@@ -79,16 +79,39 @@ static  U8   bmRequestType;
 //! SETUP_SET_FEATURE
 //! SETUP_GET_STATUS
 //!
+/*
+STATUS фаза нужна для подтверждения корректности обработки всего запроса. На данной фазе
+устройство или хост просто посылает пакет данных нулевой длины, что свидетельствует об успешной
+обработке запроса на логическом уровне. Если запрос предполагал получение ответа от устройства
+то данный пакет посылает хост, подтверждая, что ответ получен/обработан. В другом случае пакет
+нулевой длины шлет устройство, подтверждая, что запрос (запрос и дополнительные параметры)
+получены и обработаны.
+*/
+
+/*
+8 байт данных получены устройством в SETUP фазе. Запрос состоит из следующих полей:
+
+bmRequestType — 1 байт
+bRequest – 1 байт
+wValue – 2 байта, WORD
+wIndex – 2 байта, WORD
+wLength – 2 байта, WORD
+*/
+/*
+22.12 CONTROL endpoint management
+A SETUP request is always ACK’ed
+*/
 extern int connected;
+extern volatile int eor_disabled;
 void usb_process_request(void)
 {
-   U8  bmRequest;
+   U8  bRequest;
 
-   Usb_ack_control_out();
-   bmRequestType = Usb_read_byte();
-   bmRequest     = Usb_read_byte();
+   UEINTX &= ~(1<<RXOUTI);
+   bmRequestType = UEDATX;
+   bRequest = UEDATX;
 
-   switch (bmRequest)
+   switch (bRequest)
    {
     case SETUP_GET_DESCRIPTOR:
     {
@@ -97,35 +120,36 @@ void usb_process_request(void)
     }
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
-         UDIEN &= ~(1 << EORSTE);
+         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         //UDIEN &= ~(1 << EORSTE);
+         eor_disabled = 1;
          break;
 
     case SETUP_SET_CONFIGURATION:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_configuration(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         else                       { usb_user_read_request(bmRequestType, bRequest); }
          connected = 1;
          break;
 
     case SETUP_CLEAR_FEATURE:
          if (USB_SETUP_SET_STAND_ENDPOINT >= bmRequestType) { usb_clear_feature(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         else                       { usb_user_read_request(bmRequestType, bRequest); }
          break;
 
     case SETUP_SET_FEATURE:
          if (USB_SETUP_SET_STAND_ENDPOINT >= bmRequestType) { usb_set_feature(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         else                       { usb_user_read_request(bmRequestType, bRequest); }
          break;
 
     case SETUP_GET_STATUS:
          if ((0x7F < bmRequestType) & (0x82 >= bmRequestType))
                                     { usb_get_status(); }
-         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         else                       { usb_user_read_request(bmRequestType, bRequest); }
          break;
 
     case SETUP_GET_INTERFACE:
           if (bmRequestType == USB_SETUP_GET_STAND_INTERFACE) { usb_get_interface(); }
-          else { usb_user_read_request(bmRequestType, bmRequest); }
+          else { usb_user_read_request(bmRequestType, bRequest); }
           break;
 
 
@@ -136,7 +160,7 @@ void usb_process_request(void)
     case SETUP_SET_DESCRIPTOR:
     case SETUP_SYNCH_FRAME:
     default: //!< un-supported request => call to user read request
-         if(usb_user_read_request(bmRequestType, bmRequest) == FALSE)
+         if(usb_user_read_request(bmRequestType, bRequest) == FALSE)
          {
             Usb_enable_stall_handshake();
             Usb_ack_receive_setup();
@@ -203,40 +227,34 @@ U8 configuration_number;
 }
 
 @ @<Process GET DESCRIPTOR request@>=
+
+//TODO: play with it by substituting values and seeing wireshark to understand how it works
+
+
 U16  wLength;
-U8   descriptor_type ;
-U8   string_type;
+U8   descriptor_type;
 U8   nb_byte;
 
-   zlp             = FALSE;         /* no zero length packet */
-   string_type     = UEDATX;        /* read LSB of wValue    */
-   descriptor_type = UEDATX;        /* read MSB of wValue    */
+   zlp = FALSE; /* no zero length packet */
+   (void) UEDATX; /* don't care of Descriptor Index */
+   descriptor_type = UEDATX; /* read MSB of wValue */
 
    switch (descriptor_type)
    {
-    case DESCRIPTOR_DEVICE:
+    case 0x01:
       data_to_transfer = sizeof (usb_dev_desc);
       pbuffer          = &usb_dev_desc.bLength;
       break;
-    case DESCRIPTOR_CONFIGURATION:
+    case 0x02:
       data_to_transfer = sizeof (usb_conf_desc);
       pbuffer          = &usb_conf_desc.cfg.bLength;
       break;
-    default:
-      if(usb_user_get_descriptor(descriptor_type, string_type) == FALSE) {
-         UECONX |= 1 << STALLRQ;
-         UEINTX &= ~(1 << RXSTPI);
-         return;
-      }
-      break;
    }
 
-   (void) UEDATX; /* don't care of wIndex */
-   (void) UEDATX;
+   (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
    ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
    ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-   UEINTX &= ~(1<<RXSTPI);
-
+   UEINTX &= ~(1<<RXSTPI); /* SETUP packet completely read - make it possible to detect a new one */
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
       else zlp = FALSE;                   //!< no need of zero length packet
@@ -244,7 +262,7 @@ U8   nb_byte;
    else
      data_to_transfer = (U8) wLength;         /* send only requested number of data */
 
-   UEINTX &= ~(1<<NAKOUTI);
+   UEINTX &= ~(1 << NAKOUTI);
    while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
       while (!(UEINTX & (1 << TXINI))) {
         if (UEINTX & (1 << NAKOUTI))
@@ -273,7 +291,7 @@ U8   nb_byte;
 
    while (!(UEINTX & (1 << NAKOUTI))) ;
    UEINTX &= ~(1 << NAKOUTI);
-   UEINTX &= ~(1 << RXOUTI);
+   UEINTX &= ~(1 << RXOUTI); /* ack control out */
 
 @ @c
 //! usb_get_status.

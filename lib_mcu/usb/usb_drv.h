@@ -153,8 +153,6 @@
 #define Usb_ack_stalled()                         (MSK_STALLEDI=   0)
    //! acks IN ready
 #define Usb_ack_in_ready()                        (UEINTX &= ~(1<<TXINI), Usb_ack_fifocon())
-   //! Kills last bank
-#define Usb_kill_last_in_bank()                   (UENTTX |= (1<<RXOUTI))
    //! tests if endpoint read allowed
 #define Is_usb_read_enabled()                     (UEINTX&(1<<RWAL))
    //! tests if endpoint write allowed
@@ -173,8 +171,6 @@
 #define Usb_send_control_in()                     (UEINTX &= ~(1<<TXINI))
    //! frees OUT bank
 #define Usb_free_out_bank()                       (UEINTX &= ~(1<<FIFOCON))
-   //! acks OUT on control endpoint
-#define Usb_ack_control_out()                     (UEINTX &= ~(1<<RXOUTI))
 
    //! enables flow error interrupt
 #define Usb_enable_flow_error_interrupt()         (UEIENX  |=  (1<<FLERRE))
