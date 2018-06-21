@@ -227,27 +227,42 @@ U8 configuration_number;
 }
 
 @ @<Process GET DESCRIPTOR request@>=
-   (void) UEDATX; /* don't care of Descriptor Index */
-   U8 bDescriptorType = UEDATX;
+@<Read SETUP packet@>@;
 
-   (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
+switch (bDescriptorType)
+{
+  case 0x01: /* device */
+    data_to_transfer = sizeof (usb_dev_desc);
+    pbuffer = &usb_dev_desc.bLength;
+    break;
+  case 0x02: /* configuration */
+    data_to_transfer = sizeof (usb_conf_desc);
+    pbuffer = &usb_conf_desc.cfg.bLength;
+    break;
+}
 
-   U16 wLength;
-   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
-   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-   UEINTX &= ~(1<<RXSTPI); /* SETUP packet completely read - make it possible to detect a new one */
-   switch (bDescriptorType)
-   {
-    case 0x01: /* device */
-      data_to_transfer = sizeof (usb_dev_desc);
-      pbuffer          = &usb_dev_desc.bLength;
-      break;
-    case 0x02: /* configuration */
-      data_to_transfer = sizeof (usb_conf_desc);
-      pbuffer          = &usb_conf_desc.cfg.bLength;
-      break;
-   }
+UEINTX &= ~(1 << RXOUTI); /* prepare to detect ACK from host FIXME: can it be 1 here at all? */
 
+@<Send descriptor to host@>@;
+
+@<Wait ACK from host@>@;
+
+UEINTX &= ~(1 << RXOUTI); /* it rather must be done here than above (?) */
+
+@ @<Read SETUP packet@>=
+(void) UEDATX; /* don't care of Descriptor Index */
+
+U8 bDescriptorType = UEDATX;
+
+(void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
+
+U16 wLength; /* how many bytes host can get (i.e., we must not send more than that) */
+((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
+((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
+
+UEINTX &= ~(1 << RXSTPI);
+
+@ @<Send descriptor to host@>=
    zlp = FALSE; /* no zero length packet */
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
@@ -282,7 +297,12 @@ U8 configuration_number;
 
    while (!(UEINTX & (1 << NAKOUTI))) ; /* wait if there is no NAK */
    UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
-   UEINTX &= ~(1 << RXOUTI); /* ack control out */
+
+@ Хост подтверждает успешное завершение обработки запроса, отправив устройству пакет данных
+нулевой длины. This packet is not shown in wireshark.
+
+@<Wait ACK from host@>=
+while (!(UEINTX & (1 << RXOUTI))) ;
 
 @ @c
 //! usb_get_status.
