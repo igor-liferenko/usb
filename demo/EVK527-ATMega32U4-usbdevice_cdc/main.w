@@ -67,12 +67,11 @@ int main(void)
   }
 
   while (1) { /* main application loop */
-/*TODO: check this via typyng hello world in both directions*/
-#if 1==0
-    if (UEINTX & (1 << RXSTPI)) { DDRC|=1<<PC7;PORTC|=1<<PC7; } /* must not be */
-#else
-    @<Check for a setup packet@>@;
-#endif
+    UENUM = 0;
+    if (UEINTX & (1 << RXSTPI)) {
+      DDRB|=1<<PB0;PORTB|=1<<PB0; /* if it will not burn, remove this uenum+if */
+      usb_process_request();
+    }
     //if (line_status.DTR) {
       /* send a character (see cdc_task.w) */
     //}

@@ -232,29 +232,28 @@ U8 configuration_number;
 
 
 U16  wLength;
-U8   descriptor_type;
 U8   nb_byte;
 
    zlp = FALSE; /* no zero length packet */
    (void) UEDATX; /* don't care of Descriptor Index */
-   descriptor_type = UEDATX; /* read MSB of wValue */
-
-   switch (descriptor_type)
-   {
-    case 0x01:
-      data_to_transfer = sizeof (usb_dev_desc);
-      pbuffer          = &usb_dev_desc.bLength;
-      break;
-    case 0x02:
-      data_to_transfer = sizeof (usb_conf_desc);
-      pbuffer          = &usb_conf_desc.cfg.bLength;
-      break;
-   }
+   U8 bDescriptorType = UEDATX;
 
    (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
    ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
    ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
    UEINTX &= ~(1<<RXSTPI); /* SETUP packet completely read - make it possible to detect a new one */
+   switch (bDescriptorType)
+   {
+    case 0x01: /* device */
+      data_to_transfer = sizeof (usb_dev_desc);
+      pbuffer          = &usb_dev_desc.bLength;
+      break;
+    case 0x02: /* configuration */
+      data_to_transfer = sizeof (usb_conf_desc);
+      pbuffer          = &usb_conf_desc.cfg.bLength;
+      break;
+   }
+
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
       else zlp = FALSE;                   //!< no need of zero length packet
