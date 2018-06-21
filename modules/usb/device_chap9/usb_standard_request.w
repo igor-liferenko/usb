@@ -107,7 +107,7 @@ void usb_process_request(void)
 {
    U8  bRequest;
 
-   UEINTX &= ~(1<<RXOUTI);
+// ???   UEINTX &= ~(1<<RXOUTI);
    bmRequestType = UEDATX;
    bRequest = UEDATX;
 
@@ -227,18 +227,12 @@ U8 configuration_number;
 }
 
 @ @<Process GET DESCRIPTOR request@>=
-
-//TODO: play with it by substituting values and seeing wireshark to understand how it works
-
-
-U16  wLength;
-U8   nb_byte;
-
-   zlp = FALSE; /* no zero length packet */
    (void) UEDATX; /* don't care of Descriptor Index */
    U8 bDescriptorType = UEDATX;
 
    (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
+
+   U16 wLength;
    ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
    ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
    UEINTX &= ~(1<<RXSTPI); /* SETUP packet completely read - make it possible to detect a new one */
@@ -254,22 +248,20 @@ U8   nb_byte;
       break;
    }
 
+   zlp = FALSE; /* no zero length packet */
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
       else zlp = FALSE;                   //!< no need of zero length packet
    }
    else
      data_to_transfer = (U8) wLength;         /* send only requested number of data */
-
-   UEINTX &= ~(1 << NAKOUTI);
-   while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
-      while (!(UEINTX & (1 << TXINI))) {
-        if (UEINTX & (1 << NAKOUTI))
-          break;    // don't clear the flag now, it will be cleared after
-      }
-
-      nb_byte=0;
-      while(data_to_transfer != 0) { /* Send data until necessary */
+/* fixme: why zlp is not calculated here, after data_to_transfer was set? */
+   UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
+   while (data_to_transfer && !(UEINTX & (1 << NAKOUTI))) { /* DATA && no NAK */
+      while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << NAKOUTI))) ; /* wait until USB
+        becomes writable (?) or NAK */
+      U8 nb_byte=0;
+      while (data_to_transfer) { /* Send data until necessary */
          if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
             break;
 
@@ -277,19 +269,19 @@ U8   nb_byte;
          data_to_transfer--;
       }
 
-      if (UEINTX & (1 << NAKOUTI))
-        break;
+      if (UEINTX & (1 << NAKOUTI)) /* NAK */
+        break; /* do not send the rest data */
       else
-        UEINTX &= ~(1 << TXINI);
+        UEINTX &= ~(1 << TXINI); /* ack IN ready */
    }
 
-   if ((zlp == TRUE) && !(UEINTX & (1 << NAKOUTI))) {
-     while (!(UEINTX & (1 << TXINI))) ;
-     UEINTX &= ~(1 << TXINI);
+   if (zlp && !(UEINTX & (1 << NAKOUTI))) { /* ZLP && no NAK */
+     while (!(UEINTX & (1 << TXINI))) ; /* wait until USB becomes writable (?) */
+     UEINTX &= ~(1 << TXINI); /* ack IN ready */
    }
 
-   while (!(UEINTX & (1 << NAKOUTI))) ;
-   UEINTX &= ~(1 << NAKOUTI);
+   while (!(UEINTX & (1 << NAKOUTI))) ; /* wait if there is no NAK */
+   UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
    UEINTX &= ~(1 << RXOUTI); /* ack control out */
 
 @ @c
