@@ -69,8 +69,8 @@ int main(void)
   while (1) { /* main application loop */
     UENUM = 0;
     if (UEINTX & (1 << RXSTPI)) {
-      DDRB|=1<<PB0;PORTB|=1<<PB0; /* if it will not burn, remove this uenum+if */
-      usb_process_request();
+      DDRB|=1<<PB0;PORTB|=1<<PB0;
+      /*process dtr here - grep SETUP_CDC_SET_CONTROL_LINE_STATE*/
     }
     //if (line_status.DTR) {
       /* send a character (see cdc_task.w) */

@@ -101,13 +101,28 @@ wLength – 2 байта, WORD
 22.12 CONTROL endpoint management
 A SETUP request is always ACK’ed
 */
-extern int connected;
+
+/*
+Two first packets in wireshark "GET DESCRIPTOR Request" and "GET DESCRIPTOR Response"
+consist of the following 9 USB packets:
+{{SETUP, DATA0, ACK}, {IN, DATAx, ACK}, {OUT, ZLP, ACK}}
+
+Here is what we must do:
+{{detect RXSTPI, read UEDATX, clear RXSTPI}, {detect IN, write to UEDATX, receive ACK},
+{detect RXOUTI, clear RXOUTI}}
+
+Если в устройстве нет данных для передачи хосту – устройство в ответ на TOKEN IN пакет
+посылает NAK пакет, и хост переходит к обмену данными со следующим устройством. 
+
+ACK – пакет получен успешно.
+NAK – таймаут не получения ACK. В этом случае хост должен отправить пакет повторно
+*/
+
 extern volatile int eor_disabled;
 void usb_process_request(void)
 {
    U8  bRequest;
 
-// ???   UEINTX &= ~(1<<RXOUTI);
    bmRequestType = UEDATX;
    bRequest = UEDATX;
 
@@ -128,7 +143,6 @@ void usb_process_request(void)
     case SETUP_SET_CONFIGURATION:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_configuration(); }
          else                       { usb_user_read_request(bmRequestType, bRequest); }
-         connected = 1;
          break;
 
     case SETUP_CLEAR_FEATURE:
@@ -241,13 +255,9 @@ switch (bDescriptorType)
     break;
 }
 
-UEINTX &= ~(1 << RXOUTI); /* prepare to detect ACK from host FIXME: can it be 1 here at all? */
-
 @<Send descriptor to host@>@;
 
-@<Wait ACK from host@>@;
-
-UEINTX &= ~(1 << RXOUTI); /* it rather must be done here than above (?) */
+@<Wait confirmation from host@>@;
 
 @ @<Read SETUP packet@>=
 (void) UEDATX; /* don't care of Descriptor Index */
@@ -260,9 +270,12 @@ U16 wLength; /* how many bytes host can get (i.e., we must not send more than th
 ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
 ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
 
-UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~(1 << RXSTPI); /* send ACK to host (this packet is not shown in wireshark) */
 
-@ @<Send descriptor to host@>=
+@ Here is what we do here:
+detect IN, write to UEDATX, receive ACK
+
+@<Send descriptor to host@>=
    zlp = FALSE; /* no zero length packet */
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
@@ -273,8 +286,8 @@ UEINTX &= ~(1 << RXSTPI);
 /* fixme: why zlp is not calculated here, after data_to_transfer was set? */
    UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
    while (data_to_transfer && !(UEINTX & (1 << NAKOUTI))) { /* DATA && no NAK */
-      while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << NAKOUTI))) ; /* wait until USB
-        becomes writable (?) or NAK */
+      while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << NAKOUTI))) ; /* wait until bank is ready
+        to accept new IN packet or NAK */
       U8 nb_byte=0;
       while (data_to_transfer) { /* Send data until necessary */
          if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
@@ -287,22 +300,23 @@ UEINTX &= ~(1 << RXSTPI);
       if (UEINTX & (1 << NAKOUTI)) /* NAK */
         break; /* do not send the rest data */
       else
-        UEINTX &= ~(1 << TXINI); /* ack IN ready */
+        UEINTX &= ~(1 << TXINI); /* send the packet */
    }
 
    if (zlp && !(UEINTX & (1 << NAKOUTI))) { /* ZLP && no NAK */
-     while (!(UEINTX & (1 << TXINI))) ; /* wait until USB becomes writable (?) */
-     UEINTX &= ~(1 << TXINI); /* ack IN ready */
+     while (!(UEINTX & (1 << TXINI))) ; /* wait until bank is ready to accept new IN packet */
+     UEINTX &= ~(1 << TXINI); /* send the packet */
    }
 
    while (!(UEINTX & (1 << NAKOUTI))) ; /* wait if there is no NAK */
    UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
 
 @ Хост подтверждает успешное завершение обработки запроса, отправив устройству пакет данных
-нулевой длины. This packet is not shown in wireshark.
+нулевой длины.
 
-@<Wait ACK from host@>=
+@<Wait confirmation from host@>=
 while (!(UEINTX & (1 << RXOUTI))) ;
+UEINTX &= ~(1 << RXOUTI); /* send ACK to host */
 
 @ @c
 //! usb_get_status.

@@ -46,6 +46,7 @@ extern S_line_status line_status;
 //! @return TRUE,  when the request is processed
 //! @return FALSE, if the request is'nt know (STALL handshake is managed by the main standard request function).
 //!
+extern int connected;
 Bool usb_user_read_request(U8 type, U8 request)
 {
    U16 wValue;
@@ -59,6 +60,7 @@ Bool usb_user_read_request(U8 type, U8 request)
       {
          case SETUP_CDC_SET_LINE_CODING:
          cdc_set_line_coding();
+         connected = 1;
          return TRUE;
          break;
    
@@ -167,7 +169,7 @@ void cdc_get_line_coding(void)
 //! @return none
 //!
 void cdc_set_line_coding (void)
-{
+{ /* this is a stub */
    Usb_ack_receive_setup();
    while (!(Is_usb_receive_out()));
    LSB0(line_coding.dwDTERate) = Usb_read_byte();
@@ -180,60 +182,8 @@ void cdc_set_line_coding (void)
      Usb_ack_receive_out();
 
      Usb_send_control_in();                // send a ZLP for STATUS phase
-     while(!(Is_usb_read_control_enabled()));
-
-  @<Configure UART@>@;
+     while (!(UEINTX & (1 << TXINI))) ; /* wait until bank is ready to accept new IN packet */
 }
-
-@ @d F_CPU 16000000
-@d TOLERANCE 2 /* baud rate tolerance (in percent) that is acceptable during the calculations */
-@d EVEN 2
-@d ODD 1
-
-@<Configure UART@>=
-U8 config_mask = 0;
-
-switch (line_coding.bParityType)
-{
-  case ODD:
-    config_mask = ((1 << UPM11) | (1 << UPM10)); @+
-    break;
-  case EVEN:
-    config_mask = (1 << UPM11); @+
-    break;
-}
-
-if (line_coding.bCharFormat == 2) /* two stop bits */
-  config_mask |= (1 << USBS1);
-
-switch (line_coding.bDataBits)
-{
-  case 6:
-    config_mask |= 1 << UCSZ10; @+
-    break;
-  case 7:
-    config_mask |= 1 << UCSZ11; @+
-    break;
-  case 8:
-    config_mask |= (1 << UCSZ11) | (1 << UCSZ10); @+
-    break;
-}
-
-UCSR1B = 0;
-UCSR1C = 0;
-UCSR1A = 0;
-
-if (16*(F_CPU/16+line_coding.dwDTERate/2)/line_coding.dwDTERate*(100*line_coding.dwDTERate-
-  line_coding.dwDTERate*TOLERANCE) <= 100 * F_CPU &&
-  100 * F_CPU <= 16*(F_CPU/16+line_coding.dwDTERate/2)/line_coding.dwDTERate*(100*
-  line_coding.dwDTERate+line_coding.dwDTERate*TOLERANCE))
-  UBRR1 = (F_CPU / 16 + line_coding.dwDTERate / 2) / line_coding.dwDTERate - 1;
-else {
-  UBRR1 = (F_CPU / 8 + line_coding.dwDTERate / 2) / line_coding.dwDTERate - 1;
-  UCSR1A |= 1 << U2X1;
-}
-UCSR1C = config_mask;
-UCSR1B |= (1 << RXEN1) | (1 << TXEN1) | (1 << RXCIE1);
 
 @ @c
 //! cdc_set_control_line_state.
