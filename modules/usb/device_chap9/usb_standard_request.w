@@ -107,22 +107,28 @@ Two first packets in wireshark "GET DESCRIPTOR Request" and "GET DESCRIPTOR Resp
 consist of the following 9 USB packets:
 {{SETUP, DATA0, ACK}, {IN, DATAx, ACK}, {OUT, ZLP, ACK}}
 
-Here is what we must do:
-{{detect RXSTPI, read UEDATX, clear RXSTPI}, {detect IN, write to UEDATX, receive ACK},
-{detect RXOUTI, clear RXOUTI}}
+Here is to what it corresponds:
+{{detect RXSTPI}, {write UEDATX, clear TXINI, wait until TXINI is 1},
+{detect RXOUTI}}
+
+to detect RXSTPI and RXOUTI, they must be cleared after reading data (if data is not ZLP)
+
+NAKOUTI bit is set if ACK was not sent (by avr) in RXSTPI or RXOUTI transaction, therefore
+UEDATX must not be read (i.e., RXSTPI and RXOUTI must not be believed to)
+В этом случае хост должен отправить пакет повторно
+
+NAKINI bit is set if ACK was not sent (by host) in IN transaction, therefore UEDATX
+must be written again (i.e., TXINI = 1 must not be believed to)
 
 Если в устройстве нет данных для передачи хосту – устройство в ответ на TOKEN IN пакет
 посылает NAK пакет, и хост переходит к обмену данными со следующим устройством. 
-
-ACK – пакет получен успешно.
-NAK – таймаут не получения ACK. В этом случае хост должен отправить пакет повторно
 */
 
 extern volatile int eor_disabled;
 void usb_process_request(void)
 {
    U8  bRequest;
-
+   if (UEINTX & (1<<RXOUTI)) { DDRD|=1<<PD5; PORTD|=1<<PD5; }
    bmRequestType = UEDATX;
    bRequest = UEDATX;
 
@@ -257,8 +263,6 @@ switch (bDescriptorType)
 
 @<Send descriptor to host@>@;
 
-@<Wait confirmation from host@>@;
-
 @ @<Read SETUP packet@>=
 (void) UEDATX; /* don't care of Descriptor Index */
 
@@ -270,26 +274,27 @@ U16 wLength; /* how many bytes host can get (i.e., we must not send more than th
 ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
 ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
 
-UEINTX &= ~(1 << RXSTPI); /* send ACK to host (this packet is not shown in wireshark) */
+UEINTX &= ~(1 << RXSTPI);
 
-@ Here is what we do here:
-detect IN, write to UEDATX, receive ACK
-
-@<Send descriptor to host@>=
-   zlp = FALSE; /* no zero length packet */
+@ @<Send descriptor to host@>=
+zlp = FALSE;
    if (data_to_transfer < wLength) {
       if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
       else zlp = FALSE;                   //!< no need of zero length packet
    }
    else
      data_to_transfer = (U8) wLength;         /* send only requested number of data */
-/* fixme: why zlp is not calculated here, after data_to_transfer was set? */
-   UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
-   while (data_to_transfer && !(UEINTX & (1 << NAKOUTI))) { /* DATA && no NAK */
-      while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << NAKOUTI))) ; /* wait until bank is ready
-        to accept new IN packet or NAK */
-      U8 nb_byte=0;
-      while (data_to_transfer) { /* Send data until necessary */
+U8 nb_byte;
+   UEINTX &= ~(1 << NAKOUTI);
+   while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
+      if (!(UEINTX & (1 << TXINI))) { DDRC|=1<<PC7; PORTC|=1<<PC7; }
+      while (!(UEINTX & (1 << TXINI))) {
+        if (UEINTX & (1 << NAKOUTI))
+          break;    // don't clear the flag now, it will be cleared after
+      }
+
+      nb_byte=0;
+      while(data_to_transfer != 0) { /* Send data until necessary */
          if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
             break;
 
@@ -297,26 +302,21 @@ detect IN, write to UEDATX, receive ACK
          data_to_transfer--;
       }
 
-      if (UEINTX & (1 << NAKOUTI)) /* NAK */
-        break; /* do not send the rest data */
+
+      if (UEINTX & (1 << NAKOUTI))
+        break;
       else
-        UEINTX &= ~(1 << TXINI); /* send the packet */
+        UEINTX &= ~(1 << TXINI);
    }
 
-   if (zlp && !(UEINTX & (1 << NAKOUTI))) { /* ZLP && no NAK */
-     while (!(UEINTX & (1 << TXINI))) ; /* wait until bank is ready to accept new IN packet */
-     UEINTX &= ~(1 << TXINI); /* send the packet */
+   if ((zlp == TRUE) && !(UEINTX & (1 << NAKOUTI))) {
+     while (!(UEINTX & (1 << TXINI))) ;
+     UEINTX &= ~(1 << TXINI);
    }
 
-   while (!(UEINTX & (1 << NAKOUTI))) ; /* wait if there is no NAK */
-   UEINTX &= ~(1 << NAKOUTI); /* clear NAK */
-
-@ Хост подтверждает успешное завершение обработки запроса, отправив устройству пакет данных
-нулевой длины.
-
-@<Wait confirmation from host@>=
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI); /* send ACK to host */
+   while (!(UEINTX & (1 << NAKOUTI))) ;
+   UEINTX &= ~(1 << NAKOUTI);
+   UEINTX &= ~(1 << RXOUTI);
 
 @ @c
 //! usb_get_status.

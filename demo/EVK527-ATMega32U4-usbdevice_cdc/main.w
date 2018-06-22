@@ -69,7 +69,7 @@ int main(void)
   while (1) { /* main application loop */
     UENUM = 0;
     if (UEINTX & (1 << RXSTPI)) {
-      DDRB|=1<<PB0;PORTB|=1<<PB0;
+//      DDRB|=1<<PB0;PORTB|=1<<PB0;
       /*process dtr here - grep SETUP_CDC_SET_CONTROL_LINE_STATE*/
     }
     //if (line_status.DTR) {
@@ -123,13 +123,13 @@ ISR(USB_GEN_vect)
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT &= ~(1 << EORSTI);
 if (eor_disabled) {
-  DDRC|=1<<PC7;PORTC|=1<<PC7;
+//  DDRC|=1<<PC7;PORTC|=1<<PC7;
 }
 else {
     UECONX |= 1 << EPEN;
     UECFG0X |= 0 << EPTYPE0; /* control */
     UECFG0X |= 0 << EPDIR; /* out */
-    UECFG1X |= 2 << EPSIZE0; /* 32 bytes (binary 10) - must be in accord with
+    UECFG1X |= 3 << EPSIZE0; /* 128 bytes (binary 011) - must be in accord with
       |EP_CONTROL_LENGTH| */
     UECFG1X |= 0 << EPBK0; /* one */
     UECFG1X |= 1 << ALLOC;
