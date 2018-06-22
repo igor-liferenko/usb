@@ -285,13 +285,9 @@ zlp = FALSE;
    else
      data_to_transfer = (U8) wLength;         /* send only requested number of data */
 U8 nb_byte;
-   UEINTX &= ~(1 << NAKOUTI);
-   while ((data_to_transfer != 0) && !(UEINTX & (1 << NAKOUTI))) {
+   while ((data_to_transfer != 0)) {
       if (!(UEINTX & (1 << TXINI))) { DDRC|=1<<PC7; PORTC|=1<<PC7; }
-      while (!(UEINTX & (1 << TXINI))) {
-        if (UEINTX & (1 << NAKOUTI))
-          break;    // don't clear the flag now, it will be cleared after
-      }
+      while (!(UEINTX & (1 << TXINI))) ;
 
       nb_byte=0;
       while(data_to_transfer != 0) { /* Send data until necessary */
@@ -302,20 +298,10 @@ U8 nb_byte;
          data_to_transfer--;
       }
 
-
-      if (UEINTX & (1 << NAKOUTI))
-        break;
-      else
         UEINTX &= ~(1 << TXINI);
    }
 
-   if ((zlp == TRUE) && !(UEINTX & (1 << NAKOUTI))) {
-     while (!(UEINTX & (1 << TXINI))) ;
-     UEINTX &= ~(1 << TXINI);
-   }
-
-   while (!(UEINTX & (1 << NAKOUTI))) ;
-   UEINTX &= ~(1 << NAKOUTI);
+   while (!(UEINTX & (1 << RXOUTI))) ;
    UEINTX &= ~(1 << RXOUTI);
 
 @ @c
