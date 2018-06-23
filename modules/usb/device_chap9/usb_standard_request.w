@@ -124,7 +124,6 @@ must be written again (i.e., TXINI = 1 must not be believed to)
 посылает NAK пакет, и хост переходит к обмену данными со следующим устройством. 
 */
 
-extern volatile int eor_disabled;
 void usb_process_request(void)
 {
    U8  bRequest;
@@ -142,8 +141,6 @@ void usb_process_request(void)
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
          else                       { usb_user_read_request(bmRequestType, bRequest); }
-         //UDIEN &= ~(1 << EORSTE);
-         eor_disabled = 1;
          break;
 
     case SETUP_SET_CONFIGURATION:
@@ -300,6 +297,8 @@ U8 nb_byte;
 
         UEINTX &= ~(1 << TXINI);
    }
+
+//FIXME: how it could be that "while (!(UEINTX & (1 << NAKOUTI))) ;" worked here?
 
    while (!(UEINTX & (1 << RXOUTI))) ;
    UEINTX &= ~(1 << RXOUTI);

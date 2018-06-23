@@ -34,8 +34,6 @@ The sample dual role application is based on two different tasks:
 
 extern U8    usb_configuration_nb;
 
-volatile int reset_done = 0;
-volatile int eor_disabled = 0;
 @<EOR interrupt handler@>@;
 
 int first_reset = 1;
@@ -62,8 +60,9 @@ int main(void)
   UDCON &= ~(1 << DETACH);
 
   while (!connected) {
-    if (!reset_done) continue;
-    @<Check for a setup packet@>@;
+    if (UEINTX & (1 << RXSTPI)) {
+      usb_process_request();
+    }
   }
 
   while (1) { /* main application loop */
@@ -79,23 +78,9 @@ int main(void)
   }
 }
 
-@ @<Check for a setup packet@>=
-UENUM = 0;
-if (UEINTX & (1 << RXSTPI)) {
-  if (first_reset) {
-    reset_done = 0;
-    first_reset = 0;
-  }
-  usb_process_request();
-}
-
 @ При обнаружении на линии состояния ``Сброс'' устройство должно перейти в исходное состояние
 (Default state). На практике, нам нужно присвоить устройству ``нулевой'' адрес и подготовить
-``нулевую контрольную точку'' к приему и обработке стандартных USB запросов от хоста. Хост
-всегда выставляет ``Сброс'' на шине сразу после того, как определит подключение устройства. До
-``сброса'' устройство не должно передавать какие-либо данные в т. ч. в ответ на запрос по адресу
-0 (благодаря этому, как я понимаю, решается проблема коллизии, возникающей в случае одновременного
-подключения к хосту нескольких новых устройств).
+``нулевую контрольную точку'' к приему и обработке стандартных USB запросов от хоста.
 
 EPEN is necessary because without it RXSTPI flag will not be set when first setup packet
 arrives.
@@ -106,26 +91,11 @@ todo: also check if wireshark trace differs if epsize is set before alloc before
 not set
 and with when it is set before alloc in eor handler
 
-|reset_done| is set to 0 before second reset,
-because after second reset will arrive request to set address, which is also destined to
-zero address, so the same
-precaution must be done not to process request which is not destined to us.
-
-|reset_done| is used because in atmega32u4 response packet is sent even if endpoint is not enabled,
-so we cannot deal with the fact that nothing should be responded until reset is detected by
-disabling EP0 on first GET_DESCRIPTOR and not enabling it in the beginning
-
-This interrupt is disabled after setting address, because it is not needed anymore.
-
 @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT &= ~(1 << EORSTI);
-if (eor_disabled) {
-//  DDRC|=1<<PC7;PORTC|=1<<PC7;
-}
-else {
     UECONX |= 1 << EPEN;
     UECFG0X |= 0 << EPTYPE0; /* control */
     UECFG0X |= 0 << EPDIR; /* out */
@@ -133,10 +103,6 @@ else {
       |EP_CONTROL_LENGTH| */
     UECFG1X |= 0 << EPBK0; /* one */
     UECFG1X |= 1 << ALLOC;
-    reset_done = 1;
-}
+//    if (UDADDR & (1 << ADDEN)) {DDRC|=1<<PC7;PORTC|=1<<PC7;}
   }
 }
-
-/* TODO: connect clone arduino micro because original arduino sometimes hangs on avrdude, which
-   spoils wireshark dump */
