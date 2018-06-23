@@ -20,7 +20,7 @@
 //_____ I N C L U D E S ____________________________________________________
 
 #include "config.h"
-#include "modules/usb/device_chap9/usb_standard_request.h"
+#include "modules/usb/ch9/usb_standard_request.h"
 #include "conf_usb.h"
 
 //_____ M A C R O S ________________________________________________________

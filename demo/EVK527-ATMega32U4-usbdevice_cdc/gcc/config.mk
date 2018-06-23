@@ -15,7 +15,7 @@ CSRCS = \
   ../../../lib_mcu/power/power_drv.c\
   ../cdc_task.c\
   ../main.c\
-  ../../../modules/usb/device_chap9/usb_standard_request.c\
+  ../../../modules/usb/ch9/usb_standard_request.c\
 
 # Assembler source files
 ASSRCS = \

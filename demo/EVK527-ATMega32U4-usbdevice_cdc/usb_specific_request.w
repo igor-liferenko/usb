@@ -21,7 +21,7 @@
 #include "conf_usb.h"
 #include "lib_mcu/usb/usb_drv.h"
 #include "usb_descriptors.h"
-#include "modules/usb/device_chap9/usb_standard_request.h"
+#include "modules/usb/ch9/usb_standard_request.h"
 #include "usb_specific_request.h"
 
 //_____ M A C R O S ________________________________________________________
@@ -44,7 +44,8 @@ extern S_line_status line_status;
 //! @param request   corresponding at bRequest (see USB specification)
 //!
 //! @return TRUE,  when the request is processed
-//! @return FALSE, if the request is'nt know (STALL handshake is managed by the main standard request function).
+//! @return FALSE, if the request is'nt know (STALL handshake is managed by the main
+// standard request function).
 //!
 extern int connected;
 Bool usb_user_read_request(U8 type, U8 request)

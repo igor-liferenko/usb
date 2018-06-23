@@ -18,7 +18,7 @@
 #include "conf_usb.h"
 #include "lib_mcu/usb/usb_drv.h"
 #include "usb_descriptors.h"
-#include "modules/usb/device_chap9/usb_standard_request.h"
+#include "modules/usb/ch9/usb_standard_request.h"
 #include "usb_specific_request.h"
 #include "uart_usb_lib.h"
 

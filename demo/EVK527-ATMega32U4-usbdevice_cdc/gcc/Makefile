@@ -68,7 +68,7 @@ objfiles: $(OBJECTS)
 	@echo 'Building file: $<'
 	@$(shell mkdir $(OUTPUT) 2>/dev/null)
 	@$(shell mkdir $(OUTPUT)/dep 2>/dev/null)
-	@/usr/bin/ctangle $< - $(@D)/$(*F).c >/dev/null
+	@ctangle $< - $(@D)/$(*F).c
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $(@D)/$(*F).c -o $(OUTPUT)/$(@F)
 	
 # Preprocess & assemble: create object files from assembler source files.

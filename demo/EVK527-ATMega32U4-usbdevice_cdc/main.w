@@ -26,8 +26,8 @@ The sample dual role application is based on two different tasks:
 #include "modules/scheduler/scheduler.h"
 #include "lib_mcu/power/power_drv.h"
 #include "lib_mcu/usb/usb_drv.h"
-#include "modules/usb/device_chap9/usb_device_task.h"
-#include "modules/usb/device_chap9/usb_standard_request.h"
+#include "modules/usb/ch9/usb_device_task.h"
+#include "modules/usb/ch9/usb_standard_request.h"
 
 #include "config.h"
 #include "conf_usb.h"
