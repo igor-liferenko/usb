@@ -62,7 +62,7 @@ int main(void)
       usb_process_request();
     }
   }
-
+  UDIEN &= ~(1 << EORSTE);
   while (1) { /* main application loop */
     UENUM = 0;
     if (UEINTX & (1 << RXSTPI)) {
@@ -90,5 +90,42 @@ ISR(USB_GEN_vect)
       |EP_CONTROL_LENGTH| */
     UECFG1X |= 0 << EPBK0; /* one */
     UECFG1X |= 1 << ALLOC;
+  }
+}
+
+@ NAKINI is set if we did not send anything in IN request. This can be checked by the following
+code:
+
+@(/dev/null@>=
+#include <avr/io.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  UENUM = 0;
+  UECONX |= 1 << EPEN;
+  UECFG1X |= 1 << 5; /* size 32 bytes */
+  UECFG1X |= 1 << ALLOC;
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  DDRC |= 1 << PC7;
+  DDRB |= 1 << PB0;
+  while(1) {
+    UECONX |= 1 << EPEN;
+    if (!(UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
+      PORTC |= 1 << PC7; /* this is not on */
+    if ((UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
+      PORTB |= 1 << PB0; /* this is on */
   }
 }
