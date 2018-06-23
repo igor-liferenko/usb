@@ -36,8 +36,6 @@ extern U8    usb_configuration_nb;
 
 @<EOR interrupt handler@>@;
 
-int first_reset = 1;
-
 int connected = 0;
 
 int main(void)
@@ -78,31 +76,19 @@ int main(void)
   }
 }
 
-@ При обнаружении на линии состояния ``Сброс'' устройство должно перейти в исходное состояние
-(Default state). На практике, нам нужно присвоить устройству ``нулевой'' адрес и подготовить
-``нулевую контрольную точку'' к приему и обработке стандартных USB запросов от хоста.
-
-EPEN is necessary because without it RXSTPI flag will not be set when first setup packet
-arrives.
-But EPEN will have no effect if ALLOC is not done (either before attach of in eor handler - todo:
-check if trace of these two cases differs in wireshark).
-EPEN can only be enabled in eor handler.
-todo: also check if wireshark trace differs if epsize is set before alloc before attach with when it is
-not set
-and with when it is set before alloc in eor handler
-
-@<EOR interrupt handler@>=
+@ @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
     UDINT &= ~(1 << EORSTI);
+    UDADDR &= ~(1 << ADDEN);
+    UENUM = 0;
     UECONX |= 1 << EPEN;
     UECFG0X |= 0 << EPTYPE0; /* control */
     UECFG0X |= 0 << EPDIR; /* out */
-    UECFG1X |= 3 << EPSIZE0; /* 128 bytes (binary 011) - must be in accord with
+    UECFG1X |= 3 << EPSIZE0; /* 64 bytes (binary 011) - must be in accord with
       |EP_CONTROL_LENGTH| */
     UECFG1X |= 0 << EPBK0; /* one */
     UECFG1X |= 1 << ALLOC;
-//    if (UDADDR & (1 << ADDEN)) {DDRC|=1<<PC7;PORTC|=1<<PC7;}
   }
 }
