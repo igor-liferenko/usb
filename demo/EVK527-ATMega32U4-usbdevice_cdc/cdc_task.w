@@ -113,16 +113,15 @@ FIXME: handling of |buffer| is strange here - why use pointer to pointer?
    Usb_select_endpoint(TX_EP);
    while (nb_data)
    {
-      while(Is_usb_write_enabled()==FALSE); // Wait Endpoint ready
-      while(Is_usb_write_enabled() && nb_data)
-      {
+      while ((UEINTX & (1 << RWAL)) == FALSE) ; // Wait Endpoint ready
+      while ((UEINTX & (1 << RWAL)) && nb_data) {
          Usb_write_byte(*buffer);
          buffer++;
          nb_data--;
-   }
-      Usb_ack_in_ready();
+      }
+      UEINTX &= ~(1 << TXINI), Usb_ack_fifocon();
    }
    if (zlp) {
-      while(Is_usb_write_enabled()==FALSE); // Wait Endpoint ready
-      Usb_ack_in_ready();
+      while ((UEINTX & (1 << RWAL)) == FALSE) ; // Wait Endpoint ready
+      UEINTX &= ~(1 << TXINI), Usb_ack_fifocon();
    }
