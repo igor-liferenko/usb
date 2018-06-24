@@ -93,7 +93,8 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ NAKINI is set if we did not send anything in IN request. This can be checked by the following
+@ NAKINI is set if we did not send anything in IN request
+(but why? - TXINI was never cleared). This can be checked by the following
 code:
 
 @(/dev/null@>=
@@ -110,10 +111,39 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
 
-  UENUM = 0;
-  UECONX |= 1 << EPEN;
-  UECFG1X |= 1 << 5; /* size 32 bytes */
-  UECFG1X |= 1 << ALLOC;
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  DDRC |= 1 << PC7;
+  DDRB |= 1 << PB0;
+  DDRD |= 1 << PD5;
+  while(1) {
+    UECONX |= 1 << EPEN;
+    UECFG1X |= 1 << ALLOC;
+    if (!(UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
+      PORTC |= 1 << PC7; /* this is not on */
+    if ((UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
+      PORTB |= 1 << PB0; /* this is on */
+    if (UEINTX & (1 << RXSTPI)) PORTD |= 1 << PD5; /* this is on */
+  }
+}
+
+@ Reset is done more than once. This can be checked by the following code:
+
+@(test.c@>=
+#include <avr/io.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
@@ -121,11 +151,59 @@ void main(void)
 
   DDRC |= 1 << PC7;
   DDRB |= 1 << PB0;
+typedef unsigned char U8;
+typedef unsigned short U16;
+typedef struct {
+   U8      bLength;              //!< Size of this descriptor in bytes
+   U8      bDescriptorType;      //!< DEVICE descriptor type
+   U16     bscUSB;               //!< Binay Coded Decimal Spec. release
+   U8      bDeviceClass;         //!< Class code assigned by the USB
+   U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
+   U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
+   U8      bMaxPacketSize0;      //!< Max packet size for EP0
+   U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
+   U16     idProduct;            //!< Product ID assigned by the manufacturer
+   U16     bcdDevice;            //!< Device release number
+   U8      iManufacturer;        //!< Index of manu. string descriptor
+   U8      iProduct;             //!< Index of prod. string descriptor
+   U8      iSerialNumber;        //!< Index of S.N.  string descriptor
+   U8      bNumConfigurations;   //!< Number of possible configurations
+}  S_usb_device_descriptor;
+  code const S_usb_device_descriptor usb_dev_desc = {
+  sizeof(usb_dev_desc)
+, DESCRIPTOR_DEVICE
+, Usb_write_word_enum_struc(0x0110) /* bcdUSB */
+, DEVICE_CLASS
+, DEVICE_SUB_CLASS
+, DEVICE_PROTOCOL
+, EP_CONTROL_LENGTH
+, Usb_write_word_enum_struc(VENDOR_ID)
+, Usb_write_word_enum_struc(PRODUCT_ID)
+, Usb_write_word_enum_struc(RELEASE_NUMBER)
+, 0x00 /* iManufacturer ("Mfr=" in kern.log) */
+, 0x00 /* iProduct ("Product=" in kern.log) */
+, 0x00 /* iSerialNumber ("SerialNumber=" in kern.log) */
+, NB_CONFIGURATION
+};
+  U8 data_to_transfer = sizeof (usb_dev_desc);
+  PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
+  U8 bRequest;
+  U8 bmRequestType;
+  U8 bDescriptorType;
+  U16 wLength;
   while(1) {
-    UECONX |= 1 << EPEN;
-    if (!(UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
-      PORTC |= 1 << PC7; /* this is not on */
-    if ((UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
-      PORTB |= 1 << PB0; /* this is on */
+    if (UDINT & (1 << EORSTI)) break;
   }
+  bmRequestType = UEDATX;
+  bRequest = UEDATX;
+  (void) UEDATX; /* don't care of Descriptor Index */
+  bDescriptorType = UEDATX;
+  (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
+  wLength; /* how many bytes host can get (i.e., we must not send more than that) */
+  ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
+  ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
+
+
+
+
 }
