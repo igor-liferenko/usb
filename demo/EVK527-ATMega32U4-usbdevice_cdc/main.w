@@ -42,7 +42,10 @@ void main(void)
       PORTC |= 1 << PC7; /* this is not on */
     if ((UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
       PORTB |= 1 << PB0; /* this is on */
-    if (UEINTX & (1 << RXSTPI)) PORTD |= 1 << PD5; /* this is on */
+    if (UEINTX & (1 << RXSTPI)) {
+      PORTD |= 1 << PD5; /* this is on */
+      UEINTX &= ~(1 << RXSTPI); /* TODO: do above results change with this? */
+    }
   }
 }
 
