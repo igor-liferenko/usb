@@ -244,8 +244,6 @@
 #endif
 #ifdef LITTLE_ENDIAN
    #define Usb_write_word_enum_struc(x)   (x)
-#else //BIG_ENDIAN
-   #define Usb_write_word_enum_struc(x)   (wSWAP(x))
 #endif
 
 

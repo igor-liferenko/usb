@@ -53,25 +53,8 @@ void main(void)
 \xdef\resettestone{\secno} % remember the number of this section
 
 @(/dev/null@>=
+#include <avr/pgmspace.h>
 #include <avr/io.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-
-  DDRC |= 1 << PC7;
-  DDRB |= 1 << PB0;
 typedef unsigned char U8;
 typedef unsigned short U16;
 typedef struct {
@@ -90,23 +73,41 @@ typedef struct {
    U8      iSerialNumber;        //!< Index of S.N.  string descriptor
    U8      bNumConfigurations;   //!< Number of possible configurations
 }  S_usb_device_descriptor;
-  code const S_usb_device_descriptor usb_dev_desc = {
-  sizeof(usb_dev_desc)
-, DESCRIPTOR_DEVICE
-, Usb_write_word_enum_struc(0x0110) /* bcdUSB */
-, DEVICE_CLASS
-, DEVICE_SUB_CLASS
-, DEVICE_PROTOCOL
-, EP_CONTROL_LENGTH
-, Usb_write_word_enum_struc(VENDOR_ID)
-, Usb_write_word_enum_struc(PRODUCT_ID)
-, Usb_write_word_enum_struc(RELEASE_NUMBER)
+  PROGMEM const S_usb_device_descriptor usb_dev_desc = {
+  sizeof (S_usb_device_descriptor)
+, 0x01 /* device */
+, 0x0110 /* bcdUSB */
+, 0x02 /* device class */
+, 0 /* subclass */
+, 0 /* device protocol */
+, 64 /* control endpoint size */
+, 0x03EB
+, 0x2018
+, 0x1000
 , 0x00 /* iManufacturer ("Mfr=" in kern.log) */
 , 0x00 /* iProduct ("Product=" in kern.log) */
 , 0x00 /* iSerialNumber ("SerialNumber=" in kern.log) */
-, NB_CONFIGURATION
+, 1 /* number of configurations */
 };
-  U8 data_to_transfer = sizeof (usb_dev_desc);
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  DDRC |= 1 << PC7;
+  DDRB |= 1 << PB0;
+  U8 data_to_transfer = sizeof usb_dev_desc;
   PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
   U8 bRequest;
   U8 bmRequestType;
