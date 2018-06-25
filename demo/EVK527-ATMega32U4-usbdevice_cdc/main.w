@@ -44,7 +44,9 @@ void main(void)
       PORTB |= 1 << PB0; /* this is on */
     if (UEINTX & (1 << RXSTPI)) {
       PORTD |= 1 << PD5; /* this is on */
-      UEINTX &= ~(1 << RXSTPI); /* TODO: do above results change with this? */
+      UEINTX &= ~(1 << RXSTPI); /* TODO: do above results change with this? this will
+      say if ack is sent when we clean rxstpi or it is sent automatically before
+      rxstpi is set */
     }
   }
 }
@@ -128,6 +130,33 @@ void main(void)
 
 
 
+}
+
+@ Here we check initial value of TXINI. This will say if TXINI is set to one if IN
+packet was received or on some other condition (depends on what it is initially-check
+here) 
+
+@(/dev/null@>=
+#include <avr/io.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  DDRC |= 1 << PC7;
+  if (UEINTX & (1 << TXINI)) PORTC |= 1 << PC7; /* TODO: write result here and in doc-part */
+  while (1) ;
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
