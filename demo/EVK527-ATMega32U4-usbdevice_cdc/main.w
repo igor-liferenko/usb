@@ -127,27 +127,15 @@ void main(void)
   wLength; /* how many bytes host can get (i.e., we must not send more than that) */
   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-#if 1==0
+#if 1==1
   UEINTX &= ~(1 << RXSTPI); /* do not do it here to check rxstpi like in section
     \nakinitest */
 #endif
-  U8 nb_byte;
-   while ((data_to_transfer != 0)) {
-      if (!(UEINTX & (1 << TXINI))) { DDRC|=1<<PC7; PORTC|=1<<PC7; }
-      while (!(UEINTX & (1 << TXINI))) ;
-
-      nb_byte=0;
-      while(data_to_transfer != 0) { /* Send data until necessary */
-         if (nb_byte++==64) /* Check endpoint 0 size */
-            break;
-
-         UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
-         data_to_transfer--;
-      }
-
-        UEINTX &= ~(1 << TXINI);
-   }
-//FIXME: how can it be that "UEINTX & (1 << NAKOUTI)" is true here?
+   while (data_to_transfer--)
+     UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
+   UEINTX &= ~(1 << TXINI);
+   while (!(UEINTX & (1 << NAKOUTI))) ;
+   UEINTX &= ~(1 << NAKOUTI);
    while (!(UEINTX & (1 << RXOUTI))) ;
    UEINTX &= ~(1 << RXOUTI);
 }
