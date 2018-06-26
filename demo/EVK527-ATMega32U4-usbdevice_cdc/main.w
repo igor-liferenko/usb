@@ -55,41 +55,42 @@ void main(void)
 \xdef\resettestone{\secno} % remember the number of this section
 
 @(test.c@>=
-#include <avr/pgmspace.h>
 #include <avr/io.h>
+#include <avr/pgmspace.h>
+
 typedef unsigned char U8;
 typedef unsigned short U16;
 typedef struct {
-   U8      bLength;              //!< Size of this descriptor in bytes
-   U8      bDescriptorType;      //!< DEVICE descriptor type
-   U16     bscUSB;               //!< Binay Coded Decimal Spec. release
-   U8      bDeviceClass;         //!< Class code assigned by the USB
-   U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
-   U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
-   U8      bMaxPacketSize0;      //!< Max packet size for EP0
-   U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
-   U16     idProduct;            //!< Product ID assigned by the manufacturer
-   U16     bcdDevice;            //!< Device release number
-   U8      iManufacturer;        //!< Index of manu. string descriptor
-   U8      iProduct;             //!< Index of prod. string descriptor
-   U8      iSerialNumber;        //!< Index of S.N.  string descriptor
-   U8      bNumConfigurations;   //!< Number of possible configurations
-}  S_usb_device_descriptor;
-  PROGMEM const S_usb_device_descriptor usb_dev_desc = {
-  sizeof (S_usb_device_descriptor)
-, 0x01 /* device */
-, 0x0110 /* bcdUSB */
-, 0x02 /* device class */
-, 0 /* subclass */
-, 0 /* device protocol */
-, 64 /* control endpoint size */
-, 0x03EB
-, 0x2018
-, 0x1000
-, 0x00 /* iManufacturer ("Mfr=" in kern.log) */
-, 0x00 /* iProduct ("Product=" in kern.log) */
-, 0x00 /* iSerialNumber ("SerialNumber=" in kern.log) */
-, 1 /* number of configurations */
+  U8      bLength;              //!< Size of this descriptor in bytes
+  U8      bDescriptorType;      //!< DEVICE descriptor type
+  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
+  U8      bDeviceClass;         //!< Class code assigned by the USB
+  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
+  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
+  U8      bMaxPacketSize0;      //!< Max packet size for EP0
+  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
+  U16     idProduct;            //!< Product ID assigned by the manufacturer
+  U16     bcdDevice;            //!< Device release number
+  U8      iManufacturer;        //!< Index of manu. string descriptor
+  U8      iProduct;             //!< Index of prod. string descriptor
+  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
+  U8      bNumConfigurations;   //!< Number of possible configurations
+} S_usb_device_descriptor;
+PROGMEM const S_usb_device_descriptor usb_dev_desc = {
+  sizeof (S_usb_device_descriptor),
+  0x01, /* device */
+  0x0110, /* bcdUSB */
+  0x02, /* device class */
+  0, /* subclass */
+  0, /* device protocol */
+  64, /* control endpoint size */
+  0x03EB,
+  0x2018,
+  0x1000,
+  0x00, /* iManufacturer ("Mfr=" in kern.log) */
+  0x00, /* iProduct ("Product=" in kern.log) */
+  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
+  1 /* number of configurations */
 };
 
 void main(void)
