@@ -105,3 +105,8 @@ test:
 	avr-objcopy -O ihex $@.elf $@.hex
 	avrdude -c usbasp -p $(MCU) -U flash:w:$@.hex -qq
 
+.PHONY: $(wildcard *.eps)
+
+IN.eps: IN.png
+	@convert $< $@
+	@imgsize $@

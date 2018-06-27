@@ -253,3 +253,6 @@ ISR(USB_GEN_vect)
     UECFG1X |= 1 << ALLOC;
   }
 }
+
+@ $$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=gcc/IN.eps
+  clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
