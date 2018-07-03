@@ -7,6 +7,7 @@
 .set CMD_USB_SET_ADDRESS, 0x05
 .set CMD_USB_GET_DESCRIPTOR, 0x06
 .set CMD_HID_SET_IDLE, 0x09
+.set DEVICE_DESCRIPTOR, 0x01
 
 ;------------------------------------------------
 ;Начало основной программы:
@@ -269,7 +270,7 @@ sl_2:
 
 stand_desc:
    rcall read_buff
-   cpi R19, 1
+   cpi R19, DEVICE_DESCRIPTOR
    brne n_1
    rjmp d_dev
 
@@ -298,16 +299,18 @@ n_4:
    rjmp vihod_ep
 
 d_dev:
-   lds R24, UEINTX
-   sbrs R24, TXINI
-   rjmp d_dev
-   ldi R31, hi8(dev_desc) ; ZH ?
-   ldi R30, lo8(dev_desc) ; ZL ?
+  ; while (!(UEINTX & (1 << TXINI))) ;
+  lds R24, UEINTX
+  sbrs R24, TXINI
+  rjmp d_dev
+  ; ...
+  ldi ZH, hi8(dev_desc)
+  ldi ZL, lo8(dev_desc)
 
 out_data_d:
    lpm R24, Z+
    sts UEDATX, R24
-   cpi R30, 18
+   cpi ZL, 18
    brne out_data_d
    lds R24, UEINTX
    cbr R24, 1 << TXINI
@@ -319,8 +322,8 @@ d_con:
    lds R24, UEINTX
    sbrs R24, TXINI
    rjmp d_con
-   ldi R31, hi8(con_desc)
-   ldi R30, lo8(con_desc)
+   ldi ZH, hi8(con_desc)
+   ldi ZL, lo8(con_desc)
    clr R23
    cpi R22, 9
    breq con_drv
@@ -366,32 +369,32 @@ con_drv:
 d_str:
    cpi R18, 0
    brne s_1
-   ldi R31, hi8(str_0)
-   ldi R30, lo8(str_0)
+   ldi ZH, hi8(str_0)
+   ldi ZL, lo8(str_0)
    ldi R20, 4
    rjmp d_str_1
 
 s_1:
    cpi R18, 1
    brne s_2
-   ldi R31, hi8(str_1)
-   ldi R30, lo8(str_1)
+   ldi ZH, hi8(str_1)
+   ldi ZL, lo8(str_1)
    ldi R20, 12
    rjmp d_str_1
 
 s_2:
    cpi R18, 2
    brne s_3
-   ldi R31, hi8(str_2)
-   ldi R30, lo8(str_2)
+   ldi ZH, hi8(str_2)
+   ldi ZL, lo8(str_2)
    ldi R20, 32
    rjmp d_str_1
 
 s_3:
    cpi R18, 3
    brne s_4
-   ldi R31, hi8(str_3)
-   ldi R30, lo8(str_3)
+   ldi ZH, hi8(str_3)
+   ldi ZL, lo8(str_3)
    ldi R20, 10
    rjmp d_str_1
 
@@ -450,8 +453,8 @@ d_rep_1:
    sbrs R24, TXINI
    rjmp d_rep_1
    clr R23
-   ldi R31, hi8(rep_desc)
-   ldi R30, lo8(rep_desc)
+   ldi ZH, hi8(rep_desc)
+   ldi ZL, lo8(rep_desc)
 
 out_dat_r:
    lpm R24, Z+
@@ -679,6 +682,7 @@ read_buff:
   sts UEINTX, R24
   ret
 
+.org 0x063C
 dev_desc:
    .byte 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
    .byte 0x13,0x20,0x00,0x10,0x01,0x02,0x03,0x01
