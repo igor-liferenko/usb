@@ -119,29 +119,37 @@ SLP:
 
 .global USB_GEN_vect
 USB_GEN_vect:
+  ; if (UDINT & (1 << EORSTI))
   lds R24, UDINT
   sbrs R24, EORSTI
   rjmp next_ev_1
-
+  ; UDINT &= ~(1 << EORSTI);
   cbr R24, 1 << EORSTI
   sts UDINT, R24
+  ; goto vihod_ug
   rjmp vihod_ug
 
 next_ev_1:
-   sbrs R24, SUSPI
-   rjmp next_ev_2
-   cbr R24, 1 << SUSPI
-   sts UDINT, R24
-   lds R24, USBCON
-   sbr R24, 1 << FRZCLK
-   sts USBCON, R24
-   in R16, _SFR_IO_ADDR(PLLCSR)
-   cbr R16, 1 << PLLE
-   out _SFR_IO_ADDR(PLLCSR), R16
-   lds R24, UDIEN
-   sbr R24, 1 << WAKEUPE
-   sts UDIEN, R24
-   rjmp vihod_ug
+  ; if (UDINT & (1 << SUSPI))
+  sbrs R24, SUSPI
+  rjmp next_ev_2
+  ; UDINT &= ~(1 << SUSPI);
+  cbr R24, 1 << SUSPI
+  sts UDINT, R24
+  ; USBCON |= 1 << FRZCLK;
+  lds R24, USBCON
+  sbr R24, 1 << FRZCLK
+  sts USBCON, R24
+  ; PLLCSR &= ~(1 << PLLE);
+  in R16, _SFR_IO_ADDR(PLLCSR)
+  cbr R16, 1 << PLLE
+  out _SFR_IO_ADDR(PLLCSR), R16
+  ; UDIEN |= 1 << WAKEUPE;
+  lds R24, UDIEN
+  sbr R24, 1 << WAKEUPE
+  sts UDIEN, R24
+  ; goto vihod_ug
+  rjmp vihod_ug
 
 next_ev_2:
    sbrs R24, WAKEUPI
