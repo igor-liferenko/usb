@@ -6,3 +6,5 @@
 *.scn
 *.tex
 *.toc
+*.elf
+*.hex
