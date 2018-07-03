@@ -45,7 +45,8 @@ main:
   ; PORTD &= ~(1 << PD5);
   cbi _SFR_IO_ADDR(PORTD), PD5
 
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;; use this to count how many times USB_RESET is done
+;fixme: on reset usb controller is untouched on reinitialized? i.e., |= or = are used? cmp with original once again
   sbi _SFR_IO_ADDR(DDRC), PC7
   sbi _SFR_IO_ADDR(PORTC), PC7
 ;;;;;;;;;;;;;;;;;;;
@@ -303,15 +304,17 @@ d_dev:
   lds R24, UEINTX
   sbrs R24, TXINI
   rjmp d_dev
-  ; ...
+
+  ; load 18 bytes to UEDATX
   ldi ZH, hi8(dev_desc)
   ldi ZL, lo8(dev_desc)
-
 out_data_d:
-   lpm R24, Z+
-   sts UEDATX, R24
-   cpi ZL, 18
-   brne out_data_d
+  lpm R24, Z+
+  sts UEDATX, R24
+  cpi ZL, 18
+  brne out_data_d
+
+  ; 
    lds R24, UEINTX
    cbr R24, 1 << TXINI
    sts UEINTX, R24
@@ -684,7 +687,7 @@ read_buff:
 
 .org 0x063C
 dev_desc:
-   .byte 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
+   .byte 0x12,0x01,0x10,0x01,0x00,0x00,0x00,0x20,0xEB,0x03
    .byte 0x13,0x20,0x00,0x10,0x01,0x02,0x03,0x01
 con_desc:
    .byte 0x09,0x02,0x29,0x00,0x01,0x01,0x00,0x80,0x32,0x09
