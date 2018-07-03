@@ -1,49 +1,32 @@
-;Демонстрационная реализация устройства USB HID на ассемблере для AT90USB162.
-;Автор Каменяр Сергей <batonator@yandex.ru> (15 июля 2016 г.)
-;Размер EP0=32 байта.
-;.include "iousb162.h"
-.include "usb162def.inc"
- 
-.CSEG
+#include <avr/io.h>
 
-;------------------------------------------------
-;Вектора сброса и обработчиков прерываний:
-;------------------------------------------------
-.ORG $000
-   rjmp RESET
-.ORG $016
-   rjmp USB_GENERAL     ;обработка общих событий
-.ORG $018
-   rjmp USB_ENDPOINT    ;обработка прерывания конечной точки
+.set EP0, 0 ;конечная точка управления
+.set EP1, 1 ;конечная точка IN
+.set EP2, 2 ;конечная точка OUT
 
-EP0   EQU   EPNUM0      ;конечная точка управления
-EP1   EQU   EPNUM1      ;конечная точка IN
-EP2   EQU   EPNUM2      ;конечная точка OUT
-
-CMD_USB_SET_ADDRESS        EQU   0x05
-CMD_USB_GET_DESCRIPTOR     EQU   0x06
+.set CMD_USB_SET_ADDRESS, 0x05
+.set CMD_USB_GET_DESCRIPTOR, 0x06
 
 ;------------------------------------------------
 ;Начало основной программы:
 ;------------------------------------------------
-RESET:
-   ldi R16, high(RAMEND)
-   out SPH, R16
-   ldi R16, low(RAMEND)
-   out SPL, R16
+.global main
+main:
+   ; SP is set to RAMEND automatically by GCC
+
    clr R1
    clr R2
    clr R25
    clr R26
  
-   ldi R16, 0 << REGDIS
-   sts REGCR, R16
+   ldi R16, 1 << UVREGE
+   sts UHWCON, R16
  
    cli
    wdr
-   in R16, MCUSR
-   andi R16, (0xff & (0 << WDRF))
-   out MCUSR, R16
+   in R16, _SFR_IO_ADDR(MCUSR)
+   andi R16, ~(1 << WDRF)
+   out _SFR_IO_ADDR(MCUSR), R16
    lds R16, WDTCSR
    ori R16, (1 << WDCE)|(1 << WDE)
    sts WDTCSR, R16
@@ -53,10 +36,10 @@ RESET:
    out DDRD, R16
    ldi R16, 0      ;00000000
    out PORTD, R16
-   ldi R16, (0 << PLLP2)+(0 << PLLP1)+(1 << PLLP0)+(1 << PLLE)
-   out PLLCSR, R16
+   ldi R16, (1 << PINDIV)+(1 << PLLE)
+   out _SFR_IO_ADDR(PLLCSR), R16
 bit_lock:
-   in R16, PLLCSR
+   in R16, _SFR_IO_ADDR(PLLCSR)
    sbrs R16, 0
    rjmp bit_lock
    lds R16, USBCON
@@ -64,6 +47,12 @@ bit_lock:
    sts USBCON, R16
    cbr R16, 1 << FRZCLK
    sts USBCON, R16
+   sbr R16, 1 << OTGPADE
+   sts USBCON, R16
+bit_bus:
+   lds R16, USBSTA
+   sbrs R16, VBUS
+   rjmp bit_bus
    lds R16, UDCON
    cbr R16, 1 << DETACH
    sts UDCON, R16
@@ -82,7 +71,7 @@ r_bus:
    ldi R24, 1 << RXSTPE
    sts UEIENX, R24
    ldi R16, 1 << SE
-   out SMCR, R16
+   out _SFR_IO_ADDR(SMCR), R16
    sei
 SLP:
    sleep
@@ -91,7 +80,8 @@ SLP:
 ;------------------------------------------------
 ;Обработчик общих прерываний USB
 ;------------------------------------------------
-USB_GENERAL:
+.global USB_GEN_vect
+USB_GEN_vect:
    lds R24, UDINT 
    sbrs R24, 3
    rjmp next_ev_1
@@ -107,9 +97,9 @@ next_ev_1:
    lds R24, USBCON
    sbr R24, 1 << FRZCLK
    sts USBCON, R24
-   in R16, PLLCSR
+   in R16, _SFR_IO_ADDR(PLLCSR)
    cbr R16, 1 << PLLE
-   out PLLCSR, R16
+   out _SFR_IO_ADDR(PLLCSR), R16
    lds R24, UDIEN
    sbr R24, 1 << WAKEUPE
    sts UDIEN, R24
@@ -118,11 +108,11 @@ next_ev_1:
 next_ev_2:
    sbrs R24, 4
    rjmp vihod_ug
-   in R16, PLLCSR
+   in R16, _SFR_IO_ADDR(PLLCSR)
    sbr R16, 1 << PLLE
-   out PLLCSR, R16
+   out _SFR_IO_ADDR(PLLCSR), R16
 lock_bit:
-   in R16, PLLCSR
+   in R16, _SFR_IO_ADDR(PLLCSR)
    sbrs R16, 0
    rjmp lock_bit
    lds R24, USBCON 
@@ -142,7 +132,8 @@ vihod_ug:
 ;------------------------------------------------
 ; Обработчик прерывания конечной точки 
 ;------------------------------------------------
-USB_ENDPOINT:
+.global USB_COM_vect
+USB_COM_vect:
    lds R24, UEINT
    cpi R24, 1 << EP0
    brne ep_1
@@ -238,8 +229,8 @@ d_dev:
    lds R24, UEINTX
    sbrs R24, 0
    rjmp d_dev
-   ldi R31, high(dev_desc*2)
-   ldi R30, low(dev_desc*2)
+   ldi R31, hi8(dev_desc)
+   ldi R30, lo8(dev_desc)
 out_data_d:
    lpm R24, Z+
    sts UEDATX, R24
@@ -255,8 +246,8 @@ d_con:
    lds R24, UEINTX
    sbrs R24, 0
    rjmp d_con
-   ldi R31, high(con_desc*2)
-   ldi R30, low(con_desc*2)
+   ldi R31, hi8(con_desc)
+   ldi R30, lo8(con_desc)
    clr R23
    cpi R22, 9
    breq con_drv
@@ -300,32 +291,32 @@ con_drv:
 d_str:
    cpi R18, 0
    brne s_1
-   ldi R31, high(str_0*2)
-   ldi R30, low(str_0*2)
+   ldi R31, hi8(str_0)
+   ldi R30, lo8(str_0)
    ldi R20, 4
    rjmp d_str_1
 
 s_1:
    cpi R18, 1
    brne s_2
-   ldi R31, high(str_1*2)
-   ldi R30, low(str_1*2)
+   ldi R31, hi8(str_1)
+   ldi R30, lo8(str_1)
    ldi R20, 12
    rjmp d_str_1
 
 s_2:
    cpi R18, 2
    brne s_3
-   ldi R31, high(str_2*2)
-   ldi R30, low(str_2*2)
+   ldi R31, hi8(str_2)
+   ldi R30, lo8(str_2)
    ldi R20, 32
    rjmp d_str_1
 
 s_3:
    cpi R18, 3
    brne s_4
-   ldi R31, high(str_3*2)
-   ldi R30, low(str_3*2)
+   ldi R31, hi8(str_3)
+   ldi R30, lo8(str_3)
    ldi R20, 10
    rjmp d_str_1
 
@@ -377,13 +368,13 @@ n_5:
    rjmp vihod_ep
 
 d_rep_1:
-   sbi PORTD, 4
+   sbi _SFR_IO_ADDR(PORTD), 4
    lds R24, UEINTX
    sbrs R24, 0
    rjmp d_rep_1
    clr R23
-   ldi R31, high(rep_desc*2)
-   ldi R30, low(rep_desc*2)
+   ldi R31, hi8(rep_desc)
+   ldi R30, lo8(rep_desc)
 out_dat_r:
    lpm R24, Z+
    sts UEDATX, R24
@@ -591,32 +582,32 @@ read_buff:
    sts UEINTX, R24
    ret
    
-.ORG $300
+.org 0x063C
 dev_desc:
-   .DB 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
-   .DB 0x13,0x20,0x00,0x10,0x01,0x02,0x03,0x01
+   .byte 0x12,0x01,0x10,0x01,0x00,0x00,0x00,0x20,0xEB,0x03
+   .byte 0x13,0x20,0x00,0x10,0x01,0x02,0x03,0x01
 con_desc:
-   .DB 0x09,0x02,0x29,0x00,0x01,0x01,0x00,0x80,0x32,0x09
-   .DB 0x04,0x00,0x00,0x02,0x03,0x00,0x00,0x00,0x09,0x21
-   .DB 0x00,0x01,0x00,0x01,0x22,0x22,0x00,0x07,0x05,0x81
-   .DB 0x03,0x08,0x00,0x0F,0x07,0x05,0x02,0x03,0x08,0x00
-   .DB 0x0F
+   .byte 0x09,0x02,0x29,0x00,0x01,0x01,0x00,0x80,0x32,0x09
+   .byte 0x04,0x00,0x00,0x02,0x03,0x00,0x00,0x00,0x09,0x21
+   .byte 0x00,0x01,0x00,0x01,0x22,0x22,0x00,0x07,0x05,0x81
+   .byte 0x03,0x08,0x00,0x0F,0x07,0x05,0x02,0x03,0x08,0x00
+   .byte 0x0F
 str_0:
-   .DB 0x04,0x03,0x09,0x04
+   .byte 0x04,0x03,0x09,0x04
 str_1:
-   .DB 0x0C,0x03,0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00
-   .DB 0x4C,0x00
+   .byte 0x0C,0x03,0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00
+   .byte 0x4C,0x00
 str_2:
-   .DB 0x22,0x03,0x41,0x00,0x56,0x00,0x52,0x00,0x20,0x00
-   .DB 0x55,0x00,0x53,0x00,0x42,0x00,0x20,0x00,0x48,0x00
-   .DB 0x49,0x00,0x44,0x00,0x20,0x00,0x44,0x00,0x45,0x00
-   .DB 0x4D,0x00,0x4F,0x00
+   .byte 0x22,0x03,0x41,0x00,0x56,0x00,0x52,0x00,0x20,0x00
+   .byte 0x55,0x00,0x53,0x00,0x42,0x00,0x20,0x00,0x48,0x00
+   .byte 0x49,0x00,0x44,0x00,0x20,0x00,0x44,0x00,0x45,0x00
+   .byte 0x4D,0x00,0x4F,0x00
 str_3:
-   .DB 0x0A,0x03,0x30,0x00,0x30,0x00,0x30,0x00,0x30,0x00
+   .byte 0x0A,0x03,0x30,0x00,0x30,0x00,0x30,0x00,0x30,0x00
 rep_desc:
-   .DB 0x06,0x00,0xFF,0x09,0x00,0xA1,0x01,0x09,0x00,0x15
-   .DB 0x00,0x26,0xFF,0x00,0x75,0x08,0x95,0x08,0x81,0x02
-   .DB 0x09,0x00,0x15,0x00,0x26,0xFF,0x00,0x75,0x08,0x95
-   .DB 0x08,0x91,0x02,0xC0
+   .byte 0x06,0x00,0xFF,0x09,0x00,0xA1,0x01,0x09,0x00,0x15
+   .byte 0x00,0x26,0xFF,0x00,0x75,0x08,0x95,0x08,0x81,0x02
+   .byte 0x09,0x00,0x15,0x00,0x26,0xFF,0x00,0x75,0x08,0x95
+   .byte 0x08,0x91,0x02,0xC0
 
-.EXIT
+.end
