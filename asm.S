@@ -126,7 +126,7 @@ USB_GEN_vect:
   ; UDINT &= ~(1 << EORSTI);
   cbr R24, 1 << EORSTI
   sts UDINT, R24
-  ; goto vihod_ug
+  ; return
   rjmp vihod_ug
 
 next_ev_1:
@@ -148,38 +148,41 @@ next_ev_1:
   lds R24, UDIEN
   sbr R24, 1 << WAKEUPE
   sts UDIEN, R24
-  ; goto vihod_ug
+  ; return
   rjmp vihod_ug
 
 next_ev_2:
-   sbrs R24, WAKEUPI
-   rjmp vihod_ug
-   in R16, _SFR_IO_ADDR(PLLCSR)
-   sbr R16, 1 << PLLE
-   out _SFR_IO_ADDR(PLLCSR), R16
-
+  ; if (UDINT & (1 << WAKEUPI))
+  sbrs R24, WAKEUPI
+  rjmp vihod_ug
+  ; PLLCSR |= 1 << PLLE;
+  in R16, _SFR_IO_ADDR(PLLCSR)
+  sbr R16, 1 << PLLE
+  out _SFR_IO_ADDR(PLLCSR), R16
+; while (!(PLLCSR & (1 << PLOCK))) ;
 lock_bit:
-   in R16, _SFR_IO_ADDR(PLLCSR)
-   sbrs R16, PLOCK
-   rjmp lock_bit
-
-   lds R24, USBCON
-   cbr R24, 1 << FRZCLK
-   sts USBCON, R24
-
-   lds R24, UDINT
-   cbr R24, 1 << WAKEUPI
-   sts UDINT, R24
-
-   lds R24, UDIEN
-   cbr R24, 1 << WAKEUPE
-   sts UDIEN, R24
-
-   sts UENUM, R1
-   inc R2
+  in R16, _SFR_IO_ADDR(PLLCSR)
+  sbrs R16, PLOCK
+  rjmp lock_bit
+  ; USBCON &= ~(1 << FRZCLK);
+  lds R24, USBCON
+  cbr R24, 1 << FRZCLK
+  sts USBCON, R24
+  ; UDINT &= ~(1 << WAKEUPI);
+  lds R24, UDINT
+  cbr R24, 1 << WAKEUPI
+  sts UDINT, R24
+  ; UDIEN &= ~(1 << WAKEUPE);
+  lds R24, UDIEN
+  cbr R24, 1 << WAKEUPE
+  sts UDIEN, R24
+  ; UENUM = EP0;
+  sts UENUM, R1
+  ; flag = 1;
+  inc R2
 
 vihod_ug:
-   reti
+  reti
 
 ;------------------------------------------------
 ; Обработчик прерывания конечной точки
