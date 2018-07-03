@@ -6,6 +6,7 @@
 
 .set CMD_USB_SET_ADDRESS, 0x05
 .set CMD_USB_GET_DESCRIPTOR, 0x06
+.set CMD_HID_SET_IDLE, 0x09
 
 ;------------------------------------------------
 ;Начало основной программы:
@@ -210,7 +211,7 @@ next_0:
    rjmp set_adr
 
 next_1:
-   cpi R16, 0x09 ; ??????????
+   cpi R16, CMD_HID_SET_IDLE
    brne next_2
    cpi R17, 0x00
    brne next_2
@@ -605,7 +606,8 @@ conf_ep_0:
   sts UECONX, R16
 
   ; UECFG0X = 0x00;
-  sts UECFG0X, R1
+  ldi R16, 0x00
+  sts UECFG0X, R16
   ; 0 << EPBK0  2 << EPSIZE0  1 << ALLOC
   ldi R16, 0x22
   sts UECFG1X, R16
