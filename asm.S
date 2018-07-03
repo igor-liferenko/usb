@@ -44,6 +44,11 @@ main:
   ; PORTD &= ~(1 << PD5);
   cbi _SFR_IO_ADDR(PORTD), PD5
 
+;;;;;;;;;;;;;;;;;;;
+  sbi _SFR_IO_ADDR(DDRC), PC7
+  cbi _SFR_IO_ADDR(PORTC), PC7
+;;;;;;;;;;;;;;;;;;;
+
   ; PLLCSR = (1 << PINDIV) | (1 << PLLE);
   ldi R16, (1 << PINDIV) | (1 << PLLE)
   out _SFR_IO_ADDR(PLLCSR), R16
@@ -155,6 +160,12 @@ next_ev_2:
   ; if (UDINT & (1 << WAKEUPI))
   sbrs R24, WAKEUPI
   rjmp vihod_ug
+;;;;;;;;;;;;;
+; if led will be on, this means that wakeup interrupt handler will be called even if wakeup interrupt is disabled - in such case add check here if WAKEUPE is enabled (and likewise for others)
+  lds R24, UDIEN
+  sbrs R24, WAKEUPE
+  sbi _SFR_IO_ADDR(PORTC), PC7
+;;;;;;;;;;;;;
   ; PLLCSR |= 1 << PLLE;
   in R16, _SFR_IO_ADDR(PLLCSR)
   sbr R16, 1 << PLLE
