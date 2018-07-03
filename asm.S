@@ -46,7 +46,7 @@ main:
 
 ;;;;;;;;;;;;;;;;;;;
   sbi _SFR_IO_ADDR(DDRC), PC7
-  cbi _SFR_IO_ADDR(PORTC), PC7
+  sbi _SFR_IO_ADDR(PORTC), PC7
 ;;;;;;;;;;;;;;;;;;;
 
   ; PLLCSR = (1 << PINDIV) | (1 << PLLE);
@@ -162,9 +162,9 @@ next_ev_2:
   rjmp vihod_ug
 ;;;;;;;;;;;;;
 ; if led will be on, this means that wakeup interrupt handler will be called even if wakeup interrupt is disabled - in such case add check here if WAKEUPE is enabled (and likewise for others)
-  lds R24, UDIEN
-  sbrs R24, WAKEUPE
-  sbi _SFR_IO_ADDR(PORTC), PC7
+;  lds R24, UDIEN
+;  sbrs R24, WAKEUPE
+;  sbi _SFR_IO_ADDR(PORTC), PC7
 ;;;;;;;;;;;;;
   ; PLLCSR |= 1 << PLLE;
   in R16, _SFR_IO_ADDR(PLLCSR)
@@ -200,6 +200,7 @@ vihod_ug:
 ;------------------------------------------------
 .global USB_COM_vect
 USB_COM_vect:
+  ; if (UEINT == (1 << EP0))
    lds R24, UEINT
    cpi R24, 1 << EP0
    brne ep_1
@@ -218,11 +219,14 @@ ep_2:
 ep_no:
    rjmp vihod_ep
 
-ep_0:
 ; Управляющая конечная точка
-   lds R17, UEDATX
-   lds R16, UEDATX
+ep_0:
+  ; bmRequestType = UEDATX;
+  lds R17, UEDATX
+  ; bRequest
+  lds R16, UEDATX
 
+  ; if (bRequest == CMD_USB_GET_DESCRIPTOR)
    cpi R16, CMD_USB_GET_DESCRIPTOR
    brne next_0
    rjmp get_dsc
@@ -250,6 +254,7 @@ next_3:
    rjmp n_3
 
 get_dsc:
+  ; if (bmRequestType == 0x80)
    cpi R17, 0x80         ;Get_Stand_device
    brne sl_1
    rjmp stand_desc
@@ -656,16 +661,23 @@ w_out:
    ret
 
 read_buff:
-   lds R18, UEDATX    ;String_type
-   lds R19, UEDATX    ;Desc_type=01
-   lds R20, UEDATX    ;Dummy_byte
-   lds R21, UEDATX    ;Dummy_byte
-   lds R22, UEDATX    ;LSB(wLength)
-   lds R23, UEDATX    ;MSB(wLength)
-   lds R24, UEINTX
-   cbr R24, 1 << RXSTPI
-   sts UEINTX, R24
-   ret
+  ; (void) UEDATX;
+  lds R18, UEDATX    ;String_type
+  ; bDescriptorType = UEDATX;
+  lds R19, UEDATX    ;Desc_type=01
+  ; (void) UEDATX;
+  lds R20, UEDATX    ;Dummy_byte
+  ; (void) UEDATX;
+  lds R21, UEDATX    ;Dummy_byte
+  ; ((U8*) &wLength)[0] = UEDATX;
+  lds R22, UEDATX    ;LSB(wLength)
+  ; ((U8*) &wLength)[1] = UEDATX;
+  lds R23, UEDATX    ;MSB(wLength)
+  ; UEINTX &= ~(1 << RXSTPI);
+  lds R24, UEINTX
+  cbr R24, 1 << RXSTPI
+  sts UEINTX, R24
+  ret
 
 dev_desc:
    .byte 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
