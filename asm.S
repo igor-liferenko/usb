@@ -14,74 +14,100 @@
 .global main
 main:
   ; GCC's SP init code always sets it to RAMEND for the chosen device, so nothing to do
-   clr R1
-   clr R2
-   clr R25
-   clr R26
- 
-   ldi R16, 1 << UVREGE
-   sts UHWCON, R16
+  clr R1
+  clr R2
+  clr R25
+  clr R26
 
-   cli
-   wdr
-   in R16, _SFR_IO_ADDR(MCUSR)
-   andi R16, ~(1 << WDRF)
-   out _SFR_IO_ADDR(MCUSR), R16
-   lds R16, WDTCSR
-   ori R16, (1 << WDCE)|(1 << WDE)
-   sts WDTCSR, R16
-   lds R16, WDTCSR
-   andi R16, ~((1<<WDCE) | (1<<WDE))
-   sts WDTCSR, R16
+  ; UHWCON = 1 << UVREGE;
+  ldi R16, 1 << UVREGE
+  sts UHWCON, R16
 
-   ldi R16, 0x1F   ;00011111
-   out _SFR_IO_ADDR(DDRD), R16
-   ldi R16, 0      ;00000000
-   out _SFR_IO_ADDR(PORTD), R16
+  ; cli();
+  cli
+  ; wdt_reset();
+  wdr
+  ; MCUSR &= ~(1 << WDRF);
+  in R16, _SFR_IO_ADDR(MCUSR)
+  andi R16, ~(1 << WDRF)
+  out _SFR_IO_ADDR(MCUSR), R16
+  ; WDTCSR |= (1 << WDCE) | (1 << WDE);
+  lds R16, WDTCSR
+  ori R16, (1 << WDCE) | (1 << WDE)
+  sts WDTCSR, R16
+  ; WDTCSR = 0x00;
+  ldi r16, 0x00
+  sts WDTCSR, R16
 
-   ldi R16, (1 << PINDIV) | (1 << PLLE)
-   out _SFR_IO_ADDR(PLLCSR), R16
+  ; DDRD |= 1 << PD5
+  sbi _SFR_IO_ADDR(DDRD), PD5
+  ; PORTD &= ~(1 << PD5);
+  cbi _SFR_IO_ADDR(PORTD), PD5
 
+  ; PLLCSR = (1 << PINDIV) | (1 << PLLE);
+  ldi R16, (1 << PINDIV) | (1 << PLLE)
+  out _SFR_IO_ADDR(PLLCSR), R16
+
+; while (!(PLLCSR & (1 << PLOCK))) ;
 bit_lock:
-   in R16, _SFR_IO_ADDR(PLLCSR)
-   sbrs R16, PLOCK
-   rjmp bit_lock
+  in R16, _SFR_IO_ADDR(PLLCSR)
+  sbrs R16, PLOCK
+  rjmp bit_lock
 
-   lds R16, USBCON
-   sbr R16, 1 << USBE
-   sts USBCON, R16
+  ; USBCON |= 1 << USBE;
+  lds R16, USBCON
+  sbr R16, 1 << USBE
+  sts USBCON, R16
 
-   lds R16, USBCON
-   cbr R16, 1 << FRZCLK
-   sts USBCON, R16
+  ; USBCON &= ~(1 << FRZCLK);
+  cbr R16, 1 << FRZCLK
+  sts USBCON, R16
 
-   lds R16, UDCON
-   cbr R16, 1 << DETACH
-   sts UDCON, R16
+  ; USBCON |= 1 << OTGPADE;
+  sbr R16, 1 << OTGPADE
+  sts USBCON, R16
 
+; while (!(USBSTA & (1 << VBUS))) ;
+bit_bus:
+  lds R16, USBSTA
+  sbrs R16, VBUS
+  rjmp bit_bus
+
+  ; UDCON &= ~(1 << DETACH);
+  lds R16, UDCON
+  cbr R16, 1 << DETACH
+  sts UDCON, R16
+
+; while (!(UDINT & (1 << EORSTI))) ;
 r_bus:
    lds R16, UDINT
    sbrs R16, EORSTI
    rjmp r_bus
 
-   cbr R16, 1 << EORSTI
-   sts UDINT, R16
-   rcall conf_ep_0
+  ; UDINT &= ~(1 << EORSTI);
+  cbr R16, 1 << EORSTI
+  sts UDINT, R16
 
-   lds R16, UDCON
-   sbr R16, 1 << RSTCPU
-   sts UDCON, R16
+  rcall conf_ep_0
 
-   ldi R24, (1 << SUSPE) | (1 << EORSTE)
-   sts UDIEN, R24
+  ; UDCON |= 1 << RSTCPU;
+  lds R16, UDCON
+  sbr R16, 1 << RSTCPU
+  sts UDCON, R16
 
-   ldi R24, 1 << RXSTPE
-   sts UEIENX, R24
+  ; UDIEN = (1 << SUSPE) | (1 << EORSTE);
+  ldi R24, (1 << SUSPE) | (1 << EORSTE)
+  sts UDIEN, R24
 
-   ldi R16, 1 << SE
-   out _SFR_IO_ADDR(SMCR), R16
+  ; UEIENX = 1 << RXSTPE;
+  ldi R24, 1 << RXSTPE
+  sts UEIENX, R24
 
-   sei
+  ; SMCR = 1 << SE;
+  ldi R16, 1 << SE
+  out _SFR_IO_ADDR(SMCR), R16
+
+  sei
 
 SLP:
    sleep
@@ -97,12 +123,12 @@ USB_GEN_vect:
   sbrs R24, EORSTI
   rjmp next_ev_1
 
-  cbr R24, 1 << EORSTI 
+  cbr R24, 1 << EORSTI
   sts UDINT, R24
   rjmp vihod_ug
 
 next_ev_1:
-   sbrs R24, 0
+   sbrs R24, SUSPI
    rjmp next_ev_2
    cbr R24, 1 << SUSPI
    sts UDINT, R24
@@ -118,7 +144,7 @@ next_ev_1:
    rjmp vihod_ug
 
 next_ev_2:
-   sbrs R24, 4
+   sbrs R24, WAKEUPI
    rjmp vihod_ug
    in R16, _SFR_IO_ADDR(PLLCSR)
    sbr R16, 1 << PLLE
@@ -129,8 +155,8 @@ lock_bit:
    sbrs R16, PLOCK
    rjmp lock_bit
 
-   lds R24, USBCON 
-   cbr R24, 1 << FRZCLK 
+   lds R24, USBCON
+   cbr R24, 1 << FRZCLK
    sts USBCON, R24
 
    lds R24, UDINT
@@ -148,7 +174,7 @@ vihod_ug:
    reti
 
 ;------------------------------------------------
-; Обработчик прерывания конечной точки 
+; Обработчик прерывания конечной точки
 ;------------------------------------------------
 .global USB_COM_vect
 USB_COM_vect:
@@ -237,7 +263,7 @@ n_3:
 
 n_4:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp n_4
    lds R24, UECONX
    sbr R24, 1 << STALLRQ
@@ -246,7 +272,7 @@ n_4:
 
 d_dev:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp d_dev
    ldi R31, hi8(dev_desc) ; ZH ?
    ldi R30, lo8(dev_desc) ; ZL ?
@@ -264,7 +290,7 @@ out_data_d:
 
 d_con:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp d_con
    ldi R31, hi8(con_desc)
    ldi R30, lo8(con_desc)
@@ -283,7 +309,7 @@ out_dat_c:
    sts UEINTX, R24
 d_con_1:
    lds R24, UEINTX
-   sbrs R24, 0  
+   sbrs R24, TXINI
    rjmp d_con_1
 
 out_dat_c1:
@@ -297,7 +323,7 @@ out_dat_c1:
    sts UEINTX, R24
    rcall w_nakout
    rjmp vihod_ep
-   
+
 con_drv:
    lpm R24, Z+
    sts UEDATX, R24
@@ -346,8 +372,8 @@ s_4:
    rjmp vihod_ep
 
 d_str_1:
-   lds R24, UEINTX 
-   sbrs R24, 0
+   lds R24, UEINTX
+   sbrs R24, TXINI
    rjmp d_str_1
 out_st:
    lpm R24, Z+
@@ -364,7 +390,7 @@ out_st:
 
 d_str_2:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp d_str_2
 out_st_1:
    lpm R24, Z+
@@ -390,9 +416,11 @@ n_5:
    rjmp vihod_ep
 
 d_rep_1:
-   sbi _SFR_IO_ADDR(PORTD), 4
+  ; PORTD |= 1 << PD5;
+   sbi _SFR_IO_ADDR(PORTD), PD5
+
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp d_rep_1
    clr R23
    ldi R31, hi8(rep_desc)
@@ -408,8 +436,8 @@ out_dat_r:
    cbr R24, 1 << TXINI
    sts UEINTX, R24
 d_rep_2:
-   lds R24, UEINTX   
-   sbrs R24, 0 
+   lds R24, UEINTX
+   sbrs R24, TXINI
    rjmp d_rep_2
 out_dat_r1:
    lpm R24, Z+
@@ -451,7 +479,7 @@ ep_out:
    sts UENUM, R16
    ldi R24, 1 << TXINE
    sts UEIENX, R24
-   rjmp vihod_ep 
+   rjmp vihod_ep
 
 ep_in:
    lds R24, UEINTX
@@ -486,21 +514,21 @@ no_in:
    rjmp vihod_ep
 
 set_adr:
-   lds R24, UEDATX  
+   lds R24, UEDATX
    andi R24, 0x7F
-   sts UDADDR, R24  
-   lds R24, UEINTX  
+   sts UDADDR, R24
+   lds R24, UEINTX
    cbr R24, 1 << RXSTPI
    sts UEINTX, R24
    lds R24, UEINTX
-   sbrs R24, 0   
+   sbrs R24, TXINI
    rjmp vihod_ep
    cbr R24, 1 << TXINI
    sts UEINTX, R24
 
 vt:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp vt
    lds R24, UDADDR
    ori R24, 0x80
@@ -513,49 +541,49 @@ set_cfg:
    sts UEINTX, R24
 s_cfg:
    lds R24, UEINTX
-   sbrs R24, 0
+   sbrs R24, TXINI
    rjmp s_cfg
    cbr R24, 1 << TXINI
    sts UEINTX, R24
    ldi R16, 1
    sts UENUM, R16
-   lds R16, UECONX  
-   sbrs R16, 0
+   lds R16, UECONX
+   sbrs R16, EPEN
    ori R16, 0x01
-   sts UECONX, R16 
+   sts UECONX, R16
    ldi R16, (1 << EPTYPE1) | (1 << EPTYPE0) | (1 << EPDIR)
    sts UECFG0X, R16
    ldi R16, 0x02
    sts UECFG1X, R16
 
 test_c_ep1:
-   lds R16, UESTA0X 
-   sbrs R16, 7 
+   lds R16, UESTA0X
+   sbrs R16, CFGOK
    rjmp test_c_ep1
    ldi R16, 2
    sts UENUM, R16
    lds R16, UECONX
-   sbrs R16, 0
+   sbrs R16, EPEN
    ori R16, 0x01
    sts UECONX, R16
    ldi R16, (1 << EPTYPE1) | (1 << EPTYPE0) | (0 << EPDIR)
-   sts UECFG0X, R16 
+   sts UECFG0X, R16
    ldi R16, 0x02
    sts UECFG1X, R16
 
 test_c_ep2:
    lds R16, UESTA0X
-   sbrs R16, 7 
+   sbrs R16, CFGOK
    rjmp test_c_ep2
-   sts UENUM, R1  
+   sts UENUM, R1
    rjmp vihod_ep
 
 set_idle:
-   lds R24, UEINTX 
+   lds R24, UEINTX
    cbr R24, 1 << RXSTPI
    sts UEINTX, R24
    lds R24, UEINTX
-   sbrs R24, 0   
+   sbrs R24, TXINI
    rjmp vihod_ep
    cbr R24, 1 << TXINI
    sts UEINTX, R24
@@ -568,16 +596,23 @@ vihod_ep:
    reti
 
 conf_ep_0:
-   sts UENUM, R1
-   lds R16, UECONX  
-   sbrs R16, 0
-   ori R16, 0x01
-   sts UECONX, R16
-   ldi R16, (0 << EPTYPE1) | (0 << EPTYPE0) | (0 << EPDIR)
-   sts UECFG0X, R16
-   ldi R16, 0x22
-   sts UECFG1X, R16
+  ; UENUM = EP0
+  sts UENUM, R1
 
+  ; if (!(UECONX & (1 << EPEN))) UECONX |= 1 << EPEN;
+  lds R16, UECONX
+  sbrs R16, EPEN
+  ori R16, 1 << EPEN
+  sts UECONX, R16
+
+  ; UECFG0X = 0x00;
+  ldi R16, 0x00
+  sts UECFG0X, R16
+  ; 0 << EPBK0  2 << EPSIZE0  1 << ALLOC
+  ldi R16, 0x22
+  sts UECFG1X, R16
+
+; while (!(UESTA0X & (1 << CFGOK))) ;
 test_c_ep0:
    lds R16, UESTA0X
    sbrs R16, CFGOK ; если CFGOK=1 - EP0 сконфигурирована - идем дальше.
@@ -586,13 +621,13 @@ test_c_ep0:
 
 w_nakout:
    lds R24, UEINTX
-   sbrs R24, 4
+   sbrs R24, NAKOUTI
    rjmp w_nakout
    cbr R24, 1 << NAKOUTI
    sts UEINTX, R24
 w_out:
    lds R24, UEINTX
-   sbrs R24, 2
+   sbrs R24, RXOUTI
    rjmp w_out
    cbr R24, 1 << RXOUTI
    sts UEINTX, R24
