@@ -47,6 +47,7 @@ main:
 
 ;;;;;;;;;;;;;;;;;;; use this to count how many times USB_RESET is done
 ;fixme: on reset usb controller is untouched on reinitialized? i.e., |= or = are used? cmp with original once again
+;But above all, compare blinking during plug in and during reboot.
   sbi _SFR_IO_ADDR(DDRC), PC7
   sbi _SFR_IO_ADDR(PORTC), PC7
 ;;;;;;;;;;;;;;;;;;;
