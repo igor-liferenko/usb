@@ -261,3 +261,12 @@ ISR(USB_GEN_vect)
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+
+@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
+  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+
+@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
+  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+
+@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
+  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$

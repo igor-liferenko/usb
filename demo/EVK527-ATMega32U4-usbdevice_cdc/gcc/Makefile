@@ -118,3 +118,15 @@ phases.eps: phases.gif
 direction.eps: direction.gif
 	@convert $< $@
 	@imgsize $@
+
+transaction-IN.eps: transaction-IN.gif
+	@convert $< $@
+	@imgsize $@
+
+transaction-OUT.eps: transaction-OUT.gif
+	@convert $< $@
+	@imgsize $@
+
+transaction-SETUP.eps: transaction-SETUP.gif
+	@convert $< $@
+	@imgsize $@
