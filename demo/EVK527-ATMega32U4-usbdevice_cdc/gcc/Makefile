@@ -115,7 +115,11 @@ direction.eps: direction.gif
 	@convert $< $@
 	@imgsize $@
 
-phases.eps: phases.gif
+phases-control-IN.eps: phases-control-IN.gif
+	@convert $< $@
+	@imgsize $@
+
+phases-control-OUT.eps: phases-control-OUT.png
 	@convert $< $@
 	@imgsize $@
 
