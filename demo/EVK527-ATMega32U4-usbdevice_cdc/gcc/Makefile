@@ -114,3 +114,7 @@ IN.eps: IN.png
 phases.eps: phases.gif
 	@convert $< $@
 	@imgsize $@
+
+direction.eps: direction.gif
+	@convert $< $@
+	@imgsize $@
