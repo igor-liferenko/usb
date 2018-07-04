@@ -582,6 +582,7 @@ read_buff:
    sts UEINTX, R24
    ret
    
+; subtract c4 to get the value here (it is the starting address of main)
 .org 0x063C
 dev_desc:
    .byte 0x12,0x01,0x10,0x01,0x00,0x00,0x00,0x20,0xEB,0x03
