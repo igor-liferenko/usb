@@ -285,8 +285,8 @@ $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.e
 $$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/phases-control-OUT.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 
-$$\hbox to51.99cm{\vbox to14.2875cm{\vfil\special{psfile=gcc/control-OUT.eps
-  clip llx=0 lly=0 urx=1474 ury=405 rwi=14740}}\hfil}$$
+$$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=gcc/control-OUT.eps
+  clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
 
 This corresponds to the following transactions:
 
