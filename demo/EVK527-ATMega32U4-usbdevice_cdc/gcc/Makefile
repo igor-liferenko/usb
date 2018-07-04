@@ -107,7 +107,7 @@ test:
 
 .PHONY: $(wildcard *.eps)
 
-IN.eps: IN.png
+control-IN.eps: control-IN.png
 	@convert $< $@
 	@imgsize $@
 
