@@ -17,7 +17,6 @@
 main:
    ; SP is set to RAMEND automatically by GCC
 
-   clr R1
    clr R2
    clr R25
    clr R26
