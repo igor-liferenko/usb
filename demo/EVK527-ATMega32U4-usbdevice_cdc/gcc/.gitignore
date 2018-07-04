@@ -5,4 +5,4 @@ default/
 test.elf
 test.hex
 test.o
-IN.eps
+*.eps

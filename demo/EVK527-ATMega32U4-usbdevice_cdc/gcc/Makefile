@@ -110,3 +110,7 @@ test:
 IN.eps: IN.png
 	@convert $< $@
 	@imgsize $@
+
+phases.eps: phases.gif
+	@convert $< $@
+	@imgsize $@
