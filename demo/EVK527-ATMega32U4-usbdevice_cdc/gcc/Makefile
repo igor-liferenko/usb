@@ -111,6 +111,10 @@ control-IN.eps: control-IN.png
 	@convert $< $@
 	@imgsize $@
 
+control-OUT.eps: control-OUT.png
+	@convert $< $@
+	@imgsize $@
+
 direction.eps: direction.gif
 	@convert $< $@
 	@imgsize $@
