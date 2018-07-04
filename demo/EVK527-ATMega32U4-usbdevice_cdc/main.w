@@ -257,16 +257,21 @@ ISR(USB_GEN_vect)
 @ $$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=gcc/IN.eps
   clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
 
-@ $$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/phases.eps
-  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+@ There are the folowing phases:
+
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
+$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/phases.eps
+  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+
+This corresponds to the following transactions:
+
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
