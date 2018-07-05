@@ -7,8 +7,6 @@
 .set CMD_USB_SET_ADDRESS, 0x05
 .set CMD_USB_GET_DESCRIPTOR, 0x06
 
-.set CMD_HID_SET_IDLE, 0x0A
-
 ;------------------------------------------------
 ;Начало основной программы:
 ;------------------------------------------------
@@ -173,7 +171,7 @@ next_1:
    rjmp set_cfg
    
 next_2:
-   cpi R16, CMD_HID_SET_IDLE
+   cpi R16, 0x0A
    brne next_3
    cpi R17, 0x21
    brne next_3
