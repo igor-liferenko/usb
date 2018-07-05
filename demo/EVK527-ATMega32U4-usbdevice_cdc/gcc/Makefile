@@ -119,11 +119,11 @@ direction.eps: direction.gif
 	@convert $< $@
 	@imgsize $@
 
-phases-control-IN.eps: phases-control-IN.gif
+control-read-stages.eps: control-read-stages.gif
 	@convert $< $@
 	@imgsize $@
 
-phases-control-OUT.eps: phases-control-OUT.png
+control-write-stages.eps: control-write-stages.png
 	@convert $< $@
 	@imgsize $@
 
