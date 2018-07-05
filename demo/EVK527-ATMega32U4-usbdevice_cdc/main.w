@@ -201,14 +201,14 @@ ISR(USB_GEN_vect)
     UDINT &= ~(1 << EORSTI);
     return;
   }
-  else if (UDINT & (1 << SUSPI)) {
+  if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
     USBCON |= 1 << FRZCLK;
     PLLCSR &= ~(1 << PLLE);
     UDIEN |= 1 << WAKEUPE;
     return;
   }
-  else if (UDINT & (1 << WAKEUPI)) {
+  if (UDINT & (1 << WAKEUPI)) {
     PLLCSR |= 1 << PLLE;
     while (!(PLLCSR & (1 << PLOCK))) ;
     USBCON &= ~(1 << FRZCLK);
@@ -312,7 +312,8 @@ ISR(USB_GEN_vect)
   }
 }
 
-@*2 Control read (by host). There are the folowing phases:
+@*2 Control read (by host). There are the folowing
+stages\footnote*{Setup transaction$\equiv$Setup stage}:
 
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
@@ -335,7 +336,8 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transactio
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@*2 Control write (by host). There are the following phases:
+@*2 Control write (by host). There are the following
+stages\footnote*{Setup transaction$\equiv$Setup stage}:
 
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
