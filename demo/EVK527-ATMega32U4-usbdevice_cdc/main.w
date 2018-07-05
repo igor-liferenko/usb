@@ -258,10 +258,13 @@ ISR(USB_COM_vect)
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 //---
+          return;
         }
+        else n_1
       }
+      else sl_1
     }
-    return;
+    if (bRequest == SETUP_SET_ADDRESS) {
   }
 }
 
