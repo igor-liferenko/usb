@@ -167,6 +167,64 @@ void main(void)
   while (1) ;
 }
 
+@ Here we check if RXOUTI is set when NAKOUTI becomes set. In datasheet it is said
+that during switch from IN to OUT transaction NAKOUTI is set. This test will help
+to understand what is goin on here.
+
+@(/dev/null@>=
+#include <avr/io.h>
+void main(void)
+{
+  UHWCON = 1 << UVREGE;
+  PLLCSR = (1 << PINDIV) | (1 << PLLE);
+  while (!(PLLCSR & (1 << PLOCK))) ;
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+  USBCON |= 1 << OTGPADE;
+  while (!(USBSTA & (1 << VBUS))) ;
+  UDCON &= ~(1 << DETACH);
+  while (!(UDINT & (1 << EORSTI))) ;
+  UDINT &= ~(1 << EORSTI);
+  UDCON |= 1 << RSTCPU;
+  UDIEN = (1 << SUSPE) | (1 << EORSTE);
+  UEIENX = 1 << RXSTPE;
+  SMCR = 1 << SE;
+  sei();
+SLP:
+  sleep
+  rjmp SLP
+} 
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    return;
+  }
+  else if (UDINT & (1 << SUSPI)) {
+    UDINT &= ~(1 << SUSPI);
+    USBCON |= 1 << FRZCLK;
+    PLLCSR &= ~(1 << PLLE);
+    UDIEN |= 1 << WAKEUPE;
+    return;
+  }
+  else if (UDINT & (1 << WAKEUPI)) {
+    PLLCSR |= 1 << PLLE;
+    while (!(PLLCSR & (1 << PLOCK))) ;
+    USBCON &= ~(1 << FRZCLK);
+    UDINT &= ~(1 << WAKEUPI);
+    UDIEN &= ~(1 << WAKEUPE);
+    UENUM = EP0;
+    // flag = 1;
+  }
+}
+
+ISR(USB_COM_vect)
+{
+  if (UEINT == (1 << EP0)) {
+
+}
+
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
 The scheduler is a simple infinite loop calling all its tasks defined in the \.{conf\_scheduler.h}
