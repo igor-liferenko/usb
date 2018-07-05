@@ -15,8 +15,6 @@
 ;------------------------------------------------
 .global main
 main:
-   ; SP is set to RAMEND automatically by GCC
-
    clr R2
    clr R25
    clr R26
