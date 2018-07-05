@@ -335,7 +335,7 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transactio
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@*2 Control write (from host). There are the following phases:
+@*2 Control write (by host). There are the following phases:
 
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
