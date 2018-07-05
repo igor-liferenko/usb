@@ -251,9 +251,12 @@ ISR(USB_COM_vect)
           const void *buf = &dev_desc.bLength;
           for (int i = 0; i < sizeof (dev_desc); i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
+          UEINTX &= ~(1 << TXINI);
+          w_nakout();
         }
       }
     }
+    return;
   }
 }
 
