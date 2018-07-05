@@ -228,7 +228,26 @@ ISR(USB_GEN_vect)
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP0)) {
-
+    bmRequestType = UEDATX;
+    bRequest = UEDATX;
+    if (bRequest == CMD_USB_GET_DESCRIPTOR) {
+      if (bmRequestType == 0x80) {
+        (void) UEDATX;
+        uint8_t bDescriptorType = UEDATX;
+        (void) UEDATX;
+        (void) UEDATX;
+        uint16_t wLength;
+        ((uint8_t *) &wLength)[0] = UEDATX;
+        ((uint8_t *) &wLength)[1] = UEDATX;
+        UEINTX &= ~(1 << RXSTPI);
+        if (bDescriptorType == 0x01) {
+          while (!(UEINTX & (1 << TXINI))) ;
+          data_to_transfer = sizeof (dev_desc);
+          pbuffer = &dev_desc.bLength;
+        }
+      }
+    }
+  }
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
