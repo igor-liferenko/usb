@@ -317,7 +317,7 @@ ISR(USB_GEN_vect)
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/phases-control-IN.eps
+$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/control-read-stages.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 
 $$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=gcc/control-IN.eps
@@ -340,7 +340,7 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transactio
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/phases-control-OUT.eps
+$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/control-write-stages.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 
 $$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=gcc/control-OUT.eps
