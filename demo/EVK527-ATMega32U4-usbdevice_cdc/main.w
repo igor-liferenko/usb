@@ -171,7 +171,8 @@ void main(void)
 that during switch from IN to OUT transaction NAKOUTI is set. This test will help
 to understand if the following phrase from ``USB in a nutshell'' is true:
 When OUT request arrives if the endpoint buffer is not empty due to processing of the
-previous packet, then device returns a NAK.
+previous packet, then device sets NAKOUTI.
+
 ;;; move this to section of control-write-stage: from usb in a nutshell: Device replies with
 ;; a NAK packet in IN transaction if there is
 ;; no data to send.
