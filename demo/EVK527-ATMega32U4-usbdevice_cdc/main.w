@@ -313,7 +313,7 @@ ISR(USB_GEN_vect)
 }
 
 @*2 Control read (by host). There are the folowing
-stages\footnote*{Setup transaction$\equiv$Setup stage}:
+stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
@@ -324,7 +324,6 @@ $$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/control-re
 $$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=gcc/control-IN.eps
   clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
 
-\vfill\eject
 This corresponds to the following transactions:
 
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
@@ -337,7 +336,7 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transactio
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
 @*2 Control write (by host). There are the following
-stages\footnote*{Setup transaction$\equiv$Setup stage}:
+stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
 $$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
