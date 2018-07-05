@@ -224,14 +224,20 @@ ISR(USB_GEN_vect)
     // flag = 1;
   }
 }
-
+#define SETUP_GET_DESCRIPTOR 0x06
+#define USB_SETUP_DIR_DEVICE_TO_HOST (1<<7)
+#define USB_SETUP_TYPE_STANDARD (0<<5)
+#define USB_SETUP_RECIPIENT_DEVICE (0)
+#define USB_SETUP_GET_STAND_DEVICE (USB_SETUP_DIR_DEVICE_TO_HOST | \
+  USB_SETUP_TYPE_STANDARD | USB_SETUP_RECIPIENT_DEVICE)
+#define DESCRIPTOR_DEVICE 0x01
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP0)) {
     bmRequestType = UEDATX;
     bRequest = UEDATX;
-    if (bRequest == CMD_USB_GET_DESCRIPTOR) {
-      if (bmRequestType == 0x80) {
+    if (bRequest == SETUP_GET_DESCRIPTOR) {
+      if (bmRequestType == USB_SETUP_GET_STAND_DEVICE) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
         (void) UEDATX;
@@ -240,10 +246,11 @@ ISR(USB_COM_vect)
         ((uint8_t *) &wLength)[0] = UEDATX;
         ((uint8_t *) &wLength)[1] = UEDATX;
         UEINTX &= ~(1 << RXSTPI);
-        if (bDescriptorType == 0x01) {
+        if (bDescriptorType == DESCRIPTOR_DEVICE) {
           while (!(UEINTX & (1 << TXINI))) ;
-          data_to_transfer = sizeof (dev_desc);
-          pbuffer = &dev_desc.bLength;
+          const void *buf = &dev_desc.bLength;
+          for (int i = 0; i < sizeof (dev_desc); i++)
+            UEDATX = pgm_read_byte_near((unsigned int) buf++);
         }
       }
     }
