@@ -247,7 +247,7 @@ ISR(USB_COM_vect)
         ((uint8_t *) &wLength)[1] = UEDATX;
         UEINTX &= ~(1 << RXSTPI);
         if (bDescriptorType == DESCRIPTOR_DEVICE) {
-          while (!(UEINTX & (1 << TXINI))) ;
+//          while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &dev_desc.bLength;
           for (int i = 0; i < sizeof (dev_desc); i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -258,6 +258,10 @@ ISR(USB_COM_vect)
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 //---
+#if 1==0
+while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+if 
+#endif
           return;
         }
         else n_1
