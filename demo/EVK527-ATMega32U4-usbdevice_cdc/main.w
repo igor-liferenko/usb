@@ -169,7 +169,9 @@ void main(void)
 
 @ Here we check if RXOUTI is set when NAKOUTI becomes set. In datasheet it is said
 that during switch from IN to OUT transaction NAKOUTI is set. This test will help
-to understand what is goin on here.
+to understand if the following phrase from ``USB in a nutshell'' is true:
+When OUT request arrives if the endpoint buffer is not empty due to processing of the
+previous packet, then device returns a NAK.
 
 @(/dev/null@>=
 #include <avr/io.h>
@@ -357,3 +359,5 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transactio
 
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+
+@* Index.
