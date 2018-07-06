@@ -314,9 +314,9 @@ PORTC |= 1 << PC7;
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc;
   while (1) {
-    int nb_byte=0;
-    while (size != 0) { /* Send data until necessary */
-      if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
+    int nb_byte = 0;
+    while (size != 0) {
+      if (nb_byte++ == 32)
         break;
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
       size--;
