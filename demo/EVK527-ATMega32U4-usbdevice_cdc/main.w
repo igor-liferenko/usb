@@ -54,7 +54,7 @@ void main(void)
 @ Reset is done more than once. This can be checked by the following code:
 \xdef\resettestone{\secno} % remember the number of this section
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
@@ -177,11 +177,53 @@ previous packet, then device sets NAKOUTI.
 ;; a NAK packet in IN transaction if there is
 ;; no data to send.
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <avr/wdt.h>
+typedef unsigned char U8;
+typedef unsigned short U16;
+typedef struct {
+  U8      bLength;              //!< Size of this descriptor in bytes
+  U8      bDescriptorType;      //!< DEVICE descriptor type
+  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
+  U8      bDeviceClass;         //!< Class code assigned by the USB
+  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
+  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
+  U8      bMaxPacketSize0;      //!< Max packet size for EP0
+  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
+  U16     idProduct;            //!< Product ID assigned by the manufacturer
+  U16     bcdDevice;            //!< Device release number
+  U8      iManufacturer;        //!< Index of manu. string descriptor
+  U8      iProduct;             //!< Index of prod. string descriptor
+  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
+  U8      bNumConfigurations;   //!< Number of possible configurations
+} S_usb_device_descriptor;
+const S_usb_device_descriptor dev_desc PROGMEM = {
+  sizeof (S_usb_device_descriptor),
+  0x01, /* device */
+  0x0110, /* bcdUSB */
+  0x02, /* device class */
+  0, /* subclass */
+  0, /* device protocol */
+  64, /* control endpoint size */
+  0x03EB,
+  0x2018,
+  0x1000,
+  0x00, /* iManufacturer ("Mfr=" in kern.log) */
+  0x00, /* iProduct ("Product=" in kern.log) */
+  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
+  1 /* number of configurations */
+};
 void main(void)
 {
   UHWCON = 1 << UVREGE;
+  cli();
+  wdt_reset();
+  MCUSR &= ~(1<<WDRF);
+  WDTCSR |= (1<<WDCE) | (1<<WDE);
+  WDTCSR = 0;
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -196,11 +238,9 @@ void main(void)
   UEIENX = 1 << RXSTPE;
   SMCR = 1 << SE;
   sei();
-SLP:
-  sleep
-  rjmp SLP
+  while (1) ;
 } 
-
+#define EP0 0
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
@@ -233,10 +273,16 @@ ISR(USB_GEN_vect)
 #define DESCRIPTOR_DEVICE 0x01
 ISR(USB_COM_vect)
 {
+DDRC |= 1 << PC7;
+PORTC |= 1 << PC7;
   if (UEINT == (1 << EP0)) {
-    bmRequestType = UEDATX;
-    bRequest = UEDATX;
-    if (bRequest == SETUP_GET_DESCRIPTOR) {
+DDRC |= 1 << PC7;
+PORTC |= 1 << PC7;
+
+    uint8_t bmRequestType = UEDATX;
+    uint8_t bRequest = UEDATX;
+    if (bRequest == SETUP_GET_DESCRIPTOR) { // NOTE: using an define here is wrong - first check
+      // bmRequestType, not bRequest - then you may use define
       if (bmRequestType == USB_SETUP_GET_STAND_DEVICE) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
@@ -247,7 +293,9 @@ ISR(USB_COM_vect)
         ((uint8_t *) &wLength)[1] = UEDATX;
         UEINTX &= ~(1 << RXSTPI);
         if (bDescriptorType == DESCRIPTOR_DEVICE) {
-//          while (!(UEINTX & (1 << TXINI))) ;
+DDRC |= 1 << PC7;
+PORTC |= 1 << PC7;
+          while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &dev_desc.bLength;
           for (int i = 0; i < sizeof (dev_desc); i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -260,15 +308,14 @@ ISR(USB_COM_vect)
 //---
 #if 1==0
 while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-if 
 #endif
           return;
         }
-        else n_1
+//        else n_1
       }
-      else sl_1
+//      else sl_1
     }
-    if (bRequest == SETUP_SET_ADDRESS) {
+//    if (bRequest == SETUP_SET_ADDRESS) {
   }
 }
 
