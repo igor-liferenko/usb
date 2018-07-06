@@ -317,7 +317,7 @@ PORTC |= 1 << PC7;
   int size = sizeof dev_desc;
   while (1) {
     int nb_byte = 0;
-    while (size != 0) {
+    while (size != 0) { /* todo: send zlp if last packet is full */
       if (nb_byte++ == 32)
         break;
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
