@@ -46,10 +46,10 @@ bit_lock:
    sts USBCON, R16
    sbr R16, 1 << OTGPADE
    sts USBCON, R16
-bit_bus:
+v_bus:
    lds R16, USBSTA
    sbrs R16, VBUS
-   rjmp bit_bus
+   rjmp v_bus
    lds R16, UDCON
    cbr R16, 1 << DETACH
    sts UDCON, R16
