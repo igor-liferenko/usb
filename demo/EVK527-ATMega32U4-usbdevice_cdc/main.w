@@ -200,20 +200,20 @@ typedef struct {
   U8      iSerialNumber;        //!< Index of S.N.  string descriptor
   U8      bNumConfigurations;   //!< Number of possible configurations
 } S_usb_device_descriptor;
-const S_usb_device_descriptor dev_desc PROGMEM = {
+PROGMEM const S_usb_device_descriptor dev_desc = {
   sizeof (S_usb_device_descriptor),
   0x01, /* device */
   0x0110, /* bcdUSB */
-  0x02, /* device class */
+  0, /* device class */
   0, /* subclass */
   0, /* device protocol */
-  64, /* control endpoint size */
+  32, /* control endpoint size */
   0x03EB,
-  0x2018,
+  0x2013,
   0x1000,
-  0x00, /* iManufacturer ("Mfr=" in kern.log) */
-  0x00, /* iProduct ("Product=" in kern.log) */
-  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
+  0x01, /* iManufacturer ("Mfr=" in kern.log) */
+  0x02, /* iProduct ("Product=" in kern.log) */
+  0x03, /* iSerialNumber ("SerialNumber=" in kern.log) */
   1 /* number of configurations */
 };
 #define EP0 0
@@ -269,13 +269,6 @@ ISR(USB_GEN_vect)
     // flag = 1;
   }
 }
-#define SETUP_GET_DESCRIPTOR 0x06
-#define USB_SETUP_DIR_DEVICE_TO_HOST (1<<7)
-#define USB_SETUP_TYPE_STANDARD (0<<5)
-#define USB_SETUP_RECIPIENT_DEVICE (0)
-#define USB_SETUP_GET_STAND_DEVICE (USB_SETUP_DIR_DEVICE_TO_HOST | \
-  USB_SETUP_TYPE_STANDARD | USB_SETUP_RECIPIENT_DEVICE)
-#define DESCRIPTOR_DEVICE 0x01
 ISR(USB_COM_vect)
 {
 DDRC |= 1 << PC7;
@@ -286,9 +279,8 @@ PORTC |= 1 << PC7;
 
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
-    if (bRequest == SETUP_GET_DESCRIPTOR) { // NOTE: using an define here is wrong - first check
-      // bmRequestType, not bRequest - then you may use define
-      if (bmRequestType == USB_SETUP_GET_STAND_DEVICE) {
+    if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
+      if (bmRequestType == 0x80) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
         (void) UEDATX;
@@ -297,7 +289,7 @@ PORTC |= 1 << PC7;
         ((uint8_t *) &wLength)[0] = UEDATX;
         ((uint8_t *) &wLength)[1] = UEDATX;
         UEINTX &= ~(1 << RXSTPI);
-        if (bDescriptorType == DESCRIPTOR_DEVICE) {
+        if (bDescriptorType == 0x01) {
 DDRC |= 1 << PC7;
 PORTC |= 1 << PC7;
 #if 1==1
@@ -344,11 +336,17 @@ PORTC |= 1 << PC7;
 #endif
           return;
         }
-//        else n_1
+        if (bDescriptorType == 0x02) {
+#if 1==1
+          while (!(UEINTX & (1 << TXINI))) ;
+#else
+
+#endif
+        }
       }
 //      else sl_1
     }
-    if (bRequest == SETUP_SET_ADDRESS) {
+    if (bRequest == 0x05) {
       UDADDR = UEDATX & 0x7F;
       UEINTX &= ~(1 << RXSTPI);
 #if 1==1
