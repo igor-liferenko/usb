@@ -348,7 +348,18 @@ PORTC |= 1 << PC7;
       }
 //      else sl_1
     }
-//    if (bRequest == SETUP_SET_ADDRESS) {
+    if (bRequest == SETUP_SET_ADDRESS) {
+      UDADDR = UEDATX & 0x7F;
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      if (!(UEINTX & (1 << TXINI))) return;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+#endif
+      while (!(UEINTX & (1 << TXINI))) ;
+      UDADDR |= 1 << ADDEN;
+    }
   }
 }
 
