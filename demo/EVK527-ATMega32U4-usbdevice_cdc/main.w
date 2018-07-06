@@ -300,7 +300,7 @@ PORTC |= 1 << PC7;
         if (bDescriptorType == DESCRIPTOR_DEVICE) {
 DDRC |= 1 << PC7;
 PORTC |= 1 << PC7;
-          while (!(UEINTX & (1 << TXINI))) ;
+          while (!(UEINTX & (1 << TXINI))) ; // not necessary
           const void *buf = &dev_desc.bLength;
           for (int i = 0; i < sizeof (dev_desc); i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -312,7 +312,22 @@ PORTC |= 1 << PC7;
           UEINTX &= ~(1 << RXOUTI);
 //---
 #if 1==0
-while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+  int size = sizeof dev_desc;
+  while (1) {
+    int nb_byte=0;
+    while (size != 0) { /* Send data until necessary */
+      if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
+        break;
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+      size--;
+    }
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+    if (UEINTX & (1 << RXOUTI)) {
+      UEINTX &= ~(1 << RXOUTI);
+      break;
+    }
+  }
 #endif
           return;
         }
