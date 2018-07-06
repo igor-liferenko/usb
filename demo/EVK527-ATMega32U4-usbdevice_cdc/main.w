@@ -216,6 +216,7 @@ const S_usb_device_descriptor dev_desc PROGMEM = {
   0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
   1 /* number of configurations */
 };
+#define EP0 0
 void main(void)
 {
   UHWCON = 1 << UVREGE;
@@ -233,6 +234,11 @@ void main(void)
   UDCON &= ~(1 << DETACH);
   while (!(UDINT & (1 << EORSTI))) ;
   UDINT &= ~(1 << EORSTI);
+  UENUM = EP0;
+  UECONX |= 1 << EPEN;
+  UECFG0X = 0x00; /* (0 << EPTYPE1)+(0 << EPTYPE0)+(0 << EPDIR) */
+  UECFG1X = 0x22; /* 0 << EPBK0  2 << EPSIZE0  1 << ALLOC */
+  while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
   UEIENX = 1 << RXSTPE;
@@ -240,7 +246,6 @@ void main(void)
   sei();
   while (1) ;
 } 
-#define EP0 0
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
