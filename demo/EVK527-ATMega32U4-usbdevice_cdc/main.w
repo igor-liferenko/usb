@@ -312,6 +312,7 @@ PORTC |= 1 << PC7;
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 #else
+//debug: if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;}
 /* this is from datasheet 22.12.2 */
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc;
