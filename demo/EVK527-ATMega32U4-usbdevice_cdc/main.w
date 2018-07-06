@@ -238,6 +238,15 @@ typedef struct {
    U8      iInterface;            //!< Index of string descriptor
 }  S_usb_interface_descriptor;
 typedef struct {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint16_t myHidVersion;
+  uint8_t myCountryCode;
+  uint8_t myNumDescriptors;
+  uint8_t myDescriptorType;
+  uint16_t myReportLength;
+} S_usb_hid_descriptor;
+typedef struct {
    U8      bLength;               //!< Size of this descriptor in bytes
    U8      bDescriptorType;       //!< ENDPOINT descriptor type
    U8      bEndpointAddress;      //!< Address of the endpoint
@@ -249,71 +258,59 @@ typedef struct
 {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc0;
-   U8 CS_INTERFACE[19];
+   S_usb_hid_descriptor           hid;
    S_usb_endpoint_descriptor      ep3;
    S_usb_interface_descriptor     ifc1;
    S_usb_endpoint_descriptor      ep1;
    S_usb_endpoint_descriptor      ep2;
 } S_usb_user_configuration_descriptor;
-PROGMEM const S_usb_user_configuration_descriptor usb_conf_desc = {
- { sizeof(S_usb_configuration_descriptor)
- , DESCRIPTOR_CONFIGURATION
- //, Usb_write_word_enum_struc(sizeof(usb_conf_desc_kbd))
- , 0x0043 //TODO: Change to generic codewith sizeof
- , NB_INTERFACE
- , CONF_NB
- , CONF_INDEX
- , CONF_ATTRIBUTES
- , MAX_POWER
- }
- ,
- { sizeof(S_usb_interface_descriptor)
- , DESCRIPTOR_INTERFACE
- , INTERFACE0_NB
- , ALTERNATE0
- , NB_ENDPOINT0
- , INTERFACE0_CLASS
- , INTERFACE0_SUB_CLASS
- , INTERFACE0_PROTOCOL
- , INTERFACE0_INDEX
- }
- ,
- { 0x05, 0x24, 0x00, 0x10, 0x01, 0x05, 0x24, 0x01, 0x03, 0x01, 0x04, 0x24, 0x02, 0x06,0x05, 0x24, 0x06, 0x00, 0x01 }
- ,
- { sizeof(S_usb_endpoint_descriptor)
- , DESCRIPTOR_ENDPOINT
- , ENDPOINT_NB_3
- , EP_ATTRIBUTES_3
- , Usb_write_word_enum_struc(EP_SIZE_3)
- , EP_INTERVAL_3
- }
- ,
- { sizeof(S_usb_interface_descriptor)
- , DESCRIPTOR_INTERFACE
- , INTERFACE1_NB
- , ALTERNATE1
- , NB_ENDPOINT1
- , INTERFACE1_CLASS
- , INTERFACE1_SUB_CLASS
- , INTERFACE1_PROTOCOL
- , INTERFACE1_INDEX
- }
- ,
- { sizeof(S_usb_endpoint_descriptor)
- , DESCRIPTOR_ENDPOINT
- , ENDPOINT_NB_1
- , EP_ATTRIBUTES_1
- , Usb_write_word_enum_struc(EP_SIZE_1)
- , EP_INTERVAL_1
- }
- ,
- { sizeof(S_usb_endpoint_descriptor)
- , DESCRIPTOR_ENDPOINT
- , ENDPOINT_NB_2
- , EP_ATTRIBUTES_2
- , Usb_write_word_enum_struc(EP_SIZE_2)
- , EP_INTERVAL_2
- }
+PROGMEM const S_usb_user_configuration_descriptor con_desc = {
+  {
+    sizeof (S_usb_configuration_descriptor),
+    0x02,
+    0x0029,
+    1,
+    1,
+    0,
+    0x80,
+    0x32
+  },
+  {
+    sizeof (S_usb_interface_descriptor),
+    0x04,
+    0,
+    0,
+    0x02,
+    0x03,
+    0,
+    0,
+    0
+  },
+  {
+    sizeof (S_usb_hid_descriptor),
+    0x21,
+    0x0100,
+    0x00,
+    0x01,
+    0x22,
+    0x0022
+  },
+  {
+    sizeof (S_usb_endpoint_descriptor),
+    0x05,
+    0x81,
+    0x03,
+    0x0008,
+    0x0F
+  },
+  {
+    sizeof (S_usb_endpoint_descriptor),
+    0x05,
+    0x02,
+    0x03,
+    0x0008,
+    0x0F
+  }
 };
 #define EP0 0
 void main(void)
