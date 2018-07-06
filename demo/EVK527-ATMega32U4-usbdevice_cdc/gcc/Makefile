@@ -138,3 +138,5 @@ transaction-OUT.eps: transaction-OUT.gif
 transaction-SETUP.eps: transaction-SETUP.gif
 	@convert $< $@
 	@imgsize $@
+flash:
+	avrdude -c usbasp -p atmega32u4 -U flash:w:EVK527-ATMega32U4-usbdevice_cdc.hex
