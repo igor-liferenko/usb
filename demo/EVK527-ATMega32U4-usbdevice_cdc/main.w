@@ -301,6 +301,7 @@ PORTC |= 1 << PC7;
 DDRC |= 1 << PC7;
 PORTC |= 1 << PC7;
 #if 1==1
+/* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &dev_desc.bLength;
           for (int i = 0; i < sizeof (dev_desc); i++)
@@ -311,6 +312,7 @@ PORTC |= 1 << PC7;
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 #else
+/* this is from datasheet */
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc;
   while (1) {
