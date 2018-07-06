@@ -216,6 +216,105 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
   0x03, /* iSerialNumber ("SerialNumber=" in kern.log) */
   1 /* number of configurations */
 };
+typedef struct {
+   U8      bLength;              //!< size of this descriptor in bytes
+   U8      bDescriptorType;      //!< CONFIGURATION descriptor type
+   U16     wTotalLength;         //!< total length of data returned
+   U8      bNumInterfaces;       //!< number of interfaces for this conf.
+   U8      bConfigurationValue;  //!< value for SetConfiguration resquest
+   U8      iConfiguration;       //!< index of string descriptor
+   U8      bmAttibutes;          //!< Configuration characteristics
+   U8      MaxPower;             //!< maximum power consumption
+} S_usb_configuration_descriptor;
+typedef struct {
+   U8      bLength;               //!< size of this descriptor in bytes
+   U8      bDescriptorType;       //!< INTERFACE descriptor type
+   U8      bInterfaceNumber;      //!< Number of interface
+   U8      bAlternateSetting;     //!< value to select alternate setting
+   U8      bNumEndpoints;         //!< Number of EP except EP 0
+   U8      bInterfaceClass;       //!< Class code assigned by the USB
+   U8      bInterfaceSubClass;    //!< Sub-class code assigned by the USB
+   U8      bInterfaceProtocol;    //!< Protocol code assigned by the USB
+   U8      iInterface;            //!< Index of string descriptor
+}  S_usb_interface_descriptor;
+typedef struct {
+   U8      bLength;               //!< Size of this descriptor in bytes
+   U8      bDescriptorType;       //!< ENDPOINT descriptor type
+   U8      bEndpointAddress;      //!< Address of the endpoint
+   U8      bmAttributes;          //!< Endpoint's attributes
+   U16     wMaxPacketSize;        //!< Maximum packet size for this EP
+   U8      bInterval;             //!< Interval for polling EP in ms
+} S_usb_endpoint_descriptor;
+typedef struct
+{
+   S_usb_configuration_descriptor cfg;
+   S_usb_interface_descriptor     ifc0;
+   U8 CS_INTERFACE[19];
+   S_usb_endpoint_descriptor      ep3;
+   S_usb_interface_descriptor     ifc1;
+   S_usb_endpoint_descriptor      ep1;
+   S_usb_endpoint_descriptor      ep2;
+} S_usb_user_configuration_descriptor;
+PROGMEM const S_usb_user_configuration_descriptor usb_conf_desc = {
+ { sizeof(S_usb_configuration_descriptor)
+ , DESCRIPTOR_CONFIGURATION
+ //, Usb_write_word_enum_struc(sizeof(usb_conf_desc_kbd))
+ , 0x0043 //TODO: Change to generic codewith sizeof
+ , NB_INTERFACE
+ , CONF_NB
+ , CONF_INDEX
+ , CONF_ATTRIBUTES
+ , MAX_POWER
+ }
+ ,
+ { sizeof(S_usb_interface_descriptor)
+ , DESCRIPTOR_INTERFACE
+ , INTERFACE0_NB
+ , ALTERNATE0
+ , NB_ENDPOINT0
+ , INTERFACE0_CLASS
+ , INTERFACE0_SUB_CLASS
+ , INTERFACE0_PROTOCOL
+ , INTERFACE0_INDEX
+ }
+ ,
+ { 0x05, 0x24, 0x00, 0x10, 0x01, 0x05, 0x24, 0x01, 0x03, 0x01, 0x04, 0x24, 0x02, 0x06,0x05, 0x24, 0x06, 0x00, 0x01 }
+ ,
+ { sizeof(S_usb_endpoint_descriptor)
+ , DESCRIPTOR_ENDPOINT
+ , ENDPOINT_NB_3
+ , EP_ATTRIBUTES_3
+ , Usb_write_word_enum_struc(EP_SIZE_3)
+ , EP_INTERVAL_3
+ }
+ ,
+ { sizeof(S_usb_interface_descriptor)
+ , DESCRIPTOR_INTERFACE
+ , INTERFACE1_NB
+ , ALTERNATE1
+ , NB_ENDPOINT1
+ , INTERFACE1_CLASS
+ , INTERFACE1_SUB_CLASS
+ , INTERFACE1_PROTOCOL
+ , INTERFACE1_INDEX
+ }
+ ,
+ { sizeof(S_usb_endpoint_descriptor)
+ , DESCRIPTOR_ENDPOINT
+ , ENDPOINT_NB_1
+ , EP_ATTRIBUTES_1
+ , Usb_write_word_enum_struc(EP_SIZE_1)
+ , EP_INTERVAL_1
+ }
+ ,
+ { sizeof(S_usb_endpoint_descriptor)
+ , DESCRIPTOR_ENDPOINT
+ , ENDPOINT_NB_2
+ , EP_ATTRIBUTES_2
+ , Usb_write_word_enum_struc(EP_SIZE_2)
+ , EP_INTERVAL_2
+ }
+};
 #define EP0 0
 void main(void)
 {
@@ -296,7 +395,7 @@ PORTC |= 1 << PC7;
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &dev_desc.bLength;
-          for (int i = 0; i < sizeof (dev_desc); i++)
+          for (int i = 0; i < sizeof dev_desc; i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
           UEINTX &= ~(1 << TXINI);
           while (!(UEINTX & (1 << NAKOUTI))) ;
