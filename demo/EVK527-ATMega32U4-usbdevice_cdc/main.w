@@ -312,18 +312,28 @@ PORTC |= 1 << PC7;
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 #else
-/* this is from datasheet */
+/* this is from datasheet 22.12.2 */
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc;
+  int last_packet_full = 0;
   while (1) {
     int nb_byte = 0;
-    while (size != 0) { /* todo: send zlp if last packet is full */
-      if (nb_byte++ == 32)
+    while (size != 0) {
+      if (nb_byte++ == 32) {
+        last_packet_full = 1;
         break;
+      }
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
       size--;
     }
-    UEINTX &= ~(1 << TXINI);
+    if (nb_byte == 0) {
+      if (last_packet_full)
+        UEINTX &= ~(1 << TXINI);
+    }
+    else
+      UEINTX &= ~(1 << TXINI);
+    if (nb_byte != 32)
+      last_packet_full = 0;
     while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
     if (UEINTX & (1 << RXOUTI)) {
       UEINTX &= ~(1 << RXOUTI);
