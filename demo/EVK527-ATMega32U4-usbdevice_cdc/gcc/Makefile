@@ -102,7 +102,9 @@ size: ${TARGET}
 test:
 	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
 	avr-objcopy -O ihex $@.elf $@.hex
-	avrdude -c usbasp -p $(MCU) -U flash:w:$@.hex
+
+flash:
+	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
 
 .PHONY: $(wildcard *.eps)
 
@@ -137,5 +139,7 @@ transaction-OUT.eps: transaction-OUT.gif
 transaction-SETUP.eps: transaction-SETUP.gif
 	@convert $< $@
 	@imgsize $@
-flash:
-	avrdude -c usbasp -p atmega32u4 -U flash:w:EVK527-ATMega32U4-usbdevice_cdc.hex
+
+hid-structure.eps: hid-structure.png
+	@convert $< $@
+	@imgsize $@ 5 -

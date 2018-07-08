@@ -187,6 +187,9 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
 
 @*1 User configuration descriptor.
 
+$$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
+  clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
+
 @<Create user configuration descriptor...@>=
 typedef struct {
    S_usb_configuration_descriptor cfg;
