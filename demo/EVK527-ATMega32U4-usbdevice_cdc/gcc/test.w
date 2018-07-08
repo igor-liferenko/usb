@@ -334,15 +334,18 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 @ @<Initialize |con_desc|@>=
-PROGMEM const S_usb_user_configuration_descriptor con_desc = {
-  @<Initialize user configuration descriptor element 1@>,
-  @<Initialize user configuration descriptor element 2@>,
-  @<Initialize user configuration descriptor element 3@>,
-  @<Initialize user configuration descriptor element 4@>,
+const S_usb_user_configuration_descriptor con_desc
+@,@,@=PROGMEM@>@t\hskip1pt@> = @+ {@/
+  @<Initialize user configuration descriptor element 1@> @[,@] @;
+  @<Initialize user configuration descriptor element 2@> @[,@] @;
+  @<Initialize user configuration descriptor element 3@> @[,@] @;
+  @<Initialize user configuration descriptor element 4@> @[,@] @;
   @<Initialize user configuration descriptor element 5@>
-};
+}@+@t\hskip-5pt@>;
 
 @*1 Configuration descriptor.
+
+@s S_usb_configuration_descriptor int
 
 @<Declare structures from user configuration descriptor@>=
 typedef struct {
@@ -368,6 +371,8 @@ typedef struct {
 }
 
 @*1 Interface descriptor.
+
+@s S_usb_interface_descriptor int
 
 @<Declare structures from user configuration descriptor@>=
 typedef struct {
@@ -396,6 +401,8 @@ typedef struct {
 
 @*1 HID descriptor.
 
+@s S_usb_hid_descriptor int
+
 @<Declare structures from user configuration descriptor@>=
 typedef struct {
   uint8_t bLength;
@@ -418,6 +425,8 @@ typedef struct {
 }
 
 @*1 Endpoint descriptor.
+
+@s S_usb_endpoint_descriptor int
 
 @<Declare structures from user configuration descriptor@>=
 typedef struct {
