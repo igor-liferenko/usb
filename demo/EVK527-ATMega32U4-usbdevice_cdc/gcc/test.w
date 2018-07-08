@@ -152,8 +152,8 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet */
           if (wLength == sizeof (S_usb_configuration_descriptor)) {
             const void *buf = &usb_con_desc.cfg.bLength;
-            int size = sizeof (S_usb_configuration_descriptor); /* TODO: reduce |size| to |wLength| if
-                                                                   it exceeds it */
+            int size = sizeof (S_usb_configuration_descriptor); /* TODO:
+              reduce |size| to |wLength| if it exceeds it */
             int last_packet_full = 0;
             while (1) {
               int nb_byte = 0;
@@ -183,8 +183,8 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           }
           else {
             const void *buf = &usb_con_desc.cfg.bLength;
-            int size = sizeof (S_usb_user_configuration_descriptor); /* TODO: reduce |size| to
-                                                                        |wLength| if it exceeds it */
+            int size = sizeof (S_usb_user_configuration_descriptor); /* TODO:
+              reduce |size| to |wLength| if it exceeds it */
             int last_packet_full = 0;
             while (1) {
               int nb_byte = 0;
