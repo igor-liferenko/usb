@@ -126,9 +126,10 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &usb_con_desc.cfg.bLength;
+          const void *buf = &con_desc.cfg.bLength;
           if (wLength == 9) {
-            output first 9 bytes
+            for (int i = 0; i < 9; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
             UEINTX &= ~(1 << TXINI);
             while (!(UEINTX & (1 << NAKOUTI))) ;
             UEINTX &= ~(1 << NAKOUTI);
@@ -137,10 +138,13 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             goto out;
           }
           else {
-            output first 32 bytes
+            int i = 0;
+            for (; i < 32; i++)         
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);          
             UEINTX &= ~(1 << TXINI);
             while (!(UEINTX & (1 << TXINI))) ;
-            output remaininig bytes
+            for (; i < 41; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
             UEINTX &= ~(1 << TXINI);
             while (!(UEINTX & (1 << NAKOUTI))) ;
             UEINTX &= ~(1 << NAKOUTI);
@@ -150,8 +154,8 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           }
 #else
 /* this is from datasheet */
+          const void *buf = &con_desc.cfg.bLength;
           if (wLength == sizeof (S_usb_configuration_descriptor)) {
-            const void *buf = &usb_con_desc.cfg.bLength;
             int size = sizeof (S_usb_configuration_descriptor); /* TODO:
               reduce |size| to |wLength| if it exceeds it */
             int last_packet_full = 0;
@@ -182,7 +186,6 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             goto out;
           }
           else {
-            const void *buf = &usb_con_desc.cfg.bLength;
             int size = sizeof (S_usb_user_configuration_descriptor); /* TODO:
               reduce |size| to |wLength| if it exceeds it */
             int last_packet_full = 0;
@@ -353,7 +356,7 @@ typedef struct {
   uint16_t bcdHID;
   uint8_t bCountryCode;
   uint8_t bNumDescriptors;
-  uint8_t bDescriptorType;
+  uint8_t HidDescriptorType;
   uint16_t wDescriptorLength;
 } S_usb_hid_descriptor;
 
