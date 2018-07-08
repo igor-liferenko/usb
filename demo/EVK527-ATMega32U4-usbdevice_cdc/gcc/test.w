@@ -193,7 +193,7 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
 
 @*1 User configuration descriptor.
 
-@<Type definitions@>=
+@<Initialize |con_desc|@>=
 typedef struct {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc;
@@ -202,7 +202,6 @@ typedef struct {
    S_usb_endpoint_descriptor      ep2;
 } S_usb_user_configuration_descriptor;
 
-@ @<Initialize |con_desc|@>=
 PROGMEM const S_usb_user_configuration_descriptor con_desc = {
   @<Initialize |cfg|@>,
   @<Initialize |ifc|@>,
