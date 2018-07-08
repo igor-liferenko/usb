@@ -152,37 +152,37 @@ out:;
 
 @<Create device descriptor...@>=
 typedef struct {
-  U8      bLength;              //!< Size of this descriptor in bytes
-  U8      bDescriptorType;      //!< DEVICE descriptor type
-  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
-  U8      bDeviceClass;         //!< Class code assigned by the USB
-  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
-  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
-  U8      bMaxPacketSize0;      //!< Max packet size for EP0
-  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
-  U16     idProduct;            //!< Product ID assigned by the manufacturer
-  U16     bcdDevice;            //!< Device release number
-  U8      iManufacturer;        //!< Index of manu. string descriptor
-  U8      iProduct;             //!< Index of prod. string descriptor
-  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
-  U8      bNumConfigurations;   //!< Number of possible configurations
+  U8      bLength;
+  U8      bDescriptorType;
+  U16     bcdUSB; /* Binay Coded Decimal Spec. release */
+  U8      bDeviceClass; /* class code assigned by the USB */
+  U8      bDeviceSubClass; /* sub-class code assigned by the USB */
+  U8      bDeviceProtocol; /* protocol code assigned by the USB */
+  U8      bMaxPacketSize0; /* max packet size for EP0 */
+  U16     idVendor;
+  U16     idProduct;
+  U16     bcdDevice; /* device release number */
+  U8      iManufacturer; /* index of manu. string descriptor */
+  U8      iProduct; /* index of prod. string descriptor */
+  U8      iSerialNumber; /* index of S.N. string descriptor */
+  U8      bNumConfigurations;
 } S_usb_device_descriptor;
 
 PROGMEM const S_usb_device_descriptor dev_desc = {
   sizeof (S_usb_device_descriptor),
-  0x01, /* device */
-  0x0110, /* bcdUSB */
-  0, /* device class */
-  0, /* subclass */
-  0, /* device protocol */
-  32, /* control endpoint size */
-  0x03EB,
-  0x2013,
-  0x1000,
-  0x01, /* iManufacturer ("Mfr=" in kern.log) */
-  0x02, /* iProduct ("Product=" in kern.log) */
-  0x03, /* iSerialNumber ("SerialNumber=" in kern.log) */
-  1 /* number of configurations */
+  0x01, /* device descriptor */
+  0x0110, /* USB 1.1 */
+  0, /* not specified */
+  0, /* not specified */
+  0, /* not specified */
+  32, /* 32 bytes */
+  0x03EB, /* ATMEL */
+  0x2013, /* standard Human Interaction Device */
+  0x1000, /* from Atmel demo */
+  0x01, /* \.{Mfr} in \.{kern.log} */
+  0x02, /* \.{Product} in \.{kern.log} */
+  0x03, /* \.{SerialNumber} in \.{kern.log} */
+  1 /* one configuration */
 };
 
 @*1 User configuration descriptor.
