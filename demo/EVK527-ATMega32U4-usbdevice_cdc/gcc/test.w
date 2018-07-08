@@ -5,9 +5,9 @@
 #include <avr/wdt.h>
 typedef unsigned char U8;
 typedef unsigned short U16;
-@<Type definitions@>@;
-@<Create device descriptor |dev_desc|@>@;
-@<Create user configuration descriptor |con_desc|@>@;
+@<Declarations of structures@>@;
+@<Initialize |dev_desc|@>@;
+@<Initialize |con_desc|@>@;
 #define EP0 0
 #define EP1 1
 #define EP2 2
@@ -281,7 +281,7 @@ out:;
 
 @*1 Device descriptor.
 
-@<Create device descriptor...@>=
+@<Declarations of structures@>=
 typedef struct {
   U8      bLength;
   U8      bDescriptorType;
@@ -299,6 +299,7 @@ typedef struct {
   U8      bNumConfigurations;
 } S_usb_device_descriptor;
 
+@ @<Initialize |dev_desc|@>=
 PROGMEM const S_usb_device_descriptor dev_desc = {
   sizeof (S_usb_device_descriptor),
   0x01, /* device */
@@ -321,7 +322,8 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 
-@<Create user configuration descriptor...@>=
+@<Declarations of structures@>=
+@<Declare structures from user configuration descriptor@>@;
 typedef struct {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc;
@@ -330,6 +332,7 @@ typedef struct {
    S_usb_endpoint_descriptor      ep2;
 } S_usb_user_configuration_descriptor;
 
+@ @<Initialize |con_desc|@>=
 PROGMEM const S_usb_user_configuration_descriptor con_desc = {
   @<Initialize user configuration descriptor element 1@>,
   @<Initialize user configuration descriptor element 2@>,
@@ -340,7 +343,7 @@ PROGMEM const S_usb_user_configuration_descriptor con_desc = {
 
 @*1 Configuration descriptor.
 
-@<Type definitions@>=
+@<Declare structures from user configuration descriptor@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
@@ -365,7 +368,7 @@ typedef struct {
 
 @*1 Interface descriptor.
 
-@<Type definitions@>=
+@<Declare structures from user configuration descriptor@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
@@ -392,7 +395,7 @@ typedef struct {
 
 @*1 HID descriptor.
 
-@<Type definitions@>=
+@<Declare structures from user configuration descriptor@>=
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -415,7 +418,7 @@ typedef struct {
 
 @*1 Endpoint descriptor.
 
-@<Type definitions@>=
+@<Declare structures from user configuration descriptor@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
