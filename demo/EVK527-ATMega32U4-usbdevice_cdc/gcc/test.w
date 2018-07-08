@@ -150,7 +150,7 @@ out:;
 
 @*1 Device descriptor.
 
-@<Create device descriptor@>=
+@<Create device descriptor...@>=
 typedef struct {
   U8      bLength;              //!< Size of this descriptor in bytes
   U8      bDescriptorType;      //!< DEVICE descriptor type
@@ -187,7 +187,7 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
 
 @*1 User configuration descriptor.
 
-@<Create user configuration descriptor@>=
+@<Create user configuration descriptor...@>=
 typedef struct {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc;
