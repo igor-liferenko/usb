@@ -5,134 +5,9 @@
 #include <avr/wdt.h>
 typedef unsigned char U8;
 typedef unsigned short U16;
-typedef struct {
-  U8      bLength;              //!< Size of this descriptor in bytes
-  U8      bDescriptorType;      //!< DEVICE descriptor type
-  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
-  U8      bDeviceClass;         //!< Class code assigned by the USB
-  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
-  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
-  U8      bMaxPacketSize0;      //!< Max packet size for EP0
-  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
-  U16     idProduct;            //!< Product ID assigned by the manufacturer
-  U16     bcdDevice;            //!< Device release number
-  U8      iManufacturer;        //!< Index of manu. string descriptor
-  U8      iProduct;             //!< Index of prod. string descriptor
-  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
-  U8      bNumConfigurations;   //!< Number of possible configurations
-} S_usb_device_descriptor;
-PROGMEM const S_usb_device_descriptor dev_desc = {
-  sizeof (S_usb_device_descriptor),
-  0x01, /* device */
-  0x0110, /* bcdUSB */
-  0, /* device class */
-  0, /* subclass */
-  0, /* device protocol */
-  32, /* control endpoint size */
-  0x03EB,
-  0x2013,
-  0x1000,
-  0x01, /* iManufacturer ("Mfr=" in kern.log) */
-  0x02, /* iProduct ("Product=" in kern.log) */
-  0x03, /* iSerialNumber ("SerialNumber=" in kern.log) */
-  1 /* number of configurations */
-};
-typedef struct {
-   U8      bLength;              //!< size of this descriptor in bytes
-   U8      bDescriptorType;      //!< CONFIGURATION descriptor type
-   U16     wTotalLength;         //!< total length of data returned
-   U8      bNumInterfaces;       //!< number of interfaces for this conf.
-   U8      bConfigurationValue;  //!< value for SetConfiguration resquest
-   U8      iConfiguration;       //!< index of string descriptor
-   U8      bmAttibutes;          //!< Configuration characteristics
-   U8      MaxPower;             //!< maximum power consumption
-} S_usb_configuration_descriptor;
-typedef struct {
-   U8      bLength;               //!< size of this descriptor in bytes
-   U8      bDescriptorType;       //!< INTERFACE descriptor type
-   U8      bInterfaceNumber;      //!< Number of interface
-   U8      bAlternateSetting;     //!< value to select alternate setting
-   U8      bNumEndpoints;         //!< Number of EP except EP 0
-   U8      bInterfaceClass;       //!< Class code assigned by the USB
-   U8      bInterfaceSubClass;    //!< Sub-class code assigned by the USB
-   U8      bInterfaceProtocol;    //!< Protocol code assigned by the USB
-   U8      iInterface;            //!< Index of string descriptor
-}  S_usb_interface_descriptor;
-typedef struct {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint16_t myHidVersion;
-  uint8_t myCountryCode;
-  uint8_t myNumDescriptors;
-  uint8_t myDescriptorType;
-  uint16_t myReportLength;
-} S_usb_hid_descriptor;
-typedef struct {
-   U8      bLength;               //!< Size of this descriptor in bytes
-   U8      bDescriptorType;       //!< ENDPOINT descriptor type
-   U8      bEndpointAddress;      //!< Address of the endpoint
-   U8      bmAttributes;          //!< Endpoint's attributes
-   U16     wMaxPacketSize;        //!< Maximum packet size for this EP
-   U8      bInterval;             //!< Interval for polling EP in ms
-} S_usb_endpoint_descriptor;
-typedef struct
-{
-   S_usb_configuration_descriptor cfg;
-   S_usb_interface_descriptor     ifc0;
-   S_usb_hid_descriptor           hid;
-   S_usb_endpoint_descriptor      ep3;
-   S_usb_interface_descriptor     ifc1;
-   S_usb_endpoint_descriptor      ep1;
-   S_usb_endpoint_descriptor      ep2;
-} S_usb_user_configuration_descriptor;
-PROGMEM const S_usb_user_configuration_descriptor con_desc = {
-  {
-    sizeof (S_usb_configuration_descriptor),
-    0x02,
-    0x0029,
-    1,
-    1,
-    0,
-    0x80,
-    0x32
-  },
-  {
-    sizeof (S_usb_interface_descriptor),
-    0x04,
-    0,
-    0,
-    0x02,
-    0x03,
-    0,
-    0,
-    0
-  },
-  {
-    sizeof (S_usb_hid_descriptor),
-    0x21,
-    0x0100,
-    0x00,
-    0x01,
-    0x22,
-    0x0022
-  },
-  {
-    sizeof (S_usb_endpoint_descriptor),
-    0x05,
-    0x81,
-    0x03,
-    0x0008,
-    0x0F
-  },
-  {
-    sizeof (S_usb_endpoint_descriptor),
-    0x05,
-    0x02,
-    0x03,
-    0x0008,
-    0x0F
-  }
-};
+@<Type definitions@>@;
+@<Initialize |dev_desc|@>@;
+@<Initialize |con_desc|@>@;
 #define EP0 0
 void main(void)
 {
@@ -278,4 +153,165 @@ PORTC |= 1 << PC7;
   }
 }
 
+@*1 Device descriptor.
 
+@<Type definitions@>=
+typedef struct {
+  U8      bLength;              //!< Size of this descriptor in bytes
+  U8      bDescriptorType;      //!< DEVICE descriptor type
+  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
+  U8      bDeviceClass;         //!< Class code assigned by the USB
+  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
+  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
+  U8      bMaxPacketSize0;      //!< Max packet size for EP0
+  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
+  U16     idProduct;            //!< Product ID assigned by the manufacturer
+  U16     bcdDevice;            //!< Device release number
+  U8      iManufacturer;        //!< Index of manu. string descriptor
+  U8      iProduct;             //!< Index of prod. string descriptor
+  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
+  U8      bNumConfigurations;   //!< Number of possible configurations
+} S_usb_device_descriptor;
+
+@ @<Initialize |dev_desc|@>=
+PROGMEM const S_usb_device_descriptor dev_desc = {
+  sizeof (S_usb_device_descriptor),
+  0x01, /* device */
+  0x0110, /* bcdUSB */
+  0, /* device class */
+  0, /* subclass */
+  0, /* device protocol */
+  32, /* control endpoint size */
+  0x03EB,
+  0x2013,
+  0x1000,
+  0x01, /* iManufacturer ("Mfr=" in kern.log) */
+  0x02, /* iProduct ("Product=" in kern.log) */
+  0x03, /* iSerialNumber ("SerialNumber=" in kern.log) */
+  1 /* number of configurations */
+};
+
+@*1 User configuration descriptor.
+
+@<Type definitions@>=
+typedef struct {
+   S_usb_configuration_descriptor cfg;
+   S_usb_interface_descriptor     ifc;
+   S_usb_hid_descriptor           hid;
+   S_usb_endpoint_descriptor      ep1;
+   S_usb_endpoint_descriptor      ep2;
+} S_usb_user_configuration_descriptor;
+
+@ @<Initialize |con_desc|@>=
+PROGMEM const S_usb_user_configuration_descriptor con_desc = {
+  @<Initialize |cfg|@>,
+  @<Initialize |ifc|@>,
+  @<Initialize |hid|@>,
+  @<Initialize |ep1|@>,
+  @<Initialize |ep2|@>
+};
+
+@*1 Configuration descriptor.
+
+@<Type definitions@>=
+typedef struct {
+   U8      bLength;              //!< size of this descriptor in bytes
+   U8      bDescriptorType;      //!< CONFIGURATION descriptor type
+   U16     wTotalLength;         //!< total length of data returned
+   U8      bNumInterfaces;       //!< number of interfaces for this conf.
+   U8      bConfigurationValue;  //!< value for SetConfiguration resquest
+   U8      iConfiguration;       //!< index of string descriptor
+   U8      bmAttibutes;          //!< Configuration characteristics
+   U8      MaxPower;             //!< maximum power consumption
+} S_usb_configuration_descriptor;
+
+@ @<Initialize |cfg|@>= {
+  sizeof (S_usb_configuration_descriptor),
+  0x02,
+  0x0029,
+  1,
+  1,
+  0,
+  0x80,
+  0x32
+}
+
+@*1 Interface descriptor.
+
+@<Type definitions@>=
+typedef struct {
+   U8      bLength;               //!< size of this descriptor in bytes
+   U8      bDescriptorType;       //!< INTERFACE descriptor type
+   U8      bInterfaceNumber;      //!< Number of interface
+   U8      bAlternateSetting;     //!< value to select alternate setting
+   U8      bNumEndpoints;         //!< Number of EP except EP 0
+   U8      bInterfaceClass;       //!< Class code assigned by the USB
+   U8      bInterfaceSubClass;    //!< Sub-class code assigned by the USB
+   U8      bInterfaceProtocol;    //!< Protocol code assigned by the USB
+   U8      iInterface;            //!< Index of string descriptor
+}  S_usb_interface_descriptor;
+
+@ @<Initialize |ifc|@>= {
+  sizeof (S_usb_interface_descriptor),
+  0x04,
+  0,
+  0,
+  0x02,
+  0x03,
+  0,
+  0,
+  0
+}
+
+@*1 HID descriptor.
+
+@<Type definitions@>=
+typedef struct {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint16_t myHidVersion;
+  uint8_t myCountryCode;
+  uint8_t myNumDescriptors;
+  uint8_t myDescriptorType;
+  uint16_t myReportLength;
+} S_usb_hid_descriptor;
+
+@ @<Initialize |hid|@>= {
+  sizeof (S_usb_hid_descriptor),
+  0x21,
+  0x0100,
+  0x00,
+  0x01,
+  0x22,
+  0x0022
+}
+
+@*1 Endpoint descriptor.
+
+@<Type definitions@>=
+typedef struct {
+   U8      bLength;               //!< Size of this descriptor in bytes
+   U8      bDescriptorType;       //!< ENDPOINT descriptor type
+   U8      bEndpointAddress;      //!< Address of the endpoint
+   U8      bmAttributes;          //!< Endpoint's attributes
+   U16     wMaxPacketSize;        //!< Maximum packet size for this EP
+   U8      bInterval;             //!< Interval for polling EP in ms
+} S_usb_endpoint_descriptor;
+
+@ @<Initialize |ep1|@>= {
+  sizeof (S_usb_endpoint_descriptor),
+  0x05,
+  0x81,
+  0x03,
+  0x0008,
+  0x0F
+}
+
+@ @<Initialize |ep2|@>= {
+  sizeof (S_usb_endpoint_descriptor),
+  0x05,
+  0x02,
+  0x03,
+  0x0008,
+  0x0F
+}
