@@ -238,22 +238,22 @@ typedef struct {
    U8      bInterfaceNumber;
    U8      bAlternateSetting;
    U8      bNumEndpoints; /* number of EP except EP 0 */
-   U8      bInterfaceClass; /* Class code assigned by the USB */
-   U8      bInterfaceSubClass; /* Sub-class code assigned by the USB */
-   U8      bInterfaceProtocol; /* Protocol code assigned by the USB */
-   U8      iInterface; /* Index of string descriptor */
+   U8      bInterfaceClass; /* class code assigned by the USB */
+   U8      bInterfaceSubClass; /* sub-class code assigned by the USB */
+   U8      bInterfaceProtocol; /* protocol code assigned by the USB */
+   U8      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
 @ @<Initialize user configuration descriptor structure 2@>= {
   sizeof (S_usb_interface_descriptor),
-  0x04,
-  0,
-  0,
-  0x02,
-  0x03,
-  0,
-  0,
-  0
+  0x04, /* interface descriptor */
+  0, /* ??? */
+  0, /* ??? */
+  0x02, /* two endpoints are used */
+  0x03, /* HID */
+  0, /* ??? */
+  0, /* ??? */
+  0 /* not specified */
 }
 
 @*1 HID descriptor.
@@ -271,12 +271,12 @@ typedef struct {
 
 @ @<Initialize user configuration descriptor structure 3@>= {
   sizeof (S_usb_hid_descriptor),
-  0x21,
-  0x0100,
-  0x00,
-  0x01,
-  0x22,
-  0x0022
+  0x21, /* HID descriptor */
+  0x0100, /* HID version */
+  0x00, /* no localization */
+  0x01, /* one descriptor for this device */
+  0x22, /* report descriptor */
+  0x0022 /* 34 bytes */
 }
 
 @*1 Endpoint descriptor.
@@ -288,23 +288,23 @@ typedef struct {
    U8      bEndpointAddress;
    U8      bmAttributes;
    U16     wMaxPacketSize;
-   U8      bInterval; /* interval for polling EP in ms */
+   U8      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
 } S_usb_endpoint_descriptor;
 
 @ @<Initialize user configuration descriptor structure 4@>= {
   sizeof (S_usb_endpoint_descriptor),
-  0x05,
-  0x81,
-  0x03,
-  0x0008,
-  0x0F
+  0x05, /* endpoint descriptor */
+  0x81, /* IN */
+  0x03, /* transfers via interrupts */
+  0x0008, /* 8 bytes */
+  0x0F /* 16 ms */
 }
 
 @ @<Initialize user configuration descriptor structure 5@>= {
   sizeof (S_usb_endpoint_descriptor),
-  0x05,
-  0x02,
-  0x03,
-  0x0008,
-  0x0F
+  0x05, /* endpoint descriptor */
+  0x02, /* OUT */
+  0x03, /* transfers via interrupts */
+  0x0008, /* 8 bytes */
+  0x0F /* 16 ms */
 }
