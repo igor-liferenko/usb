@@ -64,12 +64,7 @@ out:;
 }
 ISR(USB_COM_vect)
 {
-DDRC |= 1 << PC7;
-PORTC |= 1 << PC7;
   if (UEINT == (1 << EP0)) {
-DDRC |= 1 << PC7;
-PORTC |= 1 << PC7;
-
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
     if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
@@ -83,8 +78,6 @@ PORTC |= 1 << PC7;
         ((uint8_t *) &wLength)[1] = UEDATX;
         UEINTX &= ~(1 << RXSTPI);
         if (bDescriptorType == 0x01) {
-DDRC |= 1 << PC7;
-PORTC |= 1 << PC7;
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
@@ -97,7 +90,7 @@ PORTC |= 1 << PC7;
           while (!(UEINTX & (1 << RXOUTI))) ;
           UEINTX &= ~(1 << RXOUTI);
 #else
-//debug: if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;}
+if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet 22.12.2 */
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc;
@@ -157,7 +150,7 @@ out:;
 
 @*1 Device descriptor.
 
-@<Type definitions@>=
+@<Initialize |dev_desc|@>=
 typedef struct {
   U8      bLength;              //!< Size of this descriptor in bytes
   U8      bDescriptorType;      //!< DEVICE descriptor type
@@ -175,7 +168,6 @@ typedef struct {
   U8      bNumConfigurations;   //!< Number of possible configurations
 } S_usb_device_descriptor;
 
-@ @<Initialize |dev_desc|@>=
 PROGMEM const S_usb_device_descriptor dev_desc = {
   sizeof (S_usb_device_descriptor),
   0x01, /* device */

@@ -102,7 +102,7 @@ size: ${TARGET}
 test:
 	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
 	avr-objcopy -O ihex $@.elf $@.hex
-	avrdude -c usbasp -p $(MCU) -U flash:w:$@.hex -qq
+	avrdude -c usbasp -p $(MCU) -U flash:w:$@.hex
 
 .PHONY: $(wildcard *.eps)
 
