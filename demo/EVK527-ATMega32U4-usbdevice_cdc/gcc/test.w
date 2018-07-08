@@ -300,8 +300,9 @@ typedef struct {
 } S_usb_device_descriptor;
 
 @ @<Initialize |dev_desc|@>=
-PROGMEM const S_usb_device_descriptor dev_desc = {
-  sizeof (S_usb_device_descriptor),
+const S_usb_device_descriptor dev_desc
+@,@,@=PROGMEM@>@t\hskip1pt@> = @+ {@/
+  sizeof (S_usb_device_descriptor) @[,@] @;
   0x01, /* device */
   0x0110, /* USB version 1.1 */
   0, /* not specified */
@@ -315,7 +316,7 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
   0x0, /* (\.{Product} in \.{kern.log}) */
   0x0, /* (\.{SerialNumber} in \.{kern.log}) */
   1 /* one configuration for this device */
-};
+}@+@t\hskip-5pt@>;
 
 @*1 User configuration descriptor.
 
