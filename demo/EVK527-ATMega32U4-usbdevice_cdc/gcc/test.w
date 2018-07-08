@@ -93,7 +93,7 @@ ISR(USB_COM_vect)
 if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet 22.12.2 */
   const void *buf = &dev_desc.bLength;
-  int size = sizeof dev_desc;
+  int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
   int last_packet_full = 0;
   while (1) {
     int nb_byte = 0;
