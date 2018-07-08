@@ -200,11 +200,11 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 PROGMEM const S_usb_user_configuration_descriptor con_desc = {
-  @<Initialize user configuration descriptor structure 1@>,
-  @<Initialize user configuration descriptor structure 2@>,
-  @<Initialize user configuration descriptor structure 3@>,
-  @<Initialize user configuration descriptor structure 4@>,
-  @<Initialize user configuration descriptor structure 5@>
+  @<Initialize user configuration descriptor element 1@>,
+  @<Initialize user configuration descriptor element 2@>,
+  @<Initialize user configuration descriptor element 3@>,
+  @<Initialize user configuration descriptor element 4@>,
+  @<Initialize user configuration descriptor element 5@>
 };
 
 @*1 Configuration descriptor.
@@ -221,7 +221,7 @@ typedef struct {
    U8      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize user configuration descriptor structure 1@>= {
+@ @<Initialize user configuration descriptor element 1@>= {
   sizeof (S_usb_configuration_descriptor),
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor),
@@ -247,7 +247,7 @@ typedef struct {
    U8      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
-@ @<Initialize user configuration descriptor structure 2@>= {
+@ @<Initialize user configuration descriptor element 2@>= {
   sizeof (S_usb_interface_descriptor),
   0x04, /* interface descriptor */
   0, /* ??? */
@@ -272,7 +272,7 @@ typedef struct {
   uint16_t myReportLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize user configuration descriptor structure 3@>= {
+@ @<Initialize user configuration descriptor element 3@>= {
   sizeof (S_usb_hid_descriptor),
   0x21, /* HID descriptor */
   0x0100, /* HID version */
@@ -294,7 +294,7 @@ typedef struct {
    U8      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize user configuration descriptor structure 4@>= {
+@ @<Initialize user configuration descriptor element 4@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05, /* endpoint descriptor */
   0x81, /* IN */
@@ -303,7 +303,7 @@ typedef struct {
   0x0F /* 16 ms */
 }
 
-@ @<Initialize user configuration descriptor structure 5@>= {
+@ @<Initialize user configuration descriptor element 5@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05, /* endpoint descriptor */
   0x02, /* OUT */
