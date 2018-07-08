@@ -231,6 +231,31 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #endif
       while (!(UEINTX & (1 << TXINI))) ;
       UDADDR |= 1 << ADDEN;
+      goto out;
+    }
+    if (bRequest == 0x09 && bmRequestType == 0) {
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      while (!(UEINTX & (1 << TXINI))) ;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+      while (!(UEINTX & (1 << TXINI))) ;
+#endif
+      UENUM = EP1;
+      UECONX |= 1 << EPEN;
+      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
+      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+      while (!(UESTA0X & (1 << CFGOK))) ;
+
+      UENUM = EP2;
+      UECONX |= 1 << EPEN; 
+      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
+      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+      while (!(UESTA0X & (1 << CFGOK))) ;
+
+      UENUM = EP0;
+      goto out;
     }
   }
 out:;
@@ -267,9 +292,9 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
-  0x01, /* (\.{Mfr} in \.{kern.log}) */
-  0x02, /* (\.{Product} in \.{kern.log}) */
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x0, /* (\.{Mfr} in \.{kern.log}) */
+  0x0, /* (\.{Product} in \.{kern.log}) */
+  0x0, /* (\.{SerialNumber} in \.{kern.log}) */
   1 /* one configuration for this device */
 };
 
