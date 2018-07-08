@@ -179,10 +179,10 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
-  0x01, /* \.{Mfr} in \.{kern.log} */
-  0x02, /* \.{Product} in \.{kern.log} */
-  0x03, /* \.{SerialNumber} in \.{kern.log} */
-  1 /* one configuration */
+  0x01, /* (\.{Mfr} in \.{kern.log}) */
+  0x02, /* (\.{Product} in \.{kern.log}) */
+  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  1 /* one configuration for this device */
 };
 
 @*1 User configuration descriptor.
@@ -220,13 +220,13 @@ typedef struct {
 
 @ @<Initialize user configuration descriptor structure 1@>= {
   sizeof (S_usb_configuration_descriptor),
-  0x02,
-  0x0029,
-  1,
-  1,
-  0,
-  0x80,
-  0x32
+  0x02, /* configuration descriptor */
+  sizeof (S_usb_user_configuration_descriptor),
+  1, /* one interface in this configuration */
+  1, /* ??? */
+  0, /* not used */
+  0x80, /* device is powered from bus */
+  0x32 /* device uses 100mA */
 }
 
 @*1 Interface descriptor.
