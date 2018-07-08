@@ -336,11 +336,11 @@ typedef struct {
 @ @<Initialize |con_desc|@>=
 const S_usb_user_configuration_descriptor con_desc
 @,@,@=PROGMEM@>@t\hskip1pt@> = @+ {@/
-  @<Initialize user configuration descriptor element 1@> @[,@] @;
-  @<Initialize user configuration descriptor element 2@> @[,@] @;
-  @<Initialize user configuration descriptor element 3@> @[,@] @;
-  @<Initialize user configuration descriptor element 4@> @[,@] @;
-  @<Initialize user configuration descriptor element 5@>
+  @<Initialize |cfg|@> @[,@] @;
+  @<Initialize |ifc|@> @[,@] @;
+  @<Initialize |hid|@> @[,@] @;
+  @<Initialize |ep1|@> @[,@] @;
+  @<Initialize |ep2|@>
 }@+@t\hskip-5pt@>;
 
 @*1 Configuration descriptor.
@@ -359,7 +359,7 @@ typedef struct {
    U8      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize user configuration descriptor element 1@>= {
+@ @<Initialize |cfg|@>= {
   sizeof (S_usb_configuration_descriptor),
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor),
@@ -387,7 +387,7 @@ typedef struct {
    U8      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
-@ @<Initialize user configuration descriptor element 2@>= {
+@ @<Initialize |ifc|@>= {
   sizeof (S_usb_interface_descriptor),
   0x04, /* interface descriptor */
   0, /* ??? */
@@ -414,7 +414,7 @@ typedef struct {
   uint16_t wDescriptorLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize user configuration descriptor element 3@>= {
+@ @<Initialize |hid|@>= {
   sizeof (S_usb_hid_descriptor),
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
@@ -438,7 +438,7 @@ typedef struct {
    U8      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize user configuration descriptor element 4@>= {@/
+@ @<Initialize |ep1|@>= {@/
   sizeof (S_usb_endpoint_descriptor) @[,@] @;
   0x05, /* endpoint */
   0x81, /* IN */
@@ -447,7 +447,7 @@ typedef struct {
   0x0F /* 15 */
 }
 
-@ @<Initialize user configuration descriptor element 5@>= {
+@ @<Initialize |ep2|@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05, /* endpoint */
   0x02, /* OUT */
