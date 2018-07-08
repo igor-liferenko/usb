@@ -9,6 +9,8 @@ typedef unsigned short U16;
 @<Create device descriptor |dev_desc|@>@;
 @<Create user configuration descriptor |con_desc|@>@;
 #define EP0 0
+#define EP1 1
+#define EP2 2
 void main(void)
 {
   UHWCON = 1 << UVREGE;
@@ -218,7 +220,23 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #endif
         }
       }
-//      else |sl_1|
+      else {
+        if (bmRequestType == 0x81) {
+          (void) UEDATX;
+          uint8_t bDescriptorType = UEDATX;
+          (void) UEDATX;
+          (void) UEDATX;
+          uint16_t wLength;
+          ((uint8_t *) &wLength)[0] = UEDATX;
+          ((uint8_t *) &wLength)[1] = UEDATX;
+          UEINTX &= ~(1 << RXSTPI);
+          if (bDescriptorType == 0x01) {
+            if (wLength == 34) {
+              while (!(UEINTX & (1 << TXINI))) ;
+            }
+          }
+        }
+      }
     }
     if (bRequest == 0x05) {
       UDADDR = UEDATX & 0x7F;
