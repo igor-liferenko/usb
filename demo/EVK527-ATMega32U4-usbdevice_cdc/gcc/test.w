@@ -6,8 +6,8 @@
 typedef unsigned char U8;
 typedef unsigned short U16;
 @<Type definitions@>@;
-@<Initialize |dev_desc|@>@;
-@<Initialize |con_desc|@>@;
+@<Create device descriptor@>@;
+@<Create user configuration descriptor@>@;
 #define EP0 0
 void main(void)
 {
@@ -150,7 +150,7 @@ out:;
 
 @*1 Device descriptor.
 
-@<Initialize |dev_desc|@>=
+@<Create device descriptor@>=
 typedef struct {
   U8      bLength;              //!< Size of this descriptor in bytes
   U8      bDescriptorType;      //!< DEVICE descriptor type
@@ -187,7 +187,7 @@ PROGMEM const S_usb_device_descriptor dev_desc = {
 
 @*1 User configuration descriptor.
 
-@<Initialize |con_desc|@>=
+@<Create user configuration descriptor@>=
 typedef struct {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc;
@@ -197,11 +197,11 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 PROGMEM const S_usb_user_configuration_descriptor con_desc = {
-  @<Initialize |cfg|@>,
-  @<Initialize |ifc|@>,
-  @<Initialize |hid|@>,
-  @<Initialize |ep1|@>,
-  @<Initialize |ep2|@>
+  @<Initialize configuration@>,
+  @<Initialize interface@>,
+  @<Initialize HID@>,
+  @<Initialize endpoint 1@>,
+  @<Initialize endpoint 2@>
 };
 
 @*1 Configuration descriptor.
@@ -218,7 +218,7 @@ typedef struct {
    U8      MaxPower;             //!< maximum power consumption
 } S_usb_configuration_descriptor;
 
-@ @<Initialize |cfg|@>= {
+@ @<Initialize configuration@>= {
   sizeof (S_usb_configuration_descriptor),
   0x02,
   0x0029,
@@ -244,7 +244,7 @@ typedef struct {
    U8      iInterface;            //!< Index of string descriptor
 }  S_usb_interface_descriptor;
 
-@ @<Initialize |ifc|@>= {
+@ @<Initialize interface@>= {
   sizeof (S_usb_interface_descriptor),
   0x04,
   0,
@@ -269,7 +269,7 @@ typedef struct {
   uint16_t myReportLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize |hid|@>= {
+@ @<Initialize HID@>= {
   sizeof (S_usb_hid_descriptor),
   0x21,
   0x0100,
@@ -291,7 +291,7 @@ typedef struct {
    U8      bInterval;             //!< Interval for polling EP in ms
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize |ep1|@>= {
+@ @<Initialize endpoint 1@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05,
   0x81,
@@ -300,7 +300,7 @@ typedef struct {
   0x0F
 }
 
-@ @<Initialize |ep2|@>= {
+@ @<Initialize endpoint 2@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05,
   0x02,
