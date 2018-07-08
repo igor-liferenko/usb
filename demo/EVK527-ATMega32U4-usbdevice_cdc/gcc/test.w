@@ -447,8 +447,8 @@ typedef struct {
   0x0F /* 15 */
 }
 
-@ @<Initialize |ep2|@>= {
-  sizeof (S_usb_endpoint_descriptor),
+@ @<Initialize |ep2|@>= @+{@/
+  sizeof (S_usb_endpoint_descriptor) @[,@] @;
   0x05, /* endpoint */
   0x02, /* OUT */
   0x03, /* transfers via interrupts */
