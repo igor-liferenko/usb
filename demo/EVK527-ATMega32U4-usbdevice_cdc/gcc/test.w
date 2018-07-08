@@ -6,8 +6,8 @@
 typedef unsigned char U8;
 typedef unsigned short U16;
 @<Type definitions@>@;
-@<Create device descriptor@>@;
-@<Create user configuration descriptor@>@;
+@<Create device descriptor |dev_desc|@>@;
+@<Create user configuration descriptor |con_desc|@>@;
 #define EP0 0
 void main(void)
 {
@@ -130,7 +130,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #endif
         }
       }
-//      else sl_1
+//      else |sl_1|
     }
     if (bRequest == 0x05) {
       UDADDR = UEDATX & 0x7F;
@@ -197,28 +197,28 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 PROGMEM const S_usb_user_configuration_descriptor con_desc = {
-  @<Initialize configuration@>,
-  @<Initialize interface@>,
-  @<Initialize HID@>,
-  @<Initialize endpoint 1@>,
-  @<Initialize endpoint 2@>
+  @<Initialize user configuration descriptor structure 1@>,
+  @<Initialize user configuration descriptor structure 2@>,
+  @<Initialize user configuration descriptor structure 3@>,
+  @<Initialize user configuration descriptor structure 4@>,
+  @<Initialize user configuration descriptor structure 5@>
 };
 
 @*1 Configuration descriptor.
 
 @<Type definitions@>=
 typedef struct {
-   U8      bLength;              //!< size of this descriptor in bytes
-   U8      bDescriptorType;      //!< CONFIGURATION descriptor type
-   U16     wTotalLength;         //!< total length of data returned
-   U8      bNumInterfaces;       //!< number of interfaces for this conf.
-   U8      bConfigurationValue;  //!< value for SetConfiguration resquest
-   U8      iConfiguration;       //!< index of string descriptor
-   U8      bmAttibutes;          //!< Configuration characteristics
-   U8      MaxPower;             //!< maximum power consumption
+   U8      bLength;
+   U8      bDescriptorType;
+   U16     wTotalLength;
+   U8      bNumInterfaces;
+   U8      bConfigurationValue; /* value for SetConfiguration resquest */
+   U8      iConfiguration; /* index of string descriptor */
+   U8      bmAttibutes;
+   U8      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize configuration@>= {
+@ @<Initialize user configuration descriptor structure 1@>= {
   sizeof (S_usb_configuration_descriptor),
   0x02,
   0x0029,
@@ -233,18 +233,18 @@ typedef struct {
 
 @<Type definitions@>=
 typedef struct {
-   U8      bLength;               //!< size of this descriptor in bytes
-   U8      bDescriptorType;       //!< INTERFACE descriptor type
-   U8      bInterfaceNumber;      //!< Number of interface
-   U8      bAlternateSetting;     //!< value to select alternate setting
-   U8      bNumEndpoints;         //!< Number of EP except EP 0
-   U8      bInterfaceClass;       //!< Class code assigned by the USB
-   U8      bInterfaceSubClass;    //!< Sub-class code assigned by the USB
-   U8      bInterfaceProtocol;    //!< Protocol code assigned by the USB
-   U8      iInterface;            //!< Index of string descriptor
+   U8      bLength;
+   U8      bDescriptorType;
+   U8      bInterfaceNumber;
+   U8      bAlternateSetting;
+   U8      bNumEndpoints; /* number of EP except EP 0 */
+   U8      bInterfaceClass; /* Class code assigned by the USB */
+   U8      bInterfaceSubClass; /* Sub-class code assigned by the USB */
+   U8      bInterfaceProtocol; /* Protocol code assigned by the USB */
+   U8      iInterface; /* Index of string descriptor */
 }  S_usb_interface_descriptor;
 
-@ @<Initialize interface@>= {
+@ @<Initialize user configuration descriptor structure 2@>= {
   sizeof (S_usb_interface_descriptor),
   0x04,
   0,
@@ -269,7 +269,7 @@ typedef struct {
   uint16_t myReportLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize HID@>= {
+@ @<Initialize user configuration descriptor structure 3@>= {
   sizeof (S_usb_hid_descriptor),
   0x21,
   0x0100,
@@ -283,15 +283,15 @@ typedef struct {
 
 @<Type definitions@>=
 typedef struct {
-   U8      bLength;               //!< Size of this descriptor in bytes
-   U8      bDescriptorType;       //!< ENDPOINT descriptor type
-   U8      bEndpointAddress;      //!< Address of the endpoint
-   U8      bmAttributes;          //!< Endpoint's attributes
-   U16     wMaxPacketSize;        //!< Maximum packet size for this EP
-   U8      bInterval;             //!< Interval for polling EP in ms
+   U8      bLength;
+   U8      bDescriptorType;
+   U8      bEndpointAddress;
+   U8      bmAttributes;
+   U16     wMaxPacketSize;
+   U8      bInterval; /* interval for polling EP in ms */
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize endpoint 1@>= {
+@ @<Initialize user configuration descriptor structure 4@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05,
   0x81,
@@ -300,7 +300,7 @@ typedef struct {
   0x0F
 }
 
-@ @<Initialize endpoint 2@>= {
+@ @<Initialize user configuration descriptor structure 5@>= {
   sizeof (S_usb_endpoint_descriptor),
   0x05,
   0x02,
