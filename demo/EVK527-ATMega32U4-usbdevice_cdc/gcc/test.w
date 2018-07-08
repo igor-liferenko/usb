@@ -428,8 +428,8 @@ typedef struct {
    U8      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize user configuration descriptor element 4@>= {
-  sizeof (S_usb_endpoint_descriptor),
+@ @<Initialize user configuration descriptor element 4@>= {@/
+  sizeof (S_usb_endpoint_descriptor) @[,@] @;
   0x05, /* endpoint */
   0x81, /* IN */
   0x03, /* transfers via interrupts */
