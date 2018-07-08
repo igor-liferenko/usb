@@ -42,14 +42,14 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    return;
+    goto out;
   }
   if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
     USBCON |= 1 << FRZCLK;
     PLLCSR &= ~(1 << PLLE);
     UDIEN |= 1 << WAKEUPE;
-    return;
+    goto out;
   }
   if (UDINT & (1 << WAKEUPI)) {
     PLLCSR |= 1 << PLLE;
@@ -60,6 +60,7 @@ ISR(USB_GEN_vect)
     UENUM = EP0;
     // flag = 1;
   }
+out:;
 }
 ISR(USB_COM_vect)
 {
@@ -126,7 +127,7 @@ PORTC |= 1 << PC7;
     }
   }
 #endif
-          return;
+          goto out;
         }
         if (bDescriptorType == 0x02) {
 #if 1==1
@@ -142,7 +143,7 @@ PORTC |= 1 << PC7;
       UDADDR = UEDATX & 0x7F;
       UEINTX &= ~(1 << RXSTPI);
 #if 1==1
-      if (!(UEINTX & (1 << TXINI))) return;
+      if (!(UEINTX & (1 << TXINI))) goto out;
       UEINTX &= ~(1 << TXINI);
 #else
       UEINTX &= ~(1 << TXINI);
@@ -151,6 +152,7 @@ PORTC |= 1 << PC7;
       UDADDR |= 1 << ADDEN;
     }
   }
+out:;
 }
 
 @*1 Device descriptor.
