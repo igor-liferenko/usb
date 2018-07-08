@@ -128,6 +128,11 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #else
 
 #endif
+          ((uint8_t *) &wLength)[1] = 0;
+          if (wLength != 9) {
+            DDRB |= 1 << PB0;
+            PORTB |= 1 << PB0;
+          }
         }
       }
 //      else |sl_1|
@@ -254,7 +259,7 @@ typedef struct {
   0, /* ??? */
   0x02, /* two endpoints are used */
   0x03, /* HID */
-  0, /* ??? */
+  0, /* no subclass */
   0, /* ??? */
   0 /* not specified */
 }
@@ -265,20 +270,20 @@ typedef struct {
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
-  uint16_t myHidVersion;
-  uint8_t myCountryCode;
-  uint8_t myNumDescriptors;
-  uint8_t myDescriptorType;
-  uint16_t myReportLength;
+  uint16_t bcdHID;
+  uint8_t bCountryCode;
+  uint8_t bNumDescriptors;
+  uint8_t bDescriptorType;
+  uint16_t wDescriptorLength;
 } S_usb_hid_descriptor;
 
 @ @<Initialize user configuration descriptor element 3@>= {
   sizeof (S_usb_hid_descriptor),
-  0x21, /* HID descriptor */
-  0x0100, /* HID version */
+  0x21, /* HID */
+  0x0100, /* HID version 1.0 */
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
-  0x22, /* report descriptor */
+  0x22, /* HID report */
   0x0022 /* 34 bytes */
 }
 
@@ -296,18 +301,18 @@ typedef struct {
 
 @ @<Initialize user configuration descriptor element 4@>= {
   sizeof (S_usb_endpoint_descriptor),
-  0x05, /* endpoint descriptor */
+  0x05, /* endpoint */
   0x81, /* IN */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
-  0x0F /* 16 ms */
+  0x0F /* 15 */
 }
 
 @ @<Initialize user configuration descriptor element 5@>= {
   sizeof (S_usb_endpoint_descriptor),
-  0x05, /* endpoint descriptor */
+  0x05, /* endpoint */
   0x02, /* OUT */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
-  0x0F /* 16 ms */
+  0x0F /* 15 */
 }
