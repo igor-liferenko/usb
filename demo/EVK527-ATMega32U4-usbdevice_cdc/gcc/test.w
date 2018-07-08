@@ -124,15 +124,95 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
         }
         if (bDescriptorType == 0x02) {
 #if 1==1
+/* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
-#else
-
-#endif
-          ((uint8_t *) &wLength)[1] = 0;
-          if (wLength != 9) {
-            DDRB |= 1 << PB0;
-            PORTB |= 1 << PB0;
+          const void *buf = &usb_con_desc.cfg.bLength;
+          if (wLength == 9) {
+            output first 9 bytes
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << NAKOUTI))) ;
+            UEINTX &= ~(1 << NAKOUTI);
+            while (!(UEINTX & (1 << RXOUTI))) ;
+            UEINTX &= ~(1 << RXOUTI);
+            goto out;
           }
+          else {
+            output first 32 bytes
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << TXINI))) ;
+            output remaininig bytes
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << NAKOUTI))) ;
+            UEINTX &= ~(1 << NAKOUTI);
+            while (!(UEINTX & (1 << RXOUTI))) ;
+            UEINTX &= ~(1 << RXOUTI);
+            goto out;
+          }
+#else
+/* this is from datasheet */
+          if (wLength == sizeof (S_usb_configuration_descriptor)) {
+            const void *buf = &usb_con_desc.cfg.bLength;
+            int size = sizeof (S_usb_configuration_descriptor); /* TODO: reduce |size| to |wLength| if
+                                                                   it exceeds it */
+            int last_packet_full = 0;
+            while (1) {
+              int nb_byte = 0;
+              while (size != 0) {
+                if (nb_byte++ == 32) {
+                  last_packet_full = 1;
+                  break;
+                }
+                UEDATX = pgm_read_byte_near((unsigned int) buf++);
+                size--;
+              }
+              if (nb_byte == 0) {
+                if (last_packet_full)
+                UEINTX &= ~(1 << TXINI);
+              }
+              else
+                UEINTX &= ~(1 << TXINI);
+              if (nb_byte != 32)
+                last_packet_full = 0;
+              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+              if (UEINTX & (1 << RXOUTI)) {
+                UEINTX &= ~(1 << RXOUTI);
+                break;
+              }
+            }
+            goto out;
+          }
+          else {
+            const void *buf = &usb_con_desc.cfg.bLength;
+            int size = sizeof (S_usb_user_configuration_descriptor); /* TODO: reduce |size| to
+                                                                        |wLength| if it exceeds it */
+            int last_packet_full = 0;
+            while (1) {
+              int nb_byte = 0;
+              while (size != 0) {
+                if (nb_byte++ == 32) {
+                  last_packet_full = 1;
+                  break;
+                }
+                UEDATX = pgm_read_byte_near((unsigned int) buf++);
+                size--;
+              }
+              if (nb_byte == 0) {
+                if (last_packet_full)
+                  UEINTX &= ~(1 << TXINI);
+              }
+              else
+                UEINTX &= ~(1 << TXINI);
+              if (nb_byte != 32)
+                last_packet_full = 0;
+              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+              if (UEINTX & (1 << RXOUTI)) {
+                UEINTX &= ~(1 << RXOUTI);
+                break;
+              }
+            }
+            goto out;
+          }
+#endif
         }
       }
 //      else |sl_1|
@@ -175,8 +255,8 @@ typedef struct {
 
 PROGMEM const S_usb_device_descriptor dev_desc = {
   sizeof (S_usb_device_descriptor),
-  0x01, /* device descriptor */
-  0x0110, /* USB 1.1 */
+  0x01, /* device */
+  0x0110, /* USB version 1.1 */
   0, /* not specified */
   0, /* not specified */
   0, /* not specified */
