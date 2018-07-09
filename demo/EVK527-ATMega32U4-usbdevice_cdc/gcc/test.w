@@ -301,7 +301,7 @@ typedef struct {
 
 @ @<Initialize |dev_desc|@>=
 const S_usb_device_descriptor dev_desc
-@,@,@=PROGMEM@>@t\hskip1pt@> = {@t\1@>@/
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_usb_device_descriptor), @/
   0x01, /* device */
   0x0110, /* USB version 1.1 */
