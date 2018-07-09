@@ -1,8 +1,9 @@
-@ @c
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <avr/wdt.h>
+\secpagedepth=2 % begin new page only on *
+
+@* Program.
+
+@c
+@<Header files@>@;
 typedef unsigned char U8;
 typedef unsigned short U16;
 @<Declarations of structures@>@;
@@ -455,3 +456,14 @@ typedef struct {
   0x0008, /* 8 bytes */
   0x0F /* 15 */
 }
+
+@* Headers.
+\secpagedepth=1 % index on current page
+
+@<Header files@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <avr/wdt.h>
+
+@* Index.
