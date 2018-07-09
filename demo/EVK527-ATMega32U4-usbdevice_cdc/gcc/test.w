@@ -10,8 +10,6 @@
 
 @c
 @<Header files@>@;
-typedef unsigned char U8;
-typedef unsigned short U16;
 @<Type definitions@>@;
 @<Global variables@>@;
 
@@ -257,20 +255,20 @@ out:;
 
 @<Type definitions@>=
 typedef struct {
-  U8      bLength;
-  U8      bDescriptorType;
-  U16     bcdUSB; /* Binay Coded Decimal Spec. release */
-  U8      bDeviceClass; /* class code assigned by the USB */
-  U8      bDeviceSubClass; /* sub-class code assigned by the USB */
-  U8      bDeviceProtocol; /* protocol code assigned by the USB */
-  U8      bMaxPacketSize0; /* max packet size for EP0 */
-  U16     idVendor;
-  U16     idProduct;
-  U16     bcdDevice; /* device release number */
-  U8      iManufacturer; /* index of manu. string descriptor */
-  U8      iProduct; /* index of prod. string descriptor */
-  U8      iSerialNumber; /* index of S.N. string descriptor */
-  U8      bNumConfigurations;
+  uint8_t      bLength;
+  uint8_t      bDescriptorType;
+  uint16_t     bcdUSB; /* Binay Coded Decimal Spec. release */
+  uint8_t      bDeviceClass; /* class code assigned by the USB */
+  uint8_t      bDeviceSubClass; /* sub-class code assigned by the USB */
+  uint8_t      bDeviceProtocol; /* protocol code assigned by the USB */
+  uint8_t      bMaxPacketSize0; /* max packet size for EP0 */
+  uint16_t     idVendor;
+  uint16_t     idProduct;
+  uint16_t     bcdDevice; /* device release number */
+  uint8_t      iManufacturer; /* index of manu. string descriptor */
+  uint8_t      iProduct; /* index of prod. string descriptor */
+  uint8_t      iSerialNumber; /* index of S.N. string descriptor */
+  uint8_t      bNumConfigurations;
 } S_usb_device_descriptor;
 
 @ @<Global variables@>=
@@ -323,14 +321,14 @@ const S_usb_user_configuration_descriptor con_desc
 
 @<User configuration type definitions@>=
 typedef struct {
-   U8      bLength;
-   U8      bDescriptorType;
-   U16     wTotalLength;
-   U8      bNumInterfaces;
-   U8      bConfigurationValue; /* value for SetConfiguration resquest */
-   U8      iConfiguration; /* index of string descriptor */
-   U8      bmAttibutes;
-   U8      MaxPower;
+   uint8_t      bLength;
+   uint8_t      bDescriptorType;
+   uint16_t     wTotalLength;
+   uint8_t      bNumInterfaces;
+   uint8_t      bConfigurationValue; /* value for SetConfiguration resquest */
+   uint8_t      iConfiguration; /* index of string descriptor */
+   uint8_t      bmAttibutes;
+   uint8_t      MaxPower;
 } S_usb_configuration_descriptor;
 
 @ @<Initialize |con_desc.cfg|@>= { @t\1@> @/
@@ -350,15 +348,15 @@ typedef struct {
 
 @<User configuration type definitions@>=
 typedef struct {
-   U8      bLength;
-   U8      bDescriptorType;
-   U8      bInterfaceNumber;
-   U8      bAlternateSetting;
-   U8      bNumEndpoints; /* number of EP except EP 0 */
-   U8      bInterfaceClass; /* class code assigned by the USB */
-   U8      bInterfaceSubClass; /* sub-class code assigned by the USB */
-   U8      bInterfaceProtocol; /* protocol code assigned by the USB */
-   U8      iInterface; /* index of string descriptor */
+   uint8_t      bLength;
+   uint8_t      bDescriptorType;
+   uint8_t      bInterfaceNumber;
+   uint8_t      bAlternateSetting;
+   uint8_t      bNumEndpoints; /* number of EP except EP 0 */
+   uint8_t      bInterfaceClass; /* class code assigned by the USB */
+   uint8_t      bInterfaceSubClass; /* sub-class code assigned by the USB */
+   uint8_t      bInterfaceProtocol; /* protocol code assigned by the USB */
+   uint8_t      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
 @ @<Initialize |con_desc.ifc|@>= { @t\1@> @/
@@ -404,12 +402,12 @@ typedef struct {
 
 @<User configuration type definitions@>=
 typedef struct {
-   U8      bLength;
-   U8      bDescriptorType;
-   U8      bEndpointAddress;
-   U8      bmAttributes;
-   U16     wMaxPacketSize;
-   U8      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
+   uint8_t      bLength;
+   uint8_t      bDescriptorType;
+   uint8_t      bEndpointAddress;
+   uint8_t      bmAttributes;
+   uint16_t     wMaxPacketSize;
+   uint8_t      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
 } S_usb_endpoint_descriptor;
 
 @ @<Initialize |con_desc.ep1|@>= { @t\1@> @/
