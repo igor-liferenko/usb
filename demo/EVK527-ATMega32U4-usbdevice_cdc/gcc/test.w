@@ -479,7 +479,7 @@ typedef struct {
   {@, 0x26, 0xFF, 0x00 @,}, @/
   {@, 0x75, 0x08 @,}, @/
   {@, 0x95, LENGTH_OF_REPORT_IN @,}, @/
-@t\2@> {@, 0x81, 0x02 @,}, @/
+@t\2@> {@, 0x81, 0x02 @,} @/
 }
 
 @*2 OUT report.
