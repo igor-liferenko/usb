@@ -450,7 +450,7 @@ const S_usb_hid_report_descriptor usb_hid_report_descriptor
   {@, 0xA1, 0x01 @,}, @/
   @<Initialize |usb_hid_report_descriptor.in|@>, @/
   @<Initialize |usb_hid_report_descriptor.out|@>, @/
-@t\2@> 0xC0 /* end collection */
+@t\2@> 0xC0 @/
 };
 
 @*2 IN report.
@@ -494,8 +494,8 @@ typedef struct {
   {@, 0x09, 0x00 @,}, @/
   {@, 0x15, 0x00 @,}, @/
   {@, 0x26, 0xFF, 0x00 @,}, @/
-  {@, 0x75, 0x08 @,}, @/
-  {@, 0x95, 0x08 @,}, @/
+  {@, 0x75, 0x08 @,}, /* 8 */
+  {@, 0x95, 0x08 @,}, /* 8 */
 @t\2@> {@, 0x91, 0x02 @,} @/
 }
 
