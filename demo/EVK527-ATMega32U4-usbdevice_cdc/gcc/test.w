@@ -442,15 +442,11 @@ typedef struct {
   uint8_t EndCollection;
 }  S_usb_hid_report_descriptor;
 
-@ @d SIZE_OF_REPORT 0x35
-@d LENGTH_OF_REPORT_IN 0x08
-@d LENGTH_OF_REPORT_OUT 0x08
-
-@<Global variables@>=
+@ @<Global variables@>=
 const S_usb_hid_report_descriptor usb_hid_report_descriptor
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  {@, 0x06, 0xFF, 0xFF @,}, @/
-  {@, 0x09, 0x01 @,}, @/
+  {@, 0x06, 0x00, 0xFF @,}, /* vendordefined */
+  {@, 0x09, 0x00 @,}, @/
   {@, 0xA1, 0x01 @,}, @/
   @<Initialize |usb_hid_report_descriptor.in|@>, @/
   @<Initialize |usb_hid_report_descriptor.out|@>, @/
@@ -463,22 +459,20 @@ const S_usb_hid_report_descriptor usb_hid_report_descriptor
 
 @<HID report type definitions@>=
 typedef struct {
-  uint8_t Usage1[2];
-  uint8_t Usage2[2];
+  uint8_t Usage[2];
   uint8_t LogicalMinimum[2];
   uint8_t LogicalMaximum[3];
-  uint8_t ReportSize[2];
-  uint8_t ReportCount[2];
+  uint8_t ReportSize[2]; /* размер единицы (одного элемента данных) принимаемой информации в битах */
+  uint8_t ReportCount[2]; /* количество единиц принимаемой информации */
   uint8_t INreport[2];
 } usb_in_report;
 
 @ @<Initialize |usb_hid_report_descriptor.in|@>= { @t\1@> @/
-  {@, 0x09, 0x02 @,}, /* vendordefined */
-  {@, 0x09, 0x03 @,}, /* vendordefined */
+  {@, 0x09, 0x00 @,}, @/
   {@, 0x15, 0x00 @,}, @/
   {@, 0x26, 0xFF, 0x00 @,}, @/
-  {@, 0x75, 0x08 @,}, @/
-  {@, 0x95, LENGTH_OF_REPORT_IN @,}, @/
+  {@, 0x75, 0x08 @,}, /* 8 */
+  {@, 0x95, 0x08 @,}, /* 8 */
 @t\2@> {@, 0x81, 0x02 @,} @/
 }
 
@@ -488,8 +482,7 @@ typedef struct {
 
 @<HID report type definitions@>=
 typedef struct {
-  uint8_t Usage1[2];
-  uint8_t Usage2[2];
+  uint8_t Usage[2];
   uint8_t LogicalMinimum[2];
   uint8_t LogicalMaximum[3];
   uint8_t ReportSize[2];
@@ -498,12 +491,12 @@ typedef struct {
 } usb_out_report;
 
 @ @<Initialize |usb_hid_report_descriptor.out|@>= { @t\1@> @/
-  {@, 0x09, 0x04 @,}, @/
-  {@, 0x09, 0x05 @,}, @/
+  {@, 0x09, 0x00 @,}, @/
   {@, 0x15, 0x00 @,}, @/
   {@, 0x26, 0xFF, 0x00 @,}, @/
   {@, 0x75, 0x08 @,}, @/
-  {@, 0x95, LENGTH_OF_REPORT_OUT @,}, @/
+  {@, 0x75, 0x08 @,}, @/
+  {@, 0x95, 0x08 @,}, @/
 @t\2@> {@, 0x91, 0x02 @,} @/
 }
 
