@@ -4,15 +4,17 @@
 
 @* Program.
 
+@d EP0 0
+@d EP1 1
+@d EP2 2
+
 @c
 @<Header files@>@;
 typedef unsigned char U8;
 typedef unsigned short U16;
 @<Type definitions@>@;
 @<Global variables@>@;
-#define EP0 0
-#define EP1 1
-#define EP2 2
+
 void main(void)
 {
   UHWCON = 1 << UVREGE;
