@@ -360,15 +360,15 @@ typedef struct {
    U8      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize |con_desc.cfg|@>= {
-  sizeof (S_usb_configuration_descriptor),
+@ @<Initialize |con_desc.cfg|@>= { @t\1@> @/
+  sizeof (S_usb_configuration_descriptor), @/
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor),
   1, /* one interface in this configuration */
   1, /* ??? */
   0, /* not used */
   0x80, /* device is powered from bus */
-  0x32 /* device uses 100mA */
+@t\2@> 0x32 /* device uses 100mA */
 }
 
 @*1 Interface descriptor.
@@ -388,8 +388,8 @@ typedef struct {
    U8      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
-@ @<Initialize |con_desc.ifc|@>= {
-  sizeof (S_usb_interface_descriptor),
+@ @<Initialize |con_desc.ifc|@>= { @t\1@> @/
+  sizeof (S_usb_interface_descriptor), @/
   0x04, /* interface descriptor */
   0, /* ??? */
   0, /* ??? */
@@ -397,7 +397,7 @@ typedef struct {
   0x03, /* HID */
   0, /* no subclass */
   0, /* ??? */
-  0 /* not specified */
+@t\2@> 0 /* not specified */
 }
 
 @*1 HID descriptor.
@@ -415,14 +415,14 @@ typedef struct {
   uint16_t wDescriptorLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize |con_desc.hid|@>= {
-  sizeof (S_usb_hid_descriptor),
+@ @<Initialize |con_desc.hid|@>= { @t\1@> @/
+  sizeof (S_usb_hid_descriptor), @/
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
   0x22, /* HID report */
-  0x0022 /* 34 bytes */
+@t\2@> 0x0022 /* 34 bytes */
 }
 
 @*1 Endpoint descriptor.
