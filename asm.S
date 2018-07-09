@@ -360,7 +360,7 @@ int_desc:
    rjmp vihod_ep
 
 n_5:
-   cpi R22,0x62
+   cpi R22,0x22
    breq d_rep_1
    rjmp vihod_ep
 
