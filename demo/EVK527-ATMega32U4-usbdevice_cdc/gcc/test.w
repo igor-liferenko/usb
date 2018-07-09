@@ -9,8 +9,7 @@
 typedef unsigned char U8;
 typedef unsigned short U16;
 @<Type definitions@>@;
-@<Initialize |dev_desc|@>@;
-@<Initialize |con_desc|@>@;
+@<Global variables@>@;
 #define EP0 0
 #define EP1 1
 #define EP2 2
@@ -272,7 +271,7 @@ typedef struct {
   U8      bNumConfigurations;
 } S_usb_device_descriptor;
 
-@ @<Initialize |dev_desc|@>=
+@ @<Global variables@>=
 const S_usb_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_usb_device_descriptor), @/
@@ -306,7 +305,7 @@ typedef struct {
    S_usb_endpoint_descriptor      ep2;
 } S_usb_user_configuration_descriptor;
 
-@ @<Initialize |con_desc|@>=
+@ @<Global variables@>=
 const S_usb_user_configuration_descriptor con_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize |con_desc.cfg|@>, @/
