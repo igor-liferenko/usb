@@ -6,7 +6,7 @@
 @<Header files@>@;
 typedef unsigned char U8;
 typedef unsigned short U16;
-@<Declarations of structures@>@;
+@<Type definitions@>@;
 @<Initialize |dev_desc|@>@;
 @<Initialize |con_desc|@>@;
 #define EP0 0
@@ -282,7 +282,7 @@ out:;
 
 @*1 Device descriptor.
 
-@<Declarations of structures@>=
+@<Type definitions@>=
 typedef struct {
   U8      bLength;
   U8      bDescriptorType;
@@ -324,8 +324,8 @@ const S_usb_device_descriptor dev_desc
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 
-@<Declarations of structures@>=
-@<Declare structures from user configuration descriptor@>@;
+@<Type definitions@>=
+@<User configuration type definitions@>@;
 typedef struct {
    S_usb_configuration_descriptor cfg;
    S_usb_interface_descriptor     ifc;
@@ -348,7 +348,7 @@ const S_usb_user_configuration_descriptor con_desc
 
 @s S_usb_configuration_descriptor int
 
-@<Declare structures from user configuration descriptor@>=
+@<User configuration type definitions@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
@@ -375,7 +375,7 @@ typedef struct {
 
 @s S_usb_interface_descriptor int
 
-@<Declare structures from user configuration descriptor@>=
+@<User configuration type definitions@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
@@ -404,7 +404,7 @@ typedef struct {
 
 @s S_usb_hid_descriptor int
 
-@<Declare structures from user configuration descriptor@>=
+@<User configuration type definitions@>=
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -429,7 +429,7 @@ typedef struct {
 
 @s S_usb_endpoint_descriptor int
 
-@<Declare structures from user configuration descriptor@>=
+@<User configuration type definitions@>=
 typedef struct {
    U8      bLength;
    U8      bDescriptorType;
