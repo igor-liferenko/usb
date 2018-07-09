@@ -203,6 +203,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           if (bDescriptorType == 0x01) {
             if (wLength == 34) {
               while (!(UEINTX & (1 << TXINI))) ;
+//see asm.S 0x22
             }
           }
         }
@@ -426,6 +427,84 @@ typedef struct {
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
+}
+
+@*1 HID report descriptor.
+
+@<Type definitions@>=
+@<HID report type definitions@>@;
+typedef struct {
+  uint8_t UsagePage[3];
+  uint8_t Usage[2];
+  uint8_t Collection[2];
+  usb_in_report in;
+  usb_out_report out;
+  uint8_t EndCollection;
+}  S_usb_hid_report_descriptor;
+
+@ @d SIZE_OF_REPORT 0x35
+@d LENGTH_OF_REPORT_IN 0x08
+@d LENGTH_OF_REPORT_OUT 0x08
+
+@<Global variables@>=
+const S_usb_hid_report_descriptor usb_hid_report_descriptor
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  {@, 0x06, 0xFF, 0xFF @,}, @/
+  {@, 0x09, 0x01 @,}, @/
+  {@, 0xA1, 0x01 @,}, @/
+  @<Initialize |usb_hid_report_descriptor.in|@>, @/
+  @<Initialize |usb_hid_report_descriptor.out|@>, @/
+@t\2@> 0xC0 /* end collection */
+};
+
+@*2 IN report.
+
+@s usb_in_report int
+
+@<HID report type definitions@>=
+typedef struct {
+  uint8_t Usage1[2];
+  uint8_t Usage2[2];
+  uint8_t LogicalMinimum[2];
+  uint8_t LogicalMaximum[3];
+  uint8_t ReportSize[2];
+  uint8_t ReportCount[2];
+  uint8_t INreport[2];
+} usb_in_report;
+
+@ @<Initialize |usb_hid_report_descriptor.in|@>= { @t\1@> @/
+  {@, 0x09, 0x02 @,}, /* vendordefined */
+  {@, 0x09, 0x03 @,}, /* vendordefined */
+  {@, 0x15, 0x00 @,}, @/
+  {@, 0x26, 0xFF, 0x00 @,}, @/
+  {@, 0x75, 0x08 @,}, @/
+  {@, 0x95, LENGTH_OF_REPORT_IN @,}, @/
+@t\2@> {@, 0x81, 0x02 @,}, @/
+}
+
+@*2 OUT report.
+
+@s usb_out_report int
+
+@<HID report type definitions@>=
+typedef struct {
+  uint8_t Usage1[2];
+  uint8_t Usage2[2];
+  uint8_t LogicalMinimum[2];
+  uint8_t LogicalMaximum[3];
+  uint8_t ReportSize[2];
+  uint8_t ReportCount[2];
+  uint8_t OUTreport[2];
+} usb_out_report;
+
+@ @<Initialize |usb_hid_report_descriptor.out|@>= { @t\1@> @/
+  {@, 0x09, 0x04 @,}, @/
+  {@, 0x09, 0x05 @,}, @/
+  {@, 0x15, 0x00 @,}, @/
+  {@, 0x26, 0xFF, 0x00 @,}, @/
+  {@, 0x75, 0x08 @,}, @/
+  {@, 0x95, LENGTH_OF_REPORT_OUT @,}, @/
+@t\2@> {@, 0x91, 0x02 @,} @/
 }
 
 @* Headers.
