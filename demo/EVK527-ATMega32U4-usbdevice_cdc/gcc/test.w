@@ -402,12 +402,12 @@ typedef struct {
 
 @<User configuration type definitions@>=
 typedef struct {
-   uint8_t      bLength;
-   uint8_t      bDescriptorType;
-   uint8_t      bEndpointAddress;
-   uint8_t      bmAttributes;
-   uint16_t     wMaxPacketSize;
-   uint8_t      bInterval; /* interval for polling EP by host to determine if data is available (ms) */
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bEndpointAddress;
+  uint8_t bmAttributes;
+  uint16_t wMaxPacketSize;
+  uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 } S_usb_endpoint_descriptor;
 
 @ @<Initialize |con_desc.ep1|@>= { @t\1@> @/
@@ -416,7 +416,7 @@ typedef struct {
   0x81, /* IN */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
-@t\2@> 0x0F /* 15 */
+@t\2@> 0x0F /* 16 */
 }
 
 @ @<Initialize |con_desc.ep2|@>= { @t\1@> @/
@@ -425,7 +425,7 @@ typedef struct {
   0x02, /* OUT */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
-@t\2@> 0x0F /* 15 */
+@t\2@> 0x0F /* 16 */
 }
 
 @* Headers.
