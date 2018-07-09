@@ -1,3 +1,5 @@
+\let\lheader\rheader
+\datethis
 \secpagedepth=2 % begin new page only on *
 
 @* Program.
@@ -248,6 +250,8 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 out:;
 }
 
+@* USB.
+
 @*1 Device descriptor.
 
 @<Type definitions@>=
@@ -312,7 +316,7 @@ const S_usb_user_configuration_descriptor con_desc
 @t\2@> @<Initialize |con_desc.ep2|@> @/
 };
 
-@*1 Configuration descriptor.
+@*2 Configuration descriptor.
 
 @s S_usb_configuration_descriptor int
 
@@ -339,7 +343,7 @@ typedef struct {
 @t\2@> 0x32 /* device uses 100mA */
 }
 
-@*1 Interface descriptor.
+@*2 Interface descriptor.
 
 @s S_usb_interface_descriptor int
 
@@ -368,7 +372,7 @@ typedef struct {
 @t\2@> 0 /* not specified */
 }
 
-@*1 HID descriptor.
+@*2 HID descriptor.
 
 @s S_usb_hid_descriptor int
 
@@ -393,7 +397,7 @@ typedef struct {
 @t\2@> 0x0022 /* 34 bytes */
 }
 
-@*1 Endpoint descriptor.
+@*2 Endpoint descriptor.
 
 @s S_usb_endpoint_descriptor int
 
