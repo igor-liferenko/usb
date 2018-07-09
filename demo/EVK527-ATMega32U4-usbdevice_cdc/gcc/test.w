@@ -336,13 +336,13 @@ typedef struct {
 
 @ @<Initialize |con_desc|@>=
 const S_usb_user_configuration_descriptor con_desc
-@,@,@=PROGMEM@>@t\hskip1pt@> = @+ {@/
-  @<Initialize |con_desc.cfg|@> @[,@] @;
-  @<Initialize |con_desc.ifc|@> @[,@] @;
-  @<Initialize |con_desc.hid|@> @[,@] @;
-  @<Initialize |con_desc.ep1|@> @[,@] @;
-  @<Initialize |con_desc.ep2|@>
-}@+@t\hskip-5pt@>;
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  @<Initialize |con_desc.cfg|@>, @/
+  @<Initialize |con_desc.ifc|@>, @/
+  @<Initialize |con_desc.hid|@>, @/
+  @<Initialize |con_desc.ep1|@>, @/
+@t\2@> @<Initialize |con_desc.ep2|@> @/
+};
 
 @*1 Configuration descriptor.
 
