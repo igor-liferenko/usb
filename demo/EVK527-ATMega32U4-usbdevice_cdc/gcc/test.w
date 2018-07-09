@@ -363,7 +363,7 @@ typedef struct {
 @ @<Initialize |con_desc.cfg|@>= { @t\1@> @/
   sizeof (S_usb_configuration_descriptor), @/
   0x02, /* configuration descriptor */
-  sizeof (S_usb_user_configuration_descriptor),
+  sizeof (S_usb_user_configuration_descriptor), @/
   1, /* one interface in this configuration */
   1, /* ??? */
   0, /* not used */
