@@ -130,7 +130,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &con_desc.cfg.bLength;
+          const void *buf = &usb_conf_desc.cfg.bLength;
           if (wLength == 9) {
             for (int i = 0; i < 9; i++)
               UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -158,7 +158,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           }
 #else
 /* this is from datasheet */
-          const void *buf = &con_desc.cfg.bLength;
+          const void *buf = &usb_conf_desc.cfg.bLength;
           int size = wLength;
           int last_packet_full = 0;
           while (1) {
@@ -203,6 +203,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             if (wLength == 34) {
               while (!(UEINTX & (1 << TXINI))) ;
 //see asm.S 0x22
+//pbuffer = &(usb_hid_report_descriptor[0]);
             }
           }
         }
@@ -307,13 +308,13 @@ typedef struct {
 
 @ @<Global variables@>=
 @<HID report descriptor@>@;
-const S_usb_user_configuration_descriptor con_desc
+const S_usb_user_configuration_descriptor usb_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  @<Initialize |con_desc.cfg|@>, @/
-  @<Initialize |con_desc.ifc|@>, @/
-  @<Initialize |con_desc.hid|@>, @/
-  @<Initialize |con_desc.ep1|@>, /* FIXME: why it does not get to the index? */
-@t\2@> @<Initialize |con_desc.ep2|@> @/
+  @<Initialize |usb_conf_desc.cfg|@>, @/
+  @<Initialize |usb_conf_desc.ifc|@>, @/
+  @<Initialize |usb_conf_desc.hid|@>, @/
+  @<Initialize |usb_conf_desc.ep1|@>, /* FIXME: why it does not get to the index? */
+@t\2@> @<Initialize |usb_conf_desc.ep2|@> @/
 };
 
 @*2 Configuration descriptor.
@@ -332,13 +333,13 @@ typedef struct {
    uint8_t      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize |con_desc.cfg|@>= { @t\1@> @/
+@ @<Initialize |usb_conf_desc.cfg|@>= { @t\1@> @/
   sizeof (S_usb_configuration_descriptor), @/
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor), @/
   1, /* one interface in this configuration */
-  1, /* ??? */
-  0, /* not used */
+  1, /* \vb{cfg1} */
+  0, /* no string descriptor */
   0x80, /* device is powered from bus */
 @t\2@> 0x32 /* device uses 100mA */
 }
@@ -360,16 +361,16 @@ typedef struct {
    uint8_t      iInterface; /* index of string descriptor */
 }  S_usb_interface_descriptor;
 
-@ @<Initialize |con_desc.ifc|@>= { @t\1@> @/
+@ @<Initialize |usb_conf_desc.ifc|@>= { @t\1@> @/
   sizeof (S_usb_interface_descriptor), @/
   0x04, /* interface descriptor */
-  0, /* ??? */
-  0, /* ??? */
+  0, /* \vb{if0} */
+  0, /* \vb{alt0} */
   0x02, /* two endpoints are used */
   0x03, /* HID */
   0, /* no subclass */
-  0, /* ??? */
-@t\2@> 0 /* not specified */
+  0, @/
+@t\2@> 0 /* no string descriptor */
 }
 
 @*2 HID descriptor.
@@ -383,18 +384,18 @@ typedef struct {
   uint16_t bcdHID;
   uint8_t bCountryCode;
   uint8_t bNumDescriptors;
-  uint8_t HidDescriptorType;
+  uint8_t bReportDescriptorType;
   uint16_t wDescriptorLength;
 } S_usb_hid_descriptor;
 
-@ @<Initialize |con_desc.hid|@>= { @t\1@> @/
+@ @<Initialize |usb_conf_desc.hid|@>= { @t\1@> @/
   sizeof (S_usb_hid_descriptor), @/
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
   0x22, /* HID report */
-@t\2@> sizeof hid_report_descriptor @/
+@t\2@> sizeof usb_hid_report_descriptor @/
 }
 
 @*2 Endpoint descriptor.
@@ -411,7 +412,7 @@ typedef struct {
   uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 } S_usb_endpoint_descriptor;
 
-@ @<Initialize |con_desc.ep1|@>= { @t\1@> @/
+@ @<Initialize |usb_conf_desc.ep1|@>= { @t\1@> @/
   sizeof (S_usb_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x81, /* IN */
@@ -420,7 +421,7 @@ typedef struct {
 @t\2@> 0x0F /* 16 */
 }
 
-@ @<Initialize |con_desc.ep2|@>= { @t\1@> @/
+@ @<Initialize |usb_conf_desc.ep2|@>= { @t\1@> @/
   sizeof (S_usb_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x02, /* OUT */
@@ -433,7 +434,7 @@ typedef struct {
 
 @<HID report descriptor@>=
 #if 1==1
-const uint8_t hid_report_descriptor[]
+const uint8_t usb_hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x06, 0x00, 0xFF, /* Usage Page (Vendordefined) */
   0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 1) */
@@ -453,7 +454,7 @@ const uint8_t hid_report_descriptor[]
 @t\2@> 0xC0 @t\hskip46pt@> /* End Collection */
 };
 #else
-const uint8_t hid_report_descriptor[]
+const uint8_t usb_hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
   HID_USAGE @,@, (MOUSE), @/
