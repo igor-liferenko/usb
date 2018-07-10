@@ -443,32 +443,32 @@ const uint8_t hid_report_descriptor[]
 #else
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  HID_USAGE_PAGE (GENERIC_DESKTOP), @/
-  HID_USAGE (MOUSE), @/
-  HID_COLLECTION (APPLICATION), @t\1@> @/
-    HID_USAGE (POINTER), @/
-    HID_COLLECTION (PHYSICAL), @t\1@> @/
-      HID_USAGE_PAGE (BUTTONS), @/
-      HID_USAGE_MINIMUM (1, 1), @/
-      HID_USAGE_MAXIMUM (1, 3), @/
-      HID_LOGICAL_MINIMUM (1, 0), @/
-      HID_LOGICAL_MAXIMUM (1, 1), @/
-      HID_REPORT_COUNT (3), @/
-      HID_REPORT_SIZE (1), @/
-      HID_INPUT (DATA, VARIABLE, ABSOLUTE), @/
-      HID_REPORT_COUNT (1), @/
-      HID_REPORT_SIZE (5), @/
-      HID_INPUT (CONSTANT), @/
-      HID_USAGE_PAGE (GENERIC_DESKTOP), @/
-      HID_USAGE (X), @/
-      HID_USAGE (Y), @/
-      HID_LOGICAL_MINIMUM (1, -127), @/
-      HID_LOGICAL_MAXIMUM (1, 127), @/
-      HID_REPORT_SIZE (8), @/
-      HID_REPORT_COUNT (2), @/
-    @t\2@> HID_INPUT (DATA, VARIABLE, RELATIVE), @/
-  @t\2@> HID_END_COLLECTION (PHYSICAL), @/
-@t\2@> HID_END_COLLECTION (APPLICATION) @/
+  HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
+  HID_USAGE @,@, (MOUSE), @/
+  HID_COLLECTION @,@, (APPLICATION), @t\1@> @/
+    HID_USAGE @,@, (POINTER), @/
+    HID_COLLECTION @,@, (PHYSICAL), @t\1@> @/
+      HID_USAGE_PAGE @,@, (BUTTONS), @/
+      HID_USAGE_MINIMUM @,@, (1, 1), @/
+      HID_USAGE_MAXIMUM @,@, (1, 3), @/
+      HID_LOGICAL_MINIMUM @,@, (1, 0), @/
+      HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
+      HID_REPORT_COUNT @,@, (3), @/
+      HID_REPORT_SIZE @,@, (1), @/
+      HID_INPUT @,@, (DATA, VARIABLE, ABSOLUTE), @/
+      HID_REPORT_COUNT @,@, (1), @/
+      HID_REPORT_SIZE @,@, (5), @/
+      HID_INPUT @,@, (CONSTANT), @/
+      HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
+      HID_USAGE @,@, (X), @/
+      HID_USAGE @,@, (Y), @/
+      HID_LOGICAL_MINIMUM @,@, (1, -127), @/
+      HID_LOGICAL_MAXIMUM @,@, (1, 127), @/
+      HID_REPORT_SIZE @,@, (8), @/
+      HID_REPORT_COUNT @,@, (2), @/
+    @t\2@> HID_INPUT @,@, (DATA, VARIABLE, RELATIVE), @/
+  @t\2@> HID_END_COLLECTION @,@, (PHYSICAL), @/
+@t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
 };
 #endif
 
