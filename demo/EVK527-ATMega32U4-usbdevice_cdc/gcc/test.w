@@ -12,6 +12,7 @@
 @<Header files@>@;
 @<Type definitions@>@;
 @<Global variables@>@;
+int flag = 0;
 
 void main(void)
 {
@@ -62,7 +63,7 @@ ISR(USB_GEN_vect)
     UDINT &= ~(1 << WAKEUPI);
     UDIEN &= ~(1 << WAKEUPE);
     UENUM = EP0;
-    // flag = 1;
+    flag = 1;
   }
 out:;
 }
@@ -72,7 +73,7 @@ ISR(USB_COM_vect)
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
     if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
-//get_dsc
+//get_dsc begin
       if (bmRequestType == 0x80) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
@@ -209,9 +210,10 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           }
         }
       }
+      goto out;
+//get_dsc end
     }
     if (bRequest == 0x05) {
-//set_adr
       UDADDR = UEDATX & 0x7F;
       UEINTX &= ~(1 << RXSTPI);
 #if 1==1
@@ -249,7 +251,18 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
       goto out;
     }
     if (bRequest == 0x0A && bmRequestType == 0x21) {
-//set_idle
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      if (!(UEINTX & (1 << TXINI))) goto out;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+#endif
+      if (flag == 1) {
+        flag = 0;
+        UENUM = EP2;
+      }
+      goto out;
     }
     UEINTX &= ~(1 << RXSTPI);
 #if 1==1
