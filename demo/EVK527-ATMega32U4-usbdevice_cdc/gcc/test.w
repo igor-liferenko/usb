@@ -193,7 +193,6 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
         goto stall;
       }
       if (bmRequestType == 0x81) {
-//int_desc
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
         (void) UEDATX;
