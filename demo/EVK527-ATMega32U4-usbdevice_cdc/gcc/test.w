@@ -8,6 +8,8 @@
 @d EP1 1
 @d EP2 2
 
+@d M
+
 @c
 @<Header files@>@;
 @<Type definitions@>@;
@@ -115,7 +117,7 @@ if (bmRequestType == 0x81) {
 @ @<set\_adr@>=
       UDADDR = UEDATX & 0x7F;
       UEINTX &= ~(1 << RXSTPI);
-#if 1==1
+#ifdef M
       if (!(UEINTX & (1 << TXINI))) goto out;
       UEINTX &= ~(1 << TXINI);
 #else
@@ -126,7 +128,7 @@ if (bmRequestType == 0x81) {
 
 @ @<set\_cfg@>=
       UEINTX &= ~(1 << RXSTPI);
-#if 1==1
+#ifdef M
       while (!(UEINTX & (1 << TXINI))) ;
       UEINTX &= ~(1 << TXINI);
 #else
@@ -149,7 +151,7 @@ if (bmRequestType == 0x81) {
 
 @ @<set\_idle@>=
       UEINTX &= ~(1 << RXSTPI);
-#if 1==1
+#ifdef M
       if (!(UEINTX & (1 << TXINI))) goto out;
       UEINTX &= ~(1 << TXINI);
 #else
@@ -179,7 +181,7 @@ if (bDescriptorType == 0x03) {
 @<Read buffer@>@;
 if (bDescriptorType == 0x22) {
   if (wLength == sizeof usb_hid_report_descriptor) {
-#if 1==1
+#ifdef M
             while (!(UEINTX & (1 << TXINI))) ;
             const void *buf = &(usb_hid_report_descriptor[0]);
             int i = 0;
@@ -207,7 +209,7 @@ if (bDescriptorType == 0x22) {
         }
 
 @ @<d\_dev@>=
-#if 1==1
+#ifdef M
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &usb_dev_desc.bLength;
@@ -227,7 +229,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #endif
 
 @ @<d\_con@>=
-#if 1==1
+#ifdef M
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
           const void *buf = &user_conf_desc.conf_desc.bLength;
@@ -299,7 +301,7 @@ UEINTX &= ~(1 << RXSTPI);
   }
 
 @ @<Stall@>=
-#if 1==1
+#ifdef M
     while (!(UEINTX & (1 << TXINI))) ;
 #endif
     UECONX |= 1 << STALLRQ;
