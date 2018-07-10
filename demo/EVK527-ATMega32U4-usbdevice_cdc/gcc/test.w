@@ -74,16 +74,160 @@ ISR(USB_COM_vect)
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
     if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
-      if (bmRequestType == 0x80) {
-        (void) UEDATX;
-        uint8_t bDescriptorType = UEDATX;
-        (void) UEDATX;
-        (void) UEDATX;
-        uint16_t wLength;
-        ((uint8_t *) &wLength)[0] = UEDATX;
-        ((uint8_t *) &wLength)[1] = UEDATX;
-        UEINTX &= ~(1 << RXSTPI);
-        if (bDescriptorType == 0x01) {
+      @<get\_dsc@>@;
+      goto out;
+    }
+    if (bRequest == 0x05) {
+      @<set\_adr@>@;
+      goto out;
+    }
+    if (bRequest == 0x09 && bmRequestType == 0x00) {
+      @<set\_cfg@>@;
+      goto out;
+    }
+    if (bRequest == 0x0A && bmRequestType == 0x21) {
+      @<set\_idle@>@;
+      goto out;
+    }
+    UEINTX &= ~(1 << RXSTPI);
+    @<Stall@>@;
+    goto out;
+  }
+  if (UEINT == (1 << EP1)) {
+//ep_in
+  }
+  if (UEINT == (1 << EP2)) {
+//ep_out
+  }
+out:;
+}
+
+@ @<get\_dsc@>=
+if (bmRequestType == 0x80) {
+  @<stand\_desc@>@;
+  goto out;
+}
+if (bmRequestType == 0x81) {
+  @<Read buffer@>@;
+        if (bDescriptorType == 0x22) {
+          if (wLength == sizeof usb_hid_report_descriptor) {
+#if 1==1
+            while (!(UEINTX & (1 << TXINI))) ;
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int i = 0;
+            for (; i < 32; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << TXINI))) ;
+            for (; i < 34; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << NAKOUTI))) ;
+            UEINTX &= ~(1 << NAKOUTI);
+            while (!(UEINTX & (1 << RXOUTI))) ;
+            UEINTX &= ~(1 << RXOUTI);
+#else
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int size = wLength;
+            int last_packet_full = 0;
+            while (1) {
+              int nb_byte = 0;
+              while (size != 0) {
+                if (nb_byte++ == 32) {
+                  last_packet_full = 1;
+                  break;
+                }
+                UEDATX = pgm_read_byte_near((unsigned int) buf++);
+                size--;
+              }
+              if (nb_byte == 0) {
+                if (last_packet_full)
+                  UEINTX &= ~(1 << TXINI);
+              }
+              else
+                UEINTX &= ~(1 << TXINI);
+              if (nb_byte != 32)
+                last_packet_full = 0;
+              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+              if (UEINTX & (1 << RXOUTI)) {
+                UEINTX &= ~(1 << RXOUTI);
+                break;
+              }
+            }
+#endif
+            UENUM = EP2;
+            UEIENX = 1 << RXOUTE;
+            goto out;
+          }
+          goto out;
+        }
+        goto out;
+      }
+
+@ @<set\_adr@>=
+      UDADDR = UEDATX & 0x7F;
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      if (!(UEINTX & (1 << TXINI))) goto out;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+#endif
+      while (!(UEINTX & (1 << TXINI))) ;
+      UDADDR |= 1 << ADDEN;
+
+@<set\_cfg@>=
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      while (!(UEINTX & (1 << TXINI))) ;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+      while (!(UEINTX & (1 << TXINI))) ;
+#endif
+      UENUM = EP1;
+      UECONX |= 1 << EPEN;
+      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
+      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+      while (!(UESTA0X & (1 << CFGOK))) ;
+
+      UENUM = EP2;
+      UECONX |= 1 << EPEN;
+      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
+      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+      while (!(UESTA0X & (1 << CFGOK))) ;
+
+      UENUM = EP0;
+
+@ @<set\_idle@>=
+      UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+      if (!(UEINTX & (1 << TXINI))) goto out;
+      UEINTX &= ~(1 << TXINI);
+#else
+      UEINTX &= ~(1 << TXINI);
+#endif
+      if (flag == 1) {
+        flag = 0;
+        UENUM = EP2;
+      }
+
+@ @<stand\_desc@>=
+@<Read buffer@>@;
+if (bDescriptorType == 0x01) {
+  @<d\_dev@>@;
+  goto out;
+}
+if (bDescriptorType == 0x02) {
+  @<d\_con@>@;
+  goto out;
+}
+if (bDescriptorType == 0x03) {
+  //d_str
+}
+@<Stall@>@;
+
+@ @<d\_dev@>=
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
@@ -126,9 +270,8 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
     }
   }
 #endif
-          goto out;
-        }
-        if (bDescriptorType == 0x02) {
+
+@ @<d\_con@>=
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
@@ -186,145 +329,22 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             }
           }
 #endif
-          goto out;
-        }
-        if (bDescriptorType == 0x03) {
-//d_str
-        }
-        goto stall;
-      }
-      if (bmRequestType == 0x81) {
-        (void) UEDATX;
-        uint8_t bDescriptorType = UEDATX;
-        (void) UEDATX;
-        (void) UEDATX;
-        uint16_t wLength;
-        ((uint8_t *) &wLength)[0] = UEDATX;
-        ((uint8_t *) &wLength)[1] = UEDATX;
-        UEINTX &= ~(1 << RXSTPI);
-        if (bDescriptorType == 0x22) {
-          if (wLength == sizeof usb_hid_report_descriptor) {
-#if 1==1
-            while (!(UEINTX & (1 << TXINI))) ;
-            const void *buf = &(usb_hid_report_descriptor[0]);
-            int i = 0;
-            for (; i < 32; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << TXINI))) ;
-            for (; i < 34; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << NAKOUTI))) ;
-            UEINTX &= ~(1 << NAKOUTI);
-            while (!(UEINTX & (1 << RXOUTI))) ;
-            UEINTX &= ~(1 << RXOUTI);
-#else
-            const void *buf = &(usb_hid_report_descriptor[0]);
-            int size = wLength;
-            int last_packet_full = 0;
-            while (1) {
-              int nb_byte = 0;
-              while (size != 0) {
-                if (nb_byte++ == 32) {
-                  last_packet_full = 1;
-                  break;
-                }
-                UEDATX = pgm_read_byte_near((unsigned int) buf++);
-                size--;
-              }
-              if (nb_byte == 0) {
-                if (last_packet_full)
-                  UEINTX &= ~(1 << TXINI);
-              }
-              else
-                UEINTX &= ~(1 << TXINI);
-              if (nb_byte != 32)
-                last_packet_full = 0;
-              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-              if (UEINTX & (1 << RXOUTI)) {
-                UEINTX &= ~(1 << RXOUTI);
-                break;
-              }
-            }
-#endif
-            UENUM = EP2;
-            UEIENX = 1 << RXOUTE;
-            goto out;
-          }
-          goto out;
-        }
-        goto out;
-      }
-      goto out;
-    }
-    if (bRequest == 0x05) {
-      UDADDR = UEDATX & 0x7F;
-      UEINTX &= ~(1 << RXSTPI);
-#if 1==1
-      if (!(UEINTX & (1 << TXINI))) goto out;
-      UEINTX &= ~(1 << TXINI);
-#else
-      UEINTX &= ~(1 << TXINI);
-#endif
-      while (!(UEINTX & (1 << TXINI))) ;
-      UDADDR |= 1 << ADDEN;
-      goto out;
-    }
-    if (bRequest == 0x09 && bmRequestType == 0) {
-      UEINTX &= ~(1 << RXSTPI);
-#if 1==1
-      while (!(UEINTX & (1 << TXINI))) ;
-      UEINTX &= ~(1 << TXINI);
-#else
-      UEINTX &= ~(1 << TXINI);
-      while (!(UEINTX & (1 << TXINI))) ;
-#endif
-      UENUM = EP1;
-      UECONX |= 1 << EPEN;
-      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
-      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
-      while (!(UESTA0X & (1 << CFGOK))) ;
 
-      UENUM = EP2;
-      UECONX |= 1 << EPEN; 
-      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
-      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
-      while (!(UESTA0X & (1 << CFGOK))) ;
+@ @<Read buffer@>=
+(void) UEDATX;
+uint8_t bDescriptorType = UEDATX;
+(void) UEDATX;
+(void) UEDATX;
+uint16_t wLength;
+((uint8_t *) &wLength)[0] = UEDATX;
+((uint8_t *) &wLength)[1] = UEDATX;
+UEINTX &= ~(1 << RXSTPI);
 
-      UENUM = EP0;
-      goto out;
-    }
-    if (bRequest == 0x0A && bmRequestType == 0x21) {
-      UEINTX &= ~(1 << RXSTPI);
-#if 1==1
-      if (!(UEINTX & (1 << TXINI))) goto out;
-      UEINTX &= ~(1 << TXINI);
-#else
-      UEINTX &= ~(1 << TXINI);
-#endif
-      if (flag == 1) {
-        flag = 0;
-        UENUM = EP2;
-      }
-      goto out;
-    }
-    UEINTX &= ~(1 << RXSTPI);
-stall:
+@ @<Stall@>=
 #if 1==1
     while (!(UEINTX & (1 << TXINI))) ;
 #endif
     UECONX |= 1 << STALLRQ;
-    goto out;
-  }
-  if (UEINT == (1 << EP1)) {
-//ep_in
-  }
-  if (UEINT == (1 << EP2)) {
-//ep_out
-  }
-out:;
-}
 
 @* USB.
 
