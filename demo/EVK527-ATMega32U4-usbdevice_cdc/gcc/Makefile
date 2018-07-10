@@ -101,6 +101,7 @@ size: ${TARGET}
 
 test:
 	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
+	avr-objdump -d $@.elf >x
 	avr-objcopy -O ihex $@.elf $@.hex
 
 flash:
