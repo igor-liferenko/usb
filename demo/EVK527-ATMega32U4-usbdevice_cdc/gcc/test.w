@@ -278,9 +278,9 @@ const S_usb_device_descriptor dev_desc
   sizeof (S_usb_device_descriptor), @/
   0x01, /* device */
   0x0110, /* USB version 1.1 */
-  0, /* not specified */
-  0, /* not specified */
-  0, /* not specified */
+  0, /* no class */
+  0, /* no subclass */
+  0, @/
   32, /* 32 bytes */
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
