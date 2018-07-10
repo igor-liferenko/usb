@@ -73,7 +73,6 @@ ISR(USB_COM_vect)
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
     if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
-//get_dsc begin
       if (bmRequestType == 0x80) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
@@ -141,7 +140,6 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             UEINTX &= ~(1 << NAKOUTI);
             while (!(UEINTX & (1 << RXOUTI))) ;
             UEINTX &= ~(1 << RXOUTI);
-            goto out;
           }
           else {
             int i = 0;
@@ -156,7 +154,6 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
             UEINTX &= ~(1 << NAKOUTI);
             while (!(UEINTX & (1 << RXOUTI))) ;
             UEINTX &= ~(1 << RXOUTI);
-            goto out;
           }
 #else
 /* this is from datasheet */
@@ -187,31 +184,79 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
               break;
             }
           }
-          goto out;
 #endif
+          goto out;
         }
+        if (bDescriptorType == 0x03) {
+//d_str
+        }
+        goto stall;
       }
-      else {
-        if (bmRequestType == 0x81) {
-          (void) UEDATX;
-          uint8_t bDescriptorType = UEDATX;
-          (void) UEDATX;
-          (void) UEDATX;
-          uint16_t wLength;
-          ((uint8_t *) &wLength)[0] = UEDATX;
-          ((uint8_t *) &wLength)[1] = UEDATX;
-          UEINTX &= ~(1 << RXSTPI);
-          if (bDescriptorType == 0x01) {
-            if (wLength == sizeof usb_hid_report_descriptor) {
-              while (!(UEINTX & (1 << TXINI))) ;
-              const void *buf = &(usb_hid_report_descriptor[0]);
-              //see asm.S 0x22
+      if (bmRequestType == 0x81) {
+//int_desc
+        (void) UEDATX;
+        uint8_t bDescriptorType = UEDATX;
+        (void) UEDATX;
+        (void) UEDATX;
+        uint16_t wLength;
+        ((uint8_t *) &wLength)[0] = UEDATX;
+        ((uint8_t *) &wLength)[1] = UEDATX;
+        UEINTX &= ~(1 << RXSTPI);
+        if (bDescriptorType == 0x22) {
+          if (wLength == sizeof usb_hid_report_descriptor) {
+#if 1==1
+            while (!(UEINTX & (1 << TXINI))) ;
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int i = 0;
+            for (; i < 32; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << TXINI))) ;
+            for (; i < 34; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << NAKOUTI))) ;
+            UEINTX &= ~(1 << NAKOUTI);
+            while (!(UEINTX & (1 << RXOUTI))) ;
+            UEINTX &= ~(1 << RXOUTI);
+#else
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int size = wLength;
+            int last_packet_full = 0;
+            while (1) {
+              int nb_byte = 0;
+              while (size != 0) {
+                if (nb_byte++ == 32) {
+                  last_packet_full = 1;
+                  break;
+                }
+                UEDATX = pgm_read_byte_near((unsigned int) buf++);
+                size--;
+              }
+              if (nb_byte == 0) {
+                if (last_packet_full)
+                  UEINTX &= ~(1 << TXINI);
+              }
+              else
+                UEINTX &= ~(1 << TXINI);
+              if (nb_byte != 32)
+                last_packet_full = 0;
+              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+              if (UEINTX & (1 << RXOUTI)) {
+                UEINTX &= ~(1 << RXOUTI);
+                break;
+              }
             }
+#endif
+            UENUM = EP2;
+            UEIENX = 1 << RXOUTE;
+            goto out;
           }
+          goto out;
         }
+        goto out;
       }
       goto out;
-//get_dsc end
     }
     if (bRequest == 0x05) {
       UDADDR = UEDATX & 0x7F;
@@ -265,10 +310,12 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
       goto out;
     }
     UEINTX &= ~(1 << RXSTPI);
+stall:
 #if 1==1
     while (!(UEINTX & (1 << TXINI))) ;
 #endif
     UECONX |= 1 << STALLRQ;
+    goto out;
   }
   if (UEINT == (1 << EP1)) {
 //ep_in
@@ -342,7 +389,7 @@ const S_usb_user_configuration_descriptor usb_conf_desc
   @<Initialize |usb_conf_desc.cfg|@>, @/
   @<Initialize |usb_conf_desc.ifc|@>, @/
   @<Initialize |usb_conf_desc.hid|@>, @/
-  @<Initialize |usb_conf_desc.ep1|@>, /* FIXME: why it does not get to the index? */
+  @<Initialize |usb_conf_desc.ep1|@>, @/
 @t\2@> @<Initialize |usb_conf_desc.ep2|@> @/
 };
 
