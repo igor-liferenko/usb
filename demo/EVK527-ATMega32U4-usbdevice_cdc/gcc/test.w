@@ -312,7 +312,7 @@ const S_usb_user_configuration_descriptor con_desc
   @<Initialize |con_desc.cfg|@>, @/
   @<Initialize |con_desc.ifc|@>, @/
   @<Initialize |con_desc.hid|@>, @/
-  @<Initialize |con_desc.ep1|@>, @/
+  @<Initialize |con_desc.ep1|@>, /* FIXME: why it does not get to the index? */
 @t\2@> @<Initialize |con_desc.ep2|@> @/
 };
 
