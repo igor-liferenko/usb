@@ -230,7 +230,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &user_conf_desc.cfg.bLength;
+          const void *buf = &user_conf_desc.conf_desc.bLength;
           if (wLength == 9) {
             for (int i = 0; i < 9; i++)
               UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -256,7 +256,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           }
 #else
 /* this is from datasheet */
-          const void *buf = &user_conf_desc.cfg.bLength;
+          const void *buf = &user_conf_desc.conf_desc.bLength;
           int size = wLength;
 @<Write buffer@>@;
 #endif
@@ -353,7 +353,7 @@ $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
 @<Type definitions@>=
 @<User configuration type definitions@>@;
 typedef struct {
-   S_usb_configuration_descriptor cfg;
+   S_usb_configuration_descriptor conf_desc;
    S_usb_interface_descriptor     ifc;
    S_usb_hid_descriptor           hid;
    S_usb_endpoint_descriptor      ep1;
@@ -364,7 +364,7 @@ typedef struct {
 @<HID report descriptor@>@;
 const S_usb_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  @<Initialize |user_conf_desc.cfg|@>, @/
+  @<Initialize |user_conf_desc.conf_desc|@>, @/
   @<Initialize |user_conf_desc.ifc|@>, @/
   @<Initialize |user_conf_desc.hid|@>, @/
   @<Initialize |user_conf_desc.ep1|@>, @/
@@ -387,7 +387,7 @@ typedef struct {
    uint8_t      MaxPower;
 } S_usb_configuration_descriptor;
 
-@ @<Initialize |user_conf_desc.cfg|@>= { @t\1@> @/
+@ @<Initialize |user_conf_desc.conf_desc|@>= { @t\1@> @/
   sizeof (S_usb_configuration_descriptor), @/
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor), @/
