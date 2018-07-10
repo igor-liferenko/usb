@@ -95,10 +95,10 @@ ISR(USB_COM_vect)
     goto out;
   }
   if (UEINT == (1 << EP1)) {
-//ep_in
+//ep\_in
   }
   if (UEINT == (1 << EP2)) {
-//ep_out
+//ep\_out
   }
 out:;
 }
@@ -172,7 +172,7 @@ if (bDescriptorType == 0x02) {
   goto out;
 }
 if (bDescriptorType == 0x03) {
-  //d_str
+  //d\_str
 }
 @<Stall@>@;
 
