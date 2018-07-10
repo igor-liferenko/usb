@@ -200,10 +200,10 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
           ((uint8_t *) &wLength)[1] = UEDATX;
           UEINTX &= ~(1 << RXSTPI);
           if (bDescriptorType == 0x01) {
-            if (wLength == 34) {
+            if (wLength == sizeof usb_hid_report_descriptor) {
               while (!(UEINTX & (1 << TXINI))) ;
-//see asm.S 0x22
-//pbuffer = &(usb_hid_report_descriptor[0]);
+              const void *buf = &(usb_hid_report_descriptor[0]);
+              //see asm.S 0x22
             }
           }
         }
