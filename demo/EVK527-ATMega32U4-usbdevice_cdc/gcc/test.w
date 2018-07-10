@@ -462,8 +462,8 @@ typedef struct {
   uint8_t Usage[2];
   uint8_t LogicalMinimum[2];
   uint8_t LogicalMaximum[3];
-  uint8_t ReportSize[2]; /* размер единицы (одного элемента данных) принимаемой информации в битах */
-  uint8_t ReportCount[2]; /* количество единиц принимаемой информации */
+  uint8_t ReportSize[2]; /* data unit size (bits) */
+  uint8_t ReportCount[2]; /* number of data units */
   uint8_t INreport[2];
 } usb_in_report;
 
@@ -485,8 +485,8 @@ typedef struct {
   uint8_t Usage[2];
   uint8_t LogicalMinimum[2];
   uint8_t LogicalMaximum[3];
-  uint8_t ReportSize[2];
-  uint8_t ReportCount[2];
+  uint8_t ReportSize[2]; /* data unit size (bits) */
+  uint8_t ReportCount[2]; /* number of data units */
   uint8_t OUTreport[2];
 } usb_out_report;
 
