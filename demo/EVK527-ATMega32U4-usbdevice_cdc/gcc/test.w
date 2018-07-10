@@ -306,6 +306,7 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 @ @<Global variables@>=
+@<HID report descriptor@>@;
 const S_usb_user_configuration_descriptor con_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize |con_desc.cfg|@>, @/
@@ -393,7 +394,7 @@ typedef struct {
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
   0x22, /* HID report */
-@t\2@> 0x0022 /* 34 bytes */
+@t\2@> sizeof hid_report_descriptor @/
 }
 
 @*2 Endpoint descriptor.
@@ -430,73 +431,37 @@ typedef struct {
 
 @*1 HID report descriptor.
 
-@<Type definitions@>=
-@<HID report type definitions@>@;
-typedef struct {
-  uint8_t UsagePage[3];
-  uint8_t Usage[2];
-  uint8_t Collection[2];
-  usb_in_report in;
-  usb_out_report out;
-  uint8_t EndCollection;
-}  S_usb_hid_report_descriptor;
+@<HID report descriptor@>=
+/*use \1 and \2*/
 
-@ @<Global variables@>=
-const S_usb_hid_report_descriptor usb_hid_report_descriptor
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  {@, 0x06, 0x00, 0xFF @,}, @/
-  {@, 0x09, 0x00 @,}, @/
-  {@, 0xA1, 0x01 @,}, @/
-  @<Initialize |usb_hid_report_descriptor.in|@>, @/
-  @<Initialize |usb_hid_report_descriptor.out|@>, @/
-@t\2@> 0xC0 @/
+const uint8_t hid_report_descriptor[] PROGMEM = {
+  HID_USAGE_PAGE (GENERIC_DESKTOP),
+  HID_USAGE (MOUSE),
+  HID_COLLECTION (APPLICATION),
+    HID_USAGE (POINTER),
+    HID_COLLECTION (PHYSICAL),
+      HID_USAGE_PAGE (BUTTONS),
+      HID_USAGE_MINIMUM (1, 1),
+      HID_USAGE_MAXIMUM (1, 3),
+      HID_LOGICAL_MINIMUM (1, 0),
+      HID_LOGICAL_MAXIMUM (1, 1),
+      HID_REPORT_COUNT (3),
+      HID_REPORT_SIZE (1),
+      HID_INPUT (DATA, VARIABLE, ABSOLUTE),
+      HID_REPORT_COUNT (1),
+      HID_REPORT_SIZE (5),
+      HID_INPUT (CONSTANT),
+      HID_USAGE_PAGE (GENERIC_DESKTOP),
+      HID_USAGE (X),
+      HID_USAGE (Y),
+      HID_LOGICAL_MINIMUM (1, -127),
+      HID_LOGICAL_MAXIMUM (1, 127),
+      HID_REPORT_SIZE (8),
+      HID_REPORT_COUNT (2),
+      HID_INPUT (DATA, VARIABLE, RELATIVE),
+    HID_END_COLLECTION (PHYSICAL),
+  HID_END_COLLECTION (APPLICATION),
 };
-
-@*2 IN report.
-
-@s usb_in_report int
-
-@<HID report type definitions@>=
-typedef struct {
-  uint8_t Usage[2];
-  uint8_t LogicalMinimum[2];
-  uint8_t LogicalMaximum[3];
-  uint8_t ReportSize[2]; /* data unit size (bits) */
-  uint8_t ReportCount[2]; /* number of data units */
-  uint8_t INreport[2];
-} usb_in_report;
-
-@ @<Initialize |usb_hid_report_descriptor.in|@>= { @t\1@> @/
-  {@, 0x09, 0x00 @,}, @/
-  {@, 0x15, 0x00 @,}, @/
-  {@, 0x26, 0xFF, 0x00 @,}, @/
-  {@, 0x75, 0x08 @,}, /* 8 */
-  {@, 0x95, 0x08 @,}, /* 8 */
-@t\2@> {@, 0x81, 0x02 @,} @/
-}
-
-@*2 OUT report.
-
-@s usb_out_report int
-
-@<HID report type definitions@>=
-typedef struct {
-  uint8_t Usage[2];
-  uint8_t LogicalMinimum[2];
-  uint8_t LogicalMaximum[3];
-  uint8_t ReportSize[2]; /* data unit size (bits) */
-  uint8_t ReportCount[2]; /* number of data units */
-  uint8_t OUTreport[2];
-} usb_out_report;
-
-@ @<Initialize |usb_hid_report_descriptor.out|@>= { @t\1@> @/
-  {@, 0x09, 0x00 @,}, @/
-  {@, 0x15, 0x00 @,}, @/
-  {@, 0x26, 0xFF, 0x00 @,}, @/
-  {@, 0x75, 0x08 @,}, /* 8 */
-  {@, 0x95, 0x08 @,}, /* 8 */
-@t\2@> {@, 0x91, 0x02 @,} @/
-}
 
 @* Headers.
 \secpagedepth=1 % index on current page
@@ -506,5 +471,6 @@ typedef struct {
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
+#include "hid_def.h"
 
 @* Index.
