@@ -178,8 +178,7 @@ if (bDescriptorType == 0x03) {
 
 @ @<int\_desc@>=
 @<Read buffer@>@;
-if (bDescriptorType == 0x22) {
-  if (wLength == sizeof usb_hid_report_descriptor) {
+if (bDescriptorType == 0x22 && wLength == sizeof usb_hid_report_descriptor) {
 #ifdef M
             while (!(UEINTX & (1 << TXINI))) ;
             const void *buf = &(usb_hid_report_descriptor[0]);
@@ -202,9 +201,6 @@ if (bDescriptorType == 0x22) {
 #endif
   UENUM = EP2;
   UEIENX = 1 << RXOUTE;
-            goto out;
-          }
-          goto out;
         }
 
 @ @<d\_dev@>=
