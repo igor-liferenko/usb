@@ -85,8 +85,8 @@ ISR(USB_COM_vect)
 #if 1==1
 /* this is from microsin */
           while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &dev_desc.bLength;
-          for (int i = 0; i < sizeof dev_desc; i++)
+          const void *buf = &usb_dev_desc.bLength;
+          for (int i = 0; i < sizeof usb_dev_desc; i++)
             UEDATX = pgm_read_byte_near((unsigned int) buf++);
           UEINTX &= ~(1 << TXINI);
           while (!(UEINTX & (1 << NAKOUTI))) ;
@@ -96,8 +96,8 @@ ISR(USB_COM_vect)
 #else
 if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet 22.12.2 */
-  const void *buf = &dev_desc.bLength;
-  int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
+  const void *buf = &usb_dev_desc.bLength;
+  int size = sizeof usb_dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
   int last_packet_full = 0;
   while (1) {
     int nb_byte = 0;
@@ -273,7 +273,7 @@ typedef struct {
 } S_usb_device_descriptor;
 
 @ @<Global variables@>=
-const S_usb_device_descriptor dev_desc
+const S_usb_device_descriptor usb_dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_usb_device_descriptor), @/
   0x01, /* device */
