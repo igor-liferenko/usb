@@ -72,6 +72,7 @@ ISR(USB_COM_vect)
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
     if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
+//get_dsc
       if (bmRequestType == 0x80) {
         (void) UEDATX;
         uint8_t bDescriptorType = UEDATX;
@@ -210,6 +211,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
       }
     }
     if (bRequest == 0x05) {
+//set_adr
       UDADDR = UEDATX & 0x7F;
       UEINTX &= ~(1 << RXSTPI);
 #if 1==1
@@ -246,6 +248,20 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
       UENUM = EP0;
       goto out;
     }
+    if (bRequest == 0x0A && bmRequestType == 0x21) {
+//set_idle
+    }
+    UEINTX &= ~(1 << RXSTPI);
+#if 1==1
+    while (!(UEINTX & (1 << TXINI))) ;
+#endif
+    UECONX |= 1 << STALLRQ;
+  }
+  if (UEINT == (1 << EP1)) {
+//ep_in
+  }
+  if (UEINT == (1 << EP2)) {
+//ep_out
   }
 out:;
 }
