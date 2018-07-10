@@ -108,61 +108,9 @@ if (bmRequestType == 0x80) {
   goto out;
 }
 if (bmRequestType == 0x81) {
-  @<Read buffer@>@;
-        if (bDescriptorType == 0x22) {
-          if (wLength == sizeof usb_hid_report_descriptor) {
-#if 1==1
-            while (!(UEINTX & (1 << TXINI))) ;
-            const void *buf = &(usb_hid_report_descriptor[0]);
-            int i = 0;
-            for (; i < 32; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << TXINI))) ;
-            for (; i < 34; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << NAKOUTI))) ;
-            UEINTX &= ~(1 << NAKOUTI);
-            while (!(UEINTX & (1 << RXOUTI))) ;
-            UEINTX &= ~(1 << RXOUTI);
-#else
-            const void *buf = &(usb_hid_report_descriptor[0]);
-            int size = wLength;
-            int last_packet_full = 0;
-            while (1) {
-              int nb_byte = 0;
-              while (size != 0) {
-                if (nb_byte++ == 32) {
-                  last_packet_full = 1;
-                  break;
-                }
-                UEDATX = pgm_read_byte_near((unsigned int) buf++);
-                size--;
-              }
-              if (nb_byte == 0) {
-                if (last_packet_full)
-                  UEINTX &= ~(1 << TXINI);
-              }
-              else
-                UEINTX &= ~(1 << TXINI);
-              if (nb_byte != 32)
-                last_packet_full = 0;
-              while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-              if (UEINTX & (1 << RXOUTI)) {
-                UEINTX &= ~(1 << RXOUTI);
-                break;
-              }
-            }
-#endif
-            UENUM = EP2;
-            UEIENX = 1 << RXOUTE;
-            goto out;
-          }
-          goto out;
-        }
-        goto out;
-      }
+  @<int\_desc@>@;
+  goto out;
+}
 
 @ @<set\_adr@>=
       UDADDR = UEDATX & 0x7F;
@@ -227,6 +175,37 @@ if (bDescriptorType == 0x03) {
 }
 @<Stall@>@;
 
+@ @<int\_desc@>=
+@<Read buffer@>@;
+if (bDescriptorType == 0x22) {
+  if (wLength == sizeof usb_hid_report_descriptor) {
+#if 1==1
+            while (!(UEINTX & (1 << TXINI))) ;
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int i = 0;
+            for (; i < 32; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << TXINI))) ;
+            for (; i < 34; i++)
+              UEDATX = pgm_read_byte_near((unsigned int) buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & (1 << NAKOUTI))) ;
+            UEINTX &= ~(1 << NAKOUTI);
+            while (!(UEINTX & (1 << RXOUTI))) ;
+            UEINTX &= ~(1 << RXOUTI);
+#else
+            const void *buf = &(usb_hid_report_descriptor[0]);
+            int size = wLength;
+  @<Write buffer@>@;
+#endif
+  UENUM = EP2;
+  UEIENX = 1 << RXOUTE;
+            goto out;
+          }
+          goto out;
+        }
+
 @ @<d\_dev@>=
 #if 1==1
 /* this is from microsin */
@@ -244,31 +223,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet 22.12.2 */
   const void *buf = &usb_dev_desc.bLength;
   int size = sizeof usb_dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
-  int last_packet_full = 0;
-  while (1) {
-    int nb_byte = 0;
-    while (size != 0) {
-      if (nb_byte++ == 32) {
-        last_packet_full = 1;
-        break;
-      }
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-      size--;
-    }
-    if (nb_byte == 0) {
-      if (last_packet_full)
-        UEINTX &= ~(1 << TXINI);
-    }
-    else
-      UEINTX &= ~(1 << TXINI);
-    if (nb_byte != 32)
-      last_packet_full = 0;
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
-      break;
-    }
-  }
+@<Write buffer@>@;
 #endif
 
 @ @<d\_con@>=
@@ -303,31 +258,7 @@ if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
 /* this is from datasheet */
           const void *buf = &usb_conf_desc.cfg.bLength;
           int size = wLength;
-          int last_packet_full = 0;
-          while (1) {
-            int nb_byte = 0;
-            while (size != 0) {
-              if (nb_byte++ == 32) {
-                last_packet_full = 1;
-                break;
-              }
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-              size--;
-            }
-            if (nb_byte == 0) {
-              if (last_packet_full)
-                UEINTX &= ~(1 << TXINI);
-            }
-            else
-              UEINTX &= ~(1 << TXINI);
-            if (nb_byte != 32)
-              last_packet_full = 0;
-            while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-            if (UEINTX & (1 << RXOUTI)) {
-              UEINTX &= ~(1 << RXOUTI);
-              break;
-            }
-          }
+@<Write buffer@>@;
 #endif
 
 @ @<Read buffer@>=
@@ -339,6 +270,33 @@ uint16_t wLength;
 ((uint8_t *) &wLength)[0] = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
 UEINTX &= ~(1 << RXSTPI);
+
+@ @<Write buffer@>=
+  int last_packet_full = 0;
+  while (1) {
+    int nb_byte = 0;
+    while (size != 0) {
+      if (nb_byte++ == 32) {
+        last_packet_full = 1;
+        break;
+      }
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+      size--;
+    }
+    if (nb_byte == 0) {
+      if (last_packet_full)
+        UEINTX &= ~(1 << TXINI);
+    }
+    else
+      UEINTX &= ~(1 << TXINI);
+    if (nb_byte != 32)
+      last_packet_full = 0;
+    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+    if (UEINTX & (1 << RXOUTI)) {
+      UEINTX &= ~(1 << RXOUTI);
+      break;
+    }
+  }
 
 @ @<Stall@>=
 #if 1==1
