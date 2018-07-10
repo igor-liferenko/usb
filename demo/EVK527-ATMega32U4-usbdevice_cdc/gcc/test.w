@@ -13,7 +13,7 @@
 @c
 @<Header files@>@;
 @<Type \null definitions@>@;
-@<Global variables@>@;
+@<Global \null variables@>@;
 int flag = 0;
 
 void main(void)
@@ -323,7 +323,7 @@ typedef struct {
   uint8_t      bNumConfigurations;
 } S_usb_device_descriptor;
 
-@ @<Global variables@>=
+@ @<Global \null variables@>=
 const S_usb_device_descriptor usb_dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_usb_device_descriptor), @/
@@ -357,7 +357,7 @@ typedef struct {
    S_usb_endpoint_descriptor      ep2;
 } S_usb_user_configuration_descriptor;
 
-@ @<Global variables@>=
+@ @<Global \null variables@>=
 @<Global variable used in user configuration descriptor@>@;
 const S_usb_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
