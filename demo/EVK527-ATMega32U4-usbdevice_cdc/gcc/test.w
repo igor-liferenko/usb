@@ -12,7 +12,7 @@
 
 @c
 @<Header files@>@;
-@<\null Type definitions@>@;
+@<Type \null definitions@>@;
 @<Global variables@>@;
 int flag = 0;
 
@@ -305,7 +305,7 @@ UEINTX &= ~(1 << RXSTPI);
 
 @*1 Device descriptor.
 
-@<\null Type definitions@>=
+@<Type \null definitions@>=
 typedef struct {
   uint8_t      bLength;
   uint8_t      bDescriptorType;
@@ -347,7 +347,7 @@ const S_usb_device_descriptor usb_dev_desc
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 
-@<\null Type definitions@>=
+@<Type \null definitions@>=
 @<Type definitions used in user configuration descriptor@>@;
 typedef struct {
    S_usb_configuration_descriptor conf_desc;
