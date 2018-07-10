@@ -362,7 +362,7 @@ typedef struct {
 } S_usb_user_configuration_descriptor;
 
 @ @<Global variables@>=
-@<HID report descriptor@>@;
+@<Global variable used in user configuration descriptor@>@;
 const S_usb_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize |user_conf_desc.conf_desc|@>, @/
@@ -487,7 +487,7 @@ typedef struct {
 
 @*1 HID report descriptor.
 
-@<HID report descriptor@>=
+@<Global variable used in user configuration descriptor@>=
 #if 1==1
 const uint8_t usb_hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
