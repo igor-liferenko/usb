@@ -176,7 +176,7 @@ if (bmRequestType == 0x81) {
       while (!(UEINTX & (1 << TXINI))) ;
       UDADDR |= 1 << ADDEN;
 
-@<set\_cfg@>=
+@ @<set\_cfg@>=
       UEINTX &= ~(1 << RXSTPI);
 #if 1==1
       while (!(UEINTX & (1 << TXINI))) ;
