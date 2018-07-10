@@ -432,6 +432,15 @@ typedef struct {
 @*1 HID report descriptor.
 
 @<HID report descriptor@>=
+#if 1==1
+const uint8_t hid_report_descriptor[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x06,0x00,0xFF,0x09,0x00,0xA1,0x01,0x09,0x00,0x15, @/
+  0x00,0x26,0xFF,0x00,0x75,0x08,0x95,0x08,0x81,0x02, @/
+  0x09,0x00,0x15,0x00,0x26,0xFF,0x00,0x75,0x08,0x95, @/
+@t\2@> 0x08,0x91,0x02,0xC0 @/
+};
+#else
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   HID_USAGE_PAGE (GENERIC_DESKTOP), @/
@@ -461,6 +470,7 @@ const uint8_t hid_report_descriptor[]
   @t\2@> HID_END_COLLECTION (PHYSICAL), @/
 @t\2@> HID_END_COLLECTION (APPLICATION) @/
 };
+#endif
 
 @* Headers.
 \secpagedepth=1 % index on current page
