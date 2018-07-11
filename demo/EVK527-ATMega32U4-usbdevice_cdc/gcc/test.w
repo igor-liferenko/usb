@@ -359,7 +359,7 @@ typedef struct {
 } S_user_configuration_descriptor;
 
 @ @<Global \null variables@>=
-@<Global variable used in user configuration descriptor@>@;
+@<Global variables used in user configuration descriptor@>@;
 const S_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize |user_conf_desc.conf_desc|@>, @/
@@ -486,7 +486,7 @@ typedef struct {
 
 @*1 HID report descriptor.
 
-@<Global variable used in user configuration descriptor@>=
+@<Global variables ...@>=
 #if 1==1
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
