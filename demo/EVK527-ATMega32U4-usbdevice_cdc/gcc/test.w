@@ -45,20 +45,22 @@ void main(void)
   sei();
   while (1) ;
 }
+
+@ The trick here is that order of checking matters (as multiple bits can be set in |UDINT|).
+
+@c
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    goto out;
   }
-  if (UDINT & (1 << SUSPI)) {
+  else if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
     USBCON |= 1 << FRZCLK;
     PLLCSR &= ~(1 << PLLE);
     UDIEN |= 1 << WAKEUPE;
-    goto out;
   }
-  if (UDINT & (1 << WAKEUPI)) {
+  else if (UDINT & (1 << WAKEUPI)) {
     PLLCSR |= 1 << PLLE;
     while (!(PLLCSR & (1 << PLOCK))) ;
     USBCON &= ~(1 << FRZCLK);
@@ -67,33 +69,37 @@ ISR(USB_GEN_vect)
     UENUM = EP0;
     flag = 1;
   }
-out:;
 }
+
+@ @c
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
-    if (bRequest == 0x06) { /* TODO: first check bmRequestType, not bRequest, like bRequest
+    switch (bRequest)
+    {
+    case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
       is checked before bDescriptorType, not after */
+      /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
       @<get\_dsc@>@;
-      goto out;
-    } /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
-    if (bRequest == 0x05) {
+      break;
+    case 0x05:
       @<set\_adr@>@;
-      goto out;
-    }
-    if (bRequest == 0x09 && bmRequestType == 0x00) {
-      @<set\_cfg@>@;
-      goto out;
-    } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
-    if (bRequest == 0x0A && bmRequestType == 0x21) {
-      @<set\_idle@>@;
-      goto out;
-    }
-    UEINTX &= ~(1 << RXSTPI);
-    @<Stall@>@;
-    goto out;
+      break;
+    case 0x09:
+      if (bmRequestType == 0x00) {
+        @<set\_cfg@>@;
+      } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
+      break;
+    case 0x0A:
+      if (bmRequestType == 0x21) {
+        @<set\_idle@>@;
+      }
+      break;
+    default:
+      UEINTX &= ~(1 << RXSTPI);
+      @<Stall@>@;
   }
   if (UEINT == (1 << EP1)) {
 //ep\_in
@@ -101,17 +107,19 @@ ISR(USB_COM_vect)
   if (UEINT == (1 << EP2)) {
 //ep\_out
   }
-out:;
 }
 
 @ @<get\_dsc@>=
-if (bmRequestType == 0x80) {
+switch (bmRequestType)
+{
+case 0x80:
   @<stand\_desc@>@;
-  goto out;
-}
-if (bmRequestType == 0x81) {
+  break;
+case 0x81:
   @<int\_desc@>@;
-  goto out;
+  break;
+default:
+//stall?
 }
 
 @ @<set\_adr@>=
@@ -170,18 +178,20 @@ if (flag == 1) {
 
 @ @<stand\_desc@>=
 @<Read buffer@>@;
-if (bDescriptorType == 0x01) {
+switch (bDescriptorType)
+{
+case 0x01:
   @<d\_dev@>@;
-  goto out;
-}
-if (bDescriptorType == 0x02) {
+  break;
+case 0x02:
   @<d\_con@>@;
-  goto out;
-}
-if (bDescriptorType == 0x03) {
+  break;
+case 0x03:
   //d\_str
+  break;
+default:
+  @<Stall@>@;
 }
-@<Stall@>@;
 
 @ @<int\_desc@>=
 @<Read buffer@>@;
@@ -400,7 +410,7 @@ typedef struct {
   0x02, /* configuration descriptor */
   sizeof (S_user_configuration_descriptor), @/
   1, /* one interface in this configuration */
-  0, /* \vb{cfg0} */
+  0, /* this corresponds to `0' in `cfg0' on picture */
   0, /* no string descriptor */
   0x80, /* device is powered from bus */
 @t\2@> 0x32 /* device uses 100mA */
@@ -427,8 +437,8 @@ typedef struct {
 @ @<Initialize element 2 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_interface_descriptor), @/
   0x04, /* interface descriptor */
-  0, /* \vb{if0} */
-  0, /* \vb{alt0} */
+  0, /* this corresponds to `0' in `if0' on picture */
+  0, /* this corresponds to `0' in `alt0' on picture */
   0x02, /* two endpoints are used */
   0x03, /* HID */
   0, /* no subclass */
