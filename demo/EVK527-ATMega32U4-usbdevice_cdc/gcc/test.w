@@ -35,8 +35,8 @@ void main(void)
   UDINT &= ~(1 << EORSTI);
   UENUM = EP0;
   UECONX |= 1 << EPEN;
-  UECFG0X = 0x00; /* (0 << EPTYPE1)+(0 << EPTYPE0)+(0 << EPDIR) */
-  UECFG1X = 0x22; /* 0 << EPBK0  2 << EPSIZE0  1 << ALLOC */
+  UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) + (0 << EPDIR);
+  UECFG1X = (0 << EPBK0) + (2 << EPSIZE0) + (1 << ALLOC);
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
@@ -86,11 +86,11 @@ ISR(USB_COM_vect)
       @<set\_cfg@>@;
       goto out;
     }
+    /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
     if (bRequest == 0x0A && bmRequestType == 0x21) {
       @<set\_idle@>@;
       goto out;
     }
-    /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
     UEINTX &= ~(1 << RXSTPI);
     @<Stall@>@;
     goto out;
