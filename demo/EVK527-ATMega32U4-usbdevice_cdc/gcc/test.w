@@ -390,7 +390,7 @@ typedef struct {
   0x02, /* configuration descriptor */
   sizeof (S_usb_user_configuration_descriptor), @/
   1, /* one interface in this configuration */
-  1, /* \vb{cfg1} */
+  0, /* \vb{cfg0} */
   0, /* no string descriptor */
   0x80, /* device is powered from bus */
 @t\2@> 0x32 /* device uses 100mA */
