@@ -564,19 +564,12 @@ const uint8_t hid_report_descriptor[]
 
 @*1 Language descriptor.
 
-@<Type \null definitions@>=
-typedef struct {
-  uint8_t      bLength;
-  uint8_t      bDescriptorType;
-  uint16_t     wLangId;
-} S_language_id;
-
-@ @<Global \null variables@>=
-const S_language_id lang_id
+@<Global \null variables@>=
+const uint8_t lang_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  sizeof (S_language_id), @/
-  0x03, /* string */
-@t\2@> 0x0409 /* English */
+  0x04, /* size */
+  0x03, /* type (string) */
+@t\2@> 0x09,0x04 /* id (English) */
 };
 
 @* Headers.
