@@ -346,9 +346,9 @@ const S_device_descriptor dev_desc
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
-  0x0, /* (\.{Mfr} in \.{kern.log}) */
-  0x0, /* (\.{Product} in \.{kern.log}) */
-  0x0, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x01, /* (\.{Mfr} in \.{kern.log}) */
+  0x02, /* (\.{Product} in \.{kern.log}) */
+  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
@@ -547,6 +547,23 @@ const uint8_t hid_report_descriptor[]
 @t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
 };
 #endif
+
+@*1 Language descriptor.
+
+@<Type \null definitions@>=
+typedef struct {
+  uint8_t      bLength;
+  uint8_t      bDescriptorType;
+  uint16_t     wLangId;
+} S_language_id;
+
+@ @<Global \null variables@>=
+const S_language_id lang_id
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  sizeof (S_language_id), @/
+  0x03, /* string */
+@t\2@> 0x0409 /* English */
+};
 
 @* Headers.
 \secpagedepth=1 % index on current page
