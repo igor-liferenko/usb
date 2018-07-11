@@ -77,6 +77,9 @@ ISR(USB_COM_vect)
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
+    uint8_t bDescriptorType;
+    uint16_t wLength;
+    const void *buf;
     switch (bRequest)
     {
     case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
@@ -100,6 +103,7 @@ ISR(USB_COM_vect)
     default:
       UEINTX &= ~(1 << RXSTPI);
       @<Stall@>@;
+    }
   }
   if (UEINT == (1 << EP1)) {
 //ep\_in
@@ -119,7 +123,8 @@ case 0x81:
   @<int\_desc@>@;
   break;
 default:
-//stall?
+  UEINTX &= ~(1 << RXSTPI);
+  @<Stall@>@;
 }
 
 @ @<set\_adr@>=
@@ -127,7 +132,7 @@ UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) goto out;
+  if (!(UEINTX & (1 << TXINI))) break;
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
@@ -165,7 +170,7 @@ UENUM = EP0;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) goto out;
+  if (!(UEINTX & (1 << TXINI))) break;
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
@@ -199,7 +204,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 
 #ifdef M
   while (!(UEINTX & (1 << TXINI))) ;
-  const void *buf = &(hid_report_descriptor[0]);
+  buf = &(hid_report_descriptor[0]);
   int i = 0;
   for (; i < 32; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -213,7 +218,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  const void *buf = &(hid_report_descriptor[0]);
+  buf = &(hid_report_descriptor[0]);
   int size = wLength;
   @<Write buffer@>@;
 #endif
@@ -226,7 +231,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 #ifdef M
   /* this is from microsin */
   while (!(UEINTX & (1 << TXINI))) ;
-  const void *buf = &dev_desc.bLength;
+  buf = &dev_desc.bLength;
   for (int i = 0; i < sizeof dev_desc; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
   UEINTX &= ~(1 << TXINI);
@@ -237,7 +242,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 #else
   if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
   /* this is from datasheet 22.12.2 */
-  const void *buf = &dev_desc.bLength;
+  buf = &dev_desc.bLength;
   int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
   @<Write buffer@>@;
 #endif
@@ -246,7 +251,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 #ifdef M
   /* this is from microsin */
   while (!(UEINTX & (1 << TXINI))) ;
-  const void *buf = &user_conf_desc.conf_desc.bLength;
+  buf = &user_conf_desc.conf_desc.bLength;
   if (wLength == 9) {
     for (int i = 0; i < 9; i++)
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -272,17 +277,16 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   }
 #else
   /* this is from datasheet */
-  const void *buf = &user_conf_desc.conf_desc.bLength;
+  buf = &user_conf_desc.conf_desc.bLength;
   int size = wLength;
   @<Write buffer@>@;
 #endif
 
 @ @<Read buffer@>=
 (void) UEDATX;
-uint8_t bDescriptorType = UEDATX;
+bDescriptorType = UEDATX;
 (void) UEDATX;
 (void) UEDATX;
-uint16_t wLength;
 ((uint8_t *) &wLength)[0] = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
 UEINTX &= ~(1 << RXSTPI);
@@ -488,7 +492,7 @@ typedef struct {
 @ @<Initialize element 4 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
-  0x81, /* IN */
+  0x80 + 1, /* IN + 1, this corresponds to `1' in `ep1' on picture */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
