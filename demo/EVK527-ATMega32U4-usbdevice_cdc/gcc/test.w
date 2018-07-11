@@ -277,31 +277,31 @@ uint16_t wLength;
 UEINTX &= ~(1 << RXSTPI);
 
 @ @<Write buffer@>=
-  int last_packet_full = 0;
-  while (1) {
-    int nb_byte = 0;
-    while (size != 0) {
-      if (nb_byte++ == 32) {
-        last_packet_full = 1;
-        break;
-      }
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-      size--;
-    }
-    if (nb_byte == 0) {
-      if (last_packet_full)
-        UEINTX &= ~(1 << TXINI);
-    }
-    else
-      UEINTX &= ~(1 << TXINI);
-    if (nb_byte != 32)
-      last_packet_full = 0;
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
+int last_packet_full = 0;
+while (1) {
+  int nb_byte = 0;
+  while (size != 0) {
+    if (nb_byte++ == 32) {
+      last_packet_full = 1;
       break;
     }
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+    size--;
   }
+  if (nb_byte == 0) {
+    if (last_packet_full)
+      UEINTX &= ~(1 << TXINI);
+  }
+  else
+    UEINTX &= ~(1 << TXINI);
+  if (nb_byte != 32)
+    last_packet_full = 0;
+  while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+  if (UEINTX & (1 << RXOUTI)) {
+    UEINTX &= ~(1 << RXOUTI);
+    break;
+  }
+}
 
 @ @<Stall@>=
 #ifdef M
