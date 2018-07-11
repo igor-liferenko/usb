@@ -414,8 +414,9 @@ typedef struct {
    uint8_t      bDescriptorType;
    uint16_t     wTotalLength;
    uint8_t      bNumInterfaces;
-   uint8_t      bConfigurationValue; /* number between 0 and |bNumConfigurations-1|, for
-                                        each configuration */
+   uint8_t      bConfigurationValue; /* number between 1 and |bNumConfigurations|, for
+     each configuration\footnote\dag{For some reason
+     configurations start numbering with `1', and interfaces and altsettings with `0'.} */
    uint8_t      iConfiguration; /* index of string descriptor */
    uint8_t      bmAttibutes;
    uint8_t      MaxPower;
@@ -426,7 +427,7 @@ typedef struct {
   0x02, /* configuration descriptor */
   sizeof (S_user_configuration_descriptor), @/
   1, /* one interface in this configuration */
-  0, /* this corresponds to `0' in `cfg0' on picture */
+  1, /* this corresponds to `1' in `cfg1' on picture */
   0, /* no string descriptor */
   0x80, /* device is powered from bus */
 @t\2@> 0x32 /* device uses 100mA */
