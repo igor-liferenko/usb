@@ -501,7 +501,7 @@ typedef struct {
 @ @<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
-  0x02, /* OUT */
+  0x00 + 2, /* OUT + 2, this corresponds to `2' in `ep2' on picture */
   0x03, /* transfers via interrupts */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
