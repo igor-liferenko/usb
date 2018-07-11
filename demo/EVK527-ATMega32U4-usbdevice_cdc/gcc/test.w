@@ -74,10 +74,11 @@ ISR(USB_COM_vect)
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
-    if (bRequest == 0x06) { // TODO: first check bmRequestType, not bRequest
+    if (bRequest == 0x06) { /* TODO: first check bmRequestType, not bRequest, like bRequest
+      is checked before bDescriptorType, not after */
       @<get\_dsc@>@;
       goto out;
-    }
+    } /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
     if (bRequest == 0x05) {
       @<set\_adr@>@;
       goto out;
@@ -85,8 +86,7 @@ ISR(USB_COM_vect)
     if (bRequest == 0x09 && bmRequestType == 0x00) {
       @<set\_cfg@>@;
       goto out;
-    }
-    /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
+    } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
     if (bRequest == 0x0A && bmRequestType == 0x21) {
       @<set\_idle@>@;
       goto out;
@@ -141,14 +141,14 @@ UEINTX &= ~(1 << RXSTPI);
 
 UENUM = EP1;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
-UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) + (1 << EPDIR);
+UECFG1X = (0 << EPBK0) + (0 << EPSIZE0) + (1 << ALLOC);
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
-UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) + (0 << EPDIR);
+UECFG1X = (0 << EPBK0) + (0 << EPSIZE0) + (1 << ALLOC);
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP0;
