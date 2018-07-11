@@ -154,16 +154,18 @@ UEINTX &= ~(1 << RXSTPI);
 
 UENUM = EP1;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt, IN */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote\dag
-{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
+{Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
+{\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt, OUT */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote\ddag
-{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt\footnote\ddag
+{Must correspond to OUT endpoint description in |@<Initialize element 5...@>|.}, OUT */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
+{\ddag\ddag}{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP0;
@@ -495,7 +497,8 @@ typedef struct {
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x80 + 1, /* IN + 1, this corresponds to `1' in `ep1' on picture */
-  0x03, /* transfers via interrupts */
+  0x03, /* transfers via interrupts\footnote\dag{Must correspond to
+    |UECFG0X| of |EP1|.} */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
 }
@@ -504,7 +507,8 @@ typedef struct {
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x00 + 2, /* OUT + 2, this corresponds to `2' in `ep2' on picture */
-  0x03, /* transfers via interrupts */
+  0x03, /* transfers via interrupts\footnote\ddag{Must correspond to
+    |UECFG0X| of |EP2|.} */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
 }
@@ -522,14 +526,14 @@ const uint8_t hid_report_descriptor[]
   0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
   0x26, 0xFF, 0x00, /* Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
-  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote\dag{Must correspond to
+  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote{\dag\dag}{Must correspond to
     |UECFG1X| of |EP1|.} */
   0x81, 0x02, @t\hskip21pt@> /* IN report (Data, Variable, Absolute) */
   0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 3) */
   0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
   0x26, 0xFF,0x00, /* Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
-  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote\ddag{Must correspond to
+  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote{\ddag\ddag}{Must correspond to
     |UECFG1X| of |EP2|.} */
   0x91, 0x02, @t\hskip21pt@> /* OUT report (Data, Variable, Absolute) */
 @t\2@> 0xC0 @t\hskip46pt@> /* End Collection */
