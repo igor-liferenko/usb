@@ -519,14 +519,16 @@ const uint8_t hid_report_descriptor[]
   0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 2) */
   0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
   0x26, 0xFF, 0x00, /* Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* Report Count (8) */
+  0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
+  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote\dag{Must correspond to
+    |UECFG1X| of |EP1|.} */
   0x81, 0x02, @t\hskip21pt@> /* IN report (Data, Variable, Absolute) */
   0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 3) */
   0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
   0x26, 0xFF,0x00, /* Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* Report Count (8) */
+  0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
+  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote\ddag{Must correspond to
+    |UECFG1X| of |EP2|.} */
   0x91, 0x02, @t\hskip21pt@> /* OUT report (Data, Variable, Absolute) */
 @t\2@> 0xC0 @t\hskip46pt@> /* End Collection */
 };
