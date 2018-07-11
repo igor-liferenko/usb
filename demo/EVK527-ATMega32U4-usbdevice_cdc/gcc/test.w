@@ -138,19 +138,20 @@ UEINTX &= ~(1 << RXSTPI);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << TXINI))) ;
 #endif
-      UENUM = EP1;
-      UECONX |= 1 << EPEN;
-      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
-      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
-      while (!(UESTA0X & (1 << CFGOK))) ;
 
-      UENUM = EP2;
-      UECONX |= 1 << EPEN;
-      UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
-      UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
-      while (!(UESTA0X & (1 << CFGOK))) ;
+UENUM = EP1;
+UECONX |= 1 << EPEN;
+UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(1 << EPDIR);
+UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+while (!(UESTA0X & (1 << CFGOK))) ;
 
-      UENUM = EP0;
+UENUM = EP2;
+UECONX |= 1 << EPEN;
+UECFG0X = (1 << EPTYPE1)+(1 << EPTYPE0)+(0 << EPDIR);
+UECFG1X = 0x02; /* ? << EPBK0  ? << EPSIZE0  ? << ALLOC */
+while (!(UESTA0X & (1 << CFGOK))) ;
+
+UENUM = EP0;
 
 @ @<set\_idle@>=
 UEINTX &= ~(1 << RXSTPI);
