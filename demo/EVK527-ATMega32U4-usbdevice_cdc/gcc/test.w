@@ -36,7 +36,8 @@ void main(void)
   UENUM = EP0;
   UECONX |= 1 << EPEN;
   UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
-  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32 bytes */
+  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
+    bytes\footnote\dag{Must correspond to |bMaxPacketSize0| in |dev_desc|.} */
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
@@ -360,7 +361,7 @@ const S_device_descriptor dev_desc
   0, /* no class */
   0, /* no subclass */
   0, @/
-  32, /* 32 bytes */
+  32, /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
