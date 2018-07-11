@@ -35,8 +35,8 @@ void main(void)
   UDINT &= ~(1 << EORSTI);
   UENUM = EP0;
   UECONX |= 1 << EPEN;
-  UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) + (0 << EPDIR); /* control, OUT */
-  UECFG1X = (0 << EPBK0) + (2 << EPSIZE0) + (1 << ALLOC); /* one bank, 32 bytes */
+  UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
+  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32 bytes */
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
@@ -154,14 +154,14 @@ UEINTX &= ~(1 << RXSTPI);
 
 UENUM = EP1;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) + (1 << EPDIR); /* interrupt, IN */
-UECFG1X = (0 << EPBK0) + (0 << EPSIZE0) + (1 << ALLOC); /* one bank, 8 bytes */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt, IN */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) + (0 << EPDIR); /* interrupt, OUT */
-UECFG1X = (0 << EPBK0) + (0 << EPSIZE0) + (1 << ALLOC); /* one bank, 8 bytes */
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt, OUT */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP0;
