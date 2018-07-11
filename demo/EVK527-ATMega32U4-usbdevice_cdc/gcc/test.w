@@ -144,7 +144,10 @@ UEINTX &= ~(1 << RXSTPI);
   UEINTX &= ~(1 << TXINI);
 #endif
 
-while (!(UEINTX & (1 << TXINI))) ;
+#ifdef M
+  while (!(UEINTX & (1 << TXINI))) ;
+#endif
+
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
@@ -156,7 +159,6 @@ UEINTX &= ~(1 << RXSTPI);
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
 UENUM = EP1;
@@ -186,7 +188,6 @@ UEINTX &= ~(1 << RXSTPI);
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
 if (flag == 1) {
