@@ -373,7 +373,7 @@ const S_user_configuration_descriptor user_conf_desc
 
 @s S_configuration_descriptor int
 
-@<Type definitions used in user configuration descriptor@>=
+@<Type definitions ...@>=
 typedef struct {
    uint8_t      bLength;
    uint8_t      bDescriptorType;
@@ -401,7 +401,7 @@ typedef struct {
 
 @s S_interface_descriptor int
 
-@<Type definitions used in user configuration descriptor@>=
+@<Type definitions ...@>=
 typedef struct {
    uint8_t      bLength;
    uint8_t      bDescriptorType;
@@ -431,7 +431,7 @@ typedef struct {
 
 @s S_hid_descriptor int
 
-@<Type definitions used in user configuration descriptor@>=
+@<Type definitions ...@>=
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
@@ -456,7 +456,7 @@ typedef struct {
 
 @s S_endpoint_descriptor int
 
-@<Type definitions used in user configuration descriptor@>=
+@<Type definitions ...@>=
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
