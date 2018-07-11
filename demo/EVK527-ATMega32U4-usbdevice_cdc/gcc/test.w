@@ -24,6 +24,7 @@ void main(void)
   MCUSR &= ~(1<<WDRF);
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
+  DDRC |= 1 << PC7;
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -133,24 +134,26 @@ UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   if (!(UEINTX & (1 << TXINI))) break;
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
 #endif
 
-while (!(UEINTX & (1 << TXINI))) ;
+while (!(UEINTX & (1 << TXINI))) ; /* wait ACK for the status stage */
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
+  while (!(UEINTX & (1 << TXINI))) ; /* wait ACK for the status stage */
 #endif
 
 UENUM = EP1;
@@ -175,10 +178,12 @@ UENUM = EP0;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   if (!(UEINTX & (1 << TXINI))) break;
   UEINTX &= ~(1 << TXINI);
 #else
   UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << TXINI))) ; /* wait ACK for the status stage */
 #endif
 
 if (flag == 1) {
@@ -235,6 +240,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 @ @<d\_dev@>=
 #ifdef M
   /* this is from microsin */
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &dev_desc.bLength;
   for (int i = 0; i < sizeof dev_desc; i++)
@@ -245,7 +251,6 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
   /* this is from datasheet 22.12.2 */
   buf = &dev_desc.bLength;
   int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
@@ -255,6 +260,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 @ @<d\_con@>=
 #ifdef M
   /* this is from microsin */
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &user_conf_desc.conf_desc.bLength;
   if (wLength == 9) {
@@ -325,6 +331,7 @@ while (1) {
 
 @ @<Stall@>=
 #ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
