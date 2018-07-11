@@ -155,13 +155,15 @@ UEINTX &= ~(1 << RXSTPI);
 UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt, IN */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote\dag
+{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
 UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt, OUT */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote\ddag
+{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP0;
