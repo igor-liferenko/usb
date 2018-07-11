@@ -371,11 +371,11 @@ typedef struct {
 @<Global variables used in user configuration descriptor@>@;
 const S_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  @<Initialize |user_conf_desc.conf_desc|@>, @/
-  @<Initialize |user_conf_desc.ifc|@>, @/
-  @<Initialize |user_conf_desc.hid|@>, @/
-  @<Initialize |user_conf_desc.ep1|@>, @/
-@t\2@> @<Initialize |user_conf_desc.ep2|@> @/
+  @<Initialize element 1...@>, @/
+  @<Initialize element 2...@>, @/
+  @<Initialize element 3...@>, @/
+  @<Initialize element 4...@>, @/
+@t\2@> @<Initialize element 5...@> @/
 };
 
 @*2 Configuration descriptor.
@@ -395,7 +395,7 @@ typedef struct {
    uint8_t      MaxPower;
 } S_configuration_descriptor;
 
-@ @<Initialize |user_conf_desc.conf_desc|@>= { @t\1@> @/
+@ @<Initialize element 1 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_configuration_descriptor), @/
   0x02, /* configuration descriptor */
   sizeof (S_user_configuration_descriptor), @/
@@ -424,7 +424,7 @@ typedef struct {
    uint8_t      iInterface; /* index of string descriptor */
 }  S_interface_descriptor;
 
-@ @<Initialize |user_conf_desc.ifc|@>= { @t\1@> @/
+@ @<Initialize element 2 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_interface_descriptor), @/
   0x04, /* interface descriptor */
   0, /* \vb{if0} */
@@ -451,7 +451,7 @@ typedef struct {
   uint16_t wDescriptorLength;
 } S_hid_descriptor;
 
-@ @<Initialize |user_conf_desc.hid|@>= { @t\1@> @/
+@ @<Initialize element 3 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_hid_descriptor), @/
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
@@ -475,7 +475,7 @@ typedef struct {
   uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 } S_endpoint_descriptor;
 
-@ @<Initialize |user_conf_desc.ep1|@>= { @t\1@> @/
+@ @<Initialize element 4 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x81, /* IN */
@@ -484,7 +484,7 @@ typedef struct {
 @t\2@> 0x0F /* 16 */
 }
 
-@ @<Initialize |user_conf_desc.ep2|@>= { @t\1@> @/
+@ @<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
   0x02, /* OUT */
