@@ -494,20 +494,24 @@ typedef struct {
   uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 } S_endpoint_descriptor;
 
-@ @<Initialize element 4 in user configuration descriptor@>= { @t\1@> @/
+@ @d IN (1 << 7)
+
+@<Initialize element 4 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
-  0x80 + 1, /* IN + 1, this corresponds to `1' in `ep1' on picture */
+  IN | 1, /* this corresponds to `1' in `ep1' on picture */
   0x03, /* transfers via interrupts\footnote\dag{Must correspond to
     |UECFG0X| of |EP1|.} */
   0x0008, /* 8 bytes */
 @t\2@> 0x0F /* 16 */
 }
 
-@ @<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
+@ @d OUT (0 << 7)
+
+@<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
-  0x00 + 2, /* OUT + 2, this corresponds to `2' in `ep2' on picture */
+  OUT | 2, /* this corresponds to `2' in `ep2' on picture */
   0x03, /* transfers via interrupts\footnote\ddag{Must correspond to
     |UECFG0X| of |EP2|.} */
   0x0008, /* 8 bytes */
