@@ -81,7 +81,9 @@ ISR(USB_COM_vect)
     uint8_t bRequest = UEDATX;
     uint8_t bDescriptorType;
     uint16_t wLength;
+    int index;
     const void *buf;
+    int size;
     switch (bRequest)
     {
     case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
@@ -202,7 +204,7 @@ case 0x02:
   @<d\_con@>@;
   break;
 case 0x03:
-  //d\_str
+  @<d\_str@>@;
   break;
 default:
   @<Stall@>@;
@@ -229,7 +231,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   UEINTX &= ~(1 << RXOUTI);
 #else
   buf = &(hid_report_descriptor[0]);
-  int size = wLength;
+  size = wLength;
   @<Write buffer@>@;
 #endif
 
@@ -253,7 +255,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 #else
   /* this is from datasheet 22.12.2 */
   buf = &dev_desc.bLength;
-  int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
+  size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
   @<Write buffer@>@;
 #endif
 
@@ -289,12 +291,90 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 #else
   /* this is from datasheet */
   buf = &user_conf_desc.conf_desc.bLength;
-  int size = wLength;
+  size = wLength;
   @<Write buffer@>@;
 #endif
 
+@ @<d\_str@>=
+switch (index)
+{
+case 0:
+  buf = &(lang_desc[0]);
+  size = sizeof lang_desc;
+#ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  while (!(UEINTX & (1 << TXINI))) ;
+  for (int i = 0; i < 4; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+#else
+  @<Write buffer@>@;
+#endif
+  break;
+case 1:
+  buf = &(mfr_desc[0]);
+  size = sizeof mfr_desc;
+#ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  while (!(UEINTX & (1 << TXINI))) ;
+  for (int i = 0; i < 12; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+#else
+  @<Write buffer@>@;
+#endif
+  break;
+case 2:
+  buf = &(prod_desc[0]);
+  size = sizeof prod_desc;
+#ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  while (!(UEINTX & (1 << TXINI))) ;
+  int i = 0;
+  for (; i < 32; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << TXINI))) ;
+  for (; i < 34; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+#else
+  @<Write buffer@>@;
+#endif
+  break;
+case 3:
+  buf = &(sn_desc[0]);
+  size = sizeof sn_desc;
+#ifdef M
+  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  while (!(UEINTX & (1 << TXINI))) ;
+  for (int i = 0; i < 10; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+#else
+  @<Write buffer@>@;
+#endif
+  break;
+}
+
 @ @<Read buffer@>=
-(void) UEDATX;
+index = UEDATX;
 bDescriptorType = UEDATX;
 (void) UEDATX;
 (void) UEDATX;
@@ -609,7 +689,7 @@ const uint8_t mfr_desc[]
 
 @<Global \null variables@>=
 const uint8_t prod_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/ 
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x22, @/
   0x03, @/
   0x41,0x00,0x56,0x00,0x52,0x00,0x20,0x00,0x55,0x00,0x53, @/
@@ -619,9 +699,9 @@ const uint8_t prod_desc[]
 
 @*2 Serial number descriptor.
 
-@<Global \null variables@>= 
-const uint8_t sn_desc[] 
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/  
+@<Global \null variables@>=
+const uint8_t sn_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x0A, @/
   0x03, @/
 @t\2@> 0x30,0x00,0x30,0x00,0x30,0x00,0x30,0x00 @/
