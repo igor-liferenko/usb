@@ -90,6 +90,7 @@ ISR(USB_COM_vect)
       @<set\_idle@>@;
       goto out;
     }
+    /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
     UEINTX &= ~(1 << RXSTPI);
     @<Stall@>@;
     goto out;
