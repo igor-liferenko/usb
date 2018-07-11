@@ -44,7 +44,7 @@ void main(void)
   SMCR = 1 << SE;
   sei();
   while (1) ;
-} 
+}
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
@@ -115,25 +115,28 @@ if (bmRequestType == 0x81) {
 }
 
 @ @<set\_adr@>=
-      UDADDR = UEDATX & 0x7F;
-      UEINTX &= ~(1 << RXSTPI);
+UDADDR = UEDATX & 0x7F;
+UEINTX &= ~(1 << RXSTPI);
+
 #ifdef M
-      if (!(UEINTX & (1 << TXINI))) goto out;
-      UEINTX &= ~(1 << TXINI);
+  if (!(UEINTX & (1 << TXINI))) goto out;
+  UEINTX &= ~(1 << TXINI);
 #else
-      UEINTX &= ~(1 << TXINI);
+  UEINTX &= ~(1 << TXINI);
 #endif
-      while (!(UEINTX & (1 << TXINI))) ;
-      UDADDR |= 1 << ADDEN;
+
+while (!(UEINTX & (1 << TXINI))) ;
+UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
-      UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~(1 << RXSTPI);
+
 #ifdef M
-      while (!(UEINTX & (1 << TXINI))) ;
-      UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << TXINI))) ;
+  UEINTX &= ~(1 << TXINI);
 #else
-      UEINTX &= ~(1 << TXINI);
-      while (!(UEINTX & (1 << TXINI))) ;
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << TXINI))) ;
 #endif
       UENUM = EP1;
       UECONX |= 1 << EPEN;
@@ -150,17 +153,19 @@ if (bmRequestType == 0x81) {
       UENUM = EP0;
 
 @ @<set\_idle@>=
-      UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~(1 << RXSTPI);
+
 #ifdef M
-      if (!(UEINTX & (1 << TXINI))) goto out;
-      UEINTX &= ~(1 << TXINI);
+  if (!(UEINTX & (1 << TXINI))) goto out;
+  UEINTX &= ~(1 << TXINI);
 #else
-      UEINTX &= ~(1 << TXINI);
+  UEINTX &= ~(1 << TXINI);
 #endif
-      if (flag == 1) {
-        flag = 0;
-        UENUM = EP2;
-      }
+
+if (flag == 1) {
+  flag = 0;
+  UENUM = EP2;
+}
 
 @ @<stand\_desc@>=
 @<Read buffer@>@;
@@ -180,83 +185,85 @@ if (bDescriptorType == 0x03) {
 @ @<int\_desc@>=
 @<Read buffer@>@;
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
+
 #ifdef M
-            while (!(UEINTX & (1 << TXINI))) ;
-            const void *buf = &(hid_report_descriptor[0]);
-            int i = 0;
-            for (; i < 32; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << TXINI))) ;
-            for (; i < 34; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << NAKOUTI))) ;
-            UEINTX &= ~(1 << NAKOUTI);
-            while (!(UEINTX & (1 << RXOUTI))) ;
-            UEINTX &= ~(1 << RXOUTI);
+  while (!(UEINTX & (1 << TXINI))) ;
+  const void *buf = &(hid_report_descriptor[0]);
+  int i = 0;
+  for (; i < 32; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << TXINI))) ;
+  for (; i < 34; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
 #else
-            const void *buf = &(hid_report_descriptor[0]);
-            int size = wLength;
+  const void *buf = &(hid_report_descriptor[0]);
+  int size = wLength;
   @<Write buffer@>@;
 #endif
+
   UENUM = EP2;
   UEIENX = 1 << RXOUTE;
-        }
+}
 
 @ @<d\_dev@>=
 #ifdef M
-/* this is from microsin */
-          while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &dev_desc.bLength;
-          for (int i = 0; i < sizeof dev_desc; i++)
-            UEDATX = pgm_read_byte_near((unsigned int) buf++);
-          UEINTX &= ~(1 << TXINI);
-          while (!(UEINTX & (1 << NAKOUTI))) ;
-          UEINTX &= ~(1 << NAKOUTI);
-          while (!(UEINTX & (1 << RXOUTI))) ;
-          UEINTX &= ~(1 << RXOUTI);
+  /* this is from microsin */
+  while (!(UEINTX & (1 << TXINI))) ;
+  const void *buf = &dev_desc.bLength;
+  for (int i = 0; i < sizeof dev_desc; i++)
+    UEDATX = pgm_read_byte_near((unsigned int) buf++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
 #else
-if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
-/* this is from datasheet 22.12.2 */
+  if (!(UEINTX & (1 << TXINI))) {DDRC|=1<<PC7;PORTC|=1<<PC7;} // debug
+  /* this is from datasheet 22.12.2 */
   const void *buf = &dev_desc.bLength;
   int size = sizeof dev_desc; /* TODO: reduce |size| to |wLength| if it exceeds it */
-@<Write buffer@>@;
+  @<Write buffer@>@;
 #endif
 
 @ @<d\_con@>=
 #ifdef M
-/* this is from microsin */
-          while (!(UEINTX & (1 << TXINI))) ;
-          const void *buf = &user_conf_desc.conf_desc.bLength;
-          if (wLength == 9) {
-            for (int i = 0; i < 9; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << NAKOUTI))) ;
-            UEINTX &= ~(1 << NAKOUTI);
-            while (!(UEINTX & (1 << RXOUTI))) ;
-            UEINTX &= ~(1 << RXOUTI);
-          }
-          else {
-            int i = 0;
-            for (; i < 32; i++)         
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);          
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << TXINI))) ;
-            for (; i < 41; i++)
-              UEDATX = pgm_read_byte_near((unsigned int) buf++);
-            UEINTX &= ~(1 << TXINI);
-            while (!(UEINTX & (1 << NAKOUTI))) ;
-            UEINTX &= ~(1 << NAKOUTI);
-            while (!(UEINTX & (1 << RXOUTI))) ;
-            UEINTX &= ~(1 << RXOUTI);
-          }
+  /* this is from microsin */
+  while (!(UEINTX & (1 << TXINI))) ;
+  const void *buf = &user_conf_desc.conf_desc.bLength;
+  if (wLength == 9) {
+    for (int i = 0; i < 9; i++)
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << NAKOUTI))) ;
+    UEINTX &= ~(1 << NAKOUTI);
+    while (!(UEINTX & (1 << RXOUTI))) ;
+    UEINTX &= ~(1 << RXOUTI);
+  }
+  else {
+    int i = 0;
+    for (; i < 32; i++)
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << TXINI))) ;
+    for (; i < 41; i++)
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << NAKOUTI))) ;
+    UEINTX &= ~(1 << NAKOUTI);
+    while (!(UEINTX & (1 << RXOUTI))) ;
+    UEINTX &= ~(1 << RXOUTI);
+  }
 #else
-/* this is from datasheet */
-          const void *buf = &user_conf_desc.conf_desc.bLength;
-          int size = wLength;
-@<Write buffer@>@;
+  /* this is from datasheet */
+  const void *buf = &user_conf_desc.conf_desc.bLength;
+  int size = wLength;
+  @<Write buffer@>@;
 #endif
 
 @ @<Read buffer@>=
@@ -298,9 +305,10 @@ UEINTX &= ~(1 << RXSTPI);
 
 @ @<Stall@>=
 #ifdef M
-    while (!(UEINTX & (1 << TXINI))) ;
+  while (!(UEINTX & (1 << TXINI))) ;
 #endif
-    UECONX |= 1 << STALLRQ;
+
+UECONX |= 1 << STALLRQ;
 
 @* USB.
 
