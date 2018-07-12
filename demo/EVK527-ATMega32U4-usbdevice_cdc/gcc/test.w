@@ -474,7 +474,7 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-IN
 
 @* USB stack.
 
-The order of descriptors here matches the order in which they are transmitted.
+The order of descriptors here is the same as the order in which they are transmitted.
 
 @*1 Device descriptor.
 
