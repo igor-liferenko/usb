@@ -329,18 +329,8 @@ case 0:
 #endif
   break;
 case 1:
-  buf = &(mfr_desc[0]);
-  size = sizeof mfr_desc;
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 12; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
+  @<Send manufacturer descriptor@>@;
 #else
   send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
 #endif
@@ -740,7 +730,20 @@ const uint8_t mfr_desc[]
 @t\2@> 0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00,0x4C,0x00 @/
 };
 
-@*3 Product descriptor.
+@ @<Send manufacturer descriptor@>=
+buf = &(mfr_desc[0]);
+size = sizeof mfr_desc;
+if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+while (!(UEINTX & (1 << TXINI))) ;
+for (int i = 0; i < 12; i++)
+  UEDATX = pgm_read_byte_near((unsigned int) buf++);
+UEINTX &= ~(1 << TXINI);
+while (!(UEINTX & (1 << NAKOUTI))) ;
+UEINTX &= ~(1 << NAKOUTI);
+while (!(UEINTX & (1 << RXOUTI))) ;
+UEINTX &= ~(1 << RXOUTI);
+
+@*1 Product descriptor.
 
 @<Global \null variables@>=
 const uint8_t prod_desc[]
