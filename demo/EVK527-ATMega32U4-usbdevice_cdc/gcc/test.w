@@ -428,11 +428,10 @@ wants to return data, the device cannot simply
 write to the bus as the bus is controlled by the host.
 Therefore it writes data to EP0 which sits in the buffer
 until such time when the host sends a IN packet requesting the
-data.\footnote*{We use one and the same
-endpoint to read {\it and\/} write control data. And this is the scenario which the phrase ``USB
-controller has
+data.\footnote*{This is where the prase ``USB controller has
 to manage simultaneous write requests from firmware and host'' from \S22.12.2 of
-datasheet refers to.}
+datasheet is crucial. Remember, we use one and the same
+endpoint to read {\it and\/} write control data.}
 
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
