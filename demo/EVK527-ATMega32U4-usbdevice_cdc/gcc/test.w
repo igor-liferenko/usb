@@ -99,7 +99,7 @@ ISR(USB_COM_vect)
       /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
       @<get\_dsc@>@;
       break;
-    case 0x05:
+    case 0x05: @/
       @<set\_adr@>@;
       break;
     case 0x09:
@@ -112,15 +112,15 @@ ISR(USB_COM_vect)
         @<set\_idle@>@;
       }
       break;
-    default:
+    default: @/
       UEINTX &= ~(1 << RXSTPI);
       @<Stall@>@;
     }
   }
-  if (UEINT == (1 << EP1)) {
+  else if (UEINT == (1 << EP1)) {
 //ep\_in
   }
-  if (UEINT == (1 << EP2)) {
+  else if (UEINT == (1 << EP2)) {
 //ep\_out
   }
 }
@@ -128,13 +128,13 @@ ISR(USB_COM_vect)
 @ @<get\_dsc@>=
 switch (bmRequestType)
 {
-case 0x80:
+case 0x80: @/
   @<stand\_desc@>@;
   break;
-case 0x81:
+case 0x81: @/
   @<int\_desc@>@;
   break;
-default:
+default: @/
   UEINTX &= ~(1 << RXSTPI);
   @<Stall@>@;
 }
@@ -209,16 +209,16 @@ if (flag == 1) {
 UEINTX &= ~(1 << RXSTPI);
 switch (bDescriptorType)
 {
-case 0x01:
+case 0x01: @/
   @<d\_dev@>@;
   break;
-case 0x02:
+case 0x02: @/
   @<d\_con@>@;
   break;
-case 0x03:
+case 0x03: @/
   @<d\_str@>@;
   break;
-default:
+default: @/
   @<Stall@>@;
 }
 
@@ -230,7 +230,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
   int i = 0;
-  for (; i < EP0_SIZE; i++)
+  for (; i < 32; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << TXINI))) ;
@@ -282,7 +282,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   }
   else {
     int i = 0;
-    for (; i < EP0_SIZE; i++)
+    for (; i < 32; i++)
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
     UEINTX &= ~(1 << TXINI);
     while (!(UEINTX & (1 << TXINI))) ;
@@ -772,7 +772,7 @@ size = sizeof prod_desc;
 if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
 while (!(UEINTX & (1 << TXINI))) ;
 int i = 0;
-for (; i < EP0_SIZE; i++)
+for (; i < 32; i++)
   UEDATX = pgm_read_byte_near((unsigned int) buf++);
 UEINTX &= ~(1 << TXINI);
 while (!(UEINTX & (1 << TXINI))) ;
