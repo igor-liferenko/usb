@@ -431,8 +431,8 @@ $$\hbox to6cm{\vbox to0.94cm{\vfil\special{psfile=direction.eps
 $$\hbox to10cm{\vbox to11.87cm{\vfil\special{psfile=control-read-stages.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=2834}}\hfil}$$
 
-$$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=control-IN.eps
-  clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
+$$\hbox to12.5cm{\vbox to4.22cm{\vfil\special{psfile=control-IN.eps
+  clip llx=0 lly=0 urx=1206 ury=408 rwi=3543}}\hfil}$$
 
 @ This corresponds to the following transactions:
 

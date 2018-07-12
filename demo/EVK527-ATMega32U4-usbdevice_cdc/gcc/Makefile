@@ -111,7 +111,7 @@ flash:
 
 control-IN.eps: control-IN.png
 	@convert $< $@
-	@imgsize $@
+	@imgsize $@ 12.5 -
 
 control-OUT.eps: control-OUT.png
 	@convert $< $@
