@@ -146,13 +146,9 @@ UEINTX &= ~(1 << RXSTPI);
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until the ACK packet prepared by
   previous command is sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
- firmware
-  must send the ACK in the status stage before enabling the USB device address. This is due
-  to the fact that IN packet of the status stage is still sent to zero address by host,
-  and we must not change the address until ZLP is sent, because either device will not
-  accept the IN token (because it will not match its address), or the host will not
-  accept the ACK (because source address will not match). If any of this happens, status
-  stage will not complete, and so set address request will not succeed.} */
+  firmware must send the ACK in the status stage before enabling the USB device address.
+  The reason is that zero address must be used during all the stages of the request.
+  Otherwise status stage will not complete, and thus set address request will not succeed.} */
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
