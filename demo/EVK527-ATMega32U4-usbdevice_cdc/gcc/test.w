@@ -19,6 +19,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
 @d EP0 0
 @d EP1 1
 @d EP2 2
+@d EP0_SIZE 32 /* bytes */
 
 @d M /* http://microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
 
@@ -235,7 +236,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
   int i = 0;
-  for (; i < 32; i++)
+  for (; i < EP0_SIZE; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << TXINI))) ;
@@ -287,7 +288,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   }
   else {
     int i = 0;
-    for (; i < 32; i++)
+    for (; i < EP0_SIZE; i++)
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
     UEINTX &= ~(1 << TXINI);
     while (!(UEINTX & (1 << TXINI))) ;
@@ -374,7 +375,7 @@ void send_descriptor(const void *buf, int size)
   while (1) {
     int nb_byte = 0;
     while (size != 0) {
-      if (nb_byte++ == 32)
+      if (nb_byte++ == EP0_SIZE)
         break;
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
       size--;
@@ -391,7 +392,7 @@ void send_descriptor(const void *buf, int size)
   while (1) {
     int nb_byte = 0;
     while (size != 0) {
-      if (nb_byte++ == 32) {
+      if (nb_byte++ == EP0_SIZE) {
         last_packet_full = 1;
         break;
       }
@@ -404,7 +405,7 @@ void send_descriptor(const void *buf, int size)
     }
     else
       UEINTX &= ~(1 << TXINI);
-    if (nb_byte != 32)
+    if (nb_byte != EP0_SIZE)
       last_packet_full = 0;
     while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
     if (UEINTX & (1 << RXOUTI)) {
@@ -509,7 +510,7 @@ const S_device_descriptor dev_desc
   0, /* no class */
   0, /* no subclass */
   0, @/
-  32, /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
+  EP0_SIZE, /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
@@ -777,7 +778,7 @@ size = sizeof prod_desc;
 if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
 while (!(UEINTX & (1 << TXINI))) ;
 int i = 0;
-for (; i < 32; i++)
+for (; i < EP0_SIZE; i++)
   UEDATX = pgm_read_byte_near((unsigned int) buf++);
 UEINTX &= ~(1 << TXINI);
 while (!(UEINTX & (1 << TXINI))) ;
