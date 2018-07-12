@@ -778,9 +778,9 @@ UEINTX &= ~(1 << RXOUTI);
 @<Global \null variables@>=
 const uint8_t sn_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x0A, @/
-  0x03, @/
-@t\2@> 0x30,0x00,0x30,0x00,0x30,0x00,0x30,0x00 @/
+  0x0A, /* size */
+  0x03, /* type (string) */
+@t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
 };
 
 @* Headers.
