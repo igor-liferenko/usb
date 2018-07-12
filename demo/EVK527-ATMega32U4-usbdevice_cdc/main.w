@@ -1,15 +1,3 @@
-@* Intro. This embedded application source code illustrates how to implement a CDC application
-with the ATmega32U4 controller.
-
-This application will enumerate as a CDC (communication device class) virtual COM port.
-The application can be used as a USB to serial converter.
-
-Changes: now does not allow to send data before end enumeration AND open port detection.
-
-Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
-unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
-(use \.{http://www.engbedded.com/fusecalc}).
-
 @ NAKINI is set if we did not send anything in IN request
 (but why? - TXINI was never cleared). This can be checked by the following
 code:
