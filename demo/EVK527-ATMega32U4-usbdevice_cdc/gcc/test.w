@@ -144,14 +144,13 @@ UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI);
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
-  transmitted to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
+  sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
   firmware must send ZLP in the STATUS stage before enabling the new address.
   The reason is that the request started by using zero address, and all the stages of the request
   must use the same address.
   Otherwise STATUS stage will not complete, and thus set address request will not succeed.
-  We do not have the means to determine when ZLP is sent, but we can determine when the ACK
-  packet for this IN transaction is received from host, which is a stronger requirement.
-  See ``Control write (by host)'' in table of contents for the picture (note, that DATA
+  We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
+  See ``Control write (by host)'' in table of contents for the picture (note that DATA
   stage is absent).} */
 UDADDR |= 1 << ADDEN;
 
@@ -459,13 +458,9 @@ $$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=control-OUT.eps
   clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
 
 Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
-(see \S22.12.1 in datasheet).
-
-When IN packet arrives, all OUT transactions were completed (because status stage will not begin
-until all data has been acknowledged).
-If TXINI is already cleared when IN packet arrives, NAKINI is not set. This corresponds to
-case 1.
-If TXINI is not yet cleared when IN packet arrives, NAKINI is set. This corresponds to case 2.
+(see \S22.12.1 in datasheet): If TXINI is already cleared when IN packet arrives, NAKINI is not
+set. This corresponds to case 1. If TXINI is not yet cleared when IN packet arrives, NAKINI
+is set. This corresponds to case 2.
 
 @ This corresponds to the following transactions:
 
