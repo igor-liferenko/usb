@@ -225,7 +225,8 @@ default: @/
 @ @<int\_desc@>=
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
-if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
+if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
+@^WinXP bug@>
 #ifdef M
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
@@ -301,10 +302,10 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 @ @<d\_str@>=
 switch (index)
 {
-case 0:
+case 0x00:
+#ifdef M
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
-#ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 4; i++)
@@ -318,21 +319,21 @@ case 0:
   send_descriptor(&(lang_desc[0]), sizeof lang_desc);
 #endif
   break;
-case 1:
+case 0x01:
 #ifdef M
   @<Send manufacturer descriptor@>@;
 #else
   send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
 #endif
   break;
-case 2:
+case 0x02:
 #ifdef M
   @<Send product descriptor@>@;
 #else
   send_descriptor(&(prod_desc[0]), sizeof prod_desc);
 #endif
   break;
-case 3:
+case 0x03:
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
 #ifdef M
