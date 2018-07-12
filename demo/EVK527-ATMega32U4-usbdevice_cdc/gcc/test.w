@@ -226,7 +226,7 @@ default: @/
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
-@^WinXP bug@>
+@^WinXP@>
 #ifdef M
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
@@ -421,6 +421,18 @@ UECONX |= 1 << STALLRQ;
 
 @* Control endpoint management.
 
+Endpoints can be described as sources or sinks of data. As the bus is host centric, endpoints
+occur at the end
+of the communications channel at the USB function. At the software layer, your device driver
+may send a
+packet to your devices EP1 for example. As the data is flowing out from the host, it will end
+up in the EP1 OUT
+buffer. Your firmware will then at its leisure read this data. If it wants to return data, the
+function cannot simply
+write to the bus as the bus is controlled by the host. Therefore it writes data to EP1 IN which
+sits in the buffer
+until such time when the host sends a IN packet to that endpoint requesting the data.
+
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
@@ -501,7 +513,8 @@ const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
   0x01, /* device */
-  0x0110, /* USB version 1.1 */
+  0x0110, /* USB version 1.1 (WinXP compat is here) */
+@^WinXP@>
   0, /* no class */
   0, /* no subclass */
   0, @/
