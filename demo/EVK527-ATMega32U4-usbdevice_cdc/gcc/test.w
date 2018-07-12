@@ -145,7 +145,8 @@ UEINTX &= ~(1 << RXSTPI);
 #endif
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until the ACK packet prepared by
-  previous command is sent to host\footnote\dag{According to \S22.7 of the datasheet, firmware
+  previous command is sent to host\footnote{$\diamondsuit$}{According to \S22.7 of the datasheet,
+ firmware
   must send the ACK in the status stage before enabling the USB device address. This is due
   to the fact that IN packet of the status stage is still sent to zero address by host,
   and we must not change the address until ZLP is sent, because either device will not
