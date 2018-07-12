@@ -423,6 +423,8 @@ UECONX |= 1 << STALLRQ;
 
 @* USB.
 
+The order of descriptors here matches the order in which they are transmitted.
+
 @*1 Device descriptor.
 
 @<Type \null definitions@>=
