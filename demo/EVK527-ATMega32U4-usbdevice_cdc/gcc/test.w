@@ -429,9 +429,16 @@ packet to your devices EP1 for example. As the data is flowing out from the host
 up in the EP1 OUT
 buffer. Your firmware will then at its leisure read this data. If it wants to return data, the
 function cannot simply
-write to the bus as the bus is controlled by the host. Therefore it writes data to EP1 IN which
+write to the bus as the bus is controlled by the host.
+Therefore it writes data to EP1 IN which
 sits in the buffer
-until such time when the host sends a IN packet to that endpoint requesting the data.
+until such time when the host sends a IN packet to that endpoint requesting the
+data.\footnote*{We use one and the same
+endpoint to read {\it and\/} write data. And this is the scenario which the phrase ``USB
+controller has
+to manage simultaneous write requests from firmware and host'' from \S22.12.2 of
+datasheet refers to.}
+
 
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
