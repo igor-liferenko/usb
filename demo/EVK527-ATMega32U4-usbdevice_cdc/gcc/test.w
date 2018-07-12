@@ -365,8 +365,7 @@ bDescriptorType = UEDATX;
 @<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
-#if 1==1 /* FIXME: where is it said in datasheet on USB spec that the last packet full check
-  is necessary? */
+#if 1==1
   while (1) {
     int nb_byte = 0;
     while (size != 0) {
@@ -382,7 +381,8 @@ void send_descriptor(const void *buf, int size)
       break;
     }
   }
-#else
+#else /* FIXME: where is it said in datasheet or USB spec that the last-packet-full check
+         is necessary? */
   int last_packet_full = 0;
   while (1) {
     int nb_byte = 0;
