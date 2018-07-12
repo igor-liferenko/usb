@@ -11,7 +11,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @d EP0 0
 @d EP1 1
 @d EP2 2
-@d EP0_SIZE 32 /* bytes */
+@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
 @d M /* microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
 
@@ -46,7 +46,7 @@ void main(void)
   UECONX |= 1 << EPEN;
   UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
   UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
-    bytes\footnote\dag{Must correspond to |bMaxPacketSize0| in |dev_desc|.} */
+    bytes\footnote\dag{Must correspond to |EP0_SIZE|.} */
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
@@ -518,7 +518,7 @@ const S_device_descriptor dev_desc
   0, /* no class */
   0, /* no subclass */
   0, @/
-  EP0_SIZE, /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
+  EP0_SIZE, @/
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
