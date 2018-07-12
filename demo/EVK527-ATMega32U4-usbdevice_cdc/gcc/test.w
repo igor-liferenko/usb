@@ -346,23 +346,8 @@ case 1:
 #endif
   break;
 case 2:
-  buf = &(prod_desc[0]);
-  size = sizeof prod_desc;
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
-  while (!(UEINTX & (1 << TXINI))) ;
-  int i = 0;
-  for (; i < 32; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (; i < 34; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
+  @<Send product descriptor@>@;
 #else
   send_descriptor(&(prod_desc[0]), sizeof prod_desc);
 #endif
@@ -735,6 +720,8 @@ const uint8_t hid_report_descriptor[]
 
 @*1 Language descriptor.
 
+This is necessary to transmit serial number.
+
 @<Global \null variables@>=
 const uint8_t lang_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
@@ -743,7 +730,7 @@ const uint8_t lang_desc[]
 @t\2@> 0x09,0x04 /* id (English) */
 };
 
-@*2 Manufacturer descriptor.
+@*1 Manufacturer descriptor.
 
 @<Global \null variables@>=
 const uint8_t mfr_desc[]
@@ -753,7 +740,7 @@ const uint8_t mfr_desc[]
 @t\2@> 0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00,0x4C,0x00 @/
 };
 
-@*2 Product descriptor.
+@*3 Product descriptor.
 
 @<Global \null variables@>=
 const uint8_t prod_desc[]
@@ -764,6 +751,24 @@ const uint8_t prod_desc[]
   0x00,0x42,0x00,0x20,0x00,0x48,0x00,0x49,0x00,0x44,0x00, @/
 @t\2@> 0x20,0x00,0x44,0x00,0x45,0x00,0x4D,0x00,0x4F,0x00 @/
 };
+
+@ @<Send product descriptor@>=
+buf = &(prod_desc[0]);
+size = sizeof prod_desc;
+if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+while (!(UEINTX & (1 << TXINI))) ;
+int i = 0;
+for (; i < 32; i++)
+  UEDATX = pgm_read_byte_near((unsigned int) buf++);
+UEINTX &= ~(1 << TXINI);
+while (!(UEINTX & (1 << TXINI))) ;
+for (; i < 34; i++)
+  UEDATX = pgm_read_byte_near((unsigned int) buf++);
+UEINTX &= ~(1 << TXINI);
+while (!(UEINTX & (1 << NAKOUTI))) ;
+UEINTX &= ~(1 << NAKOUTI);
+while (!(UEINTX & (1 << RXOUTI))) ;
+UEINTX &= ~(1 << RXOUTI);
 
 @*1 Serial number descriptor.
 
