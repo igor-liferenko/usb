@@ -38,7 +38,9 @@ void main(void)
   MCUSR &= ~(1<<WDRF);
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
-  DDRC |= 1 << PC7;
+  DDRB |= 1 << PB0; /* debug */
+  DDRC |= 1 << PC7; /* reset */
+  PORTC |= 1 << PC7;
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -150,7 +152,7 @@ UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   if (!(UEINTX & (1 << TXINI))) break;
 #endif
 
@@ -171,7 +173,7 @@ UDADDR |= 1 << ADDEN;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
@@ -199,7 +201,7 @@ UENUM = EP0;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   if (!(UEINTX & (1 << TXINI))) break;
 #endif
 
@@ -257,7 +259,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 
 @ @<d\_dev@>=
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &dev_desc.bLength;
   for (int i = 0; i < sizeof dev_desc; i++)
@@ -274,7 +276,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 
 @ @<d\_con@>=
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &user_conf_desc.conf_desc.bLength;
   if (wLength == 9) {
@@ -311,7 +313,7 @@ case 0:
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 4; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -342,7 +344,7 @@ case 3:
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 10; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -418,7 +420,7 @@ void send_descriptor(const void *buf, int size)
 
 @ @<Stall@>=
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
@@ -750,7 +752,7 @@ const uint8_t mfr_desc[]
 @ @<Send manufacturer descriptor@>=
 buf = &(mfr_desc[0]);
 size = sizeof mfr_desc;
-if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
 while (!(UEINTX & (1 << TXINI))) ;
 for (int i = 0; i < 12; i++)
   UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -775,7 +777,7 @@ const uint8_t prod_desc[]
 @ @<Send product descriptor@>=
 buf = &(prod_desc[0]);
 size = sizeof prod_desc;
-if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
+if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
 while (!(UEINTX & (1 << TXINI))) ;
 int i = 0;
 for (; i < EP0_SIZE; i++)
