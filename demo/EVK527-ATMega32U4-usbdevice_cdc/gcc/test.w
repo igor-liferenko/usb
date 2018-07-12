@@ -139,10 +139,9 @@ UEINTX &= ~(1 << RXSTPI);
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   if (!(UEINTX & (1 << TXINI))) break;
-  UEINTX &= ~(1 << TXINI);
-#else
-  UEINTX &= ~(1 << TXINI);
 #endif
+
+UEINTX &= ~(1 << TXINI);
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
   transmitted to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
@@ -162,10 +161,9 @@ UEINTX &= ~(1 << RXSTPI);
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
-  UEINTX &= ~(1 << TXINI);
-#else
-  UEINTX &= ~(1 << TXINI);
 #endif
+
+UEINTX &= ~(1 << TXINI);
 
 UENUM = EP1;
 UECONX |= 1 << EPEN;
@@ -191,10 +189,9 @@ UEINTX &= ~(1 << RXSTPI);
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   if (!(UEINTX & (1 << TXINI))) break;
-  UEINTX &= ~(1 << TXINI);
-#else
-  UEINTX &= ~(1 << TXINI);
 #endif
+
+UEINTX &= ~(1 << TXINI);
 
 if (flag == 1) {
   flag = 0;
