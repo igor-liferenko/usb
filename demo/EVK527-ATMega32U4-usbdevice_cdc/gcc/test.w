@@ -667,9 +667,7 @@ const uint8_t hid_report_descriptor[]
 };
 #endif
 
-@*1 String descriptors.
-
-@*2 Language descriptor.
+@*1 Language descriptor.
 
 @<Global \null variables@>=
 const uint8_t lang_desc[]
@@ -701,7 +699,7 @@ const uint8_t prod_desc[]
 @t\2@> 0x20,0x00,0x44,0x00,0x45,0x00,0x4D,0x00,0x4F,0x00 @/
 };
 
-@*2 Serial number descriptor.
+@*1 Serial number descriptor.
 
 @<Global \null variables@>=
 const uint8_t sn_desc[]
