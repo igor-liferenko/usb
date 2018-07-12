@@ -334,9 +334,9 @@ case 0x02:
 #endif
   break;
 case 0x03:
+#ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
-#ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 10; i++)
