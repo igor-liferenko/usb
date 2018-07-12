@@ -678,32 +678,32 @@ typedef struct {
 
 @*1 HID report descriptor.
 
-Line 1 -- sets device class with common characteristics. First byte is either |0x05|
+Line 1: Device class with common characteristics. First byte is either |0x05|
 or |0x06|. Two last bits of first byte show number of remaining bytes in this field.
 Number |0x06| in binary is 00000110. Two last bits (10) is decimal 2. So, after
 first byte follow two bytes -- |0x00| and |0xFF|. In this case the device
 does not belong to any class and its purpose is vendor defined.
 
-Line 2 -- sets device or function subclass. First byte is the field identifier. Second byte
+Line 2: Device or function subclass. First byte is the field identifier. Second byte
 is the device or function identifier. In this case these identifiers are not used (lines 2, 4, 10).
 
-Line 3 -- sets the beginning of group of elements of one type. First byte is the field identifier.
+Line 3: Begin group of elements of one type. First byte is the field identifier.
 Secand byte is type identifier. In this case it is an application group (|0x01|).
 
-Line 5 -- determines minimum value in each received byte, in logical units.
+Line 5: Minimum value in each received byte, in logical units.
 The value is set in second byte.
 
-Line 6 -- determines maximum value in each received byte, in logical units.
+Line 6: Maximum value in each received byte, in logical units.
 The value is set in second byte. Two last bits of first byte show number of remaining bytes
 in this field. 
 Number |0x26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
 first byte follow two bytes -- |0xFF| and |0x00|. FIXME: what for is second of them?
 
-Line 7 -- data unit size in bits.
+Line 7: Data unit size in bits.
 
-Line 8 -- number of data units in report.
+Line 8: Number of data units in report.
 
-Line 9 -- says that all previous lines, starting with 4th, refer to IN-report.
+Line 9: Report type of all preceding lines from the beginning of group is IN.
 In first byte |0x81| (binary 10000001) the first four bits signify report type (IN).
 Two last bits show number of remaining bytes in this field. In this case it is one
 byte (|0x02|). This byte says the characteristics and layout of data in
@@ -712,12 +712,12 @@ Number |0x02| means that report data can change (Data),
 is represented as 8 separate 8-bit elements (Variable), and their values are taken
 relative to zero (Absolute).
 
-Lines 11--14 are the same as before. But now they refer to OUT-report.
+Lines 11--14 are anologous to lines 5--8. But now they refer to OUT-report.
 
-Line 15 -- The same as line 9. The difference is in the first byte (|0x91|),
+Line 15: The same as line 9. The difference is in the first byte (|0x91|),
 first four bits of which are 1001, which signifies OUT report type.
 
-Line 16 -- ends group of elements of one type.
+Line 16: End group of elements of one type.
 
 @<Global variables ...@>=
 #if 1==1
