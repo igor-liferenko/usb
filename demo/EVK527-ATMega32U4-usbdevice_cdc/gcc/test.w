@@ -20,7 +20,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
 @d EP1 1
 @d EP2 2
 
-@d M
+@d M /* microsin.net */
 
 @c
 @<Header files@>@;
@@ -231,7 +231,6 @@ default:
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
-
 #ifdef M
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
@@ -257,7 +256,6 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 
 @ @<d\_dev@>=
 #ifdef M
-  /* this is from microsin */
   if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &dev_desc.bLength;
@@ -269,14 +267,12 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  /* this is from datasheet 22.12.2 */
   send_descriptor(&dev_desc.bLength, sizeof dev_desc);
     /* TODO: reduce |size| to |wLength| if it exceeds it */
 #endif
 
 @ @<d\_con@>=
 #ifdef M
-  /* this is from microsin */
   if (!(UEINTX & (1 << TXINI))) PORTC |= 1 << PC7;
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &user_conf_desc.conf_desc.bLength;
@@ -304,7 +300,6 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
     UEINTX &= ~(1 << RXOUTI);
   }
 #else
-  /* this is from datasheet */
   send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 #endif
 
@@ -369,7 +364,9 @@ bDescriptorType = UEDATX;
 ((uint8_t *) &wLength)[0] = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
 
-@ @<Functions@>=
+@ See datasheet \S22.12.2.
+
+@<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
   int last_packet_full = 0;
