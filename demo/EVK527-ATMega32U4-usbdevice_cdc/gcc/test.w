@@ -458,6 +458,15 @@ $$\hbox to10cm{\vbox to11.87cm{\vfil\special{psfile=control-write-stages.eps
 $$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=control-OUT.eps
   clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
 
+Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
+(see \S22.12.1 in datasheet).
+
+When IN packet arrives, all OUT transactions were completed (because status stage will not begin
+until all data has been acknowledged).
+If TXINI is already cleared when IN packet arrives, NAKINI is not set. This corresponds to
+case 1.
+If TXINI is not yet cleared when IN packet arrives, NAKINI is set. This corresponds to case 2.
+
 @ This corresponds to the following transactions:
 
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-SETUP.eps
