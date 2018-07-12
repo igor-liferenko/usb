@@ -417,53 +417,56 @@ void write_buffer(const void *buf, int size)
 #endif
 
 UECONX |= 1 << STALLRQ;
+
+@*1 Control endpoint management.
+
 @*2 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
+$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/control-read-stages.eps
+$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=control-read-stages.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 
-$$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=gcc/control-IN.eps
+$$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=control-IN.eps
   clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
 
 This corresponds to the following transactions:
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-SETUP.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-IN.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
 @*2 Control write (by host). There are the following
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=gcc/direction.eps
+$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=direction.eps
   clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=gcc/control-write-stages.eps
+$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=control-write-stages.eps
   clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
 
-$$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=gcc/control-OUT.eps
+$$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=control-OUT.eps
   clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
 
 This corresponds to the following transactions:
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-SETUP.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-SETUP.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-OUT.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=gcc/transaction-IN.eps
+$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-IN.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@* USB.
+@* USB stack.
 
 The order of descriptors here matches the order in which they are transmitted.
 
