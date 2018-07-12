@@ -421,24 +421,18 @@ UECONX |= 1 << STALLRQ;
 
 @* Control endpoint management.
 
-Endpoints can be described as sources or sinks of data. As the bus is host centric, endpoints
-occur at the end
-of the communications channel at the USB function. At the software layer, your device driver
-may send a
-packet to your devices EP1 for example. As the data is flowing out from the host, it will end
-up in the EP1 OUT
-buffer. Your firmware will then at its leisure read this data. If it wants to return data, the
-function cannot simply
+Device driver sends a
+packet to device's EP0. As the data is flowing out from the host, it will end
+up in the EP0 buffer. Firmware will then at its leisure read this data. If it
+wants to return data, the device cannot simply
 write to the bus as the bus is controlled by the host.
-Therefore it writes data to EP1 IN which
-sits in the buffer
-until such time when the host sends a IN packet to that endpoint requesting the
+Therefore it writes data to EP0 which sits in the buffer
+until such time when the host sends a IN packet requesting the
 data.\footnote*{We use one and the same
-endpoint to read {\it and\/} write data. And this is the scenario which the phrase ``USB
+endpoint to read {\it and\/} write control data. And this is the scenario which the phrase ``USB
 controller has
 to manage simultaneous write requests from firmware and host'' from \S22.12.2 of
 datasheet refers to.}
-
 
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
