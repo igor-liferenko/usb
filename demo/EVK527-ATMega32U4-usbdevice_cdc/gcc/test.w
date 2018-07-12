@@ -369,6 +369,24 @@ bDescriptorType = UEDATX;
 @<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
+#if 1==1 /* FIXME: where is it said in datasheet on USB spec that the last packet full check
+  is necessary? */
+  while (1) {
+    int nb_byte = 0;
+    while (size != 0) {
+      if (nb_byte++ == 32)
+        break;
+      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+      size--;
+    }
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+    if (UEINTX & (1 << RXOUTI)) {
+      UEINTX &= ~(1 << RXOUTI);
+      break;
+    }
+  }
+#else
   int last_packet_full = 0;
   while (1) {
     int nb_byte = 0;
@@ -394,6 +412,7 @@ void send_descriptor(const void *buf, int size)
       break;
     }
   }
+#endif
 }
 
 @ @<Stall@>=
