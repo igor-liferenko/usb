@@ -418,21 +418,21 @@ void write_buffer(const void *buf, int size)
 
 UECONX |= 1 << STALLRQ;
 
-@*1 Control endpoint management.
+@* Control endpoint management.
 
-@*2 Control read (by host). There are the folowing
+@*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=direction.eps
-  clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
+$$\hbox to6cm{\vbox to0.94cm{\vfil\special{psfile=direction.eps
+  clip llx=0 lly=0 urx=222 ury=35 rwi=1700}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=control-read-stages.eps
-  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+$$\hbox to10cm{\vbox to11.87cm{\vfil\special{psfile=control-read-stages.eps
+  clip llx=0 lly=0 urx=320 ury=380 rwi=2834}}\hfil}$$
 
 $$\hbox to15.55cm{\vbox to3.77472222222222cm{\vfil\special{psfile=control-IN.eps
   clip llx=0 lly=0 urx=441 ury=107 rwi=4410}}\hfil}$$
 
-This corresponds to the following transactions:
+@ This corresponds to the following transactions:
 
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-SETUP.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
@@ -443,19 +443,19 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-IN
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-OUT.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
 
-@*2 Control write (by host). There are the following
+@*1 Control write (by host). There are the following
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=direction.eps
-  clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
+$$\hbox to6cm{\vbox to0.94cm{\vfil\special{psfile=direction.eps
+  clip llx=0 lly=0 urx=222 ury=35 rwi=1700}}\hfil}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=control-write-stages.eps
-  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+$$\hbox to10cm{\vbox to11.87cm{\vfil\special{psfile=control-write-stages.eps
+  clip llx=0 lly=0 urx=320 ury=380 rwi=2834}}\hfil}$$
 
 $$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=control-OUT.eps
   clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
 
-This corresponds to the following transactions:
+@ This corresponds to the following transactions:
 
 $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-SETUP.eps
   clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
