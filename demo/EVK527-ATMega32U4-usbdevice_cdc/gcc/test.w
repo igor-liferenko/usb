@@ -200,6 +200,7 @@ if (flag == 1) {
 
 @ @<stand\_desc@>=
 @<Read buffer@>@;
+UEINTX &= ~(1 << RXSTPI);
 switch (bDescriptorType)
 {
 case 0x01:
@@ -217,6 +218,7 @@ default:
 
 @ @<int\_desc@>=
 @<Read buffer@>@;
+UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
 
 #ifdef M
@@ -380,7 +382,6 @@ bDescriptorType = UEDATX;
 (void) UEDATX;
 ((uint8_t *) &wLength)[0] = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
-UEINTX &= ~(1 << RXSTPI);
 
 @ @<Functions@>=
 void write_buffer(const void *buf, int size)
