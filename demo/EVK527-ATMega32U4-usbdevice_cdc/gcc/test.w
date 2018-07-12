@@ -21,7 +21,8 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
 @d EP2 2
 @d EP0_SIZE 32 /* bytes */
 
-@d M /* http://microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
+@d M /* from assembler example */
+  %http://microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html
 
 @c
 @<Header files@>@;
