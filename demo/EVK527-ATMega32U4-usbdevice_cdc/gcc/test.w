@@ -678,10 +678,10 @@ typedef struct {
 
 @*1 HID report descriptor.
 
-Line 1 -- sets device class with common characteristics. First byte is either |0х05|
-or |0х06|. Two last bits of first byte show number of remaining bytes in this field.
-Number |0х06| in binary is 00000110. Two last bits (10) is decimal 2. So, after
-first byte follow two bytes -- |0х00| and |0хFF|. In this case the device
+Line 1 -- sets device class with common characteristics. First byte is either |0x05|
+or |0x06|. Two last bits of first byte show number of remaining bytes in this field.
+Number |0x06| in binary is 00000110. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0x00| and |0xFF|. In this case the device
 does not belong to any class and its purpose is vendor defined.
 
 Line 2 -- sets device or function subclass. First byte is the field identifier. Second byte
@@ -696,8 +696,8 @@ The value is set in second byte.
 Line 6 -- determines maximum value in each received byte, in logical units.
 The value is set in second byte. Two last bits of first byte show number of remaining bytes
 in this field. 
-Number |0х26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
-first byte follow two bytes -- |0хFF| and |0х00|. FIXME: what for is second of them?
+Number |0x26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0xFF| and |0x00|. FIXME: what for is second of them?
 
 Line 7 -- data unit size in bits.
 
@@ -714,7 +714,7 @@ relative to zero (Absolute).
 
 Lines 11--14 are the same as before. But now they refer to OUT-report.
 
-Line 15 -- The same as line 9. The difference is in the first byte (|0х91|),
+Line 15 -- The same as line 9. The difference is in the first byte (|0x91|),
 first four bits of which are 1001, which signifies OUT report type.
 
 Line 16 -- ends group of elements of one type.
