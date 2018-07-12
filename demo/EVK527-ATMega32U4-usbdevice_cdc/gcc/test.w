@@ -248,7 +248,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  write_buffer(&(hid_report_descriptor[0]), wLength);
+  send_descriptor(&(hid_report_descriptor[0]), wLength);
 #endif
 
   UENUM = EP2;
@@ -270,7 +270,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   UEINTX &= ~(1 << RXOUTI);
 #else
   /* this is from datasheet 22.12.2 */
-  write_buffer(&dev_desc.bLength, sizeof dev_desc);
+  send_descriptor(&dev_desc.bLength, sizeof dev_desc);
     /* TODO: reduce |size| to |wLength| if it exceeds it */
 #endif
 
@@ -305,7 +305,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   }
 #else
   /* this is from datasheet */
-  write_buffer(&user_conf_desc.conf_desc.bLength, wLength);
+  send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 #endif
 
 @ @<d\_str@>=
@@ -325,7 +325,7 @@ case 0:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  write_buffer(&(lang_desc[0]), sizeof lang_desc);
+  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
 #endif
   break;
 case 1:
@@ -342,7 +342,7 @@ case 1:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  write_buffer(&(mfr_desc[0]), sizeof mfr_desc);
+  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
 #endif
   break;
 case 2:
@@ -364,7 +364,7 @@ case 2:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  write_buffer(&(prod_desc[0]), sizeof prod_desc);
+  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
 #endif
   break;
 case 3:
@@ -381,7 +381,7 @@ case 3:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #else
-  write_buffer(&(sn_desc[0]), sizeof sn_desc);
+  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
 #endif
   break;
 }
@@ -395,7 +395,7 @@ bDescriptorType = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
 
 @ @<Functions@>=
-void write_buffer(const void *buf, int size)
+void send_descriptor(const void *buf, int size)
 {
   int last_packet_full = 0;
   while (1) {
