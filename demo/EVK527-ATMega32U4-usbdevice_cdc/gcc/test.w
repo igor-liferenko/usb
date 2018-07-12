@@ -20,7 +20,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3}
 @d EP1 1
 @d EP2 2
 
-@d M /* microsin.net */
+@d M /* http://microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
 
 @c
 @<Header files@>@;
