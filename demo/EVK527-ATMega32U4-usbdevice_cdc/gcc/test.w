@@ -46,7 +46,7 @@ void main(void)
   UECONX |= 1 << EPEN;
   UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
   UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
-    bytes\footnote\dag{Must correspond to |EP0_SIZE|.} */
+    bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
