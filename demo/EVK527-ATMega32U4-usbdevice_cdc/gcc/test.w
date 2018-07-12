@@ -2,13 +2,11 @@
 %\datethis
 \secpagedepth=2 % begin new page only on *
 
-@* Intro. This embedded application source code illustrates how to implement a HID
+@* Program. This embedded application source code illustrates how to implement a HID
 with the ATmega32U4 controller.
 
 Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
 unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com/fusecalc}).
-
-@* Program.
 
 @d EP0 0
 @d EP1 1
