@@ -190,7 +190,21 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 
 UENUM = EP0;
 
-@ @<set\_idle@>=
+@ This request lets host set idle rate for reports. The request has the following fields:
+
+\itemitem{$\bullet$} |bmRequestType| = 00100001
+\itemitem{$\bullet$} |bRequest| = \.{SET\_IDLE} (|0x0A|)
+\itemitem{$\bullet$} |wValue| -- idle duration in first byte, and ReportID in last byte
+\itemitem{$\bullet$} |wIndex| -- interface number to which the request is to be applied
+\itemitem{$\bullet$} |wLength| = 0
+
+Idle duration says how reports must be sent if data does not change. Zero value
+means infinite pause (indefinite), in this state device will send reports only in
+case of changed state.
+
+For keyboard recommended interval is 500ms (it means character repeat rate).
+
+@<set\_idle@>=
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
