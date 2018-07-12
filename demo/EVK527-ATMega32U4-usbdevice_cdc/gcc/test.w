@@ -105,7 +105,8 @@ ISR(USB_COM_vect)
     case 0x09:
       if (bmRequestType == 0x00) {
         @<set\_cfg@>@;
-      } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) */
+      } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) ANSWER: SET\_REPORT
+           lets host transfer data to device vie EP0 */
       break;
     case 0x0A:
       if (bmRequestType == 0x21) {
