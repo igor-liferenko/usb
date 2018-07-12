@@ -707,8 +707,7 @@ Line 9: Report type of all preceding lines from the beginning of group is IN.
 In first byte |0x81| (binary 10000001) the first four bits signify report type (IN).
 Two last bits show number of remaining bytes in this field. In this case it is one
 byte (|0x02|). This byte says the characteristics and layout of data in
-report.\footnote*{[3].}
-Number |0x02| means that report data can change (Data),
+report. Number |0x02| means that report data can change (Data),
 is represented as 8 separate 8-bit elements (Variable), and their values are taken
 relative to zero (Absolute).
 
