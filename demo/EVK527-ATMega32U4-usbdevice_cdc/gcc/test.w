@@ -430,8 +430,8 @@ Therefore it writes data to EP0 which sits in the buffer
 until such time when the host sends a IN packet requesting the
 data.\footnote*{This is where the prase ``USB controller has
 to manage simultaneous write requests from firmware and host'' from \S22.12.2 of
-datasheet is crucial. Remember, we use one and the same
-endpoint to read {\it and\/} write control data.}
+datasheet becomes clear. (Remember, we use one and the same
+endpoint to read {\it and\/} write control data.)}
 
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
@@ -678,28 +678,69 @@ typedef struct {
 
 @*1 HID report descriptor.
 
+Line 1 -- sets device class with common characteristics. First byte is either |0х05|
+or |0х06|. Two last bits of first byte show number of remaining bytes in this field.
+Number |0х06| in binary is 00000110. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0х00| and |0хFF|. In this case the device
+does not belong to any class and its purpose is vendor defined.
+
+Line 2 -- sets device or function subclass. First byte is the field identifier. Second byte
+is the device or function identifier. In this case these identifiers are not used (lines 2, 4, 10).
+
+Line 3 -- sets the beginning of group of elements of one type. First byte is the field identifier.
+Secand byte is type identifier. In this case it is an application group (|0x01|).
+
+Line 5 -- determines minimum value in each received byte, in logical units.
+The value is set in second byte.
+
+Line 6 -- determines maximum value in each received byte, in logical units.
+The value is set in second byte. Two last bits of first byte show number of remaining bytes
+in this field. 
+Number |0х26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0хFF| and |0х00|. FIXME: what for is second of them?
+
+Line 7 -- data unit size in bits.
+
+Line 8 -- number of data units in report.
+
+Line 9 -- says that all previous lines, starting with 4th, refer to IN-report.
+In first byte |0x81| (binary 10000001) the first four bits signify report type (IN).
+Two last bits show number of remaining bytes in this field. In this case it is one
+byte (|0x02|). This byte says the characteristics and layout of data in
+report.\footnote*{[3].}
+Number |0x02| means that report data can change (Data),
+is represented as 8 separate 8-bit elements (Variable), and their values are taken
+relative to zero (Absolute).
+
+Lines 11--14 are the same as before. But now they refer to OUT-report.
+
+Line 15 -- The same as line 9. The difference is in the first byte (|0х91|),
+first four bits of which are 1001, which signifies OUT report type.
+
+Line 16 -- ends group of elements of one type.
+
 @<Global variables ...@>=
 #if 1==1
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x06, 0x00, 0xFF, /* Usage Page (Vendordefined) */
-  0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 1) */
-  0xA1, 0x01, @t\hskip21pt@> /* Collection (Application) */
-  0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 2) */
-  0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
-  0x26, 0xFF, 0x00, /* Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
-  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote{\dag\dag}{Must correspond to
-    |UECFG1X| of |EP1|.} */
-  0x81, 0x02, @t\hskip21pt@> /* IN report (Data, Variable, Absolute) */
-  0x09, 0x00, @t\hskip21pt@> /* Usage (UsageID - 3) */
-  0x15, 0x00, @t\hskip21pt@> /* Logical Minimum (0) */
-  0x26, 0xFF,0x00, /* Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* data unit size in bits (8, one byte) */
-  0x95, 0x08, @t\hskip21pt@> /* number of data units (8)\footnote{\ddag\ddag}{Must correspond to
-    |UECFG1X| of |EP2|.} */
-  0x91, 0x02, @t\hskip21pt@> /* OUT report (Data, Variable, Absolute) */
-@t\2@> 0xC0 @t\hskip46pt@> /* End Collection */
+  0x06, 0x00, 0xFF, /* {\bf1} Usage Page (Vendordefined) */
+  0x09, 0x00, @t\hskip21pt@> /* {\bf2} Usage (UsageID - 1) */
+  0xA1, 0x01, @t\hskip21pt@> /* {\bf3} Collection (Application) */
+  0x09, 0x00, @t\hskip21pt@> /* {\bf4} Usage (UsageID - 2) */
+  0x15, 0x00, @t\hskip21pt@> /* {\bf5} Logical Minimum (0) */
+  0x26, 0xFF, 0x00, /* {\bf6} Logical Maximum (255) */
+  0x75, 0x08, @t\hskip21pt@> /* {\bf7} Report Size (8) */
+  0x95, 0x08, @t\hskip21pt@> /* {\bf8} Report Count (8)\footnote{\dag\dag}{Must
+    correspond to |UECFG1X| of |EP1|.} */
+  0x81, 0x02, @t\hskip21pt@> /* {\bf9} IN report (Data, Variable, Absolute) */
+  0x09, 0x00, @t\hskip21pt@> /* {\bf10} Usage (UsageID - 3) */
+  0x15, 0x00, @t\hskip21pt@> /* {\bf11} Logical Minimum (0) */
+  0x26, 0xFF,0x00, /* {\bf12} Logical Maximum (255) */
+  0x75, 0x08, @t\hskip21pt@> /* {\bf13} Report Size (8) */
+  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
+    correspond to |UECFG1X| of |EP2|.} */
+  0x91, 0x02, @t\hskip21pt@> /* {\bf15} OUT report (Data, Variable, Absolute) */
+@t\2@> 0xC0 @t\hskip46pt@> /* {\bf16} End Collection */
 };
 #else
 const uint8_t hid_report_descriptor[]
