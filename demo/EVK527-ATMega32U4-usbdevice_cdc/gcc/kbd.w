@@ -589,32 +589,47 @@ Line 16: End group of elements of one type.
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
-  HID_USAGE @,@, (MOUSE), @/
-  HID_COLLECTION @,@, (APPLICATION), @t\1@> @/
-    HID_USAGE @,@, (POINTER), @/
-    HID_COLLECTION @,@, (PHYSICAL), @t\1@> @/
-      HID_USAGE_PAGE @,@, (BUTTONS), @/
-      HID_USAGE_MINIMUM @,@, (1, 1), @/
-      HID_USAGE_MAXIMUM @,@, (1, 3), @/
-      HID_LOGICAL_MINIMUM @,@, (1, 0), @/
-      HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
-      HID_REPORT_COUNT @,@, (3), @/
-      HID_REPORT_SIZE @,@, (1), @/
-      HID_INPUT @,@, (DATA, VARIABLE, ABSOLUTE), @/
-      HID_REPORT_COUNT @,@, (1), @/
-      HID_REPORT_SIZE @,@, (5), @/
-      HID_INPUT @,@, (CONSTANT), @/
-      HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
-      HID_USAGE @,@, (X), @/
-      HID_USAGE @,@, (Y), @/
-      HID_LOGICAL_MINIMUM @,@, (1, -127), @/
-      HID_LOGICAL_MAXIMUM @,@, (1, 127), @/
-      HID_REPORT_SIZE @,@, (8), @/
-      HID_REPORT_COUNT @,@, (2), @/
-    @t\2@> HID_INPUT @,@, (DATA, VARIABLE, RELATIVE), @/
-  @t\2@> HID_END_COLLECTION @,@, (PHYSICAL), @/
-@t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
+0x05, 0x01,                    // UsagePage (desktop)
+ 0x09, 0x06,                    // Usage (Keyboard)
+ 0xa1, 0x01,                    // Collection (Application)
+ 0x85, 0x01,                    //     ReportID (1)
+ 0x25, 0x01,                    //     LogicalMaximum (1)
+ 0x75, 0x01,                    //     ReportSize (1)
+ 0x95, 0x08,                    //     ReportCount (8)
+ 0x05, 0x07,                    //     UsagePage (keyboard)
+ 0x19, 0xe0,                    //     UsageMinimum (LeftControl)
+ 0x29, 0xe7,                    //     UsageMaximum (RightGui)
+ 0x81, 0x02,                    //     Input (Variable)
+ 0x26, 0xdd, 0x00,              //     LogicalMaximum (221)
+ 0x75, 0x08,                    //     ReportSize (8)
+ 0x95, 0x06,                    //     ReportCount (6)
+ 0x19, 0x00,                    //     UsageMinimum (NoEvent)
+ 0x29, 0xdd,                    //     UsageMaximum (KeypadHexadecimal)
+ 0x81, 0x00,                    //     Input
+ 0x25, 0x01,                    //     LogicalMaximum (1)
+ 0x75, 0x01,                    //     ReportSize (1)
+ 0x95, 0x03,                    //     ReportCount (3)
+ 0x05, 0x08,                    //     UsagePage (led)
+ 0x19, 0x01,                    //     UsageMinimum (NumLock)
+ 0x29, 0x03,                    //     UsageMaximum (ScrollLock)
+ 0x91, 0x02,                    //     Output (Variable)
+ 0x15, 0x81,                    //     LogicalMinimum (-127)
+ 0x25, 0x7f,                    //     LogicalMaximum (127)
+ 0x75, 0x08,                    //     ReportSize (8)
+ 0x95, 0x02,                    //     ReportCount (2)
+ 0x05, 0x01,                    //     UsagePage (desktop)
+ 0x09, 0x30,                    //     Usage (X)
+ 0x09, 0x31,                    //     Usage (Y)
+ 0x81, 0x04,                    //     Input (Relative)
+ 0x15, 0x00,                    //     LogicalMinimum (0)
+ 0x25, 0x01,                    //     LogicalMaximum (1)
+ 0x75, 0x01,                    //     ReportSize (1)
+ 0x95, 0x03,                    //     ReportCount (3)
+ 0x05, 0x09,                    //     UsagePage (button)
+ 0x19, 0x01,                    //     UsageMinimum (Button(1))
+ 0x29, 0x03,                    //     UsageMaximum (Button(3))
+ 0x81, 0x02,                    //     Input (Variable)
+@t\2@> 0xc0                          // EndCollection
 };
 
 @*1 Language descriptor.
