@@ -81,6 +81,9 @@ ISR(USB_GEN_vect)
   }
 }
 
+@ @<Global \null variables@>=
+uint8_t a[8];
+
 @ @c
 ISR(USB_COM_vect)
 {
@@ -119,7 +122,22 @@ ISR(USB_COM_vect)
     }
   }
   else if (UEINT == (1 << EP1)) {
-//ep\_in
+#ifdef M
+    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
+    while (!(UEINTX & (1 << FIFOCON))) ;
+    if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+    while (!(UEINTX & (1 << TXINI))) ;
+#endif
+    for (int i = 0; i < 8; i++)
+      UEDATX = a[i];
+    UEINTX &= ~(1 << TXINI);
+    UEINTX &= ~(1 << FIFOCON);
+#ifdef M
+    while (!(UEINTX & (1 << TXINI))) ;
+    while (!(UEINTX & (1 << FIFOCON))) ;
+    UEIENX = 1 << RXOUTE;
+#endif
+    UENUM = EP2;
   }
   else if (UEINT == (1 << EP2)) {
 #ifdef M
@@ -129,14 +147,8 @@ ISR(USB_COM_vect)
     while (!(UEINTX & (1 << FIFOCON))) ;
 #endif
     UEINTX &= ~(1 << RXOUTI);
-    uint8_t a = UEDATX;
-    uint8_t b = UEDATX;
-    uint8_t c = UEDATX;
-    uint8_t d = UEDATX;
-    uint8_t e = UEDATX;
-    uint8_t f = UEDATX;
-    uint8_t g = UEDATX;
-    uint8_t h = UEDATX;
+    for (int i = 0; i < 8; i++)
+      a[i] = UEDATX;
     UEINTX &= ~(1 << FIFOCON);
 
     UENUM = EP1;
