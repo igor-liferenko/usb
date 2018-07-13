@@ -132,9 +132,8 @@ _delay_ms(1000);
     UEDATX = 0;
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
-
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    while (!(UEINTX & (1 << TXINI))) ;
+    while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+      new packet to be sent when following IN request arrives (for key release) */
     UEDATX = 0;
     UEDATX = 0;
     UEDATX = 0;
