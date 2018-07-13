@@ -104,6 +104,11 @@ test:
 	avr-objdump -d $@.elf >x
 	avr-objcopy -O ihex $@.elf $@.hex
 
+kbd:
+	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
+	avr-objdump -d $@.elf >x
+	avr-objcopy -O ihex $@.elf $@.hex
+
 flash:
 	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
 
