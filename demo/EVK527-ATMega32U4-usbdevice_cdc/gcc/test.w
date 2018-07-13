@@ -31,7 +31,7 @@ void main(void)
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
   DDRB |= 1 << PB0; /* debug */
-  DDRC |= 1 << PC7; /* reset */
+  DDRC |= 1 << PC7; /* TODO: use different colored leds to track request stages during PC reboot */
   PORTC |= 1 << PC7;
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
