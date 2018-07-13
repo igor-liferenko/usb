@@ -122,7 +122,25 @@ ISR(USB_COM_vect)
 //ep\_in
   }
   else if (UEINT == (1 << EP2)) {
-//ep\_out
+#ifdef M
+    if (!(UEINTX & (1 << RXOUTI))) PORTB |= 1 << PB0;
+    while (!(UEINTX & (1 << RXOUTI))) ;
+    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
+    while (!(UEINTX & (1 << FIFOCON))) ;
+#endif
+    UEINTX &= ~(1 << RXOUTI);
+    uint8_t a = UEDATX;
+    uint8_t b = UEDATX;
+    uint8_t c = UEDATX;
+    uint8_t d = UEDATX;
+    uint8_t e = UEDATX;
+    uint8_t f = UEDATX;
+    uint8_t g = UEDATX;
+    uint8_t h = UEDATX;
+    UEINTX &= ~(1 << FIFOCON);
+
+    UENUM = EP1;
+    UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
   }
 }
 
@@ -262,7 +280,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 #endif
 
   UENUM = EP2;
-  UEIENX = 1 << RXOUTE;
+  UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 }
 
 @ @<d\_dev@>=
