@@ -11,9 +11,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @d EP0 0
 @d EP1 1
 @d EP2 2
-@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
-
-@d M /* microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
+@d EP0_SIZE 8 /* 8 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
 @c
 @<Header files@>@;
@@ -45,7 +43,7 @@ void main(void)
   UENUM = EP0;
   UECONX |= 1 << EPEN;
   UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
-  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
+  UECFG1X = (0 << EPBK0) | (0 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8
     bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   while (!(UESTA0X & (1 << CFGOK))) ;
   UDCON |= 1 << RSTCPU;
@@ -122,37 +120,16 @@ ISR(USB_COM_vect)
     }
   }
   else if (UEINT == (1 << EP1)) {
-#ifdef M
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << TXINI))) ;
-#endif
-    for (int i = 0; i < 8; i++)
-      UEDATX = a[i];
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0x29;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
-#ifdef M
-    while (!(UEINTX & (1 << TXINI))) ;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    UEIENX = 1 << RXOUTE;
-#endif
-    UENUM = EP2;
-  }
-  else if (UEINT == (1 << EP2)) {
-#ifdef M
-    if (!(UEINTX & (1 << RXOUTI))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-#endif
-    UEINTX &= ~(1 << RXOUTI);
-    for (int i = 0; i < 8; i++)
-      a[i] = UEDATX;
-    UEINTX &= ~(1 << FIFOCON);
-
-    UENUM = EP1;
-    UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
   }
 }
 
@@ -174,11 +151,6 @@ default: @/
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-
 UEINTX &= ~(1 << TXINI);
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
@@ -195,11 +167,6 @@ UDADDR |= 1 << ADDEN;
 @ @<set\_cfg@>=
 UEINTX &= ~(1 << RXSTPI);
 
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
-
 UEINTX &= ~(1 << TXINI);
 
 UENUM = EP1;
@@ -210,14 +177,6 @@ UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\foo
 {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
 
-UENUM = EP2;
-UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt\footnote\ddag
-{Must correspond to OUT endpoint description in |@<Initialize element 5...@>|.}, OUT */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
-{\ddag\ddag}{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
-while (!(UESTA0X & (1 << CFGOK))) ;
-
 UENUM = EP0;
 
 @ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
@@ -226,16 +185,11 @@ means that host lets the device send reports only when it needs.
 @<set\_idle@>=
 UEINTX &= ~(1 << RXSTPI);
 
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-
 UEINTX &= ~(1 << TXINI);
 
 if (flag == 1) {
   flag = 0;
-  UENUM = EP2;
+  UENUM = EP1;
 }
 
 @ @<stand\_desc@>=
@@ -259,130 +213,31 @@ default: @/
 @ @<int\_desc@>=
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
-if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
-@^WinXP@>
-#ifdef M
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &(hid_report_descriptor[0]);
-  int i = 0;
-  for (; i < 32; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (; i < 34; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
+if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   send_descriptor(&(hid_report_descriptor[0]), wLength);
-#endif
 
-  UENUM = EP2;
-  UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
+  UENUM = EP1;
+  UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
 }
 
 @ @<d\_dev@>=
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &dev_desc.bLength;
-  for (int i = 0; i < sizeof dev_desc; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
-  send_descriptor(&dev_desc.bLength, sizeof dev_desc);
-    /* TODO: reduce |size| to |wLength| if it exceeds it */
-#endif
+send_descriptor(&dev_desc.bLength, sizeof dev_desc);
+  /* TODO: reduce |size| to |wLength| if it exceeds it */
 
 @ @<d\_con@>=
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &user_conf_desc.conf_desc.bLength;
-  if (wLength == 9) {
-    for (int i = 0; i < 9; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-  else {
-    int i = 0;
-    for (; i < 32; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << TXINI))) ;
-    for (; i < 41; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-#else
-  send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
-#endif
+send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 
 @ @<d\_str@>=
 switch (index)
 {
 case 0x00:
-#ifdef M
-  buf = &(lang_desc[0]);
-  size = sizeof lang_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 4; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(lang_desc[0]), sizeof lang_desc);
-#endif
   break;
 case 0x01:
-#ifdef M
-  @<Send manufacturer descriptor@>@;
-#else
   send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
-#endif
   break;
 case 0x02:
-#ifdef M
-  @<Send product descriptor@>@;
-#else
   send_descriptor(&(prod_desc[0]), sizeof prod_desc);
-#endif
-  break;
-case 0x03:
-#ifdef M
-  buf = &(sn_desc[0]);
-  size = sizeof sn_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 10; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
-  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
-#endif
   break;
 }
 
@@ -446,11 +301,6 @@ void send_descriptor(const void *buf, int size)
 }
 
 @ @<Stall@>=
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
-
 UECONX |= 1 << STALLRQ;
 
 @* Control endpoint management.
@@ -547,8 +397,7 @@ const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
   0x01, /* device */
-  0x0110, /* USB version 1.1 (WinXP compat is here) */
-@^WinXP@>
+  0x0110, /* USB version 1.1 */
   0, /* no class */
   0, /* no subclass */
   0, @/
@@ -558,7 +407,7 @@ const S_device_descriptor dev_desc
   0x1000, /* from Atmel demo */
   0x01, /* (\.{Mfr} in \.{kern.log}) */
   0x02, /* (\.{Product} in \.{kern.log}) */
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
