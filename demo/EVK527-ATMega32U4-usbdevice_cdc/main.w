@@ -1,48 +1,6 @@
-@ NAKINI is set if we did not send anything in IN request
-(but why? - TXINI was never cleared). This can be checked by the following
-code:
-\xdef\nakinitest{\secno}
-@(/dev/null@>=
-#include <avr/io.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-
-  DDRC |= 1 << PC7;
-  DDRB |= 1 << PB0;
-  DDRD |= 1 << PD5;
-  while(1) {
-    UECONX |= 1 << EPEN;
-    UECFG1X |= 1 << ALLOC;
-    if (!(UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
-      PORTC |= 1 << PC7; /* this is not on */
-    if ((UEINTX & (1 << RXSTPI)) && (UEINTX & (1 << NAKINI)))
-      PORTB |= 1 << PB0; /* this is on */
-    if (UEINTX & (1 << RXSTPI)) {
-      PORTD |= 1 << PD5; /* this is on */
-      UEINTX &= ~(1 << RXSTPI); /* TODO: do above results change with this? this will
-      say if ack is sent when we clean rxstpi or it is sent automatically before
-      rxstpi is set */
-    }
-  }
-}
-
 @ Reset is done more than once. This can be checked by the following code:
-\xdef\resettestone{\secno} % remember the number of this section
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
@@ -115,10 +73,7 @@ void main(void)
   wLength; /* how many bytes host can get (i.e., we must not send more than that) */
   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-#if 1==1
-  UEINTX &= ~(1 << RXSTPI); /* do not do it here to check rxstpi like in section
-    \nakinitest */
-#endif
+  UEINTX &= ~(1 << RXSTPI);
    while (data_to_transfer--)
      UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
    UEINTX &= ~(1 << TXINI);
@@ -128,44 +83,6 @@ void main(void)
    UEINTX &= ~(1 << RXOUTI);
 }
 
-@ Here we check initial value of TXINI. This will say if TXINI is set to one if IN
-packet was received or on some other condition (depends on what it is initially-check
-here) 
-
-@(/dev/null@>=
-#include <avr/io.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-
-  DDRC |= 1 << PC7;
-  if (UEINTX & (1 << TXINI)) PORTC |= 1 << PC7; /* TODO: write result here and in doc-part */
-  while (1) ;
-}
-
-@ Here we check if RXOUTI is set when NAKOUTI becomes set. In datasheet it is said
-that during switch from IN to OUT transaction NAKOUTI is set. This test will help
-to understand if the following phrase from ``USB in a nutshell'' is true:
-When OUT request arrives if the endpoint buffer is not empty due to processing of the
-previous packet, then device sets NAKOUTI.
-
-;;; move this to section of control-write-stage: from usb in a nutshell: Device replies with
-;; a NAK packet in IN transaction if there is
-;; no data to send.
-
-@(test.c@>=
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
 The scheduler is a simple infinite loop calling all its tasks defined in the \.{conf\_scheduler.h}
@@ -234,9 +151,7 @@ int main(void)
   }
 }
 
-@ Such and such decision was made due to section \resettestone.
-
-@<EOR interrupt handler@>=
+@ @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
   if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
