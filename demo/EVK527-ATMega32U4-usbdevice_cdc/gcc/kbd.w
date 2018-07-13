@@ -10,7 +10,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 
 @d EP0 0
 @d EP1 1
-@d EP2 2
 @d EP0_SIZE 8 /* 8 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
 @c
@@ -423,7 +422,6 @@ typedef struct {
    S_interface_descriptor     ifc;
    S_hid_descriptor           hid;
    S_endpoint_descriptor      ep1;
-   S_endpoint_descriptor      ep2;
 } S_user_configuration_descriptor;
 
 @ @<Global \null variables@>=
@@ -433,8 +431,7 @@ const S_user_configuration_descriptor user_conf_desc
   @<Initialize element 1...@>, @/
   @<Initialize element 2...@>, @/
   @<Initialize element 3...@>, @/
-  @<Initialize element 4...@>, @/
-@t\2@> @<Initialize element 5...@> @/
+@t\2@> @<Initialize element 4...@> @/
 };
 
 @*2 Configuration descriptor.
@@ -547,18 +544,6 @@ typedef struct {
 @t\2@> 0x0F /* 16 */
 }
 
-@ @d OUT (0 << 7)
-
-@<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
-  sizeof (S_endpoint_descriptor), @/
-  0x05, /* endpoint */
-  OUT | 2, /* this corresponds to `2' in `ep2' on picture */
-  0x03, /* transfers via interrupts\footnote\ddag{Must correspond to
-    |UECFG0X| of |EP2|.} */
-  0x0008, /* 8 bytes */
-@t\2@> 0x0F /* 16 */
-}
-
 @*1 HID report descriptor.
 
 Line 1: Device class with common characteristics. First byte is either |0x05|
@@ -602,29 +587,6 @@ first four bits of which are 1001, which signifies OUT report type.
 Line 16: End group of elements of one type.
 
 @<Global variables ...@>=
-#if 1==1
-const uint8_t hid_report_descriptor[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x06, 0x00, 0xFF, /* {\bf1} Usage Page (Vendordefined) */
-  0x09, 0x00, @t\hskip21pt@> /* {\bf2} Usage (UsageID - 1) */
-  0xA1, 0x01, @t\hskip21pt@> /* {\bf3} Collection (Application) */
-  0x09, 0x00, @t\hskip21pt@> /* {\bf4} Usage (UsageID - 2) */
-  0x15, 0x00, @t\hskip21pt@> /* {\bf5} Logical Minimum (0) */
-  0x26, 0xFF, 0x00, /* {\bf6} Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* {\bf7} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf8} Report Count (8)\footnote{\dag\dag}{Must
-    correspond to |UECFG1X| of |EP1|.} */
-  0x81, 0x02, @t\hskip21pt@> /* {\bf9} IN report (Data, Variable, Absolute) */
-  0x09, 0x00, @t\hskip21pt@> /* {\bf10} Usage (UsageID - 3) */
-  0x15, 0x00, @t\hskip21pt@> /* {\bf11} Logical Minimum (0) */
-  0x26, 0xFF,0x00, /* {\bf12} Logical Maximum (255) */
-  0x75, 0x08, @t\hskip21pt@> /* {\bf13} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
-    correspond to |UECFG1X| of |EP2|.} */
-  0x91, 0x02, @t\hskip21pt@> /* {\bf15} OUT report (Data, Variable, Absolute) */
-@t\2@> 0xC0 @t\hskip46pt@> /* {\bf16} End Collection */
-};
-#else
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
@@ -654,7 +616,6 @@ const uint8_t hid_report_descriptor[]
   @t\2@> HID_END_COLLECTION @,@, (PHYSICAL), @/
 @t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
 };
-#endif
 
 @*1 Language descriptor.
 
