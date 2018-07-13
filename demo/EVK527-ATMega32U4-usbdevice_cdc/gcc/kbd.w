@@ -121,7 +121,7 @@ ISR(USB_COM_vect)
   else if (UEINT == (1 << EP1)) {
     UEDATX = 0;
     UEDATX = 0;
-    UEDATX = 0x29;
+    UEDATX = 0x04;
     UEDATX = 0;
     UEDATX = 0;
     UEDATX = 0;
@@ -696,16 +696,6 @@ while (!(UEINTX & (1 << NAKOUTI))) ;
 UEINTX &= ~(1 << NAKOUTI);
 while (!(UEINTX & (1 << RXOUTI))) ;
 UEINTX &= ~(1 << RXOUTI);
-
-@*1 Serial number descriptor.
-
-@<Global \null variables@>=
-const uint8_t sn_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x0A, /* size */
-  0x03, /* type (string) */
-@t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
-};
 
 @* Headers.
 \secpagedepth=1 % index on current page
