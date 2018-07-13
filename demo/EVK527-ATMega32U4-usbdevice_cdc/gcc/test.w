@@ -224,7 +224,7 @@ UENUM = EP0;
 
 \itemitem{$\bullet$} |bmRequestType| = 00100001
 \itemitem{$\bullet$} |bRequest| = \.{SET\_IDLE} (|0x0A|)
-\itemitem{$\bullet$} |wValue| -- idle duration in first byte, and interface ID in last byte
+\itemitem{$\bullet$} |wValue| -- idle duration in first byte, and ReportID in last byte
 \itemitem{$\bullet$} |wIndex| -- interface number to which the request is to be applied
 \itemitem{$\bullet$} |wLength| = 0
 
