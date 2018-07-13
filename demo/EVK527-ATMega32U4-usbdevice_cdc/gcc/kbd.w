@@ -132,6 +132,19 @@ _delay_ms(1000);
     UEDATX = 0;
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
+
+    while (!(UEINTX & (1 << FIFOCON))) ;
+    while (!(UEINTX & (1 << TXINI))) ;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEDATX = 0;
+    UEINTX &= ~(1 << TXINI);
+    UEINTX &= ~(1 << FIFOCON);
   }
 }
 
