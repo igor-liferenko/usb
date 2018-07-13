@@ -12,8 +12,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @d EP1 1
 @d EP0_SIZE 8 /* 8 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
-@d F_CPU 16000000
-
 @c
 @<Header files@>@;
 @<Functions@>@;
@@ -121,7 +119,6 @@ ISR(USB_COM_vect)
     }
   }
   else if (UEINT == (1 << EP1)) {
-_delay_ms(1000);
     UEDATX = 0;
     UEDATX = 0;
     UEDATX = 0x04;
@@ -681,6 +678,5 @@ const uint8_t prod_desc[]
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
 #include "hid_def.h"
-#include <util/delay.h>
 
 @* Index.
