@@ -259,6 +259,7 @@ case 0x02: @/
 case 0x03: @/
   @<d\_str@>@;
   break;
+//TODO: case 0x06: device qualifier
 default: @/
   @<Stall@>@;
 }
