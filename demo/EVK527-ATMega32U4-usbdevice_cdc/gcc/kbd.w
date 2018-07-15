@@ -78,9 +78,6 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ @<Global \null variables@>=
-uint8_t a[8];
-
 @ @c
 ISR(USB_COM_vect)
 {
