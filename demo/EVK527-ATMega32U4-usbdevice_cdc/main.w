@@ -65,6 +65,7 @@ void main(void)
   while(1) {
     if (UDINT & (1 << EORSTI)) break;
   }
+  if (UEINTX & (1 << RXSTPI)) { // ????
   bmRequestType = UEDATX;
   bRequest = UEDATX;
   (void) UEDATX; /* don't care of Descriptor Index */
@@ -81,6 +82,7 @@ void main(void)
    UEINTX &= ~(1 << NAKOUTI);
    while (!(UEINTX & (1 << RXOUTI))) ;
    UEINTX &= ~(1 << RXOUTI);
+  }
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
