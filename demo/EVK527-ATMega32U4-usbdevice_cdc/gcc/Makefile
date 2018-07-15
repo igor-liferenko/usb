@@ -108,6 +108,7 @@ kbd:
 	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
 	avr-objdump -d $@.elf >x
 	avr-objcopy -O ihex $@.elf $@.hex
+	avrdude -c usbasp -p atmega32u4 -U flash:w:kbd.hex
 
 flash:
 	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
