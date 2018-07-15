@@ -173,11 +173,13 @@ case 0x81: @/
   @<int\_desc@>@;
   break;
 default: @/
+  dbg('?');
   UEINTX &= ~(1 << RXSTPI);
   @<Stall@>@;
 }
 
 @ @<set\_adr@>=
+dbg('a');
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
@@ -200,6 +202,7 @@ while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous comma
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
+dbg('C');
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
@@ -231,6 +234,7 @@ UENUM = EP0;
 means that host lets the device send reports only when it needs.
 
 @<set\_idle@>=
+dbg('I');
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
@@ -259,12 +263,16 @@ case 0x02: @/
 case 0x03: @/
   @<d\_str@>@;
   break;
-//TODO: case 0x06: device qualifier
+case 0x06:
+  dbg('W');
+//TODO: device qualifier
+  break;
 default: @/
   @<Stall@>@;
 }
 
 @ @<int\_desc@>=
+dbg('i');
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
@@ -293,6 +301,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 }
 
 @ @<d\_dev@>=
+dbg('d');
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
@@ -310,6 +319,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 #endif
 
 @ @<d\_con@>=
+dbg('c');
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
@@ -345,6 +355,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 switch (index)
 {
 case 0x00:
+dbg('0');
 #ifdef M
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
@@ -362,6 +373,7 @@ case 0x00:
 #endif
   break;
 case 0x01:
+dbg('1');
 #ifdef M
   @<Send manufacturer descriptor@>@;
 #else
@@ -369,6 +381,7 @@ case 0x01:
 #endif
   break;
 case 0x02:
+dbg('2');
 #ifdef M
   @<Send product descriptor@>@;
 #else
@@ -376,6 +389,7 @@ case 0x02:
 #endif
   break;
 case 0x03:
+dbg('3');
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
@@ -555,7 +569,7 @@ const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
   0x01, /* device */
-  0x0110, /* USB version 1.1 (WinXP compat is here) */
+  0x0200, /* USB version 1.1 (WinXP compat is here) */
 @^WinXP@>
   0, /* no class */
   0, /* no subclass */
@@ -563,10 +577,10 @@ const S_device_descriptor dev_desc
   EP0_SIZE, @/
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
-  0x1000, /* from Atmel demo */
+  0x0100, /* from Atmel demo */
   0x01, /* (\.{Mfr} in \.{kern.log}) */
   0x02, /* (\.{Product} in \.{kern.log}) */
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
