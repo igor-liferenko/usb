@@ -18,6 +18,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @c
 @<Header files@>@;
 @<Functions@>@;
+@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 int flag = 0;
@@ -31,8 +32,7 @@ void main(void)
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
   DDRB |= 1 << PB0; /* debug */
-  DDRC |= 1 << PC7; /* TODO: use different colored leds to track request stages during PC reboot */
-  PORTC |= 1 << PC7;
+  DDRC |= 1 << PC7;
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -881,6 +881,16 @@ const uint8_t sn_desc[]
   0x03, /* type (string) */
 @t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
 };
+
+@ @<Macros@>=
+#define dbg(x) \
+  if (UCSR1A & 1 << UDRE1) \
+    UDR1 = x; \
+  else { \
+    PORTC |= 1 << PC7; \
+    while (!(UCSR1A & 1 << UDRE1)) ; \
+    UDR1 = x; \
+  }
 
 @* Headers.
 \secpagedepth=1 % index on current page
