@@ -33,6 +33,13 @@ void main(void)
   WDTCSR = 0;
   DDRB |= 1 << PB0; /* debug */
   DDRC |= 1 << PC7;
+
+  //TODO: do speed 115200 (and see git lg in avr-cdc)
+  UBRR1 = (16000000 / 8 + 57600 / 2) / 57600 - 1;
+  UCSR1A = 1 << U2X1;                               
+  UCSR1B = 1 << TXEN1;
+  dbg('R');
+
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
