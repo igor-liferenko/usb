@@ -905,14 +905,7 @@ const uint8_t sn_desc[]
 };
 
 @ @<Macros@>=
-#define dbg(x) \
-  if (UCSR1A & 1 << UDRE1) \
-    UDR1 = x; \
-  else { \
-    PORTC |= 1 << PC7; \
-    while (!(UCSR1A & 1 << UDRE1)) ; \
-    UDR1 = x; \
-  }
+#define dbg(x) UDR1 = x
 
 @* Headers.
 \secpagedepth=1 % index on current page
