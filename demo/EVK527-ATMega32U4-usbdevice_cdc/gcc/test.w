@@ -567,7 +567,7 @@ const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
   0x01, /* device */
-  0x0200, /* USB version 1.1 (WinXP compat is here) */
+  0x0110, /* USB version 1.1 (WinXP compat is here) */
 @^WinXP@>
   0, /* no class */
   0, /* no subclass */
@@ -575,10 +575,10 @@ const S_device_descriptor dev_desc
   EP0_SIZE, @/
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
-  0x0100, /* from Atmel demo */
+  0x1000, /* from Atmel demo */
   0x01, /* (\.{Mfr} in \.{kern.log}) */
   0x02, /* (\.{Product} in \.{kern.log}) */
-  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
