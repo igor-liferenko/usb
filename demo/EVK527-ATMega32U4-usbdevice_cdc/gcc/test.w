@@ -157,7 +157,7 @@ ISR(USB_COM_vect)
     UEINTX &= ~(1 << FIFOCON);
 
     UENUM = EP1;
-    UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
+    UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   }
 }
 

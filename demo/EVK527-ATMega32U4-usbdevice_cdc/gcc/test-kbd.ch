@@ -146,7 +146,8 @@ while (!(UESTA0X & (1 << CFGOK))) ;
   send_descriptor(&(hid_report_descriptor[0]), wLength);
 
   UENUM = EP1;
-  UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
+  UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
+
 @z
 
 @x
