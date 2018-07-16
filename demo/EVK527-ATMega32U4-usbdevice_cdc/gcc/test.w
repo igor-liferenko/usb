@@ -166,6 +166,8 @@ ISR(USB_COM_vect)
    UEINTX register), but this is a contradiction, because at the beginning bank *is* empty */
 /* but if TXINI is set to 1 when endpoint is configured, the interrupt cannot be triggered
    because interrupt here is enabled later than endpoint is configured */
+/* TODO: via UDR1 find the exact spot where it goes from 0 to 1 for the first time */
+@^TODO@>
   }
 }
 
