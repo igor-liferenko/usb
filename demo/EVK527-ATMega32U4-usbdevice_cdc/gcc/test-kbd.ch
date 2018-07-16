@@ -248,7 +248,7 @@ send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
   send_descriptor(&(prod_desc[0]), sizeof prod_desc);
 #endif
 @y
-    send_descriptor(&(prod_desc[0]), sizeof prod_desc);
+  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
 @z
 
 @x
