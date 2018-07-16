@@ -123,7 +123,7 @@ ISR(USB_COM_vect)
       break;
     default: @/
       UEINTX &= ~(1 << RXSTPI);
-      @<Stall@>@;
+      UDR1 = '#';
     }
   }
   else if (UEINT == (1 << EP1)) {
@@ -173,7 +173,7 @@ case 0x81: @/
 default: @/
   UDR1 = '?';
   UEINTX &= ~(1 << RXSTPI);
-  @<Stall@>@;
+  UDR1 = '#';
 }
 
 @ @<set\_adr@>=
@@ -266,7 +266,7 @@ case 0x06:
 //TODO: device qualifier
   break;
 default: @/
-  @<Stall@>@;
+  UDR1 = '#';
 }
 
 @ @<int\_desc@>=
@@ -464,14 +464,6 @@ void send_descriptor(const void *buf, int size)
   }
 #endif
 }
-
-@ @<Stall@>=
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
-
-UECONX |= 1 << STALLRQ;
 
 @* Control endpoint management.
 

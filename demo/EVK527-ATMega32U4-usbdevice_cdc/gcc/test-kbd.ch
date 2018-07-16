@@ -268,14 +268,6 @@ case 0x03:
 @z
 
 @x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
-@y
-@z
-  
-@x
    S_endpoint_descriptor      ep2;
 @y
 @z
