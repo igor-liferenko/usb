@@ -1,4 +1,4 @@
-TODO: find out how to use it and use it to pass data to AVR from network which AVR will then pass to tel.w
+TODO: find out how to use it and use it to pass data to AVR from network which AVR will then pass to tel.w (create composite device like in arduino-kbd.w)
 
 #include <stdio.h>
 #include <libusb-1.0/libusb.h>
