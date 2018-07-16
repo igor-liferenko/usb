@@ -35,7 +35,7 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'r'; /* on different buses: rrDrADcCLPMNSNIR
+  UDR1 = 'r'; /* XXX: on different buses: rrDrADcCLPMNSNIR
                          on one bus: rDrADcCLPMNSNIR */
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;

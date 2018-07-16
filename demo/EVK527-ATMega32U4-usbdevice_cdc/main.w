@@ -1,5 +1,6 @@
 @ Reset is done 4 times. This can be checked by the following code:
 TODO: why test.w shows 'r' only twice before 'D'? find out why it is inconsistent
+see also "XXX" in test.w
 
 @(test.c@>=
 #include <avr/io.h>
