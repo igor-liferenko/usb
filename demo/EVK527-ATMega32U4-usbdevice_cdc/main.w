@@ -2,6 +2,8 @@
 TODO: why test.w shows 'r' only once before 'D'? find out why it is inconsistent
 The approach taken here assumes using wireshark if response packet is sent to host
 (another approach may be waiting for set address request).
+But there is an even better approach - do not even create descriptors - just
+say via UDR1 if get descriptor request was received.
 
 @(test.c@>=
 #include <avr/io.h>
