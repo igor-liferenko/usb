@@ -1,5 +1,7 @@
 @ Reset is done more than once. This can be checked by the following code:
 TODO: why test.w shows 'r' only once before 'D'? find out why it is inconsistent
+The approach taken here assumes using wireshark if response packet is sent to host
+(another approach may be waiting for set address request).
 
 @(test.c@>=
 #include <avr/io.h>
