@@ -92,6 +92,7 @@ volatile uint8_t a[8];
 @ @c
 ISR(USB_COM_vect)
 {
+  UDR1 = 'X'; // why in winxp only 'r' appears? - use this to check further
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
