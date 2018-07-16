@@ -353,7 +353,7 @@ UDR1 = 'C';
 switch (index)
 {
 case 0x00:
-UDR1 = 'L';
+  UDR1 = 'L';
 #ifdef M
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
@@ -371,7 +371,7 @@ UDR1 = 'L';
 #endif
   break;
 case 0x01:
-UDR1 = 'M';
+  UDR1 = 'M';
 #ifdef M
   @<Send manufacturer descriptor@>@;
 #else
@@ -379,7 +379,7 @@ UDR1 = 'M';
 #endif
   break;
 case 0x02:
-UDR1 = 'P';
+  UDR1 = 'P';
 #ifdef M
   @<Send product descriptor@>@;
 #else
@@ -387,7 +387,7 @@ UDR1 = 'P';
 #endif
   break;
 case 0x03:
-UDR1 = 'N';
+  UDR1 = 'N';
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;

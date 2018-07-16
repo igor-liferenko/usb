@@ -247,7 +247,7 @@ send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 
 @x
 case 0x03:
-UDR1 = 'N';
+  UDR1 = 'N';
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
