@@ -1,4 +1,5 @@
 @ Reset is done more than once. This can be checked by the following code:
+TODO: why test.w shows 'r' only once before 'D'? find out why it is inconsistent
 
 @(test.c@>=
 #include <avr/io.h>
@@ -39,9 +40,19 @@ PROGMEM const S_usb_device_descriptor usb_dev_desc = {
   1 /* number of configurations */
 };
 
+U8 data_to_transfer = sizeof usb_dev_desc;
+PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
+U8 bRequest;
+U8 bmRequestType;
+U8 bDescriptorType;
+U16 wLength;
+
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  DDRC |= 1 << PC7;
+  DDRB |= 1 << PB0;
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -54,18 +65,18 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  DDRC |= 1 << PC7;
-  DDRB |= 1 << PB0;
-  U8 data_to_transfer = sizeof usb_dev_desc;
-  PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
-  U8 bRequest;
-  U8 bmRequestType;
-  U8 bDescriptorType;
-  U16 wLength;
   while(1) {
     if (UDINT & (1 << EORSTI)) break;
   }
-  if (UEINTX & (1 << RXSTPI)) { // ????
+
+  UENUM = 0;
+  UECONX |= 1 << EPEN;
+  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0); /* one bank, 32 bytes */
+  UECFG1X |= 1 << ALLOC;
+  while (!(UESTA0X & (1 << CFGOK))) ;
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+
   bmRequestType = UEDATX;
   bRequest = UEDATX;
   (void) UEDATX; /* don't care of Descriptor Index */
@@ -75,14 +86,13 @@ void main(void)
   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
   UEINTX &= ~(1 << RXSTPI);
-   while (data_to_transfer--)
-     UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
-   UEINTX &= ~(1 << TXINI);
-   while (!(UEINTX & (1 << NAKOUTI))) ;
-   UEINTX &= ~(1 << NAKOUTI);
-   while (!(UEINTX & (1 << RXOUTI))) ;
-   UEINTX &= ~(1 << RXOUTI);
-  }
+  while (data_to_transfer--)
+    UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
