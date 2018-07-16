@@ -121,8 +121,6 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
 
 @x
-if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
-@^WinXP@>
 #ifdef M
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &(hid_report_descriptor[0]);
@@ -141,14 +139,12 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 #else
   send_descriptor(&(hid_report_descriptor[0]), wLength);
 #endif
-  
+
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
-
 @y
-if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) {
   send_descriptor(&(hid_report_descriptor[0]), wLength);
-  
+
   UENUM = EP1;
   UEIENX = 1 << TXINE; /* trigger interrupt when IN packet arrives */
 @z
@@ -240,8 +236,6 @@ send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 @z
 
 @x
-
-@x
 #ifdef M
   @<Send product descriptor@>@;
 #else
@@ -252,6 +246,8 @@ send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 @z
 
 @x
+case 0x03:
+UDR1 = 'N';
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
@@ -267,6 +263,7 @@ send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 #else
   send_descriptor(&(sn_desc[0]), sizeof sn_desc);
 #endif
+  break;
 @y
 @z
 
