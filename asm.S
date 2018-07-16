@@ -1,3 +1,5 @@
+; TODO: use ldi R16, 0xXX sts UDR1, R16 for debugging, like in test.w
+
 #include <avr/io.h>
 
 .set EP0, 0 ;конечная точка управления
