@@ -18,7 +18,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @c
 @<Header files@>@;
 @<Functions@>@;
-@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 int flag = 0;
@@ -32,13 +31,12 @@ void main(void)
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
   DDRB |= 1 << PB0; /* debug */
-  DDRC |= 1 << PC7;
 
   //TODO: do speed 115200 (and see git lg in avr-cdc)
   UBRR1 = (16000000 / 8 + 57600 / 2) / 57600 - 1;
   UCSR1A = 1 << U2X1;                               
   UCSR1B = 1 << TXEN1;
-  dbg('R');
+  UDR1 = 'r';
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
@@ -173,13 +171,13 @@ case 0x81: @/
   @<int\_desc@>@;
   break;
 default: @/
-  dbg('?');
+  UDR1 = '?';
   UEINTX &= ~(1 << RXSTPI);
   @<Stall@>@;
 }
 
 @ @<set\_adr@>=
-dbg('a');
+UDR1 = 'A';
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
@@ -202,7 +200,7 @@ while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous comma
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
-dbg('C');
+UDR1 = 'S';
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
@@ -234,7 +232,7 @@ UENUM = EP0;
 means that host lets the device send reports only when it needs.
 
 @<set\_idle@>=
-dbg('I');
+UDR1 = 'I';
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
@@ -264,7 +262,7 @@ case 0x03: @/
   @<d\_str@>@;
   break;
 case 0x06:
-  dbg('W');
+  UDR1 = 'Q';
 //TODO: device qualifier
   break;
 default: @/
@@ -272,7 +270,7 @@ default: @/
 }
 
 @ @<int\_desc@>=
-dbg('i');
+URD1 = 'R';
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
@@ -301,7 +299,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 }
 
 @ @<d\_dev@>=
-dbg('d');
+UDR1 = 'D';
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
@@ -319,7 +317,7 @@ dbg('d');
 #endif
 
 @ @<d\_con@>=
-dbg('c');
+UDR1 = 'C';
 #ifdef M
   if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
   while (!(UEINTX & (1 << TXINI))) ;
@@ -355,7 +353,7 @@ dbg('c');
 switch (index)
 {
 case 0x00:
-dbg('0');
+UDR1 = 'L';
 #ifdef M
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
@@ -373,7 +371,7 @@ dbg('0');
 #endif
   break;
 case 0x01:
-dbg('1');
+UDR1 = 'M';
 #ifdef M
   @<Send manufacturer descriptor@>@;
 #else
@@ -381,7 +379,7 @@ dbg('1');
 #endif
   break;
 case 0x02:
-dbg('2');
+UDR1 = 'P';
 #ifdef M
   @<Send product descriptor@>@;
 #else
@@ -389,7 +387,7 @@ dbg('2');
 #endif
   break;
 case 0x03:
-dbg('3');
+UDR1 = 'N';
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
@@ -903,9 +901,6 @@ const uint8_t sn_desc[]
   0x03, /* type (string) */
 @t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
 };
-
-@ @<Macros@>=
-#define dbg(x) UDR1 = x
 
 @* Headers.
 \secpagedepth=1 % index on current page
