@@ -158,6 +158,7 @@ ISR(USB_COM_vect)
 
     UENUM = EP1;
     UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
+  }
     /* FIXME: what sets it to 1 for the first time when nothing was sent yet
        (and thus not acknowledged)? because acknowledging the packet by host sets TXINI to
        1 normally */
@@ -168,7 +169,6 @@ ISR(USB_COM_vect)
    because interrupt here is enabled later than endpoint is configured */
 /* TODO: via UDR1 find the exact spot where it goes from 0 to 1 for the first time */
 @^TODO@>
-  }
 }
 
 @ @<get\_dsc@>=
