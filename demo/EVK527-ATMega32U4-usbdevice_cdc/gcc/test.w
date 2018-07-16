@@ -270,7 +270,7 @@ default: @/
 }
 
 @ @<int\_desc@>=
-URD1 = 'R';
+UDR1 = 'R';
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
