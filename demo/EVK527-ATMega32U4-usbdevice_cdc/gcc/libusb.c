@@ -1,5 +1,6 @@
-TODO: find out how to use it and use it to pass data to AVR from network which AVR will then pass to tel.w (create composite device like in arduino-kbd.pcapng)
-
+//TODO: find out how to use it and use it to pass data to AVR from network
+// which AVR will then pass to tel.w (create composite device like in arduino-kbd.pcapng)
+// Compile with "gcc libusb.c -lusb-1.0"
 #include <stdio.h>
 #include <libusb-1.0/libusb.h>
 #include <stdint.h>
