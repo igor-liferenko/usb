@@ -32,9 +32,8 @@ void main(void)
   WDTCSR = 0;
   DDRB |= 1 << PB0; /* debug */
 
-  //TODO: do speed 115200 (and see git lg in avr-cdc)
-  UBRR1 = (16000000 / 8 + 57600 / 2) / 57600 - 1;
-  UCSR1A = 1 << U2X1;                               
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
   UDR1 = 'r';
 
