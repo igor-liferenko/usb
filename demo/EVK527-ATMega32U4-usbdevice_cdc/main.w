@@ -5,7 +5,7 @@ see also "XXX" in test.w
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'. So, after each reset each of these parameters must be set again.
 
-\xdef\firsttest{\secno}
+\xdef\epconf{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
@@ -54,16 +54,16 @@ void main(void)
 }
 
 @ Here we want to find out how many resets happen until setup packet arrives.
-We start like in \S\firsttest\ and start adding code for waiting for successive resets.
+We start like in \S\epconf\ and start adding code for waiting for successive resets.
 Adding code for waiting for a reset consists of two stages: first we add code to configure items
 which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
 The result is two resets.
 
-\xdef\secondtest{\secno}
+\xdef\numreset{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -123,6 +123,13 @@ void main(void)
   while (!(UEINTX & (1 << RXSTPI))) ;
   UDR1 = '%';
 }
+
+@ Then we try to use interrupts instead of polling.
+
+\xdef\interrupt{\secno}
+
+@(test.c@>=
+
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
