@@ -59,7 +59,7 @@ Adding code for waiting for a reset consists of two stages: first we add code to
 which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
-The result is ...
+The result is two resets.
 
 \xdef\secondtest{\secno}
 
