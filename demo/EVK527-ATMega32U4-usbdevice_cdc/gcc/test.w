@@ -30,7 +30,6 @@ void main(void)
   MCUSR &= ~(1<<WDRF);
   WDTCSR |= (1<<WDCE) | (1<<WDE);
   WDTCSR = 0;
-  DDRB |= 1 << PB0; /* debug */
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -128,9 +127,9 @@ ISR(USB_COM_vect)
   }
   else if (UEINT == (1 << EP1)) {
 #ifdef M
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
+    if (!(UEINTX & (1 << FIFOCON))) UDR1 = '@';
     while (!(UEINTX & (1 << FIFOCON))) ;
-    if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+    if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
     while (!(UEINTX & (1 << TXINI))) ;
 #endif
     for (int i = 0; i < 8; i++)
@@ -146,9 +145,9 @@ ISR(USB_COM_vect)
   }
   else if (UEINT == (1 << EP2)) {
 #ifdef M
-    if (!(UEINTX & (1 << RXOUTI))) PORTB |= 1 << PB0;
+    if (!(UEINTX & (1 << RXOUTI))) UDR1 = '@';
     while (!(UEINTX & (1 << RXOUTI))) ;
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
+    if (!(UEINTX & (1 << FIFOCON))) UDR1 = '@';
     while (!(UEINTX & (1 << FIFOCON))) ;
 #endif
     UEINTX &= ~(1 << RXOUTI);
@@ -192,7 +191,7 @@ UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   if (!(UEINTX & (1 << TXINI))) break;
 #endif
 
@@ -214,7 +213,7 @@ UDR1 = 'S';
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   while (!(UEINTX & (1 << TXINI))) ;
 #endif
 
@@ -246,7 +245,7 @@ UDR1 = 'I';
 UEINTX &= ~(1 << RXSTPI);
 
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   if (!(UEINTX & (1 << TXINI))) break;
 #endif
 
@@ -311,7 +310,7 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 @ @<d\_dev@>=
 UDR1 = 'D';
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &dev_desc.bLength;
   for (int i = 0; i < sizeof dev_desc; i++)
@@ -328,7 +327,7 @@ UDR1 = 'D';
 
 @ @<d\_con@>=
 #ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &user_conf_desc.conf_desc.bLength;
   if (wLength == 9) {
@@ -369,7 +368,7 @@ case 0x00:
 #ifdef M
   buf = &(lang_desc[0]);
   size = sizeof lang_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 4; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -403,7 +402,7 @@ case 0x03:
 #ifdef M
   buf = &(sn_desc[0]);
   size = sizeof sn_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
   while (!(UEINTX & (1 << TXINI))) ;
   for (int i = 0; i < 10; i++)
     UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -856,7 +855,7 @@ const uint8_t mfr_desc[]
 @ @<Send manufacturer descriptor@>=
 buf = &(mfr_desc[0]);
 size = sizeof mfr_desc;
-if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
 while (!(UEINTX & (1 << TXINI))) ;
 for (int i = 0; i < 12; i++)
   UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -881,7 +880,7 @@ const uint8_t prod_desc[]
 @ @<Send product descriptor@>=
 buf = &(prod_desc[0]);
 size = sizeof prod_desc;
-if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
+if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
 while (!(UEINTX & (1 << TXINI))) ;
 int i = 0;
 for (; i < 32; i++)
