@@ -9,7 +9,6 @@ The result is `\.{esa}'. So, after each reset each of these parameters must be s
 
 @(/dev/null@>=
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 #define configure_en UECONX |= 1 << EPEN;
 #define configure_sz UECFG1X = 1 << EPSIZE1;
@@ -65,7 +64,6 @@ The result is two resets.
 
 @(/dev/null@>=
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 #define configure_en UECONX |= 1 << EPEN;
 #define configure_sz UECFG1X = 1 << EPSIZE1;
@@ -124,12 +122,67 @@ void main(void)
   UDR1 = '%';
 }
 
-@ Then we try to use interrupts instead of polling.
+@ Then we use the same code, but via interrupts.
 
 \xdef\interrupt{\secno}
 
 @(test.c@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
+#define configure_en UECONX |= 1 << EPEN;
+#define configure_sz UECFG1X = 1 << EPSIZE1;
+#define configure_al UECFG1X |= 1 << ALLOC;
+#define configured_en (UECONX & (1 << EPEN))
+#define configured_sz (UECFG1X & (1 << EPSIZE1))
+#define configured_al (UECFG1X & (1 << ALLOC))
+#define configured_ok (UESTA0X & (1 << CFGOK))
+#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+
+  sei();
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  UDR1 = '%';
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    send('.');
+    if (!configured_en) send('e');
+    if (!configured_sz) send('s');
+    if (!configured_al) send('a');
+/*    configure_en
+    configure_sz
+    configure_al
+    if (!configured_ok) send('=');*/
+  }
+}
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
