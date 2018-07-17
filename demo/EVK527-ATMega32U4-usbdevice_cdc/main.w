@@ -160,9 +160,8 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ Now we can move further: we send device descriptor and wait for set address request.
-The result is: one reset before set address request (see above for the number of resets before
-first setup request).
+@ Now we can move further: to count number of resets before set address request.
+The result is one.
 
 @(/dev/null@>=
 #include <avr/io.h>
@@ -238,7 +237,6 @@ void main(void)
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send(num + '0');
   num = 0;
   bmRequestType = UEDATX;
   bRequest = UEDATX;
@@ -271,6 +269,8 @@ ISR(USB_GEN_vect)
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
   }
 }
+
+@ OK, enough tests. We now have all the information that we need.
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
