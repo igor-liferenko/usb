@@ -331,7 +331,7 @@ UDR1 = 'D';
   while (!(UEINTX & (1 << TXINI))) ;
   buf = &user_conf_desc.conf_desc.bLength;
   if (wLength == 9) {
-    UDR1 = 'c';
+    UDR1 = 'g';
     for (int i = 0; i < 9; i++)
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
     UEINTX &= ~(1 << TXINI);
@@ -341,7 +341,7 @@ UDR1 = 'D';
     UEINTX &= ~(1 << RXOUTI);
   }
   else {
-    UDR1 = 'C';
+    UDR1 = 'G';
     int i = 0;
     for (; i < 32; i++)
       UEDATX = pgm_read_byte_near((unsigned int) buf++);
@@ -356,7 +356,7 @@ UDR1 = 'D';
     UEINTX &= ~(1 << RXOUTI);
   }
 #else
-  if (wLength == 9) UDR1 = 'c'; else UDR1 = 'C';
+  if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
   send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 #endif
 
