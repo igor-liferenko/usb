@@ -243,8 +243,8 @@ void main(void)
   (void) UEDATX; /* don't care of Descriptor Index */
   bDescriptorType = UEDATX;
   (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
-  ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
-  ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
+  ((uint8_t *) &wLength)[0] = UEDATX; /* wLength LSB */
+  ((uint8_t *) &wLength)[1] = UEDATX; /* wLength MSB */
   UEINTX &= ~(1 << RXSTPI);
   while (data_to_transfer--)
     UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
