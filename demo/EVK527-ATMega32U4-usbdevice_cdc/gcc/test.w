@@ -32,8 +32,7 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'r'; /* XXX: with hub: rrDrADcCLPMNSNIR
-                   without hub: rDrADcCLPMNSNIR */
+  UDR1 = 'r';
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;

@@ -55,9 +55,9 @@ Adding code for waiting for a reset consists of two stages: first we add code to
 which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
-The result is sometimes two sometimes three resets. And after each reset endpoint must
-be configured.
-And |CFGOK| need not be checked.
+The result is one, two or three resets.\footnote*{In usb hub it is 1, is PC it is two
+or three.} And after each reset endpoint must
+be configured. And |CFGOK| need not be checked.
 
 \xdef\numreset{\secno}
 
@@ -116,11 +116,11 @@ void main(void)
 
 @ Now we can move further: we detect reset via interrupts.
 Also, here we count number of resets.
-Result is the same as in \S\numreset---two or three.
+Result is the same as in \S\numreset---one two or three.
 
 \xdef\interrupt{\secno}
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -166,7 +166,7 @@ ISR(USB_GEN_vect)
 @ Now we can move further: we want to count how many resets are done before set address request.
 The result is one.
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
