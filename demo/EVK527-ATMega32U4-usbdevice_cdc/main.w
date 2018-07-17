@@ -256,7 +256,9 @@ void main(void)
   UEINTX &= ~(1 << RXOUTI);
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send(num + '0');
+  bmRequestType = UEDATX;
+  bRequest = UEDATX;
+  if (bRequest == 0x05) send(num + '0');
 }
 
 ISR(USB_GEN_vect)
