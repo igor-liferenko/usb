@@ -49,7 +49,7 @@ void main(void)
   if (!configured_al) send('a');
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  UDR1 = '%';
+  send('%');
 }
 
 @ Here we want to find out how many resets happen until setup packet arrives.
@@ -58,7 +58,7 @@ Adding code for waiting for a reset consists of two stages: first we add code to
 which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
-The result is two resets.
+The result is two resets. And after each reset endpoint must be configured.
 
 \xdef\numreset{\secno}
 
@@ -119,10 +119,10 @@ void main(void)
   if (!configured_ok) send('=');
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  UDR1 = '%';
+  send('%');
 }
 
-@ Then we use the same code, but via interrupts.
+@ Now we can move further: we detect reset via interrupts.
 
 \xdef\interrupt{\secno}
 
@@ -158,29 +158,22 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  configure_en
-  configure_sz
-  configure_al
-  if (!configured_ok) send('=');
-
+  UDIEN |= 1 << EORSTE;
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  UDR1 = '%';
+  send('%');
+
 }
 
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    send('.');
-    if (!configured_en) send('e');
-    if (!configured_sz) send('s');
-    if (!configured_al) send('a');
-/*    configure_en
+    configure_en
     configure_sz
     configure_al
-    if (!configured_ok) send('=');*/
+    if (!configured_ok) send('=');
   }
 }
 
