@@ -123,15 +123,18 @@ void main(void)
 }
 
 @ Now we can move further: we detect reset via interrupts.
-Relult: it works great.
+Also, here we count number of resets.
+Result is the same as in \S\numresets---two.
 
 \xdef\interrupt{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 #define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+
+volatile int num = 0;
 
 void main(void)
 {
@@ -156,18 +159,24 @@ void main(void)
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send('%');
+  send(num+'0');
 }
 
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
+    num++;
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1;
     UECFG1X |= 1 << ALLOC;
   }
 }
+
+@ Now we can move further: we send device descriptor and wait for set address request.
+
+@(test.c@>=
+
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
