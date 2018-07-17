@@ -147,7 +147,8 @@ void main(void)
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send(num + '0');
+  (void) UEDATX;
+  if (UEDATX == 0x06) send(num + '0');
 }
 
 ISR(USB_GEN_vect)
@@ -168,47 +169,26 @@ The result is one.
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-typedef struct {
-  uint8_t      bLength;              //!< Size of this descriptor in bytes
-  uint8_t      bDescriptorType;      //!< DEVICE descriptor type
-  uint16_t     bscUSB;               //!< Binay Coded Decimal Spec. release
-  uint8_t      bDeviceClass;         //!< Class code assigned by the USB
-  uint8_t      bDeviceSubClass;      //!< Sub-class code assigned by the USB
-  uint8_t      bDeviceProtocol;      //!< Protocol code assigned by the USB
-  uint8_t      bMaxPacketSize0;      //!< Max packet size for EP0
-  uint16_t     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
-  uint16_t     idProduct;            //!< Product ID assigned by the manufacturer
-  uint16_t     bcdDevice;            //!< Device release number
-  uint8_t      iManufacturer;        //!< Index of manu. string descriptor
-  uint8_t     iProduct;             //!< Index of prod. string descriptor
-  uint8_t      iSerialNumber;        //!< Index of S.N.  string descriptor
-  uint8_t      bNumConfigurations;   //!< Number of possible configurations
-} S_usb_device_descriptor;
-
-const S_usb_device_descriptor usb_dev_desc
+const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  sizeof (S_usb_device_descriptor), @/
-  0x01, /* device */
-  0x0110, /* bcdUSB */
-  0x02, /* device class */
-  0, /* subclass */
-  0, /* device protocol */
-  64, /* control endpoint size */
-  0x03EB, @/
-  0x2018, @/
-  0x1000, @/
-  0x00, /* iManufacturer ("Mfr=" in kern.log) */
-  0x00, /* iProduct ("Product=" in kern.log) */
-  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
-@t\2@> 1 /* number of configurations */
+  0x12, @/
+  0x01, @/
+  0x10, 0x01, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+  0x20, @/
+  0xEB, 0x03, @/
+  0x13, 0x20, @/
+  0x00, 0x10, @/
+  0x01, @/
+  0x02, @/
+  0x03, @/
+@t\2@> 0x01 @/
 };
 
-uint8_t data_to_transfer = sizeof usb_dev_desc;
-const void *pbuffer = &usb_dev_desc.bLength;
-uint8_t bRequest;
-uint8_t bmRequestType;
-uint8_t bDescriptorType;
-uint16_t wLength;
+uint8_t len = sizeof dev_desc;
+const void *ptr = &(usb_dev_desc[0]);
 
 #define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
@@ -238,16 +218,16 @@ void main(void)
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   num = 0;
-  bmRequestType = UEDATX;
-  bRequest = UEDATX;
-  (void) UEDATX; /* don't care of Descriptor Index */
-  bDescriptorType = UEDATX;
-  (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
-  ((uint8_t *) &wLength)[0] = UEDATX; /* wLength LSB */
-  ((uint8_t *) &wLength)[1] = UEDATX; /* wLength MSB */
+  (void) UEDATX;
+  (void) UEDATX;
+  (void) UEDATX;
+  (void) UEDATX;
+  (void) UEDATX; @+ (void) UEDATX;
+  (void) UEDATX; @+ (void) UEDATX;
   UEINTX &= ~(1 << RXSTPI);
-  while (data_to_transfer--)
-    UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
+  while (len--)
+    UEDATX = pgm_read_byte_near((unsigned int) ptr++);
+TODO: do here like in test.w without M:
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << NAKOUTI))) ;
   UEINTX &= ~(1 << NAKOUTI);
@@ -255,9 +235,8 @@ void main(void)
   UEINTX &= ~(1 << RXOUTI);
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  bmRequestType = UEDATX;
-  bRequest = UEDATX;
-  if (bRequest == 0x05) send(num + '0');
+  (void) UEDATX;
+  if (UEDATX == 0x05) send(num + '0');
 }
 
 ISR(USB_GEN_vect)
