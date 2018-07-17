@@ -37,13 +37,16 @@ void main(void)
   configure;
   if (!configured_ok) UDR1 = '=';
 
-  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
   if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  (void) UEDATX;
+  if (UEDATX == 0x06) {
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  }
 }
 
 @ Here we want to find out how many resets happen until first setup packet arrives.
@@ -89,7 +92,7 @@ void main(void)
   configure;
   if (!configured_ok) UDR1 = '=';
 
-  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '1';
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
@@ -97,7 +100,7 @@ void main(void)
   configure;
   if (!configured_ok) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '='; @+ }
 
-  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '2';
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
@@ -105,7 +108,10 @@ void main(void)
   configure;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  (void) UEDATX;
+  if (UEDATX == 0x06) {
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  }
 }
 
 @ Now we can move further: we detect reset via interrupts.
@@ -157,13 +163,20 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ Now we can move further: to count number of resets before set address request.
-The result is one.
+@ Now we can move further: now we determine how endpoint configuration reacts to reset
+before set address request.
+The result is ...
 
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
+#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+#define configured_en (UECONX & (1 << EPEN))
+#define configured_sz (UECFG1X & (1 << EPSIZE1))
+#define configured_al (UECFG1X & (1 << ALLOC))
+#define configured_ok (UESTA0X & (1 << CFGOK))
 
 const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
@@ -211,23 +224,31 @@ void main(void)
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  num = 0;
   (void) UEDATX;
-  (void) UEDATX;
+  if (UEDATX != 0x06) return;
   (void) UEDATX;
   (void) UEDATX;
   (void) UEDATX; @+ (void) UEDATX;
   (void) UEDATX; @+ (void) UEDATX;
   UEINTX &= ~(1 << RXSTPI);
+  cli();
+  num = 0;
   while (len--)
     UEDATX = pgm_read_byte_near((unsigned int) ptr++);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 
+  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
+  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
+  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
+  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
+
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
-  if (UEDATX == 0x05) UDR1 = num + '0';
+  if (UEDATX == 0x05) {
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  }
 }
 
 ISR(USB_GEN_vect)
