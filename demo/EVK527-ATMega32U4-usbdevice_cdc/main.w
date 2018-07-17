@@ -1,5 +1,4 @@
-@ Reset is done 4 times. This can be checked by the following code:
-TODO: why test.w shows 'r' only twice before 'D'? find out why it is inconsistent
+@ NOTICE: test.w and these tests differ in number of resets because in test.w RSTCPU is done
 see also "XXX" in test.w
 
 @ In this test we determine how endpoint configuration reacts to reset.
@@ -60,7 +59,7 @@ And |CFGOK| need not be checked.
 
 \xdef\numreset{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 
 #define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
