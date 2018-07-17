@@ -227,10 +227,7 @@ void main(void)
   UEINTX &= ~(1 << RXSTPI);
   while (len--)
     UEDATX = pgm_read_byte_near((unsigned int) ptr++);
-TODO: do here like in test.w without M:
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 
