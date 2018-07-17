@@ -116,7 +116,7 @@ Result is the same as in \S\numreset---two or three.
 
 \xdef\interrupt{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -147,7 +147,7 @@ void main(void)
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send(num+'0');
+  send(num + '0');
 }
 
 ISR(USB_GEN_vect)
@@ -162,8 +162,109 @@ ISR(USB_GEN_vect)
 
 @ Now we can move further: we send device descriptor and wait for set address request.
 
-@(/dev/null@>=
+@(test.c@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 
+typedef unsigned char U8;
+typedef unsigned short U16;
+typedef struct {
+  U8      bLength;              //!< Size of this descriptor in bytes
+  U8      bDescriptorType;      //!< DEVICE descriptor type
+  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
+  U8      bDeviceClass;         //!< Class code assigned by the USB
+  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
+  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
+  U8      bMaxPacketSize0;      //!< Max packet size for EP0
+  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
+  U16     idProduct;            //!< Product ID assigned by the manufacturer
+  U16     bcdDevice;            //!< Device release number
+  U8      iManufacturer;        //!< Index of manu. string descriptor
+  U8      iProduct;             //!< Index of prod. string descriptor
+  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
+  U8      bNumConfigurations;   //!< Number of possible configurations
+} S_usb_device_descriptor;
+PROGMEM const S_usb_device_descriptor usb_dev_desc = {
+  sizeof (S_usb_device_descriptor),
+  0x01, /* device */
+  0x0110, /* bcdUSB */
+  0x02, /* device class */
+  0, /* subclass */
+  0, /* device protocol */
+  64, /* control endpoint size */
+  0x03EB,
+  0x2018,
+  0x1000,
+  0x00, /* iManufacturer ("Mfr=" in kern.log) */
+  0x00, /* iProduct ("Product=" in kern.log) */
+  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
+  1 /* number of configurations */
+};
+
+U8 data_to_transfer = sizeof usb_dev_desc;
+PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
+U8 bRequest;
+U8 bmRequestType;
+U8 bDescriptorType;
+U16 wLength;
+
+#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+
+volatile int num = 0;
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  send(num + '0');
+  num = 0;
+  bmRequestType = UEDATX;
+  bRequest = UEDATX;
+  (void) UEDATX; /* don't care of Descriptor Index */
+  bDescriptorType = UEDATX;
+  (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
+  wLength; /* how many bytes host can get (i.e., we must not send more than that) */
+  ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
+  ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
+  UEINTX &= ~(1 << RXSTPI);
+  while (data_to_transfer--)
+    UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << NAKOUTI))) ;
+  UEINTX &= ~(1 << NAKOUTI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    num++;
+    UECONX |= 1 << EPEN;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  }
+}
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
