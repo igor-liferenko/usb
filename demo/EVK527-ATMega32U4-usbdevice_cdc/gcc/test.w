@@ -482,6 +482,7 @@ void send_descriptor(const void *buf, int size)
 @<Macros@>=
 #define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 //? - see cdr-coral.w do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+// check via disasm that result does not change
 
 @* Control endpoint management.
 
