@@ -161,8 +161,9 @@ ISR(USB_GEN_vect)
 }
 
 @ Now we can move further: we send device descriptor and wait for set address request.
+The result is: one reset before set address request.
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -243,7 +244,6 @@ void main(void)
   (void) UEDATX; /* don't care of Descriptor Index */
   bDescriptorType = UEDATX;
   (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
-  wLength; /* how many bytes host can get (i.e., we must not send more than that) */
   ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
   ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
   UEINTX &= ~(1 << RXSTPI);
@@ -254,6 +254,9 @@ void main(void)
   UEINTX &= ~(1 << NAKOUTI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  send(num + '0');
 }
 
 ISR(USB_GEN_vect)
