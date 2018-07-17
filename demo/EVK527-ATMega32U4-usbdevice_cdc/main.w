@@ -10,14 +10,12 @@ The result is `\.{esa}'. So, after each reset each of these parameters must be s
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure_en UECONX |= 1 << EPEN;
-#define configure_sz UECFG1X = 1 << EPSIZE1;
-#define configure_al UECFG1X |= 1 << ALLOC;
+#define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 #define configured_en (UECONX & (1 << EPEN))
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -38,9 +36,7 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  configure_en
-  configure_sz
-  configure_al
+  configure
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
@@ -59,20 +55,19 @@ which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
 The result is two resets. And after each reset endpoint must be configured.
+And |CFGOK| need not be checked.
 
 \xdef\numreset{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure_en UECONX |= 1 << EPEN;
-#define configure_sz UECFG1X = 1 << EPSIZE1;
-#define configure_al UECFG1X |= 1 << ALLOC;
+#define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 #define configured_en (UECONX & (1 << EPEN))
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -93,9 +88,7 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  configure_en
-  configure_sz
-  configure_al
+  configure
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
@@ -103,9 +96,7 @@ void main(void)
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
-  configure_en
-  configure_sz
-  configure_al
+  configure
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
@@ -113,10 +104,7 @@ void main(void)
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
-  configure_en
-  configure_sz
-  configure_al
-  if (!configured_ok) send('=');
+  configure
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   send('%');
@@ -124,7 +112,7 @@ void main(void)
 
 @ Now we can move further: we detect reset via interrupts.
 Also, here we count number of resets.
-Result is the same as in \S\numresets---two.
+Result is the same as in \S\numreset---two.
 
 \xdef\interrupt{\secno}
 
@@ -132,7 +120,7 @@ Result is the same as in \S\numresets---two.
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 volatile int num = 0;
 
@@ -168,14 +156,13 @@ ISR(USB_GEN_vect)
     UDINT &= ~(1 << EORSTI);
     num++;
     UECONX |= 1 << EPEN;
-    UECFG1X = 1 << EPSIZE1;
-    UECFG1X |= 1 << ALLOC;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
   }
 }
 
 @ Now we can move further: we send device descriptor and wait for set address request.
 
-@(test.c@>=
+@(/dev/null@>=
 
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
