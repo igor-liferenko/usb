@@ -91,7 +91,8 @@ volatile uint8_t a[8];
 @ @c
 ISR(USB_COM_vect)
 {
-//  UDR1 = 'X'; // why in winxp only 'r' appears? - use this to check further
+//  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'X';
+// why in winxp only 'r' appears? - use this to check further
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
@@ -123,14 +124,14 @@ ISR(USB_COM_vect)
       break;
     default: @/
       UEINTX &= ~(1 << RXSTPI);
-      UDR1 = '#';
+      while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
     }
   }
   else if (UEINT == (1 << EP1)) {
 #ifdef M
-    if (!(UEINTX & (1 << FIFOCON))) UDR1 = '@';
+    if (!(UEINTX & (1 << FIFOCON))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
     while (!(UEINTX & (1 << FIFOCON))) ;
-    if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
+    if (!(UEINTX & (1 << TXINI))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
     while (!(UEINTX & (1 << TXINI))) ;
 #endif
     for (int i = 0; i < 8; i++)
@@ -146,9 +147,9 @@ ISR(USB_COM_vect)
   }
   else if (UEINT == (1 << EP2)) {
 #ifdef M
-    if (!(UEINTX & (1 << RXOUTI))) UDR1 = '@';
+    if (!(UEINTX & (1 << RXOUTI))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
     while (!(UEINTX & (1 << RXOUTI))) ;
-    if (!(UEINTX & (1 << FIFOCON))) UDR1 = '@';
+    if (!(UEINTX & (1 << FIFOCON))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
     while (!(UEINTX & (1 << FIFOCON))) ;
 #endif
     UEINTX &= ~(1 << RXOUTI);
@@ -181,22 +182,16 @@ case 0x81: @/
   @<int\_desc@>@;
   break;
 default: @/
-  UDR1 = '?';
   UEINTX &= ~(1 << RXSTPI);
-  UDR1 = '#';
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
 }
 
 @ @<set\_adr@>=
-UDR1 = 'A';
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
 
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-
-UEINTX &= ~(1 << TXINI);
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
   sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
@@ -210,13 +205,8 @@ while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous comma
 UDADDR |= 1 << ADDEN;
 
 @ @<set\_cfg@>=
-UDR1 = 'S';
 UEINTX &= ~(1 << RXSTPI);
-
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
 
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
@@ -242,15 +232,10 @@ UENUM = EP0;
 means that host lets the device send reports only when it needs.
 
 @<set\_idle@>=
-UDR1 = 'I';
 UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
 
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-
-UEINTX &= ~(1 << TXINI);
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 if (flag == 1) {
   flag = 0;
@@ -272,17 +257,18 @@ case 0x03: @/
   @<d\_str@>@;
   break;
 case 0x06:
-  UDR1 = 'Q';
 //TODO: device qualifier
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
   break;
 default: @/
-  UDR1 = '#';
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
 }
 
 @ @<int\_desc@>=
-UDR1 = 'R';
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
+
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
 @^WinXP@>
 #ifdef M
@@ -309,112 +295,33 @@ if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* Win
 }
 
 @ @<d\_dev@>=
-UDR1 = 'D';
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &dev_desc.bLength;
-  for (int i = 0; i < sizeof dev_desc; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
-  send_descriptor(&dev_desc.bLength, sizeof dev_desc);
-    /* TODO: reduce |size| to |wLength| if it exceeds it */
-#endif
+send_descriptor(&dev_desc.bLength, sizeof dev_desc);
+  /* TODO: reduce |size| to |wLength| if it exceeds it */
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 
 @ @<d\_con@>=
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &user_conf_desc.conf_desc.bLength;
-  if (wLength == 9) {
-    UDR1 = 'g';
-    for (int i = 0; i < 9; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-  else {
-    UDR1 = 'G';
-    int i = 0;
-    for (; i < 32; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << TXINI))) ;
-    for (; i < 41; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-#else
-  if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
-  send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
-#endif
+send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
+while (!(UCSR1A & 1 << UDRE1)) ;
+if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 
 @ @<d\_str@>=
 switch (index)
 {
 case 0x00:
-  UDR1 = 'L';
-#ifdef M
-  buf = &(lang_desc[0]);
-  size = sizeof lang_desc;
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 4; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(lang_desc[0]), sizeof lang_desc);
-#endif
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
   break;
 case 0x01:
-  UDR1 = 'M';
-#ifdef M
-  @<Send manufacturer descriptor@>@;
-#else
   send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
-#endif
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
   break;
 case 0x02:
-  UDR1 = 'P';
-#ifdef M
-  @<Send product descriptor@>@;
-#else
   send_descriptor(&(prod_desc[0]), sizeof prod_desc);
-#endif
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
   break;
 case 0x03:
-  UDR1 = 'N';
-#ifdef M
-  buf = &(sn_desc[0]);
-  size = sizeof sn_desc;
-  if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 10; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(sn_desc[0]), sizeof sn_desc);
-#endif
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
   break;
 }
 
@@ -476,12 +383,6 @@ void send_descriptor(const void *buf, int size)
   }
 #endif
 }
-
-@ It is necessary to wait until character is sent, otherwise next character may not be sent.
-TODO: replace all |send| calls with UDR1 (+ while as necessary)
-
-@(todo@>=
-UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 @* Control endpoint management.
 
@@ -859,19 +760,6 @@ const uint8_t mfr_desc[]
 @t\2@> 0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00,0x4C,0x00 @/
 };
 
-@ @<Send manufacturer descriptor@>=
-buf = &(mfr_desc[0]);
-size = sizeof mfr_desc;
-if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-while (!(UEINTX & (1 << TXINI))) ;
-for (int i = 0; i < 12; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << NAKOUTI))) ;
-UEINTX &= ~(1 << NAKOUTI);
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI);
-
 @*1 Product descriptor.
 
 @<Global \null variables@>=
@@ -883,24 +771,6 @@ const uint8_t prod_desc[]
   0x00,0x42,0x00,0x20,0x00,0x48,0x00,0x49,0x00,0x44,0x00, @/
 @t\2@> 0x20,0x00,0x44,0x00,0x45,0x00,0x4D,0x00,0x4F,0x00 @/
 };
-
-@ @<Send product descriptor@>=
-buf = &(prod_desc[0]);
-size = sizeof prod_desc;
-if (!(UEINTX & (1 << TXINI))) UDR1 = '@';
-while (!(UEINTX & (1 << TXINI))) ;
-int i = 0;
-for (; i < 32; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << TXINI))) ;
-for (; i < 34; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << NAKOUTI))) ;
-UEINTX &= ~(1 << NAKOUTI);
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI);
 
 @*1 Serial number descriptor.
 
