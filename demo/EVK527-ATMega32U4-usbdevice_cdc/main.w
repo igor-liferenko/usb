@@ -54,11 +54,11 @@ void main(void)
 }
 
 @ Here we want to find out how many resets happen until setup packet arrives.
-So, we start like in section \firsttest\ and output a number for each new reset
-and check endpoint configuration
-after each reset --- we configure items which appear in output again before checking
-if `\.{\%}' is output. If setup packet does not appear, we wait for next reset.
-We continue the this way until `\.{\%}' is output.
+Adding code for waiting for a reset consists of two stages: first add code like
+in section \firsttest\ and check endpoint configuration; then we add code to configure items which
+appear in output from stage one. Only then we may check
+if `\.{\%}' is output. If it is not, we add code for waiting for next reset etc.
+To count the number of resets, we output a number after each reset.
 The result is ...
 
 \xdef\secondtest{\secno}
@@ -112,26 +112,6 @@ void main(void)
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
   send('2');
-  if (!configured_en) send('e');
-  if (!configured_sz) send('s');
-  if (!configured_al) send('a');
-  configure_en
-  configure_sz
-  configure_al
-  if (!configured_ok) send('=');
-
-  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
-  send('3');
-  if (!configured_en) send('e');
-  if (!configured_sz) send('s');
-  if (!configured_al) send('a');
-  configure_en
-  configure_sz
-  configure_al
-  if (!configured_ok) send('=');
-
-  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
-  send('4');
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
