@@ -62,12 +62,12 @@ And |CFGOK| need not be checked.
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 #define configured_en (UECONX & (1 << EPEN))
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -88,7 +88,7 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  configure
+  configure;
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
@@ -96,7 +96,7 @@ void main(void)
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
-  configure
+  configure;
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
@@ -104,7 +104,7 @@ void main(void)
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
-  configure
+  configure;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   send('%');
@@ -120,7 +120,7 @@ Result is the same as in \S\numreset---two or three.
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 volatile int num = 0;
 
@@ -211,7 +211,7 @@ U8 bmRequestType;
 U8 bDescriptorType;
 U16 wLength;
 
-#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 volatile int num = 0;
 
