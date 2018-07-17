@@ -112,11 +112,11 @@ void main(void)
 
 @ Now we can move further: we detect reset via interrupts.
 Also, here we count number of resets.
-Result is the same as in \S\numreset---two.
+Result is the same as in \S\numreset---two or three.
 
 \xdef\interrupt{\secno}
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
