@@ -123,6 +123,7 @@ void main(void)
 }
 
 @ Now we can move further: we detect reset via interrupts.
+Relult: it works great.
 
 \xdef\interrupt{\secno}
 
@@ -130,13 +131,6 @@ void main(void)
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define configure_en UECONX |= 1 << EPEN;
-#define configure_sz UECFG1X = 1 << EPSIZE1;
-#define configure_al UECFG1X |= 1 << ALLOC;
-#define configured_en (UECONX & (1 << EPEN))
-#define configured_sz (UECFG1X & (1 << EPSIZE1))
-#define configured_al (UECFG1X & (1 << ALLOC))
-#define configured_ok (UESTA0X & (1 << CFGOK))
 #define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
 
 void main(void)
@@ -163,17 +157,15 @@ void main(void)
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   send('%');
-
 }
 
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    configure_en
-    configure_sz
-    configure_al
-    if (!configured_ok) send('=');
+    UECONX |= 1 << EPEN;
+    UECFG1X = 1 << EPSIZE1;
+    UECFG1X |= 1 << ALLOC;
   }
 }
 
