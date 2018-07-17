@@ -9,12 +9,12 @@ The result is `\.{esa}'. So, after each reset each of these parameters must be s
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 #define configured_en (UECONX & (1 << EPEN))
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -35,7 +35,7 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  configure
+  configure;
   if (!configured_ok) send('=');
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
