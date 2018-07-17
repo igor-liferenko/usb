@@ -478,11 +478,10 @@ void send_descriptor(const void *buf, int size)
 }
 
 @ It is necessary to wait until character is sent, otherwise next character may not be sent.
+TODO: replace all |send| calls with UDR1 (+ while as necessary)
 
-@<Macros@>=
-#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
-//? - see cdr-coral.w do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
-// check via disasm that result does not change
+@(todo@>=
+UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 @* Control endpoint management.
 
