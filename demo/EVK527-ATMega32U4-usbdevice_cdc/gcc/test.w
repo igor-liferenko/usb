@@ -18,6 +18,7 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @c
 @<Header files@>@;
 @<Functions@>@;
+@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 int flag = 0;
@@ -475,6 +476,11 @@ void send_descriptor(const void *buf, int size)
   }
 #endif
 }
+
+@ It is necessary to wait until character is sent, otherwise next character may not be sent.
+
+@<Macros@>=
+#define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
 
 @* Control endpoint management.
 
