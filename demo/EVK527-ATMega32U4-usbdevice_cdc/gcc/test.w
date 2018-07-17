@@ -16,7 +16,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @c
 @<Header files@>@;
 @<Functions@>@;
-@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 int flag = 0;
