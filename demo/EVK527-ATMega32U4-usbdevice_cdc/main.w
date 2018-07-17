@@ -3,7 +3,7 @@ TODO: why test.w shows 'r' only twice before 'D'? find out why it is inconsisten
 see also "XXX" in test.w
 
 @ In this test we determine how endpoint configuration reacts to reset.
-The result is \.{esa}
+The result is `\.{esa}'. So, after each reset each of these parameters must be set again.
 
 \xdef\firsttest{\secno}
 
@@ -43,6 +43,7 @@ void main(void)
   configure_sz
   configure_al
   if (!configured_ok) send('=');
+
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
@@ -55,9 +56,10 @@ void main(void)
 @ Here we want to find out how many resets happen until setup packet arrives.
 So, we start like in section \firsttest\ and output a number for each new reset
 and check endpoint configuration
-after each reset --- we configure items which appear in output again before waiting
-for next reset. We continue the this way until `\.{\%}' is output.
-The result varies - sometimes two resets are necessary, sometimes three.
+after each reset --- we configure items which appear in output again before checking
+if `\.{\%}' is output. If setup packet does not appear, we wait for next reset.
+We continue the this way until `\.{\%}' is output.
+The result is ...
 
 \xdef\secondtest{\secno}
 
@@ -97,8 +99,39 @@ void main(void)
   configure_sz
   configure_al
   if (!configured_ok) send('=');
+
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
   send('1');
+  if (!configured_en) send('e');
+  if (!configured_sz) send('s');
+  if (!configured_al) send('a');
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+
+  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  send('2');
+  if (!configured_en) send('e');
+  if (!configured_sz) send('s');
+  if (!configured_al) send('a');
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+
+  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  send('3');
+  if (!configured_en) send('e');
+  if (!configured_sz) send('s');
+  if (!configured_al) send('a');
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+
+  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  send('4');
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
