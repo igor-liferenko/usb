@@ -1,6 +1,3 @@
-@ NOTICE: test.w and these tests differ in number of resets because in test.w RSTCPU is done
-see also "XXX" in test.w
-
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'. So, after each reset each of these parameters must be set again.
 
@@ -120,7 +117,7 @@ Result is the same as in \S\numreset---one two or three.
 
 \xdef\interrupt{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -166,7 +163,7 @@ ISR(USB_GEN_vect)
 @ Now we can move further: we want to count how many resets are done before set address request.
 The result is one.
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
