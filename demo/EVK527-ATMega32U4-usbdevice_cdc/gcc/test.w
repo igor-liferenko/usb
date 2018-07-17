@@ -481,6 +481,7 @@ void send_descriptor(const void *buf, int size)
 
 @<Macros@>=
 #define send(c) UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ;
+//? do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
 
 @* Control endpoint management.
 
