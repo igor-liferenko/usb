@@ -14,7 +14,6 @@ The result is `\.{esa}'. So, after each reset each of these parameters must be s
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -36,15 +35,15 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   configure;
-  if (!configured_ok) send('=');
+  if (!configured_ok) UDR1 = '=';
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
-  if (!configured_en) send('e');
-  if (!configured_sz) send('s');
-  if (!configured_al) send('a');
+  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
+  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
+  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send('%');
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
 @ Here we want to find out how many resets happen until first setup packet arrives.
@@ -67,7 +66,6 @@ And |CFGOK| need not be checked.
 #define configured_sz (UECFG1X & (1 << EPSIZE1))
 #define configured_al (UECFG1X & (1 << ALLOC))
 #define configured_ok (UESTA0X & (1 << CFGOK))
-#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 void main(void)
 {
@@ -89,25 +87,25 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   configure;
-  if (!configured_ok) send('=');
+  if (!configured_ok) UDR1 = '=';
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
-  send('1');
-  if (!configured_en) send('e');
-  if (!configured_sz) send('s');
-  if (!configured_al) send('a');
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '1';
+  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
+  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
+  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
   configure;
-  if (!configured_ok) send('=');
+  if (!configured_ok) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '='; @+ }
 
   while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
-  send('2');
-  if (!configured_en) send('e');
-  if (!configured_sz) send('s');
-  if (!configured_al) send('a');
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '2';
+  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
+  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
+  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
   configure;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  send('%');
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
 @ Now we can move further: we detect reset via interrupts.
@@ -119,8 +117,6 @@ Result is the same as in \S\numreset---two or three.
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 volatile int num = 0;
 
@@ -148,7 +144,7 @@ void main(void)
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
-  if (UEDATX == 0x06) send(num + '0');
+  if (UEDATX == 0x06) UDR1 = num + '0';
 }
 
 ISR(USB_GEN_vect)
@@ -189,8 +185,6 @@ const uint8_t dev_desc[]
 
 uint8_t len = sizeof dev_desc;
 const void *ptr = &(dev_desc[0]);
-
-#define send(c) @,@,@,@,@, UDR1 = c; @+ while (!(UCSR1A & 1 << UDRE1)) ;
 
 volatile int num = 0;
 
@@ -233,7 +227,7 @@ void main(void)
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
-  if (UEDATX == 0x05) send(num + '0');
+  if (UEDATX == 0x05) UDR1 = num + '0';
 }
 
 ISR(USB_GEN_vect)
