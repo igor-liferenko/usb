@@ -13,8 +13,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @d EP2 2
 @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
-@d O /* microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
-
 @c
 @<Header files@>@;
 @<Functions@>@;
@@ -128,30 +126,14 @@ ISR(USB_COM_vect)
     }
   }
   else if (UEINT == (1 << EP1)) {
-#ifdef M
-    if (!(UEINTX & (1 << FIFOCON))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    if (!(UEINTX & (1 << TXINI))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
-    while (!(UEINTX & (1 << TXINI))) ;
-#endif
     for (int i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
-#ifdef M
-    while (!(UEINTX & (1 << TXINI))) ;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    UEIENX = 1 << RXOUTE;
-#endif
+
     UENUM = EP2;
   }
   else if (UEINT == (1 << EP2)) {
-#ifdef M
-    if (!(UEINTX & (1 << RXOUTI))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    if (!(UEINTX & (1 << FIFOCON))) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '@'; @+}
-    while (!(UEINTX & (1 << FIFOCON))) ;
-#endif
     UEINTX &= ~(1 << RXOUTI);
     for (int i = 0; i < 8; i++)
       a[i] = UEDATX;
@@ -271,24 +253,7 @@ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 
 if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
 @^WinXP@>
-#ifdef M
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &(hid_report_descriptor[0]);
-  int i = 0;
-  for (; i < 32; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (; i < 34; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(hid_report_descriptor[0]), wLength);
-#endif
 
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
