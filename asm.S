@@ -1,4 +1,5 @@
 ; TODO: use ldi R16, 0xXX sts UDR1, R16 for debugging, like in test.w
+; NOTE: you must also wait until UDRE1 is set after writing to UDR1
 
 #include <avr/io.h>
 
