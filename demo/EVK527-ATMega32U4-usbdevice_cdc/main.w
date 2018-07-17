@@ -161,7 +161,8 @@ ISR(USB_GEN_vect)
 }
 
 @ Now we can move further: we send device descriptor and wait for set address request.
-The result is: one reset before set address request.
+The result is: one reset before set address request (see above for the number of resets before
+first setup request).
 
 @(/dev/null@>=
 #include <avr/io.h>
