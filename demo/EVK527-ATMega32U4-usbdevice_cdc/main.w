@@ -48,18 +48,19 @@ void main(void)
   send('%');
 }
 
-@ Here we want to find out how many resets happen until setup packet arrives.
+@ Here we want to find out how many resets happen until first setup packet arrives.
 We start like in \S\epconf\ and start adding code for waiting for successive resets.
 Adding code for waiting for a reset consists of two stages: first we add code to configure items
 which are output after previous reset and check if `\.{\%}' appears.
 If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
 Then the process repeats. To count the number of resets, we output a number after each reset.
-The result is two resets. And after each reset endpoint must be configured.
+The result is sometimes two sometimes three resets. And after each reset endpoint must
+be configured.
 And |CFGOK| need not be checked.
 
 \xdef\numreset{\secno}
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 
 #define configure UECONX |= 1 << EPEN; UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
