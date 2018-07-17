@@ -2,51 +2,23 @@
 TODO: why test.w shows 'r' only twice before 'D'? find out why it is inconsistent
 see also "XXX" in test.w
 
-@(test.c@>=
+@ In this test we determine how endpoint configuration reacts to reset.
+The result is \.{esa}
+
+\xdef\firsttest{\secno}
+
+@(/dev/null@>=
 #include <avr/io.h>
-#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 
-typedef unsigned char U8;
-typedef unsigned short U16;
-typedef struct {
-  U8      bLength;              //!< Size of this descriptor in bytes
-  U8      bDescriptorType;      //!< DEVICE descriptor type
-  U16     bscUSB;               //!< Binay Coded Decimal Spec. release
-  U8      bDeviceClass;         //!< Class code assigned by the USB
-  U8      bDeviceSubClass;      //!< Sub-class code assigned by the USB
-  U8      bDeviceProtocol;      //!< Protocol code assigned by the USB
-  U8      bMaxPacketSize0;      //!< Max packet size for EP0
-  U16     idVendor;             //!< Vendor ID. ATMEL = 0x03EB
-  U16     idProduct;            //!< Product ID assigned by the manufacturer
-  U16     bcdDevice;            //!< Device release number
-  U8      iManufacturer;        //!< Index of manu. string descriptor
-  U8      iProduct;             //!< Index of prod. string descriptor
-  U8      iSerialNumber;        //!< Index of S.N.  string descriptor
-  U8      bNumConfigurations;   //!< Number of possible configurations
-} S_usb_device_descriptor;
-PROGMEM const S_usb_device_descriptor usb_dev_desc = {
-  sizeof (S_usb_device_descriptor),
-  0x01, /* device */
-  0x0110, /* bcdUSB */
-  0x02, /* device class */
-  0, /* subclass */
-  0, /* device protocol */
-  64, /* control endpoint size */
-  0x03EB,
-  0x2018,
-  0x1000,
-  0x00, /* iManufacturer ("Mfr=" in kern.log) */
-  0x00, /* iProduct ("Product=" in kern.log) */
-  0x00, /* iSerialNumber ("SerialNumber=" in kern.log) */
-  1 /* number of configurations */
-};
-
-U8 data_to_transfer = sizeof usb_dev_desc;
-PGM_VOID_P pbuffer = &usb_dev_desc.bLength;
-U8 bRequest;
-U8 bmRequestType;
-U8 bDescriptorType;
-U16 wLength;
+#define configure_en UECONX |= 1 << EPEN;
+#define configure_sz UECFG1X = 1 << EPSIZE1;
+#define configure_al UECFG1X |= 1 << ALLOC;
+#define configured_en (UECONX & (1 << EPEN))
+#define configured_sz (UECFG1X & (1 << EPSIZE1))
+#define configured_al (UECFG1X & (1 << ALLOC))
+#define configured_ok (UESTA0X & (1 << CFGOK))
+#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
 
 void main(void)
 {
@@ -67,46 +39,72 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
 
-  while(1) {
-    if (UDINT & (1 << EORSTI)) break;
-  }
-  UDINT &= ~(1 << EORSTI);
-  while(1) {
-    if (UDINT & (1 << EORSTI)) break;
-  }
-  UDINT &= ~(1 << EORSTI);
-  while(1) {
-    if (UDINT & (1 << EORSTI)) break;
-  }
-  UDINT &= ~(1 << EORSTI);
-  while(1) {
-    if (UDINT & (1 << EORSTI)) break;
-  }
-
-  UENUM = 0;
-  UECONX |= 1 << EPEN;
-  UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0); /* one bank, 32 bytes */
-  UECFG1X |= 1 << ALLOC;
-  while (!(UESTA0X & (1 << CFGOK))) ;
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  if (!configured_en) send('e');
+  if (!configured_sz) send('s');
+  if (!configured_al) send('a');
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  UDR1 = '!';
-  bmRequestType = UEDATX;
-  bRequest = UEDATX;
-  (void) UEDATX; /* don't care of Descriptor Index */
-  bDescriptorType = UEDATX;
-  (void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
-  wLength; /* how many bytes host can get (i.e., we must not send more than that) */
-  ((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
-  ((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-  UEINTX &= ~(1 << RXSTPI);
-  while (data_to_transfer--)
-    UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
+  UDR1 = '%';
+}
+
+@ Here we want to find out how many resets happen until setup packet arrives.
+So, we start like in section \firsttest\ and output a number for each new reset
+and check endpoint configuration
+after each reset --- we configure items which appear in output again before waiting
+for next reset. We continue the this way until `\.{\%}' is output.
+The result varies - sometimes two resets are necessary, sometimes three.
+
+\xdef\secondtest{\secno}
+
+@(test.c@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#define configure_en UECONX |= 1 << EPEN;
+#define configure_sz UECFG1X = 1 << EPSIZE1;
+#define configure_al UECFG1X |= 1 << ALLOC;
+#define configured_en (UECONX & (1 << EPEN))
+#define configured_sz (UECFG1X & (1 << EPSIZE1))
+#define configured_al (UECFG1X & (1 << ALLOC))
+#define configured_ok (UESTA0X & (1 << CFGOK))
+#define send(c) do { UDR1 = c; while (!(UCSR1A & 1 << UDRE1)) ; } while (0)
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
+  while(1) if (UDINT & (1 << EORSTI)) break; UDINT &= ~(1 << EORSTI);
+  send('1');
+  if (!configured_en) send('e');
+  if (!configured_sz) send('s');
+  if (!configured_al) send('a');
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  UDR1 = '%';
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
