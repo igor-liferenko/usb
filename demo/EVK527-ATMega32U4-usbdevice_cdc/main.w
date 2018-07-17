@@ -54,11 +54,11 @@ void main(void)
 }
 
 @ Here we want to find out how many resets happen until setup packet arrives.
-Adding code for waiting for a reset consists of two stages: first add code like
-in section \firsttest\ and check endpoint configuration; then we add code to configure items which
-appear in output from stage one. Only then we may check
-if `\.{\%}' is output. If it is not, we add code for waiting for next reset etc.
-To count the number of resets, we output a number after each reset.
+We start like in \S\firsttest\ and start adding code for waiting for successive resets.
+Adding code for waiting for a reset consists of two stages: first we add code to configure items
+which are output after previous reset and check if `\.{\%}' appears.
+If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
+Then the process repeats. To count the number of resets, we output a number after each reset.
 The result is ...
 
 \xdef\secondtest{\secno}
@@ -115,6 +115,10 @@ void main(void)
   if (!configured_en) send('e');
   if (!configured_sz) send('s');
   if (!configured_al) send('a');
+  configure_en
+  configure_sz
+  configure_al
+  if (!configured_ok) send('=');
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   UDR1 = '%';
