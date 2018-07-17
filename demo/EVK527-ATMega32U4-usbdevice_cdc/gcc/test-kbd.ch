@@ -16,21 +16,11 @@ volatile uint8_t a[8];
 
 @x
   else if (UEINT == (1 << EP1)) {
-#ifdef M
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << TXINI))) ;
-#endif
     for (int i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
-#ifdef M
-    while (!(UEINTX & (1 << TXINI))) ;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-    UEIENX = 1 << RXOUTE;
-#endif
+
     UENUM = EP2;
   }
 @y
@@ -62,12 +52,6 @@ volatile uint8_t a[8];
 
 @x
   else if (UEINT == (1 << EP2)) {
-#ifdef M
-    if (!(UEINTX & (1 << RXOUTI))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    if (!(UEINTX & (1 << FIFOCON))) PORTB |= 1 << PB0;
-    while (!(UEINTX & (1 << FIFOCON))) ;
-#endif
     UEINTX &= ~(1 << RXOUTI);
     for (int i = 0; i < 8; i++)
       a[i] = UEDATX;
@@ -76,22 +60,6 @@ volatile uint8_t a[8];
     UENUM = EP1;
     UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   }
-@y
-@z
-
-@x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-@y
-@z
-
-@x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-#endif
 @y
 @z
 
@@ -107,38 +75,13 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
   
 @x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  if (!(UEINTX & (1 << TXINI))) break;
-#endif
-@y
-@z
-
-@x
   UENUM = EP2;
 @y
   UENUM = EP1;
 @z
 
 @x
-#ifdef M
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &(hid_report_descriptor[0]);
-  int i = 0;
-  for (; i < 32; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (; i < 34; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(hid_report_descriptor[0]), wLength);
-#endif
 
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
@@ -150,119 +93,9 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
 
 @x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &dev_desc.bLength;
-  for (int i = 0; i < sizeof dev_desc; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
-  send_descriptor(&dev_desc.bLength, sizeof dev_desc);
-    /* TODO: reduce |size| to |wLength| if it exceeds it */
-#endif
-@y
-send_descriptor(&dev_desc.bLength, sizeof dev_desc);
-  /* TODO: reduce |size| to |wLength| if it exceeds it */
-@z
-
-@x
-#ifdef M
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  buf = &user_conf_desc.conf_desc.bLength;
-  if (wLength == 9) {
-    for (int i = 0; i < 9; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-  else {
-    int i = 0;
-    for (; i < 32; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << TXINI))) ;
-    for (; i < 41; i++)
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
-    UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << NAKOUTI))) ;
-    UEINTX &= ~(1 << NAKOUTI);
-    while (!(UEINTX & (1 << RXOUTI))) ;
-    UEINTX &= ~(1 << RXOUTI);
-  }
-#else
-  send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
-#endif
-@y
-send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
-@z
-
-@x
-#ifdef M
-  buf = &(lang_desc[0]);
-  size = sizeof lang_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 4; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
-  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
-#endif
-@y
-  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
-@z
-
-@x
-#ifdef M
-  @<Send manufacturer descriptor@>@;
-#else
-  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
-#endif
-@y
-  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
-@z
-
-@x
-#ifdef M
-  @<Send product descriptor@>@;
-#else
-  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
-#endif
-@y
-  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
-@z
-
-@x
 case 0x03:
   UDR1 = 'N';
-#ifdef M
-  buf = &(sn_desc[0]);
-  size = sizeof sn_desc;
-  if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-  while (!(UEINTX & (1 << TXINI))) ;
-  for (int i = 0; i < 10; i++)
-    UEDATX = pgm_read_byte_near((unsigned int) buf++);
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << NAKOUTI))) ;
-  UEINTX &= ~(1 << NAKOUTI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#else
   send_descriptor(&(sn_desc[0]), sizeof sn_desc);
-#endif
   break;
 @y
 @z
