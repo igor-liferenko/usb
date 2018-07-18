@@ -113,7 +113,8 @@ void main(void)
 
 @ Now we can move further: we detect reset via interrupts.
 Also, here we count number of resets.
-Result is the same as in \S\numreset---one two or three.
+Result is one, two or three\footnote*{In usb hub it is 1, is PC it is two
+or three.}.
 
 \xdef\interrupt{\secno}
 
@@ -160,10 +161,10 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ Now we can move further: we want to count how many resets are done before set address request.
+@ Now we can move further: to count number of resets before set address request.
 The result is one.
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -230,9 +231,7 @@ void main(void)
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
-  if (UEDATX == 0x05) {
-    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = num + '0';
-  }
+  if (UEDATX == 0x05) UDR1 = num + '0';
 }
 
 ISR(USB_GEN_vect)
