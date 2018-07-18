@@ -137,6 +137,48 @@ $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=kbd-structure.eps
 @z
 
 @x
+@*1 HID report descriptor.
+
+Line 1: Device class with common characteristics. First byte is either |0x05|
+or |0x06|. Two last bits of first byte show number of remaining bytes in this field.
+Number |0x06| in binary is 00000110. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0x00| and |0xFF|. In this case the device
+does not belong to any class and its purpose is vendor defined.
+
+Line 2: Device or function subclass. First byte is the field identifier. Second byte
+is the device or function identifier. In this case these identifiers are not used (lines 2, 4, 10).
+
+Line 3: Begin group of elements of one type. First byte is the field identifier.
+Secand byte is type identifier. In this case it is an application group (|0x01|).
+
+Line 5: Minimum value in each received byte, in logical units.
+The value is set in second byte.
+
+Line 6: Maximum value in each received byte, in logical units.
+The value is set in second byte. Two last bits of first byte show number of remaining bytes
+in this field. 
+Number |0x26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
+first byte follow two bytes -- |0xFF| and |0x00|. FIXME: what for is second of them?
+
+Line 7: Data unit size in bits.
+
+Line 8: Number of data units in report.
+
+Line 9: Report type of all preceding lines from the beginning of group is IN.
+In first byte |0x81| (binary 10000001) the first four bits signify report type (IN).
+Two last bits show number of remaining bytes in this field. In this case it is one
+byte (|0x02|). This byte says the characteristics and layout of data in
+report. Number |0x02| means that report data can change (Data),
+is represented as 8 separate 8-bit elements (Variable), and their values are taken
+relative to zero (Absolute).
+
+Lines 11--14 are anologous to lines 5--8. But now they refer to OUT-report.
+
+Line 15: The same as line 9. The difference is in the first byte (|0x91|),
+first four bits of which are 1001, which signifies OUT report type.
+
+Line 16: End group of elements of one type.
+
 @<Global variables ...@>=
 #if 1==1
 const uint8_t hid_report_descriptor[]
@@ -192,41 +234,48 @@ const uint8_t hid_report_descriptor[]
 };
 #endif
 @y
-Note, that sum of all products report-count/report-size pairs divided by eight must be equal to
-|EP1| size in |UECFG1X|.
+@*1 HID report descriptor.\footnote\dag{The sum of all products report-count/report-size
+pairs divided by eight must be equal to |EP1| size in |UECFG1X|.}
 
 The usual format for keyboard reports is the following byte array:
 
-[modifier, reserved, Key1, Key2, Key3, Key4, Key6, Key7]
+\centerline{modifier, reserved, Key1, Key2, Key3, Key4, Key5, Key6}
 
-When you press the letter 'a' on a USB keyboard, the following report will be sent over the USB interrupt pipe:
+When you press the letter `a' on a USB keyboard, the following report will be sent in
+response to an IN interrupt request:
 
-'a' report:     [0, 0, 4, 0, 0, 0, 0, 0]
-This '4' value is the Keycode for the letter 'a'
+\centerline{|0x00|, |0x00|, |0x04|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|}
+
+\noindent This `|0x04|' value is the Keycode for the letter `a'.
 
 After releasing the key, the following report will be sent:
 
-null report:    [0, 0, 0, 0, 0, 0, 0, 0]
-'4' is replaced with '0'; an array of zeros means nothing is being pressed.
+\centerline{|0x00|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|}
 
-For an uppercase 'A', the report will also need to contain a 'Left Shift' modifier. The modifier byte is actually a bitmap, which means that each bit corresponds to one key:
+\noindent An array of zeros means nothing is being pressed.
 
-bit 0: left control
-bit 1: left shift
-bit 2: left alt
-bit 3: left GUI (Win/Apple/Meta key)
-bit 4: right control
-bit 5: right shift
-bit 6: right alt
-bit 7: right GUI
-With left shift pressed, out report will look like that:
+For an uppercase `A', the report will also need to contain a `Left Shift' modifier.
+The modifier byte is actually a bitmap, which means that each bit corresponds to one key:
 
-'A' report:     [2, 0, 4, 0, 0, 0, 0, 0]
+bit 0: left control\par
+bit 1: left shift\par
+bit 2: left alt\par
+bit 3: left GUI (Win/Apple/Meta key)\par
+bit 4: right control\par
+bit 5: right shift\par
+bit 6: right alt\par
+bit 7: right GUI\par
 
-A keyboard might contain a pointing device in addition to its keys. In that case, each input report will need to be prefixed with a report ID.
+\noindent With left shift pressed, out report will look like that:
+
+\centerline{|0x02|, |0x00|, |0x04|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|}
+
+{\bf Note:} A keyboard might contain a pointing device in addition to its keys. In that
+case, each input report will need to be prefixed with a report ID.
 
 % https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
-% http://microsin.net/programming/avr-working-with-usb/avr271-usb-keyboard-demonstration.html
+% http://microsin.net/programming/avr-working-with-usb/%
+%   avr271-usb-keyboard-demonstration.html
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
