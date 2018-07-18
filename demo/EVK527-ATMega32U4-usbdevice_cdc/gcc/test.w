@@ -669,15 +669,13 @@ const uint8_t hid_report_descriptor[]
   0x15, 0x00, @t\hskip21pt@> /* {\bf5} Logical Minimum (0) */
   0x26, 0xFF, 0x00, /* {\bf6} Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* {\bf7} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf8} Report Count (8)\footnote{\dag\dag}{Must
-    correspond to |UECFG1X| of |EP1|.} */
+  0x95, 0x08, @t\hskip21pt@> /* {\bf8} Report Count (8) */
   0x81, 0x02, @t\hskip21pt@> /* {\bf9} IN report (Data, Variable, Absolute) */
   0x09, 0x00, @t\hskip21pt@> /* {\bf10} Usage (UsageID - 3) */
   0x15, 0x00, @t\hskip21pt@> /* {\bf11} Logical Minimum (0) */
   0x26, 0xFF,0x00, /* {\bf12} Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* {\bf13} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
-    correspond to |UECFG1X| of |EP2|.} */
+  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8) */
   0x91, 0x02, @t\hskip21pt@> /* {\bf15} OUT report (Data, Variable, Absolute) */
 @t\2@> 0xC0 @t\hskip46pt@> /* {\bf16} End Collection */
 };
