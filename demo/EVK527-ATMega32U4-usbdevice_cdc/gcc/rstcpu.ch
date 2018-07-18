@@ -39,3 +39,10 @@
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
 @z
+
+@x
+#include <avr/pgmspace.h>
+@y
+#include <avr/pgmspace.h>
+#include <avr/wdt.h>
+@z

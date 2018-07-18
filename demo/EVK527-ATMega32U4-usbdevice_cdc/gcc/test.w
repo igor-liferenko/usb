@@ -722,6 +722,5 @@ const uint8_t sn_desc[]
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <avr/wdt.h>
 
 @* Index.
