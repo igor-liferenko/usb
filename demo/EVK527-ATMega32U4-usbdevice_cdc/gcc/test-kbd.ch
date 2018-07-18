@@ -4,11 +4,6 @@
 @z
 
 @x
-@d M /* microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html */
-@y
-@z
-
-@x
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 @y
@@ -94,8 +89,8 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 
 @x
 case 0x03:
-  UDR1 = 'N';
   send_descriptor(&(sn_desc[0]), sizeof sn_desc);
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
   break;
 @y
 @z
@@ -191,43 +186,6 @@ const uint8_t hid_report_descriptor[]
 // how to do it TODO: put link from chrome downloads here
 // install descriptor tool on windows xp and then use syntax of hid_def.h
 };
-@z
-
-@x
-@ @<Send manufacturer descriptor@>=
-buf = &(mfr_desc[0]);
-size = sizeof mfr_desc;
-if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-while (!(UEINTX & (1 << TXINI))) ;
-for (int i = 0; i < 12; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << NAKOUTI))) ;
-UEINTX &= ~(1 << NAKOUTI);
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI);
-@y
-@z
-
-@x
-@ @<Send product descriptor@>=
-buf = &(prod_desc[0]);
-size = sizeof prod_desc;
-if (!(UEINTX & (1 << TXINI))) PORTB |= 1 << PB0;
-while (!(UEINTX & (1 << TXINI))) ;
-int i = 0;
-for (; i < 32; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << TXINI))) ;
-for (; i < 34; i++)
-  UEDATX = pgm_read_byte_near((unsigned int) buf++);
-UEINTX &= ~(1 << TXINI);
-while (!(UEINTX & (1 << NAKOUTI))) ;
-UEINTX &= ~(1 << NAKOUTI);
-while (!(UEINTX & (1 << RXOUTI))) ;
-UEINTX &= ~(1 << RXOUTI);
-@y
 @z
 
 @x
