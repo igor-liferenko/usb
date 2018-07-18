@@ -184,7 +184,7 @@ const uint8_t dev_desc[]
   0x00, @/
   0x00, @/
   0x00, @/
-@t\2@> 0x01 @/
+@t\2@> 1 @/
 };
 
 uint8_t len = sizeof dev_desc;

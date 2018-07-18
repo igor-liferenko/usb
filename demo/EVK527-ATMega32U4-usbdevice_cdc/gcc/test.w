@@ -65,6 +65,9 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
+    if (UENUM != EP0) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '&'; @+ } /* this
+      is needed to ensure that things don't go wrong during PC reboot, when USB reset is
+      done multiple times */
   }
   else if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
