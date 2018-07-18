@@ -184,12 +184,13 @@ const uint8_t hid_report_descriptor[]
 };
 #endif
 @y
+% https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
 // TODO: do it via official descriptor tool - see page 166 of Agurov and chapter 8.5 in Agurov
 // http://kepstr.eltech.ru/tor/ptri/Literatura/Agurov%20USB.pdf
-// how to do it TODO: put link from chrome downloads here
+// how to do it
 // install descriptor tool on windows xp and then use syntax of hid_def.h
 };
 @z
