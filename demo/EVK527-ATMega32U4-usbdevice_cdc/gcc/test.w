@@ -535,15 +535,20 @@ typedef struct {
    uint8_t      iInterface; /* index of string descriptor */
 }  S_interface_descriptor;
 
-@ @<Initialize element 2 in user configuration descriptor@>= { @t\1@> @/
+@ |bInterfaceSubClass| signifies device type (non-bootable or bootable).
+
+|bInterfaceProtocol| is used if device is determined as bootable. It signifies
+standard protocol which the device supports (user-defined, keyboard or mouse).
+
+@<Initialize element 2 in user configuration descriptor@>= { @t\1@> @/
   sizeof (S_interface_descriptor), @/
   0x04, /* interface descriptor */
   0, /* this corresponds to `0' in `if0' on picture */
   0, /* this corresponds to `0' in `alt0' on picture */
   0x02, /* two endpoints are used */
   0x03, /* HID */
-  0, /* no subclass */
-  0, @/
+  0, /* non-bootable */
+  0, /* not used */
 @t\2@> 0 /* no string descriptor */
 }
 
@@ -558,8 +563,9 @@ typedef struct {
   uint16_t bcdHID;
   uint8_t bCountryCode;
   uint8_t bNumDescriptors;
-  uint8_t bReportDescriptorType;
-  uint16_t wDescriptorLength;
+  uint8_t bReportType;
+  uint16_t wReportLength;
+  /* more report-type/report-length pairs go here if |bNumDescriptors| is more than one */
 } S_hid_descriptor;
 
 @ @<Initialize element 3 in user configuration descriptor@>= { @t\1@> @/

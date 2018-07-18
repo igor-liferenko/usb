@@ -108,6 +108,12 @@ case 0x03:
 @z
 
 @x
+  0x02, /* two endpoints are used */
+@y
+  0x01, /* one endpoint is used */
+@z
+
+@x
 @ @d OUT (0 << 7)
 
 @<Initialize element 5 in user configuration descriptor@>= { @t\1@> @/
