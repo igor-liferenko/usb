@@ -187,7 +187,36 @@ const uint8_t hid_report_descriptor[]
 Note, that sum of all products report-count/report-size pairs divided by eight must be equal to
 |EP1| size in |UECFG1X|.
 
+The usual format for keyboard reports is the following byte array:
+
+[modifier, reserved, Key1, Key2, Key3, Key4, Key6, Key7]
+
+When you press the letter 'a' on a USB keyboard, the following report will be sent over the USB interrupt pipe:
+
+'a' report:     [0, 0, 4, 0, 0, 0, 0, 0]
+This '4' value is the Keycode for the letter 'a'
+
+After releasing the key, the following report will be sent:
+
+null report:    [0, 0, 0, 0, 0, 0, 0, 0]
+'4' is replaced with '0'; an array of zeros means nothing is being pressed.
+
+For an uppercase 'A', the report will also need to contain a 'Left Shift' modifier. The modifier byte is actually a bitmap, which means that each bit corresponds to one key:
+
+bit 0: left control
+bit 1: left shift
+bit 2: left alt
+bit 3: left GUI (Win/Apple/Meta key)
+bit 4: right control
+bit 5: right shift
+bit 6: right alt
+bit 7: right GUI
+With left shift pressed, out report will look like that:
+
+'A' report:     [2, 0, 4, 0, 0, 0, 0, 0]
+
 % https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
+% http://microsin.net/programming/avr-working-with-usb/avr271-usb-keyboard-demonstration.html
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
@@ -196,8 +225,8 @@ const uint8_t hid_report_descriptor[]
   HID_USAGE @,@, (KEYBOARD), @/
   HID_COLLECTION @,@, (APPLICATION), @t\1@> @/
     HID_USAGE_PAGE @,@, (KEYBOARD), @/
-    HID_USAGE_MINIMUM @,@, (1, 0xe0), @/
-    HID_USAGE_MAXIMUM @,@, (1, 0xe7), @/
+    HID_USAGE_MINIMUM @,@, (1, 0xe0), /* Left Control */
+    HID_USAGE_MAXIMUM @,@, (1, 0xe7), /* Right GUI */
     HID_LOGICAL_MINIMUM @,@, (1, 0), @/
     HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
     HID_REPORT_SIZE @,@, (1), @/
