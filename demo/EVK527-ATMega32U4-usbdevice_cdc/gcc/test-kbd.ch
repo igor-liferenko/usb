@@ -147,7 +147,7 @@ const uint8_t hid_report_descriptor[]
   0x15, 0x00, @t\hskip21pt@> /* {\bf11} Logical Minimum (0) */
   0x26, 0xFF,0x00, /* {\bf12} Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* {\bf13} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
+  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
     correspond to |UECFG1X| of |EP2|.} */
   0x91, 0x02, @t\hskip21pt@> /* {\bf15} OUT report (Data, Variable, Absolute) */
 @t\2@> 0xC0 @t\hskip46pt@> /* {\bf16} End Collection */
@@ -184,13 +184,36 @@ const uint8_t hid_report_descriptor[]
 };
 #endif
 @y
+Note, that sum of all products report-count/report-size pairs divided by eight must be equal to
+|EP1| size in |UECFG1X|.
+
 % https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
+
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-// TODO: do it via official descriptor tool - see page 166 of Agurov and chapter 8.5 in Agurov
-// how to do it (http://kepstr.eltech.ru/tor/ptri/Literatura/Agurov%20USB.pdf)
-// install descriptor tool on windows xp and then use syntax of hid_def.h
+  HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
+  HID_USAGE @,@, (KEYBOARD), @/
+  HID_COLLECTION @,@, (APPLICATION), @t\1@> @/
+    HID_USAGE_PAGE @,@, (KEYBOARD), @/
+    HID_USAGE_MINIMUM @,@, (1, 0xe0), @/
+    HID_USAGE_MAXIMUM @,@, (1, 0xe7), @/
+    HID_LOGICAL_MINIMUM @,@, (1, 0), @/
+    HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
+    HID_REPORT_SIZE @,@, (1), @/
+    HID_REPORT_COUNT @,@, (8), @/
+    HID_INPUT @,@, (Data,Var,Abs), @/
+    HID_REPORT_COUNT @,@, (1), @/
+    HID_REPORT_SIZE @,@, (8), @/
+    HID_INPUT @,@, (Cnst,Var,Abs), @/
+    HID_REPORT_COUNT @,@, (6), @/
+    HID_REPORT_SIZE @,@, (8), @/
+    HID_USAGE_MINIMUM @,@, (1, 0), @/
+    HID_USAGE_MAXIMUM @,@, (1, 101), @/
+    HID_LOGICAL_MINIMUM @,@, (1, 0), @/
+    HID_LOGICAL_MAXIMUM @,@, (1, 101), @/
+  @t\2@> HID_INPUT @,@, (Data,Ary,Abs), @/
+@t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
 };
 @z
 
