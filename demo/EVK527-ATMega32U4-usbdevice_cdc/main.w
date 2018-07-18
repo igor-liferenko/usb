@@ -1,7 +1,7 @@
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
-So, we have learned that after each reset control endpoint must be configured anew,
-and |CFGOK| need not be checked after configuring control endpoint.
+So, we have learned that |CFGOK| need not be checked after configuring control endpoint,
+and that after USB\_RESET control endpoint must be configured anew.
 
 \xdef\epconf{\secno}
 
