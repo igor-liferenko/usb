@@ -96,6 +96,14 @@ case 0x03:
 @z
 
 @x
+$$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
+  clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
+@y
+$$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=kbd-structure.eps
+  clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
+@z
+
+@x
    S_endpoint_descriptor      ep2;
 @y
 @z
@@ -214,6 +222,8 @@ bit 7: right GUI
 With left shift pressed, out report will look like that:
 
 'A' report:     [2, 0, 4, 0, 0, 0, 0, 0]
+
+A keyboard might contain a pointing device in addition to its keys. In that case, each input report will need to be prefixed with a report ID.
 
 % https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
 % http://microsin.net/programming/avr-working-with-usb/avr271-usb-keyboard-demonstration.html
