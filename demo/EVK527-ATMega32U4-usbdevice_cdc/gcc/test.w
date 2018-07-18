@@ -563,9 +563,8 @@ typedef struct {
   uint16_t bcdHID;
   uint8_t bCountryCode;
   uint8_t bNumDescriptors;
-  uint8_t bReportType;
-  uint16_t wReportLength;
-  /* more report-type/report-length pairs go here if |bNumDescriptors| is more than one */
+  uint8_t bReportDescriptorType;
+  uint16_t wReportDescriptorLength;
 } S_hid_descriptor;
 
 @ @<Initialize element 3 in user configuration descriptor@>= { @t\1@> @/
