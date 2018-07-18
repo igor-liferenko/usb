@@ -238,36 +238,37 @@ bit 7: right GUI\par
 {\bf Note:} A keyboard might contain a pointing device in addition to its keys. In that
 case, each input report will need to be prefixed with a report ID.
 
+This report descriptor was prepared in official ``HID descriptor tool'' (note: start
+it from the same folder to which it was unpacked).
+
 % https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
-% http://microsin.net/programming/avr-working-with-usb/%
-%   avr271-usb-keyboard-demonstration.html
+% chapter 8.5 of Agurov
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-TODO: do the following via hid descriptor tool and export to C code
-  HID_USAGE_PAGE @,@, (GENERIC_DESKTOP), @/
-  HID_USAGE @,@, (KEYBOARD), @/
-  HID_COLLECTION @,@, (APPLICATION), @t\1@> @/
-    HID_USAGE_PAGE @,@, (KEYBOARD), @/
-    HID_USAGE_MINIMUM @,@, (1, 0xe0), /* Left Control */
-    HID_USAGE_MAXIMUM @,@, (1, 0xe7), /* Right GUI */
-    HID_LOGICAL_MINIMUM @,@, (1, 0), @/
-    HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
-    HID_REPORT_SIZE @,@, (1), @/
-    HID_REPORT_COUNT @,@, (8), @/
-    HID_INPUT @,@, (DATA, VARIABLE, ABSOLUTE), @/
-    HID_REPORT_COUNT @,@, (1), @/
-    HID_REPORT_SIZE @,@, (8), @/
-    HID_INPUT @,@, (CONSTANT, VARIABLE, ABSOLUTE), @/
-    HID_REPORT_COUNT @,@, (6), @/
-    HID_REPORT_SIZE @,@, (8), @/
-    HID_USAGE_MINIMUM @,@, (1, 0), @/
-    HID_USAGE_MAXIMUM @,@, (1, 101), @/
-    HID_LOGICAL_MINIMUM @,@, (1, 0), @/
-    HID_LOGICAL_MAXIMUM @,@, (1, 101), @/
-  @t\2@> HID_INPUT @,@, (DATA, ARRAY, ABSOLUTE), @/
-@t\2@> HID_END_COLLECTION @,@,() @/
+  0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+  0x09, 0x06,                    // USAGE (Keyboard)
+  0xa1, 0x01,                    // COLLECTION (Application)
+  0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
+  0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
+  0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
+  0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+  0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+  0x75, 0x01,                    //   REPORT_SIZE (1)
+  0x95, 0x08,                    //   REPORT_COUNT (8)
+  0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+  0x75, 0x08,                    //   REPORT_SIZE (8)
+  0x95, 0x01,                    //   REPORT_COUNT (1)
+  0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
+  0x75, 0x08,                    //   REPORT_SIZE (8)
+  0x95, 0x06,                    //   REPORT_COUNT (6)
+  0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
+  0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
+  0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+  0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
+  0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
+@t\2@> 0xc0                      // END_COLLECTION
 };
 @z
 
