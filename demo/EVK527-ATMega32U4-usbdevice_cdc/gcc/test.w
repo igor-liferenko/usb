@@ -56,7 +56,9 @@ void main(void)
   while (1) ;
 }
 
-@ The trick here is that order of checking matters (as multiple bits can be set in |UDINT|).
+@ The trick here is that order of checking matters, and later conditions are not checked
+if earlier one matches --- this way we don't have to check for |EORSTE|, |SUSPE| and
+|WAKEUPE| correspondingly.
 
 @c
 ISR(USB_GEN_vect)
@@ -84,11 +86,12 @@ ISR(USB_GEN_vect)
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 
-@ @c
+@ FIXME: seems like this interrupt is not triggered in WinXP - why?
+@^FIXME@>
+
+@c
 ISR(USB_COM_vect)
 {
-//  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'X';
-// why in winxp only 'r' appears? - use this to check further
   if (UEINT == (1 << EP0)) {
     uint8_t bmRequestType = UEDATX;
     uint8_t bRequest = UEDATX;
