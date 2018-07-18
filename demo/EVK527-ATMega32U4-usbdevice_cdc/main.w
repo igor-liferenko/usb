@@ -1,5 +1,7 @@
 @ In this test we determine how endpoint configuration reacts to reset.
-The result is `\.{esa}'. So, after each reset each of these parameters must be set again.
+The result is `\.{esa}'.
+So, we have learned that after each reset control endpoint must be configured anew,
+and |CFGOK| need not be checked after configuring control endpoint.
 
 \xdef\epconf{\secno}
 
@@ -38,85 +40,13 @@ void main(void)
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
   if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
-
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  (void) UEDATX;
-  if (UEDATX == 0x06) {
-    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
-  }
 }
 
 @ Here we want to find out how many resets happen until first setup packet arrives.
-We start like in \S\epconf\ and start adding code for waiting for successive resets.
-Adding code for waiting for a reset consists of two stages: first we add code to configure items
-which are output after previous reset and check if `\.{\%}' appears.
-If it is, we are done. If not, we add the |while| loop and checking endpoint configuration.
-Then the process repeats. To count the number of resets, we output a number after each reset.
-The result is one, two or three resets.\footnote*{In usb hub it is 1, is PC it is two
-or three.} And after each reset endpoint must
-be configured. And |CFGOK| need not be checked.
-
-\xdef\numreset{\secno}
-
-@(/dev/null@>=
-#include <avr/io.h>
-
-#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-#define configured_en (UECONX & (1 << EPEN))
-#define configured_sz (UECFG1X & (1 << EPSIZE1))
-#define configured_al (UECFG1X & (1 << ALLOC))
-#define configured_ok (UESTA0X & (1 << CFGOK))
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-
-  configure;
-  if (!configured_ok) UDR1 = '=';
-
-  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '1';
-  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
-  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
-  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
-  configure;
-  if (!configured_ok) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '='; @+ }
-
-  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '2';
-  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
-  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
-  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
-  configure;
-
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  (void) UEDATX;
-  if (UEDATX == 0x06) {
-    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
-  }
-}
-
-@ Now we can move further: we detect reset via interrupts.
-Also, here we count number of resets.
 Result is one, two or three\footnote*{In usb hub it is 1, is PC it is two
 or three.}.
 
-\xdef\interrupt{\secno}
+\xdef\numreset{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
