@@ -147,7 +147,7 @@ const uint8_t hid_report_descriptor[]
   0x15, 0x00, @t\hskip21pt@> /* {\bf11} Logical Minimum (0) */
   0x26, 0xFF,0x00, /* {\bf12} Logical Maximum (255) */
   0x75, 0x08, @t\hskip21pt@> /* {\bf13} Report Size (8) */
-  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
+  0x95, 0x08, @t\hskip21pt@> /* {\bf14} Report Count (8)\footnote{\ddag\ddag}{Must
     correspond to |UECFG1X| of |EP2|.} */
   0x91, 0x02, @t\hskip21pt@> /* {\bf15} OUT report (Data, Variable, Absolute) */
 @t\2@> 0xC0 @t\hskip46pt@> /* {\bf16} End Collection */
@@ -202,18 +202,18 @@ const uint8_t hid_report_descriptor[]
     HID_LOGICAL_MAXIMUM @,@, (1, 1), @/
     HID_REPORT_SIZE @,@, (1), @/
     HID_REPORT_COUNT @,@, (8), @/
-    HID_INPUT @,@, (Data,Var,Abs), @/
+    HID_INPUT @,@, (DATA, VARIABLE, ABSOLUTE), @/
     HID_REPORT_COUNT @,@, (1), @/
     HID_REPORT_SIZE @,@, (8), @/
-    HID_INPUT @,@, (Cnst,Var,Abs), @/
+    HID_INPUT @,@, (CONSTANT, VARIABLE, ABSOLUTE), @/
     HID_REPORT_COUNT @,@, (6), @/
     HID_REPORT_SIZE @,@, (8), @/
     HID_USAGE_MINIMUM @,@, (1, 0), @/
     HID_USAGE_MAXIMUM @,@, (1, 101), @/
     HID_LOGICAL_MINIMUM @,@, (1, 0), @/
     HID_LOGICAL_MAXIMUM @,@, (1, 101), @/
-  @t\2@> HID_INPUT @,@, (Data,Ary,Abs), @/
-@t\2@> HID_END_COLLECTION @,@, (APPLICATION) @/
+  @t\2@> HID_INPUT @,@, (DATA, ARRAY, ABSOLUTE), @/
+@t\2@> HID_END_COLLECTION @,@,() @/
 };
 @z
 
