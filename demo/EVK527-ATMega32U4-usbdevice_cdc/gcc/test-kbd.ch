@@ -38,7 +38,7 @@
       UEINTX &= ~(1 << TXINI);
       UEINTX &= ~(1 << FIFOCON);
     }
-    _delay_ms(500);
+    _delay_ms(1000);
   }
 @z
 
