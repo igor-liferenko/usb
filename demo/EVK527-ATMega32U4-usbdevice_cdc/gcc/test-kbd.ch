@@ -92,14 +92,6 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
   
 @x
-if (flag == 1) {
-  flag = 0;
-  UENUM = EP2;
-}
-@y
-@z
-
-@x
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
