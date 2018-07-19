@@ -18,7 +18,6 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 @<Functions@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
-int flag = 0;
 
 void main(void)
 {
@@ -37,7 +36,7 @@ void main(void)
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
 
-  UDIEN = (1 << SUSPE) | (1 << EORSTE);
+  UDIEN = 1 << EORSTE;
   SMCR = 1 << SE;
   sei();
 
@@ -95,21 +94,6 @@ ISR(USB_GEN_vect)
     UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
-  }
-  if (UDINT & 1 << SUSPI && UDIEN & 1 << SUSPE) {
-    UDINT &= ~(1 << SUSPI);
-    USBCON |= 1 << FRZCLK;
-    PLLCSR &= ~(1 << PLLE);
-    UDIEN |= 1 << WAKEUPE;
-  }
-  if (UDINT & 1 << WAKEUPI && UDIEN & 1 << WAKEUPE) {
-    PLLCSR |= 1 << PLLE;
-    while (!(PLLCSR & (1 << PLOCK))) ;
-    USBCON &= ~(1 << FRZCLK);
-    UDINT &= ~(1 << WAKEUPI);
-    UDIEN &= ~(1 << WAKEUPE);
-    UENUM = EP0;
-    flag = 1;
   }
 }
 
@@ -212,11 +196,6 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
 
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
-if (flag == 1) {
-  flag = 0;
-  UENUM = EP2;
-}
 
 @ @<stand\_desc@>=
 @<Read buffer@>@;
