@@ -174,6 +174,55 @@ ISR(USB_GEN_vect)
   }
 }
 
+@ In this test we show that |RSTCPU| bit must never be used.
+In this test on Windows XP the `\.{\%}' is never output.
+This is due to the fact
+that setup packet arrives during the reset timeout (see picture in \S8.0.7 in datasheet),
+and is thus not detected by the device.
+
+The output is `\.{rrrrr}'.
+
+@(test.c@>=
+#include <avr/io.h>
+#include <avr/wdt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  wdt_reset();
+  MCUSR &= ~(1<<WDRF);
+  WDTCSR |= (1<<WDCE) | (1<<WDE);
+  WDTCSR = 0;
+
+  uint8_t usb_reset = MCUSR & (1 << 5); @+ MCUSR = 0; /* reset as early as possible
+    (\S8.0.8 in datasheet) ---~to save some cycles (see below) */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset caused by it */
+  UDR1 = 'r';
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+  if (!usb_reset) { /* save some cycles */
+    USBCON |= 1 << USBE;
+    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE| ---~checked
+      by checking this bit after setting it */
+    USBCON &= ~(1 << FRZCLK);
+    USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+    while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+    UDCON &= ~(1 << DETACH);
+  }
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
+}
+
 @ OK, enough tests. We now have all the information that we need.
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
