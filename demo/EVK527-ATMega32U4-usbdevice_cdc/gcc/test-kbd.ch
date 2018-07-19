@@ -235,14 +235,8 @@ bit 7: right GUI\par
 
 \centerline{|0x02|, |0x00|, |0x04|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|}
 
-{\bf Note:} A keyboard might contain a pointing device in addition to its keys. In that
-case, each input report will need to be prefixed with a report ID.
-
 This report descriptor was prepared in official ``HID descriptor tool'' (note: start
-it from the same folder to which it was unpacked).
-
-% https://docs.mbed.com/docs/ble-hid/en/latest/api/md_doc_HID.html
-% chapter 8.5 of Agurov
+the executable from the same folder to which it was unpacked).
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
