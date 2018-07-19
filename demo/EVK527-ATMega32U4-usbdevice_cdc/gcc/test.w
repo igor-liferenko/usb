@@ -43,19 +43,10 @@ void main(void)
   while (1) ;
 }
 
-@ The trick here is that order of checking matters, and conditions, which follow the
-contidion that matches, are discarded.
-This way we don't have to check for |EORSTE|, |SUSPE| and
-|WAKEUPE| correspondingly.
-The reasoning is as follows:
-|EORSTI| is the event which must discard all other events.
-If |SUSPI| is set, all other events do not matter.
-And |WAKEUPI| by definition must happen before any other interrupts occur.
-
-@c
+@ @c
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
+  if (UDINT & 1 << EORSTI && UDIEN & 1 << EORSTE) {
     UDINT &= ~(1 << EORSTI);
     if (UENUM != EP0) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '&'; @+ } /* this
       is needed to ensure that things don't go wrong during PC reboot, when USB reset is
@@ -65,13 +56,13 @@ ISR(USB_GEN_vect)
     UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
-  else if (UDINT & (1 << SUSPI)) {
+  if (UDINT & 1 << SUSPI && UDIEN & 1 << SUSPE) {
     UDINT &= ~(1 << SUSPI);
     USBCON |= 1 << FRZCLK;
     PLLCSR &= ~(1 << PLLE);
     UDIEN |= 1 << WAKEUPE;
   }
-  else if (UDINT & (1 << WAKEUPI)) {
+  if (UDINT & 1 << WAKEUPI && UDIEN & 1 << WAKEUPE) {
     PLLCSR |= 1 << PLLE;
     while (!(PLLCSR & (1 << PLOCK))) ;
     USBCON &= ~(1 << FRZCLK);
@@ -85,12 +76,7 @@ ISR(USB_GEN_vect)
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 
-@ FIXME: seems like this interrupt is not triggered in WinXP - why?
-@^FIXME@>
-Try to add checking for |EORSTE|, |SUSPE| and |WAKEUPE| in |USB_GEN_vect| and see if it helps
-(test with rstcpu.ch)
-
-@c
+@ @c
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP0)) {
