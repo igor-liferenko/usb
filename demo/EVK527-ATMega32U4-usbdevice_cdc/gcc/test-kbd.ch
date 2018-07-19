@@ -46,6 +46,7 @@
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 @y
+volatile int debug = 0;
 @z
 
 @x
@@ -89,12 +90,16 @@ if (flag == 1) {
 @z
 
 @x
-  send_descriptor(&(hid_report_descriptor[0]), wLength);
-
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
-  send_descriptor(&(hid_report_descriptor[0]), wLength);
+  DDRB |= 1 << PB0;
+  PORTB |= 1 << PB0;
+  if (debug > 0) {
+    DDRD |= 1 << PD5;
+    PORTD |= 1 << PD5;
+  }
+  debug++;
   connected = 1;
 @z
 

@@ -245,9 +245,9 @@ default: @/
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 
-if (bDescriptorType == 0x22 && wLength == sizeof hid_report_descriptor) { /* WinXP bug is here */
+if (bDescriptorType == 0x22) { /* WinXP bug is here */
 @^WinXP@>
-  send_descriptor(&(hid_report_descriptor[0]), wLength);
+  send_descriptor(&(hid_report_descriptor[0]), sizeof hid_report_descriptor);
 
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
