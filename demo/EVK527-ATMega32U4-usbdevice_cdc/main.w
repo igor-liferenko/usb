@@ -216,7 +216,54 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
 }
 
-@ This test shows that \.{EP0} handling inside interrupt does not work.
+@ This test shows that |USB_COM_vect| interrupt handler is not called for |RXSTPI|.
+
+@(test.c@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+volatile int num = 0;
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  UDIEN |= 1 << EORSTE;
+  UEIENX |= 1 << RXSTPE;
+  sei();
+
+  while (1) ;
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    num++;
+    UECONX |= 1 << EPEN;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  }
+}
+
+ISR(USB_COM_vect)
+{
+  UDR1 = '%';
+}
 
 @ OK, enough tests. We now have all the information that we need.
 
