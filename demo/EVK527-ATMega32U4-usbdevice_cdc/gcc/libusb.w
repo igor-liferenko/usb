@@ -5,6 +5,7 @@
 // which AVR will then pass to tel.w (create composite device like in arduino-kbd.pcapng,
 // but use OUT endpoint in HID instead of IN (see asm.S for an example))
 // Compile with "gcc libusb.c -lusb-1.0"
+// NO!!! better try https://www.kernel.org/doc/Documentation/hid/hidraw.txt
 #include <stdio.h>
 #include <libusb-1.0/libusb.h>
 #include <stdint.h>
