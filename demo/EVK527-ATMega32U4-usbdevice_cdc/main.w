@@ -216,13 +216,12 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
 }
 
-@ This test shows that |USB_COM_vect| interrupt handler is not called for |RXSTPI|.
+@ This test shows that |USB_COM_vect| is not called for |RXSTPI|.
+(on windows xp). TODO: check on linux
 
 @(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-volatile int num = 0;
 
 void main(void)
 {
@@ -254,7 +253,6 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    num++;
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
   }
