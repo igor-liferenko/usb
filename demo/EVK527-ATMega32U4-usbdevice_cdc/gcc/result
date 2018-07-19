@@ -6,4 +6,8 @@ with RSTCPU: EP0 handling in main loop works
              EP0 handling inside interrupt works
 
 Windows:
+without RSTCPU: EP0 handling in main loop works
+                EP0 handling inside interrupt does not work
+
 with RSTCPU: EP0 handling in main loop does not work
+             EP0 handling inside interrupt does not work
