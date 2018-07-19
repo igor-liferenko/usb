@@ -43,9 +43,14 @@ void main(void)
   while (1) ;
 }
 
-@ The trick here is that order of checking matters, and later conditions are not checked
-if earlier one matches --- this way we don't have to check for |EORSTE|, |SUSPE| and
+@ The trick here is that order of checking matters, and conditions, which follow the
+contidion that matches, are discarded.
+This way we don't have to check for |EORSTE|, |SUSPE| and
 |WAKEUPE| correspondingly.
+The reasoning is as follows:
+|EORSTI| is the event which must discard all other events.
+If |SUSPI| is set, all other events do not matter.
+And |WAKEUPI| by definition must happen before any other interrupts occur.
 
 @c
 ISR(USB_GEN_vect)
