@@ -1,48 +1,49 @@
+TODO: see wireshark trace and set connected = 1 where needed
+
 @x
 @d EP2 2
 @y
 @z
 
 @x
-@ @<Global \null variables@>=
-volatile uint8_t a[8];
+  while (1) ;
 @y
+  UENUM = EP1;
+  PORTB |= 1 << PB6;
+  while (1) {
+    if (!(PINB & 1 << PB6)) {
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until transmit buffer is ready */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0x04;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+        new packet to be sent when following IN request arrives (for key release) */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+    }
+    _delay_ms(500);
+  }
 @z
 
 @x
-  else if (UEINT == (1 << EP1)) {
-    for (int i = 0; i < 8; i++)
-      UEDATX = a[i];
-    UEINTX &= ~(1 << TXINI);
-    UEINTX &= ~(1 << FIFOCON);
-
-    UENUM = EP2;
-  }
+@ @<Global \null variables@>=
+volatile uint8_t a[8];
 @y
-  else if (UEINT == (1 << EP1)) {
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0x04;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEINTX &= ~(1 << TXINI);
-    UEINTX &= ~(1 << FIFOCON);
-    while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-      new packet to be sent when following IN request arrives (for key release) */
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEDATX = 0;
-    UEINTX &= ~(1 << TXINI);
-    UEINTX &= ~(1 << FIFOCON);
-  }
 @z
 
 @x
