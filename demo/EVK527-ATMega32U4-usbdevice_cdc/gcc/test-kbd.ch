@@ -235,8 +235,8 @@ bit 7: right GUI\par
 
 \centerline{|0x02|, |0x00|, |0x04|, |0x00|, |0x00|, |0x00|, |0x00|, |0x00|}
 
-This report descriptor was prepared in official ``HID descriptor tool'' (note: start
-the executable from the same folder to which it was unpacked).
+{\bf Note:} This report descriptor was prepared in official ``HID descriptor tool'' (it works
+in \.{wine}; start the executable from the same folder to which it was unpacked).
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
