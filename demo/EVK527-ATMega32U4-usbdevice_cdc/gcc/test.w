@@ -27,7 +27,7 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'r';
+
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -93,6 +93,7 @@ ISR(USB_GEN_vect)
     UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
     UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
   }
   if (UDINT & 1 << SUSPI && UDIEN & 1 << SUSPE) {
     UDINT &= ~(1 << SUSPI);
