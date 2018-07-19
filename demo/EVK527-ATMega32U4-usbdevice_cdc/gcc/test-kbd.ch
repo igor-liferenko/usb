@@ -105,6 +105,12 @@ case 0x03:
 @z
 
 @x
+  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  0x03, /* (\.{SerialNumber} in \.{kern.log}) */xxx
+@y
+@z
+
+@x
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=hid-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 @y
