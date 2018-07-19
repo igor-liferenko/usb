@@ -115,9 +115,9 @@ while (!(UESTA0X & (1 << CFGOK))) ;
   UENUM = EP1;
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
-  EICRA |= 1 << ISC01; /* set INT0 to trigger on falling edge */
+  EICRA |= 1 << ISC01 | 1 << ISC00; /* set INT0 to trigger on rising edge */
   EIMSK |= 1 << INT0; /* turn on INT0 */
-  EICRA |= 1 << ISC11; /* set INT1 to trigger on falling edge */
+  EICRA |= 1 << ISC11 | 1 << ISC10; /* set INT1 to trigger on rising edge */
   EIMSK |= 1 << INT1; /* turn on INT1 */
 @z
 
