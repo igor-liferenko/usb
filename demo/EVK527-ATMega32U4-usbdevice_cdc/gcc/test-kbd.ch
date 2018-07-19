@@ -45,7 +45,7 @@ ISR(INT0_vect)
 {
       UEDATX = 0;
       UEDATX = 0;
-      UEDATX = 4;
+      UEDATX = 0x04;
       UEDATX = 0;
       UEDATX = 0;
       UEDATX = 0;
@@ -72,7 +72,7 @@ ISR(INT1_vect)
 {
       UEDATX = 0;
       UEDATX = 0;
-      UEDATX = 29;
+      UEDATX = 0x29;
       UEDATX = 0;
       UEDATX = 0;
       UEDATX = 0;
