@@ -2,7 +2,7 @@
 
 @c
 //TODO: find out how to use it and use it to pass data to AVR from network
-// which AVR will then pass to tel.w (create composite device like in arduino-kbd.pcapng,
+// which AVR will then pass to tel.w (create composite device like in arduino-combined.pcapng,
 // but use OUT endpoint in HID instead of IN (see asm.S for an example))
 // Compile with "gcc libusb.c -lusb-1.0"
 // NO!!! better try https://www.kernel.org/doc/Documentation/hid/hidraw.txt
