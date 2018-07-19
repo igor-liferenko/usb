@@ -7,8 +7,6 @@
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 @y
-@ @<Global \null variables@>=
-volatile int debug = 0;
 @z
 
 @x
@@ -113,19 +111,13 @@ while (!(UESTA0X & (1 << CFGOK))) ;
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
-  DDRB |= 1 << PB0;
-  PORTB |= 1 << PB0;
-  if (debug > 0) {
-    DDRD |= 1 << PD5;
-    PORTD |= 1 << PD5;
-  }
-  debug++;
   connected = 1;
   UENUM = EP1;
-  PORTB |= 1 << PB6;
-  EICRA |= 1 << ISC01 | 1 << ISC00; /* set INT0 to trigger on rising edge */
+  PORTD |= 1 << PD0;
+  PORTD |= 1 << PD1;
+  EICRA |= 1 << ISC01; /* set INT0 to trigger on falling edge */
   EIMSK |= 1 << INT0; /* turn on INT0 */
-  EICRA |= 1 << ISC11 | 1 << ISC10; /* set INT1 to trigger on rising edge */
+  EICRA |= 1 << ISC11; /* set INT1 to trigger on falling edge */
   EIMSK |= 1 << INT1; /* turn on INT1 */
 @z
 
