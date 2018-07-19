@@ -195,7 +195,8 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset */
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (without it just `\.{rr}' will
+    be output) */
   UDR1 = 'r';
 
   PLLCSR |= 1 << PINDIV;
