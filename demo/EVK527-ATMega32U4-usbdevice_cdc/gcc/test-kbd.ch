@@ -47,6 +47,8 @@ volatile int debug = 0;
 @z
 
 @x
+ISR(USB_COM_vect)
+{
   if (UEINT == (1 << EP1)) {
     for (int i = 0; i < 8; i++)
       UEDATX = a[i];
@@ -64,6 +66,17 @@ volatile int debug = 0;
     UENUM = EP1;
     UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   }
+    /* FIXME: what sets it to 1 for the first time when nothing was sent yet
+       (and thus not acknowledged)? because acknowledging the packet by host sets TXINI to
+       1 normally */
+/* question: \S22.14.1 of the datasheet says that when the bank is empty
+   TXINI is set, and at the same time says that TXINI is 0 initially (description of
+   UEINTX register), but this is a contradiction, because at the beginning bank *is* empty */
+/* but if TXINI is set to 1 when endpoint is configured, the interrupt cannot be triggered
+   because interrupt here is enabled later than endpoint is configured */
+/* TODO: via UDR1 find the exact spot where it goes from 0 to 1 for the first time */
+@^TODO@>
+}
 @y
 @z
 
