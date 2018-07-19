@@ -81,9 +81,11 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
   
 @x
+if (flag == 1) {
+  flag = 0;
   UENUM = EP2;
+}
 @y
-  UENUM = EP1;
 @z
 
 @x
