@@ -5,6 +5,10 @@ without RSTCPU: EP0 handling in main loop works
 with RSTCPU: EP0 handling in main loop works
              EP0 handling inside interrupt works
 
+!!! how can this be - in one case interrputs work and in another not - check again by
+taking commit 8b5fe522 of test.w for the first case and commit 1ed4b227caa of test.w for the
+second case
+
 Windows:
 without RSTCPU: EP0 handling in main loop works
                 EP0 handling inside interrupt does not work
