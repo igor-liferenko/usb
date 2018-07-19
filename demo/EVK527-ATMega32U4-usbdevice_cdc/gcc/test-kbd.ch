@@ -6,9 +6,13 @@
 @x
   while (1) ;
 @y
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'c';
   UENUM = EP1;
   PORTB |= 1 << PB6;
   while (1) {
+    UENUM = EP0;
+    if (UEINTX & 1 << RXSTPI) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'x'; @+}
+    UENUM = EP1;
     if (!(PINB & 1 << PB6)) {
       while (!(UEINTX & (1 << TXINI))) ; /* wait until current bank is free and can be filled */
       UEDATX = 0;
