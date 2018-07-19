@@ -47,6 +47,14 @@ volatile uint8_t a[8];
 @z
 
 @x
+  if (UEINT == (1 << EP1)) {
+    for (int i = 0; i < 8; i++)
+      UEDATX = a[i];
+    UEINTX &= ~(1 << TXINI);
+    UEINTX &= ~(1 << FIFOCON);
+
+    UENUM = EP2;
+  }
   else if (UEINT == (1 << EP2)) {
     UEINTX &= ~(1 << RXOUTI);
     for (int i = 0; i < 8; i++)
@@ -278,4 +286,12 @@ const uint8_t sn_desc[]
 @t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
 };
 @y
+@z
+
+@x
+#include <avr/io.h>
+@y
+#include <avr/io.h>
+#define F_CPU 16000000UL
+#include <util/delay.h>
 @z
