@@ -2,6 +2,7 @@
 The result is `\.{esa}'.
 So, we have learned that |CFGOK| need not be checked after configuring control endpoint,
 and that after USB\_RESET control endpoint must be configured anew.
+This contradicts to \S21.13,22.4 in datasheet.
 
 \xdef\epconf{\secno}
 
