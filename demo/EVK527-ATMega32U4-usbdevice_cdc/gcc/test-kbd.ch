@@ -46,6 +46,7 @@
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 @y
+@ @<Global \null variables@>=
 volatile int debug = 0;
 @z
 
