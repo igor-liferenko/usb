@@ -4,41 +4,6 @@
 @z
 
 @x
-  while (1) ;
-@y
-  UENUM = EP1;
-  PORTB |= 1 << PB6;
-  while (1) {
-    if (!(PINB & 1 << PB6)) {
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until current bank is free and can be filled */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0x04;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-        new packet to be sent when following IN request arrives (for key release) */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-    }
-    _delay_ms(1000);
-  }
-@z
-
-@x
 @ @<Global \null variables@>=
 volatile uint8_t a[8];
 @y
@@ -78,6 +43,59 @@ ISR(USB_COM_vect)
 @^TODO@>
 }
 @y
+ISR(INT0_vect)
+{
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 4;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+        new packet to be sent when following IN request arrives (for key release) */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
+}
+
+ISR(INT1_vect)
+{
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 29;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+        new packet to be sent when following IN request arrives (for key release) */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
+}
 @z
 
 @x
@@ -103,6 +121,12 @@ while (!(UESTA0X & (1 << CFGOK))) ;
   }
   debug++;
   connected = 1;
+  UENUM = EP1;
+  PORTB |= 1 << PB6;
+  EICRA |= 1 << ISC01 | 1 << ISC00; /* set INT0 to trigger on rising edge */
+  EIMSK |= 1 << INT0; /* turn on INT0 */
+  EICRA |= 1 << ISC11 | 1 << ISC10; /* set INT1 to trigger on rising edge */
+  EIMSK |= 1 << INT1; /* turn on INT1 */
 @z
 
 @x
