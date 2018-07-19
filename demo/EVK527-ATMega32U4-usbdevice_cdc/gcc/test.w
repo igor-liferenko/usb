@@ -37,9 +37,47 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
-  UEIENX = 1 << RXSTPE;
   SMCR = 1 << SE;
   sei();
+
+  int connected = 0;
+  while (!connected) {
+    if (UEINTX & (1 << RXSTPI)) {
+      uint8_t bmRequestType = UEDATX;
+      uint8_t bRequest = UEDATX;
+      uint8_t bDescriptorType;
+      uint16_t wLength;
+      int index;
+      const void *buf;
+      int size;
+      switch (bRequest)
+      {
+      case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
+        is checked before bDescriptorType, not after */
+        /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
+        @<get\_dsc@>@;
+        break;
+      case 0x05: @/
+        @<set\_adr@>@;
+        break;
+      case 0x09:
+        if (bmRequestType == 0x00) {
+          @<set\_cfg@>@;
+        } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) ANSWER: SET\_REPORT
+             lets host transfer data to device vie EP0 */
+        break;
+      case 0x0A:
+        if (bmRequestType == 0x21) {
+          @<set\_idle@>@;
+        }
+        break;
+      default: @/
+        UEINTX &= ~(1 << RXSTPI);
+        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
+      }
+    }
+  }
+
   while (1) ;
 }
 
@@ -79,41 +117,7 @@ volatile uint8_t a[8];
 @ @c
 ISR(USB_COM_vect)
 {
-  if (UEINT == (1 << EP0)) {
-    uint8_t bmRequestType = UEDATX;
-    uint8_t bRequest = UEDATX;
-    uint8_t bDescriptorType;
-    uint16_t wLength;
-    int index;
-    const void *buf;
-    int size;
-    switch (bRequest)
-    {
-    case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
-      is checked before bDescriptorType, not after */
-      /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
-      @<get\_dsc@>@;
-      break;
-    case 0x05: @/
-      @<set\_adr@>@;
-      break;
-    case 0x09:
-      if (bmRequestType == 0x00) {
-        @<set\_cfg@>@;
-      } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) ANSWER: SET\_REPORT
-           lets host transfer data to device vie EP0 */
-      break;
-    case 0x0A:
-      if (bmRequestType == 0x21) {
-        @<set\_idle@>@;
-      }
-      break;
-    default: @/
-      UEINTX &= ~(1 << RXSTPI);
-      while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
-    }
-  }
-  else if (UEINT == (1 << EP1)) {
+  if (UEINT == (1 << EP1)) {
     for (int i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
