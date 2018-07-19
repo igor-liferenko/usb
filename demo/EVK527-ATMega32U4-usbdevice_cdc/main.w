@@ -181,7 +181,7 @@ This is because it happens that setup packet arrives during the reset timeout
 
 The output is `\.{rrrrr}'.
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 
 void main(void)
