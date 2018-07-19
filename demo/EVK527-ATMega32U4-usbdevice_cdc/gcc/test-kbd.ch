@@ -106,8 +106,8 @@ case 0x03:
 
 @x
   0x03, /* (\.{SerialNumber} in \.{kern.log}) */
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */xxx
 @y
+  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
 @z
 
 @x
