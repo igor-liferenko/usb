@@ -194,7 +194,7 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset caused by it */
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset */
   UDR1 = 'r';
 
   PLLCSR |= 1 << PINDIV;
@@ -202,8 +202,8 @@ void main(void)
   while (!(PLLCSR & (1<<PLOCK))) ;
   if (!usb_reset) { /* save some cycles */
     USBCON |= 1 << USBE;
-    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE| ---~checked
-      by checking this bit after setting it */
+    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
+      otherwise this bit remains unset after setting it */
     USBCON &= ~(1 << FRZCLK);
     USBCON |= 1 << OTGPADE; /* enable VBUS pad */
     while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
@@ -215,6 +215,8 @@ void main(void)
   while (!(UEINTX & (1 << RXSTPI))) ;
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
 }
+
+@ This test shows that \.{EP0} handling inside interrupt does not work.
 
 @ OK, enough tests. We now have all the information that we need.
 
