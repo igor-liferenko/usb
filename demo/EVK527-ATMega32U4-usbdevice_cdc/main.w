@@ -195,8 +195,8 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (without it just `\.{rr}' will
-    be output) */
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (without
+    it just `\.{rr}' will be output) */
   UDR1 = 'r';
 
   PLLCSR |= 1 << PINDIV;
@@ -221,7 +221,7 @@ void main(void)
 @ This test shows that |USB_COM_vect| is not called for |RXSTPI|.
 (on windows xp). TODO: check on linux
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
