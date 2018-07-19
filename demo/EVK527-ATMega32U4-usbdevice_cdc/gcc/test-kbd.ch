@@ -1,5 +1,3 @@
-TODO: see wireshark trace and set connected = 1 where needed
-
 @x
 @d EP2 2
 @y
@@ -12,7 +10,7 @@ TODO: see wireshark trace and set connected = 1 where needed
   PORTB |= 1 << PB6;
   while (1) {
     if (!(PINB & 1 << PB6)) {
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until transmit buffer is ready */
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until current bank is free and can be filled */
       UEDATX = 0;
       UEDATX = 0;
       UEDATX = 0x04;
@@ -91,9 +89,7 @@ while (!(UESTA0X & (1 << CFGOK))) ;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
   send_descriptor(&(hid_report_descriptor[0]), wLength);
-
-  UENUM = EP1;
-  UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
+  connected = 1;
 @z
 
 @x
