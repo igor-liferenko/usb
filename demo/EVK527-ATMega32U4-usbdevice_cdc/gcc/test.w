@@ -122,6 +122,7 @@ volatile uint8_t a[8];
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP1)) {
+    while (!(UCSR1A & 1 << UDRE1)) ;
     if (UENUM != EP1) UDR1 = 'x';
     else UDR1 = 'y';
     UENUM = EP1;
@@ -131,6 +132,7 @@ ISR(USB_COM_vect)
     UEINTX &= ~(1 << FIFOCON);
   }
   else if (UEINT == (1 << EP2)) {
+    while (!(UCSR1A & 1 << UDRE1)) ;
     if (UENUM != EP2) UDR1 = 't';
     else UDR1 = 'z';
     UENUM = EP2;
@@ -716,5 +718,6 @@ const uint8_t sn_desc[]
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 
 @* Index.
