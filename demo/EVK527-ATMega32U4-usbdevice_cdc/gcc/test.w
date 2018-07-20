@@ -240,7 +240,8 @@ case 0x06:
 //TODO: device qualifier
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 #if 1==0
-  UEINTX &= ~(1 << TXINI); /* try this to correspond to arduino-kbd-linux.pcapng */
+/* set usb version 0x0200 and try this to correspond to arduino-kbd-linux.pcapng */
+  UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #endif
@@ -254,8 +255,7 @@ default: @/
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 
-if (bDescriptorType == 0x22) { /* WinXP bug is here */
-@^WinXP@>
+if (bDescriptorType == 0x22) {
   send_descriptor(&(hid_report_descriptor[0]), sizeof hid_report_descriptor);
 }
 
