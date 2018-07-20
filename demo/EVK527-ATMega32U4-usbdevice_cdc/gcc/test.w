@@ -237,26 +237,13 @@ case 0x03: @/
   @<d\_str@>@;
   break;
 case 0x06:
-//TODO: device qualifier
+// TODO: respond with a request error (https://www.keil.com/pack/doc/mw/USB/html/_u_s_b__device__qualifier__descriptor.html)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 #if 1==0
 /* set usb version 0x0200 and try this to correspond to arduino-kbd-linux.pcapng */
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
-#endif
-#if 1==0
-typedef struct {
-   U8      bLength;               //!< Size of this descriptor in bytes
-   U8      bDescriptorType;       //!< Device Qualifier descriptor type
-   U16     bscUSB;                //!< Binay Coded Decimal Spec. release
-   U8      bDeviceClass;          //!< Class code assigned by the USB
-   U8      bDeviceSubClass;       //!< Sub-class code assigned by the USB
-   U8      bDeviceProtocol;       //!< Protocol code assigned by the USB
-   U8      bMaxPacketSize0;       //!< Max packet size for EP0
-   U8      bNumConfigurations;    //!< Number of possible configurations
-   U8      bReserved;             //!< Reserved for future use, must be zero
-}  S_usb_device_qualifier_descriptor;
 #endif
   break;
 default: @/
