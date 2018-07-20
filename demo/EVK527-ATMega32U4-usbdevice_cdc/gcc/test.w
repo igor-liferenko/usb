@@ -57,7 +57,9 @@ void main(void)
 
   int connected = 0;
   while (!connected) {
-    // while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '.'; // uncomment this when you will test PC reboot
+#if 1==0
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '.'; // uncomment this when you will test PC reboot
+#endif
     if (UEINTX & (1 << RXSTPI)) {
       uint8_t bmRequestType = UEDATX;
       uint8_t bRequest = UEDATX;
