@@ -102,7 +102,7 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & 1 << EORSTI && UDIEN & 1 << EORSTE) {
     UDINT &= ~(1 << EORSTI);
-    if (UENUM != EP0) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '&'; @+ } /* this
+    if (UENUM != EP0) {@+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '&'; @+} /* this
       is needed to ensure that things don't go wrong during PC reboot, when USB reset is
       done multiple times */
     UECONX |= 1 << EPEN;
@@ -120,6 +120,9 @@ volatile uint8_t a[8];
 ISR(USB_COM_vect)
 {
   if (UEINT == (1 << EP1)) {
+    if (UENUM != EP1) UDR1 = 'x';
+    else UDR1 = 'y';
+    UENUM = EP1;
     for (int i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
@@ -128,13 +131,13 @@ ISR(USB_COM_vect)
     UENUM = EP2;
   }
   else if (UEINT == (1 << EP2)) {
+    if (UENUM != EP2) UDR1 = 't';
+    else UDR1 = 'z';
+    UENUM = EP2;
     UEINTX &= ~(1 << RXOUTI);
     for (int i = 0; i < 8; i++)
       a[i] = UEDATX;
     UEINTX &= ~(1 << FIFOCON);
-
-    UENUM = EP1;
-    UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   }
     /* FIXME: what sets it to 1 for the first time when nothing was sent yet
        (and thus not acknowledged)? because acknowledging the packet by host sets TXINI to
@@ -193,6 +196,7 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
 {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
+UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
@@ -201,6 +205,7 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
 {\ddag\ddag}{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
+UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 
 UENUM = EP0;
 
@@ -243,9 +248,6 @@ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 if (bDescriptorType == 0x22) { /* WinXP bug is here */
 @^WinXP@>
   send_descriptor(&(hid_report_descriptor[0]), sizeof hid_report_descriptor);
-
-  UENUM = EP2;
-  UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 }
 
 @ @<d\_dev@>=
