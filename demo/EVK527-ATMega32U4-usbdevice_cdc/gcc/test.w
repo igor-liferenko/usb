@@ -245,6 +245,19 @@ case 0x06:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #endif
+#if 1==0
+typedef struct {
+   U8      bLength;               //!< Size of this descriptor in bytes
+   U8      bDescriptorType;       //!< Device Qualifier descriptor type
+   U16     bscUSB;                //!< Binay Coded Decimal Spec. release
+   U8      bDeviceClass;          //!< Class code assigned by the USB
+   U8      bDeviceSubClass;       //!< Sub-class code assigned by the USB
+   U8      bDeviceProtocol;       //!< Protocol code assigned by the USB
+   U8      bMaxPacketSize0;       //!< Max packet size for EP0
+   U8      bNumConfigurations;    //!< Number of possible configurations
+   U8      bReserved;             //!< Reserved for future use, must be zero
+}  S_usb_device_qualifier_descriptor;
+#endif
   break;
 default: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
