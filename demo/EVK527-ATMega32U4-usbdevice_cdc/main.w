@@ -196,13 +196,15 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
   UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (without
-    it just `\.{rr}' will be output) */
+    it just `\.{rr}' will be output); alternatively, enable EORSTE and reset EORSTI in
+    interrupt handler */
   UDR1 = 'r';
 
-  PLLCSR |= 1 << PINDIV;
+  if (!usb_reset) /* save some cycles */
+    PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
   if (!usb_reset) { /* save some cycles */
+    while (!(PLLCSR & (1<<PLOCK))) ;
     USBCON |= 1 << USBE;
     UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
       otherwise this bit remains unset after setting it */
