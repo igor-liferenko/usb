@@ -35,8 +35,12 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
+  // NOTE: if it will show 'p', 'e', 'w' or 'u', then it is possible to make device work after
+  // PC reboot without RSTCPU or other tricks
   if (mcusr & 1 << PORF) UDR1 = 'p';
   else if (mcusr & 1 << EXTRF) UDR1 = 'e';
+  else if (mcusr & 1 << WDRF) UDR1 = 'w';
+  else if (mcusr & 1 << 5) UDR1 = 'u';
   else UDR1 = 'v';
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
