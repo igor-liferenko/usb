@@ -28,7 +28,7 @@ void main(void)
 
   cli();
   wdt_reset();
-  MCUSR &= ~(1 << WDRF);
+  MCUSR &= ~(1 << WDRF); /* |WDE| is overriden by |WDRF| */
   WDTCSR |= 1 << WDCE | 1 << WDE;
   WDTCSR = 0;
 
