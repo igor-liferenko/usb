@@ -251,33 +251,33 @@ if (bDescriptorType == 0x22) { /* WinXP bug is here */
 }
 
 @ @<d\_dev@>=
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc.bLength, sizeof dev_desc);
   /* TODO: reduce |size| to |wLength| if it exceeds it */
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 
 @ @<d\_con@>=
-send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
+send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
 
 @ @<d\_str@>=
 switch (index)
 {
 case 0x00:
-  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
+  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
   break;
 case 0x01:
-  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
+  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
   break;
 case 0x02:
-  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
+  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
   break;
 case 0x03:
-  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
+  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
   break;
 }
 
