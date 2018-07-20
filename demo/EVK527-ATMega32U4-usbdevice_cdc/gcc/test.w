@@ -127,8 +127,6 @@ ISR(USB_COM_vect)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
-
-    UENUM = EP2;
   }
   else if (UEINT == (1 << EP2)) {
     if (UENUM != EP2) UDR1 = 't';
