@@ -224,30 +224,27 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ @<stand\_desc@>=
 @<Read buffer@>@;
-UEINTX &= ~(1 << RXSTPI);
 switch (bDescriptorType)
 {
 case 0x01: @/
+  UEINTX &= ~(1 << RXSTPI);
   @<d\_dev@>@;
   break;
 case 0x02: @/
+  UEINTX &= ~(1 << RXSTPI);
   @<d\_con@>@;
   break;
 case 0x03: @/
+  UEINTX &= ~(1 << RXSTPI);
   @<d\_str@>@;
   break;
-case 0x06:
-// TODO: respond with a request error (https://www.keil.com/pack/doc/mw/USB/html/_u_s_b__device__qualifier__descriptor.html)
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
-#if 1==0
-/* set usb version 0x0200 and try this to correspond to arduino-kbd-linux.pcapng */
-  UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-#endif
-  // UECONX |= 1 << STALLRQ;
+case 0x06: /* device qualifier */
+  UECONX |= 1 << STALLRQ; /* according to the spec */
+  UEINTX &= ~(1 << RXSTPI);
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';  
   break;
 default: @/
+  UEINTX &= ~(1 << RXSTPI);
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
 }
 
