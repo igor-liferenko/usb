@@ -178,6 +178,8 @@ ISR(USB_GEN_vect)
 @ In this test we show that |RSTCPU| does not work after first reset.
 Output is `\.{rr}'.
 
+\xdef\rstcpu{\secno}
+
 @(/dev/null@>=
 #include <avr/io.h>
 
@@ -233,9 +235,8 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (without
-    it just `\.{rr}' will be output); alternatively, enable EORSTE and reset EORSTI in
-    interrupt handler */
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (see \S\rstcpu);
+    alternatively, enable EORSTE and reset EORSTI in interrupt handler */
   UDR1 = 'r';
 
   if (!usb_reset) /* save some cycles */
