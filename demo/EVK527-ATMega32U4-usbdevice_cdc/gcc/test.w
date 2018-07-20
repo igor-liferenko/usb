@@ -239,6 +239,11 @@ case 0x03: @/
 case 0x06:
 //TODO: device qualifier
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
+#if 1==0
+  UEINTX &= ~(1 << TXINI); /* try this to correspond to arduino-kbd-linux.pcapng */
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+#endif
   break;
 default: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
