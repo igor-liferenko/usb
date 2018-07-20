@@ -6,7 +6,6 @@
 @x
   while (1) ;
 @y
-  UENUM = EP1;
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
   while (1) {
@@ -110,8 +109,13 @@ ISR(USB_COM_vect)
 
 @x
   @<int\_desc@>@;
+  UENUM = EP1;
+  UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
+  UENUM = EP2;
+  UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
   @<int\_desc@>@;
+  UENUM = EP1;
   connected = 1;
 @z
 
@@ -123,7 +127,6 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
 {\ddag\ddag}{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
-UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
 @z
   
