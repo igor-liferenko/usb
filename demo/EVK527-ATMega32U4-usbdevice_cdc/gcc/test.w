@@ -17,6 +17,7 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 @c
 @<Header files@>@;
 @<Functions@>@;
+@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 
@@ -283,7 +284,7 @@ case 0x02:
   break;
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
+  send_descriptor(&sn_desc.bLength, sizeof sn_desc);
   break;
 }
 
@@ -345,6 +346,9 @@ void send_descriptor(const void *buf, int size)
   }
 #endif
 }
+
+@ @<Macros@>=
+#define STR_DESC(str) { sizeof str, 0x03, str }
 
 @* Control endpoint management.
 
@@ -706,13 +710,16 @@ const uint8_t prod_desc[]
 
 @*1 Serial number descriptor.
 
-@<Global \null variables@>=
-const uint8_t sn_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x0A, /* size */
-  0x03, /* type (string) */
-@t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
-};
+@<Type \null definitions@>=
+typedef struct {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  int16_t wString[];
+} S_serial_number;
+
+@ @<Global \null variables@>=
+const S_serial_number sn_desc
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"1234");
 
 @* Headers.
 \secpagedepth=1 % index on current page
