@@ -285,16 +285,16 @@ in \.{wine}; start the executable from the same folder to which it was unpacked)
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x05, 0x01, @t\hskip21pt@> // \.{USAGE\_PAGE (Generic Desktop)}
-  0x09, 0x06, @t\hskip21pt@> // \.{USAGE (Keyboard)}
-  0xa1, 0x01, @t\hskip21pt@> // \.{COLLECTION (Application)}
+  0x05, 0x01, @t\hskip10pt@> // \.{USAGE\_PAGE (Generic Desktop)}
+  0x09, 0x06, @t\hskip10pt@> // \.{USAGE (Keyboard)}
+  0xa1, 0x01, @t\hskip10pt@> // \.{COLLECTION (Application)}
   0x05, 0x07, @t\hskip21pt@> //   \.{USAGE\_PAGE (Keyboard)}
+  0x75, 0x01, @t\hskip21pt@> //   \.{REPORT\_SIZE (1)}
+  0x95, 0x08, @t\hskip21pt@> //   \.{REPORT\_COUNT (8)}
   0x19, 0xe0, @t\hskip21pt@> //   \.{USAGE\_MINIMUM (Keyboard LeftControl)}
   0x29, 0xe7, @t\hskip21pt@> //   \.{USAGE\_MAXIMUM (Keyboard Right GUI)}
   0x15, 0x00, @t\hskip21pt@> //   \.{LOGICAL\_MINIMUM (0)}
   0x25, 0x01, @t\hskip21pt@> //   \.{LOGICAL\_MAXIMUM (1)}
-  0x75, 0x01, @t\hskip21pt@> //   \.{REPORT\_SIZE (1)}
-  0x95, 0x08, @t\hskip21pt@> //   \.{REPORT\_COUNT (8)}
   0x81, 0x02, @t\hskip21pt@> //   \.{INPUT (Data,Var,Abs)}
   0x75, 0x08, @t\hskip21pt@> //   \.{REPORT\_SIZE (8)}
   0x95, 0x01, @t\hskip21pt@> //   \.{REPORT\_COUNT (1)}
@@ -306,7 +306,7 @@ const uint8_t hid_report_descriptor[]
   0x15, 0x00, @t\hskip21pt@> //   \.{LOGICAL\_MINIMUM (0)}
   0x25, 0x65, @t\hskip21pt@> //   \.{LOGICAL\_MAXIMUM (101)}
   0x81, 0x00, @t\hskip21pt@> //   \.{INPUT (Data,Ary,Abs)}
-@t\2@> 0xc0   @t\hskip21pt@> // \.{END\_COLLECTION}
+@t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
 @z
 
