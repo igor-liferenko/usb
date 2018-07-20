@@ -92,6 +92,8 @@ ISR(USB_COM_vect)
     for (int i = 0; i < 8; i++)
       a[i] = UEDATX;
     UEINTX &= ~(1 << FIFOCON);
+    UENUM = EP1;
+    UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   }
     /* FIXME: what sets it to 1 for the first time when nothing was sent yet
        (and thus not acknowledged)? because acknowledging the packet by host sets TXINI to
@@ -109,8 +111,6 @@ ISR(USB_COM_vect)
 
 @x
   @<int\_desc@>@;
-  UENUM = EP1;
-  UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
   UENUM = EP2;
   UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 @y
