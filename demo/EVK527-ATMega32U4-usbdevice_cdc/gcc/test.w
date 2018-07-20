@@ -161,6 +161,10 @@ case 0x80: @/
   break;
 case 0x81: @/
   @<int\_desc@>@;
+  UENUM = EP1;
+  UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
+  UENUM = EP2;
+  UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
   break;
 default: @/
   UEINTX &= ~(1 << RXSTPI);
@@ -198,7 +202,6 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
 {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
-UEIENX = 1 << TXINE; /* trigger interrupt when current bank is free and can be filled */
 
 UENUM = EP2;
 UECONX |= 1 << EPEN;
@@ -207,7 +210,6 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (0 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
 {\ddag\ddag}{Must correspond to OUT endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ;
-UEIENX = 1 << RXOUTE; /* trigger interrupt when OUT packet arrives */
 
 UENUM = EP0;
 
