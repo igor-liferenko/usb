@@ -253,9 +253,8 @@ default: @/
 @ @<int\_desc@>=
 @<Read buffer@>@;
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
-
 if (bDescriptorType == 0x22) {
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
   send_descriptor(&(hid_report_descriptor[0]), sizeof hid_report_descriptor);
 }
 
