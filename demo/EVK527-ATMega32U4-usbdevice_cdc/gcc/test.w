@@ -245,6 +245,7 @@ case 0x06:
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
 #endif
+  // UECONX |= 1 << STALLRQ;
   break;
 default: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
