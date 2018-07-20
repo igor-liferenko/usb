@@ -442,8 +442,7 @@ const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
   0x01, /* device */
-  0x0110, /* USB version 1.1 (WinXP compat is here) */
-@^WinXP@>
+  0x0200, /* USB 2.0 */
   0, /* no class */
   0, /* no subclass */
   0, @/
