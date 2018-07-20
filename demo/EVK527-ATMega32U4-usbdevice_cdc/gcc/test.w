@@ -23,10 +23,20 @@ void main(void)
 {
   UHWCON = 1 << UVREGE;
 
+  uint8_t mcusr = MCUSR; @+ MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
+
+  cli();
+  wdt_reset();
+  MCUSR &= ~(1 << WDRF);
+  WDTCSR |= 1 << WDCE | 1 << WDE;
+  WDTCSR = 0;
+
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'v';
+  if (mcusr & 1 << PORF) UDR1 = 'p';
+  else if (mcusr & 1 << EXTRF) UDR1 = 'e';
+  else UDR1 = 'v';
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
