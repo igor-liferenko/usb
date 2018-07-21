@@ -254,10 +254,15 @@ if (bDescriptorType == 0x22) {
   send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 }
 
-@ @<d\_dev@>=
+@ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
+sufficient for first request of device descriptor). If host is operational,
+|wLength| is 64 bytes in first request of device descriptor.
+It is OK if we transfer less than the requested amount. But if we try to
+transfer more, program will hang.
+
+@<d\_dev@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
-send_descriptor(&dev_desc, sizeof dev_desc); // on PC reboot it hangs here
-  /* TODO: reduce |size| to |wLength| if it exceeds it */
+send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
 
 @ @<d\_con@>=
 while (!(UCSR1A & 1 << UDRE1)) ;
