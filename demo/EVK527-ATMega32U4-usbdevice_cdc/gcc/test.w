@@ -284,7 +284,7 @@ case 0x02:
   break;
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&sn_desc.bLength, sizeof sn_desc);
+  send_descriptor(&sn_desc.bLength, pgm_read_byte(&sn_desc.bLength));
   break;
 }
 
