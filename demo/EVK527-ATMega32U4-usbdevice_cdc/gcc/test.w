@@ -258,7 +258,7 @@ if (bDescriptorType == 0x22) {
 sufficient for first request of device descriptor). If host is operational,
 |wLength| is 64 bytes in first request of device descriptor.
 It is OK if we transfer less than the requested amount. But if we try to
-transfer more, program will hang.
+transfer more, device will hang.
 
 @<d\_dev@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
