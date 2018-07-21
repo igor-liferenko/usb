@@ -742,7 +742,7 @@ arguments): we pass a null pointer if serial number is to be transmitted.
 In |send_descriptor| |sn_desc| is checked and if it is |NULL|, it is filled in
 (to save some cycles, in case serial number is requested more than once).
 
-@d SN_LENGTH 20
+@d SN_LENGTH 20 /* length of device signature, multiplied by two */
 
 @<Global \null variables@>=
 const void *sn_desc = NULL;
@@ -761,7 +761,8 @@ struct {
   uint8_t addr = SN_START_ADDRESS;
   for (uint8_t i = 0; i < SN_LENGTH; i++) {
     uint8_t c = boot_signature_byte_get(addr);
-    if (i & 1) {
+    if (i & 1) { /* we divide each byte of signature into halves, each of
+                    which is represented by a hex number */
       c >>= 4;
       addr++;
     }
