@@ -316,8 +316,8 @@ void send_descriptor(const void *buf, int size)
   int from_program = 1;
   if (buf == NULL) {
     from_program = 0;
-    if (sn_desc == NULL) @<Get serial number@>@;
-    buf = sn_desc;
+    if (sn_ptr == NULL) @<Get serial number@>@;
+    buf = sn_ptr;
   }
 #if 1==1
   while (1) {
@@ -739,25 +739,25 @@ This one is different in that its content cannot be prepared in compile time,
 only in execution time. So, it cannot be stored in program memory.
 Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it with
 arguments): we pass a null pointer if serial number is to be transmitted.
-In |send_descriptor| |sn_desc| is checked and if it is |NULL|, it is filled in
+In |send_descriptor| |sn_ptr| is checked and if it is |NULL|, it is filled in
 (to save some cycles, in case serial number is requested more than once).
 
 @d SN_LENGTH 20 /* length of device signature, multiplied by two */
 
 @<Global \null variables@>=
-const void *sn_desc = NULL;
 struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
   int16_t wString[SN_LENGTH];
-} sig_desc;
+} sn_desc;
+const void *sn_ptr = NULL;
 
 @ @d SN_START_ADDRESS 0x0E
 @d hex(c) c<10 ? c+'0' : c-10+'A'
 
 @<Get serial number@>= {
-  sig_desc.bLength = 1 + 1 + SN_LENGTH * 2;
-  sig_desc.bDescriptorType = 0x03;
+  sn_desc.bLength = 1 + 1 + SN_LENGTH * 2;
+  sn_desc.bDescriptorType = 0x03;
   uint8_t addr = SN_START_ADDRESS;
   for (uint8_t i = 0; i < SN_LENGTH; i++) {
     uint8_t c = boot_signature_byte_get(addr);
@@ -767,9 +767,9 @@ struct {
       addr++;
     }
     else c &= 0x0F;
-    sig_desc.wString[i] = hex(c);
+    sn_desc.wString[i] = hex(c);
   }
-  sn_desc = &sig_desc;
+  sn_ptr = &sn_desc;
 }
 
 @* Headers.
