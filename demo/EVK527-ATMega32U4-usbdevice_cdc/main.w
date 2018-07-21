@@ -262,7 +262,7 @@ void main(void)
 @ This test shows that |USB_COM_vect| is not called for |RXSTPI|.
 (on windows xp). TODO: check on linux
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -286,7 +286,6 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
-  UEIENX |= 1 << RXSTPE;
   sei();
 
   while (1) ;
@@ -298,11 +297,13 @@ ISR(USB_GEN_vect)
     UDINT &= ~(1 << EORSTI);
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+    UEIENX |= 1 << RXSTPE;
   }
 }
 
 ISR(USB_COM_vect)
 {
+  UEIENX &= ~(1 << RXSTPE);
   UDR1 = '%';
 }
 
