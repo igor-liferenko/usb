@@ -16,10 +16,10 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 
 @c
 @<Header files@>@;
-@<Functions@>@;
 @<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
+@<Functions@>@;
 
 void main(void)
 {
@@ -285,15 +285,15 @@ case 0x00:
   break;
 case 0x01:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
-  send_descriptor(mfr_desc, sizeof mfr_desc);
+  send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
   break;
 case 0x02:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
-  send_descriptor(prod_desc, sizeof prod_desc);
+  send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
   break;
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&sn_desc, pgm_read_byte(&sn_desc.bLength));
+  send_descriptor(NULL, SN_LENGTH);
   break;
 }
 
@@ -310,6 +310,10 @@ bDescriptorType = UEDATX;
 @<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
+  if (buf==NULL) {
+    if (sn_desc == NULL) @<Get serial number@>@;
+    buf = sn_desc;
+  }
 #if 1==1
   while (1) {
     int nb_byte = 0;
@@ -716,27 +720,61 @@ typedef struct {
 
 @<Global \null variables@>=
 const S_string_descriptor prod_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC("AVR USB HID DEMO");
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"AVR USB HID DEMO");
 
 @*2 Manufacturer descriptor.
 
 @<Global \null variables@>=
 const S_string_descriptor mfr_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC("ATMEL");
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"ATMEL");
 
-@*2 Serial number descriptor.
+@*1 Serial number descriptor.
+
+This one is different in that its content cannot be prepared in compile time,
+only in execution time. So, it cannot be stored in program memory.
+Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it with
+arguments): we pass a null pointer if serial number is to be transmitted.
+In |send_descriptor| |sn_desc| is checked and if it is |NULL|, it is filled in
+(to save some cycles, in case serial number is requested more than once).
+
+@d SN_LENGTH 20
 
 @<Global \null variables@>=
-const S_string_descriptor sn_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"1234");
+const void *sn_desc = NULL;
+struct {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  int16_t wString[SN_LENGTH];
+} sig_desc;
+
+@ @d SN_START_ADDRESS 0x0E
+@d hex(c) c<10 ? c+'0' : c-10+'A'
+
+@<Get serial number@>= {
+  sig_desc.bLength = 1 + 1 + SN_LENGTH * 2;
+  sig_desc.bDescriptorType = 0x03;
+  uint8_t addr = SN_START_ADDRESS;
+  for (uint8_t i = 0; i < SN_LENGTH; i++) {
+    uint8_t c = boot_signature_byte_get(addr);
+    if (i & 1) {
+      c >>= 4;
+      addr++;
+    }
+    c &= 0x0F;
+    sig_desc.wString[i] = hex(c);
+  }
+  sn_desc = &sig_desc;
+}
 
 @* Headers.
 \secpagedepth=1 % index on current page
 
 @<Header files@>=
+#include <avr/boot.h> /* |boot_signature_byte_get| */
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
+#include <stddef.h> /* |NULL| */
 
 @* Index.
