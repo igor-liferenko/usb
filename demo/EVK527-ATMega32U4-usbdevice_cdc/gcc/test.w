@@ -254,37 +254,37 @@ default: @/
 UEINTX &= ~(1 << RXSTPI);
 if (bDescriptorType == 0x22) {
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
-  send_descriptor(&(hid_report_descriptor[0]), sizeof hid_report_descriptor);
+  send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 }
 
 @ @<d\_dev@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
-send_descriptor(&dev_desc.bLength, sizeof dev_desc);
+send_descriptor(&dev_desc, sizeof dev_desc);
   /* TODO: reduce |size| to |wLength| if it exceeds it */
 
 @ @<d\_con@>=
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
-send_descriptor(&user_conf_desc.conf_desc.bLength, wLength);
+send_descriptor(&user_conf_desc, wLength);
 
 @ @<d\_str@>=
 switch (index)
 {
 case 0x00:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
-  send_descriptor(&(lang_desc[0]), sizeof lang_desc);
+  send_descriptor(lang_desc, sizeof lang_desc);
   break;
 case 0x01:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
-  send_descriptor(&(mfr_desc[0]), sizeof mfr_desc);
+  send_descriptor(mfr_desc, sizeof mfr_desc);
   break;
 case 0x02:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
-  send_descriptor(&(prod_desc[0]), sizeof prod_desc);
+  send_descriptor(prod_desc, sizeof prod_desc);
   break;
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&sn_desc.bLength, pgm_read_byte(&sn_desc.bLength));
+  send_descriptor(&sn_desc, pgm_read_byte(&sn_desc.bLength));
   break;
 }
 
