@@ -717,7 +717,9 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-@ @<Global \null variables@>=
+@ TODO: see assembler code to verify what is generated from this and from pgm_read_byte
+
+@<Global \null variables@>=
 const S_string_descriptor sn_desc
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"1234");
 
