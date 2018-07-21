@@ -269,7 +269,7 @@ transfer more, device will hang.
 
 @<d\_dev@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
+send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
 @ @<d\_con@>=
 while (!(UCSR1A & 1 << UDRE1)) ;
@@ -726,7 +726,7 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-@ TODO: see assembler code to verify what is generated from this and from pgm_read_byte
+@ TODO: see assembler code to verify that string indeed follows |sn_desc| (i.e., bytes a0 03)
 
 @<Global \null variables@>=
 const S_string_descriptor sn_desc
