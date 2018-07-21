@@ -195,11 +195,10 @@ void main(void)
   UCSR1B = 1 << TXEN1;
   UDR1 = 'r';
 
-  if (!usb_reset) /* save some cycles */
-    PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
   if (!usb_reset) { /* save some cycles */
-    while (!(PLLCSR & (1<<PLOCK))) ;
     USBCON |= 1 << USBE;
     UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
       otherwise this bit remains unset after setting it */
@@ -239,11 +238,10 @@ void main(void)
     alternatively, enable EORSTE and reset EORSTI in interrupt handler */
   UDR1 = 'r';
 
-  if (!usb_reset) /* save some cycles */
-    PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
   if (!usb_reset) { /* save some cycles */
-    while (!(PLLCSR & (1<<PLOCK))) ;
     USBCON |= 1 << USBE;
     UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
       otherwise this bit remains unset after setting it */
@@ -296,7 +294,7 @@ ISR(USB_GEN_vect)
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r'; /* use this to demonstrate reset-setup
-      patterns in linux and windows xp */
+      patterns in linux and windows xp (to prove why RSTCPU does not work) */
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
     UEIENX |= 1 << RXSTPE;
