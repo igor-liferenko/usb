@@ -695,29 +695,15 @@ const uint8_t lang_desc[]
 @t\2@> 0x09,0x04 /* id (English) */
 };
 
-@*1 Manufacturer descriptor.
+@*1 String descriptors.
 
-@<Global \null variables@>=
-const uint8_t mfr_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x0C, @/
-  0x03, @/
-@t\2@> 0x41,0x00,0x54,0x00,0x4D,0x00,0x45,0x00,0x4C,0x00 @/
-};
+The trick here is that when defining a variable of type |S_string_descriptor|,
+the string content follows the first two elements in program memory (may be verified via
+\.{avr-objdump}).
+Although this happens in compile time, |sizeof| on the variable counts only first two elements.
+So, we use |pgm_read_byte| to read the size of the variable during execution time. (Why?)
 
-@*1 Product descriptor.
-
-@<Global \null variables@>=
-const uint8_t prod_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x22, @/
-  0x03, @/
-  0x41,0x00,0x56,0x00,0x52,0x00,0x20,0x00,0x55,0x00,0x53, @/
-  0x00,0x42,0x00,0x20,0x00,0x48,0x00,0x49,0x00,0x44,0x00, @/
-@t\2@> 0x20,0x00,0x44,0x00,0x45,0x00,0x4D,0x00,0x4F,0x00 @/
-};
-
-@*1 Serial number descriptor.
+@s S_string_descriptor int
 
 @<Type \null definitions@>=
 typedef struct {
@@ -726,7 +712,19 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-@ TODO: see assembler code to verify that string indeed follows |sn_desc| (i.e., bytes a0 03)
+@*2 Product descriptor.
+
+@<Global \null variables@>=
+const S_string_descriptor prod_desc
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC("AVR USB HID DEMO");
+
+@*2 Manufacturer descriptor.
+
+@<Global \null variables@>=
+const S_string_descriptor mfr_desc
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC("ATMEL");
+
+@*2 Serial number descriptor.
 
 @<Global \null variables@>=
 const S_string_descriptor sn_desc
