@@ -766,7 +766,7 @@ struct {
       c >>= 4;
       addr++;
     }
-    c &= 0x0F;
+    else c &= 0x0F;
     sig_desc.wString[i] = hex(c);
   }
   sn_desc = &sig_desc;
