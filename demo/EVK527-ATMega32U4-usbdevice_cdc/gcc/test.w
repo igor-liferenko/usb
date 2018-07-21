@@ -347,11 +347,8 @@ void send_descriptor(const void *buf, int size)
 #endif
 }
 
-@ Here we use the fact that terminating null wide character has extra two bytes.
-And the header is also two bytes. So we do no extra operations besides |sizeof|.
-
-@<Macros@>=
-#define STR_DESC(str) { sizeof str, 0x03, str }
+@ @<Macros@>=
+#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
 
 @* Control endpoint management.
 
