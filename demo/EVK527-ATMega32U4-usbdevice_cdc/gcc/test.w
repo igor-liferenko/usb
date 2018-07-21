@@ -715,10 +715,10 @@ typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
   int16_t wString[];
-} S_serial_number;
+} S_string_descriptor;
 
 @ @<Global \null variables@>=
-const S_serial_number sn_desc
+const S_string_descriptor sn_desc
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"1234");
 
 @* Headers.
