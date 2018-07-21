@@ -131,14 +131,6 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
   
 @x
-case 0x03:
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&sn_desc.bLength, sizeof sn_desc);
-  break;
-@y
-@z
-
-@x
   0x03, /* (\.{SerialNumber} in \.{kern.log}) */
 @y
   0x00, /* (\.{SerialNumber} in \.{kern.log}) */
