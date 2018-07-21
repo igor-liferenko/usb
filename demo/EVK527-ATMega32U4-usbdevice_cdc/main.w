@@ -273,7 +273,6 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'v';
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -296,7 +295,8 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r'; /* use this to demonstrate reset-setup
+      patterns in linux and windows xp */
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
     UEIENX |= 1 << RXSTPE;
