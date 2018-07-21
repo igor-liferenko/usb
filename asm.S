@@ -197,32 +197,38 @@ sl_2:
    rjmp vihod_ep
    
 stand_desc:
-   rcall read_buff
+   rcall read_buff2
    cpi R19, 1
    brne n_1
+   lds R24, UEINTX
+   cbr R24, 1 << RXSTPI
+   sts UEINTX, R24
    rjmp d_dev
 
 n_1:
    cpi R19, 2
    brne n_2
+   lds R24, UEINTX
+   cbr R24, 1 << RXSTPI
+   sts UEINTX, R24
    rjmp d_con
 
 n_2:
    cpi R19, 3
-   brne n_4
+   brne n_x
+   lds R24, UEINTX
+   cbr R24, 1 << RXSTPI
+   sts UEINTX, R24
    rjmp d_str
-   
+
+n_x:
+   lds R24, UECONX
+   sbr R24, 1 << STALLRQ
+   sts UECONX, R24
 n_3:
    lds R24, UEINTX
    cbr R24, 1 << RXSTPI
    sts UEINTX, R24
-n_4:
-   lds R24, UEINTX
-   sbrs R24, 0
-   rjmp n_4
-   lds R24, UECONX
-   sbr R24, 1 << STALLRQ
-   sts UECONX, R24
    rjmp vihod_ep
 
 d_dev:
@@ -363,10 +369,7 @@ int_desc:
    rjmp vihod_ep
 
 n_5:
-;winxp: cpi R22,0x62
-   cpi R22,0x22
-   breq d_rep_1
-   rjmp vihod_ep
+   rjmp d_rep_1
 
 d_rep_1:
    sbi _SFR_IO_ADDR(PORTD), 4
@@ -583,10 +586,18 @@ read_buff:
    sts UEINTX, R24
    ret
    
+read_buff2:
+   lds R18, UEDATX    ;String_type
+   lds R19, UEDATX    ;Desc_type=01
+   lds R20, UEDATX    ;Dummy_byte
+   lds R21, UEDATX    ;Dummy_byte
+   lds R22, UEDATX    ;LSB(wLength)
+   lds R23, UEDATX    ;MSB(wLength)
+   ret
+
 .balign 256
 dev_desc:
-;winxp: .byte 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
-   .byte 0x12,0x01,0x10,0x01,0x00,0x00,0x00,0x20,0xEB,0x03
+   .byte 0x12,0x01,0x00,0x02,0x00,0x00,0x00,0x20,0xEB,0x03
    .byte 0x13,0x20,0x00,0x10,0x01,0x02,0x03,0x01
 con_desc:
    .byte 0x09,0x02,0x29,0x00,0x01,0x01,0x00,0x80,0x32,0x09
