@@ -25,13 +25,16 @@ void main(void)
 {
   UHWCON = 1 << UVREGE;
 
-  uint8_t mcusr = MCUSR; @+ MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
+//  uint8_t mcusr = MCUSR; @+ MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
 
+#if 1==0
+// THIS DOES NOT INFLUENCE THAT IT FREEZES ON PC REBOOT AS I THOUGHT BEFORE (THE BUG WAS FOUND)
   cli();
   wdt_reset();
   MCUSR &= ~(1 << WDRF); /* |WDE| is overriden by |WDRF| */
   WDTCSR |= 1 << WDCE | 1 << WDE;
   WDTCSR = 0;
+#endif
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
