@@ -262,7 +262,7 @@ void main(void)
 @ This test shows that |USB_COM_vect| is not called for |RXSTPI|.
 (on windows xp). TODO: check on linux
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -273,6 +273,7 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
+  UDR1 = 'v';
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -295,6 +296,7 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
     UEIENX |= 1 << RXSTPE;
@@ -303,7 +305,7 @@ ISR(USB_GEN_vect)
 
 ISR(USB_COM_vect)
 {
-  UEIENX &= ~(1 << RXSTPE);
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
   UDR1 = '%';
 }
 
