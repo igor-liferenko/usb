@@ -58,9 +58,6 @@ void main(void)
 
   int connected = 0;
   while (!connected) {
-#if 1==0
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '.'; // uncomment this when you will test PC reboot
-#endif
     if (UEINTX & (1 << RXSTPI)) {
       uint8_t bmRequestType = UEDATX;
       uint8_t bRequest = UEDATX;
@@ -259,7 +256,7 @@ if (bDescriptorType == 0x22) {
 
 @ @<d\_dev@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
-send_descriptor(&dev_desc, sizeof dev_desc);
+send_descriptor(&dev_desc, sizeof dev_desc); // on PC reboot it hangs here
   /* TODO: reduce |size| to |wLength| if it exceeds it */
 
 @ @<d\_con@>=
