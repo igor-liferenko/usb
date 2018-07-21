@@ -259,8 +259,8 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
 }
 
-@ This test shows that |USB_COM_vect| is not called for |RXSTPI|.
-(on windows xp). TODO: check on linux
+@ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
+it is necessary to enable |RXSTPE| after each reset.
 
 @(/dev/null@>=
 #include <avr/io.h>
