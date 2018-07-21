@@ -293,7 +293,7 @@ case 0x02:
   break;
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(NULL, SN_LENGTH);
+  send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
   break;
 }
 
@@ -307,10 +307,15 @@ bDescriptorType = UEDATX;
 
 @ See datasheet \S22.12.2.
 
+Here we also handle the case when serial number needs to be transmitted from memory,
+not from program.
+
 @<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
-  if (buf==NULL) {
+  int from_program = 1;
+  if (buf == NULL) {
+    from_program = 0;
     if (sn_desc == NULL) @<Get serial number@>@;
     buf = sn_desc;
   }
@@ -320,7 +325,7 @@ void send_descriptor(const void *buf, int size)
     while (size != 0) {
       if (nb_byte++ == EP0_SIZE)
         break;
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+      UEDATX = from_program ? pgm_read_byte(buf++) : *(uint8_t *) buf++;
       size--;
     }
     UEINTX &= ~(1 << TXINI);
