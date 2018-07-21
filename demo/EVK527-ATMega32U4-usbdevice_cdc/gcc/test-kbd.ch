@@ -133,7 +133,7 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @x
 case 0x03:
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(&(sn_desc[0]), sizeof sn_desc);
+  send_descriptor(&sn_desc.bLength, sizeof sn_desc);
   break;
 @y
 @z
@@ -313,19 +313,6 @@ const uint8_t hid_report_descriptor[]
   0x81, 0x00, @t\hskip21pt@> //   \.{INPUT (Data,Ary,Abs)}
 @t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
-@z
-
-@x
-@*1 Serial number descriptor.
-
-@<Global \null variables@>=
-const uint8_t sn_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x0A, /* size */
-  0x03, /* type (string) */
-@t\2@> '0', 0, '0', 0, '0', 0, '0', 0 /* set only what is in quotes */
-};
-@y
 @z
 
 @x
