@@ -86,7 +86,6 @@ void main(void)
 @ @c
 ISR(USB_GEN_vect)
 {
-  if (UDINT & 1 << EORSTI && UDIEN & 1 << EORSTE) {
     UDINT &= ~(1 << EORSTI);
     if (!connected) {
       if (UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+} /* if this
@@ -99,7 +98,6 @@ ISR(USB_GEN_vect)
     }
     else UDCON |= 1 << RSTCPU;
     while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
-  }
 }
 
 @ @<Global \null variables@>=
