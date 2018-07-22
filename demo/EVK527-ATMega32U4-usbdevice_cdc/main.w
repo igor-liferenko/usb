@@ -202,7 +202,7 @@ void main(void)
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UDCON |= 1 << RSTCPU; 
+  UDCON |= 1 << RSTCPU;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
@@ -228,7 +228,8 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset (see \S\rstcpu);
+  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset
+    (see \S\rstcpudoesnotworkafterfirstreset);
     alternatively, enable EORSTE and reset EORSTI in interrupt handler */
   UDR1 = 'r';
 
