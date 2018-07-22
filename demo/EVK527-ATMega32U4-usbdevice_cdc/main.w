@@ -374,6 +374,9 @@ And results of this test show how to reset the program to initial state on host
 
 According to gotcha described in \S\xxx,
 
+On Linux output is `\.{rrxrx\%rx\%}'.
+On Windows XP output is `\.{rrxrxrxrx}'.
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -381,9 +384,6 @@ According to gotcha described in \S\xxx,
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  uint8_t usb_reset = MCUSR & (1 << 5); @+ MCUSR = 0; /* reset as early as possible
-    (\S8.0.8 in datasheet) ---~to save some cycles (see below) */
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -393,17 +393,14 @@ void main(void)
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
-  if (!usb_reset) { /* save some cycles */
-    USBCON |= 1 << USBE;
-    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
-      otherwise this bit remains unset after setting it */
-    USBCON &= ~(1 << FRZCLK);
-    USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-    while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-    UDCON &= ~(1 << DETACH);
-  }
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UDCON |= 1 << RSTCPU;
 
   UDIEN |= 1 << EORSTE;
   sei();
