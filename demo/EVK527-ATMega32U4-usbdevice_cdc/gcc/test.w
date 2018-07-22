@@ -365,9 +365,6 @@ void send_descriptor(const void *buf, int size)
 #endif
 }
 
-@ @<Macros@>=
-#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
-
 @* Control endpoint management.
 
 Device driver sends a
@@ -706,7 +703,10 @@ const uint8_t lang_desc[]
 
 @*1 String descriptors.
 
-The trick here is that when defining a variable of type |S_string_descriptor|,
+@ @<Macros@>=
+#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
+
+@ The trick here is that when defining a variable of type |S_string_descriptor|,
 the string content follows the first two elements in program memory (may be verified via
 \.{avr-objdump}).
 Although this happens in compile time, |sizeof| on the variable counts only first two elements.
