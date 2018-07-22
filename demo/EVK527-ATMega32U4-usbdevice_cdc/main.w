@@ -84,12 +84,10 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    num++;
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  }
+  UDINT &= ~(1 << EORSTI);
+  num++;
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 }
 
 @ Now we can move further: to count number of resets before set address request.
@@ -167,12 +165,10 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    num++;
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  }
+  UDINT &= ~(1 << EORSTI);
+  num++;
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 }
 
 @ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
@@ -211,12 +207,10 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-    UEIENX |= 1 << RXSTPE;
-  }
+  UDINT &= ~(1 << EORSTI);
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UEIENX |= 1 << RXSTPE;
 }
 
 ISR(USB_COM_vect)
@@ -296,13 +290,11 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-    UEIENX |= 1 << RXSTPE;
-  }
+  UDINT &= ~(1 << EORSTI);
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UEIENX |= 1 << RXSTPE;
 }
 
 ISR(USB_COM_vect)
@@ -360,9 +352,7 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-  }
+  UDINT &= ~(1 << EORSTI);
 }
 
 @ We do not want to use interrupts for handling |RXSTPI|, but instead handle
@@ -418,12 +408,10 @@ void main(void)
 
 ISR(USB_GEN_vect)
 {
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-    UDCON |= 1 << RSTCPU;
-  }
+  UDINT &= ~(1 << EORSTI);
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UDCON |= 1 << RSTCPU;
 }
 
 @ OK, enough tests. We now have all the information that we need.
