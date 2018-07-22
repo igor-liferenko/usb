@@ -178,6 +178,8 @@ ISR(USB_GEN_vect)
 @ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
 it is necessary to enable |RXSTPE| after each reset.
 
+\xdef\controlinterrupt{\secno}
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -256,12 +258,65 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
+@ In this test we show that on Windows XP, SETUP request comes only once after reset signal.
+Here we do according to test in \S\controlinterrupt. The only difference is that we output
+`\.r' when reset signal happens.
+The output is `\.{rr\%r\%r\%}'.
+
+\xdef\onesetup{\secno}
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  while (1) ;
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
+    UECONX |= 1 << EPEN;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+    UEIENX |= 1 << RXSTPE;
+  }
+}
+
+ISR(USB_COM_vect)
+{
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
+  UDR1 = '%';
+}
+
 @ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work
 after first reset.
 Here we show how to make it work: it is necessary to clear |EORSTI| when reset occurs.
 
 BUT, here is an important gotcha: on some systems, SETUP request comes only once after
-reset signal,
+reset signal (see test in \S\onesetup),
 and it comes too quickly ---~right at the time of reset timeout
 (see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
 For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
@@ -319,7 +374,7 @@ And results of this test show how to reset the program to initial state on host
 
 According to gotcha described in \S\xxx,
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
