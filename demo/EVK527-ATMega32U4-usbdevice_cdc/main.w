@@ -293,8 +293,6 @@ ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
     UDINT &= ~(1 << EORSTI);
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r'; /* use this to demonstrate reset-setup
-      patterns in linux and windows xp (to prove why RSTCPU does not work) */
     UECONX |= 1 << EPEN;
     UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
     UEIENX |= 1 << RXSTPE;
