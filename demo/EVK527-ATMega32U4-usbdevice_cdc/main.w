@@ -257,6 +257,54 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
 }
 
+@ In this test we show that only when |EORSTI| is cleared |RSTCPU| works.
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  uint8_t usb_reset = MCUSR & (1 << 5); @+ MCUSR = 0; /* reset as early as possible
+    (\S8.0.8 in datasheet) ---~to save some cycles (see below) */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+  UDR1 = 'r';
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+  if (!usb_reset) { /* save some cycles */
+    USBCON |= 1 << USBE;
+    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
+      otherwise this bit remains unset after setting it */
+    USBCON &= ~(1 << FRZCLK);
+    USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+    while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+    UDCON &= ~(1 << DETACH);
+  }
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+
+  UEIENX |= 1 << EORSTE;
+  sei();
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'x'; while (!(UCSR1A & 1 << UDRE1)) ;
+    UDINT &= ~(1 << EORSTI);
+  }
+}
+
 @ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
 it is necessary to enable |RXSTPE| after each reset.
 
