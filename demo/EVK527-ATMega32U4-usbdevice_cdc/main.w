@@ -377,6 +377,7 @@ change if it is not enabled), because connection status variable was reset.
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+volatile int connected = 0;
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
@@ -399,8 +400,11 @@ void main(void)
   UDIEN |= 1 << EORSTE;
   sei();
 
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
+  while (!connected) {
+    if (UEINTX & 1 << RXSTPI) ;
+  }
+
+  while (1) ;
 }
 
 ISR(USB_GEN_vect)
@@ -408,7 +412,7 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UDCON |= 1 << RSTCPU;
+  if (connected == 1) UDCON |= 1 << RSTCPU;
 }
 
 @ OK, enough tests. We now have all the information that we need.
