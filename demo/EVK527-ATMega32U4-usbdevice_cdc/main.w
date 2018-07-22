@@ -306,6 +306,8 @@ ISR(USB_COM_vect)
 @ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work
 after first reset.
 Here we show how to make it work: it is necessary to clear |EORSTI| when reset occurs.
+It seems RSTCPU is triggered only when EORSTI goes from zero to one, but only
+after EORSTE interrupt exits.
 
 BUT, here is an important gotcha: on some systems, SETUP request comes only once after
 reset signal (see test in \S\onesetup\footnote*{Keep in mind also, that according to
