@@ -180,7 +180,7 @@ Output is `\.{rr}'.
 
 \xdef\rstcpudoesnotworkafterfirstreset{\secno}
 
-@(test.c@>=
+@(/dev/null@>=
 #include <avr/io.h>
 
 void main(void)
@@ -208,53 +208,60 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
-@ In this test we show that |RSTCPU| bit must never be used.
-In this test on Windows XP the `\.{\%}' is never output.
-This is because it happens that setup packet arrives during the reset timeout
-(see picture in \S8.0.7 in datasheet), and is thus not detected by the device.
+@ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work after first reset.
+Here we show how to make it work: it is triggered {\sl after\/} we clear |EORSTI|.
 
-The output is `\.{rrrrr}'.
+BUT, here is an important gotcha: on some systems, SETUP request comes only once after reset signal,
+and it comes too quickly ---~right at the time of reset timeout
+(see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
+For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
+
+On Linux output is `\.{???}'.
+
+\xdef\xxx{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
 
-  uint8_t usb_reset = MCUSR & (1 << 5); @+ MCUSR = 0; /* reset as early as possible
-    (\S8.0.8 in datasheet) ---~to save some cycles (see below) */
-
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDINT &= ~(1 << EORSTI); /* this makes |RSTCPU| work after first reset
-    (see \S\rstcpudoesnotworkafterfirstreset);
-    alternatively, enable EORSTE and reset EORSTI in interrupt handler */
   UDR1 = 'r';
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
-  if (!usb_reset) { /* save some cycles */
-    USBCON |= 1 << USBE;
-    UDCON |= 1 << RSTCPU; /* it must be enabled only after enabling |USBE|,
-      otherwise this bit remains unset after setting it */
-    USBCON &= ~(1 << FRZCLK);
-    USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-    while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-    UDCON &= ~(1 << DETACH);
-  }
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UDCON |= 1 << RSTCPU;
+
+  UDIEN |= 1 << EORSTE;
+  sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
 @ In this test we show that only when |EORSTI| is cleared |RSTCPU| works.
+This test is extremely important. See \S\rstcpudoesnotworkafterfirstreset.
+We do not want to use interrupts for handling |RXSTPI|, but instead handle
+connection phase in a loop and only after that continue to the main program.
+And results of this test show how to reset the program to initial state on host
+(re)boot.
 
-@(/dev/null@>=
+According to gotcha described in \S\xxx,
+
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
