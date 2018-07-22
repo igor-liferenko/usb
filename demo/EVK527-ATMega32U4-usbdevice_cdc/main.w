@@ -370,10 +370,8 @@ so we will not miss anything.
 It only remains to learn how to start |RSTCPU| only when needed.
 The answer is that we enable |RSTCPU| in reset signal handler only
 when connection to host was already established (status of the connection is
-stored in a variable).
-
-When MCU was reset due to |RSTCPU|, 6th bit of |MCUSR| is one.
-On this condition we disable |RSTCPU|.
+stored in a variable). On start we disable |RSTCPU| (nothing will
+change if it is not enabled), because connection status variable was reset.
 
 @(test.c@>=
 #include <avr/io.h>
@@ -382,8 +380,6 @@ On this condition we disable |RSTCPU|.
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-  if (MCUSR & 1 << 5) UDCON &= ~(1 << RSTCPU);
-  MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -398,6 +394,7 @@ void main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
+  UDCON &= ~(1 << RSTCPU);
 
   UDIEN |= 1 << EORSTE;
   sei();
