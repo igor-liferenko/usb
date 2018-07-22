@@ -208,10 +208,12 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
-@ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work after first reset.
-Here we show how to make it work: it is triggered {\sl after\/} we clear |EORSTI|.
+@ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work
+after first reset.
+Here we show how to make it work: it is necessary to clear |EORSTI| when reset occurs.
 
-BUT, here is an important gotcha: on some systems, SETUP request comes only once after reset signal,
+BUT, here is an important gotcha: on some systems, SETUP request comes only once after
+reset signal,
 and it comes too quickly ---~right at the time of reset timeout
 (see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
 For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
@@ -252,12 +254,20 @@ void main(void)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+  }
+}
+
 @ In this test we show that only when |EORSTI| is cleared |RSTCPU| works.
 This test is extremely important. See \S\rstcpudoesnotworkafterfirstreset.
 We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop and only after that continue to the main program.
 And results of this test show how to reset the program to initial state on host
 (re)boot.
+
 
 According to gotcha described in \S\xxx,
 
