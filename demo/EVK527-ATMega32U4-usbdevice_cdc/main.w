@@ -175,6 +175,54 @@ ISR(USB_GEN_vect)
   }
 }
 
+@ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
+it is necessary to enable |RXSTPE| after each reset.
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  UDCON &= ~(1 << DETACH);
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  while (1) ;
+}
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & (1 << EORSTI)) {
+    UDINT &= ~(1 << EORSTI);
+    UECONX |= 1 << EPEN;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+    UEIENX |= 1 << RXSTPE;
+  }
+}
+
+ISR(USB_COM_vect)
+{
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
+  UDR1 = '%';
+}
+
 @ In this test we show that |RSTCPU| does not work after first reset.
 Output is `\.{rr}'.
 
@@ -315,54 +363,6 @@ ISR(USB_GEN_vect)
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'x'; while (!(UCSR1A & 1 << UDRE1)) ;
     UDINT &= ~(1 << EORSTI);
   }
-}
-
-@ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
-it is necessary to enable |RXSTPE| after each reset.
-
-@(/dev/null@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  while (1) ;
-}
-
-ISR(USB_GEN_vect)
-{
-  if (UDINT & (1 << EORSTI)) {
-    UDINT &= ~(1 << EORSTI);
-    UECONX |= 1 << EPEN;
-    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-    UEIENX |= 1 << RXSTPE;
-  }
-}
-
-ISR(USB_COM_vect)
-{
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
-  UDR1 = '%';
 }
 
 @ OK, enough tests. We now have all the information that we need.
