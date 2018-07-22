@@ -318,8 +318,6 @@ For example, in this test on Windows XP the `\.{\%}' is never output: the output
 
 On Linux output is `\.{rrr\%r\%}'.
 
-\xdef\xxx{\secno}
-
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -357,65 +355,31 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
 }
 
-@ We do not want to use interrupts for handling |RXSTPI|, but instead handle
-connection phase in a loop and only after that continue to the main program.
-And results of this test show how to reset the program to initial state on host
-(re)boot.
+We do not want to use interrupts for handling |RXSTPI|, but instead handle
+connection phase in a loop (until connection status variable is set to
+``connected'') and only after that continue to the main program
+(so that USB interrupts will not intervene with interrupts used for application).
+But there is a small problem with this approach: on host reboot USB stays powered.
+We need to reset the program to initial state via |RSTCPU|
+(on host reboot usb reset signals are sent), because
+the connection with the host is lost on host reboot, and thus we need to start
+the connection loop again.
 
-According to gotcha described in \S\xxx, we cannot use |RSTCPU| after every
+According to the gotcha, we cannot use |RSTCPU| after every
 reset signal (because we will miss SETUP request).
-But we don't have to. We need only use |RSTCPU| on host
-reboot, when program on MCU lost connection, and thus needs to be reset to
-start the connection loop. And on host reboot there are plenty of reset signals,
+But we don't have to. It is sufficient to use |RSTCPU| only once on host
+reboot. And on host reboot there are plenty of reset signals,
 so we will not miss anything.
 
-It only remains to learn how to start |RSTCPU| only when needed.
-The answer is that we enable |RSTCPU| in reset signal handler only
-when connection to host was already established (status of the connection is
-stored in a variable). On start we disable |RSTCPU| (nothing will
-change if it is not enabled), because connection status variable was reset.
+But how do we detect host reboot?
+The answer is: by checking in reset signal handler if the connection is
+established (status of the connection is
+stored in a variable). Considering that |RSTCPU| is used in conjunction
+with status variable anyway,
+we just use the status variable to trigger |RSTCPU|.
 
-@(test.c@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-volatile int connected = 0;
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-  UDR1 = 'r';
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU);
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  while (!connected) {
-    if (UEINTX & 1 << RXSTPI) ;
-  }
-
-  while (1) ;
-}
-
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-  UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  if (connected == 1) UDCON |= 1 << RSTCPU;
-}
+On MCU start we always disable |RSTCPU| (nothing will
+change if it is not enabled).
 
 @ OK, enough tests. We now have all the information that we need.
 
