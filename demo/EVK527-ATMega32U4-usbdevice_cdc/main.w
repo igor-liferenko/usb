@@ -321,7 +321,7 @@ and it comes too quickly ---~right at the time of reset timeout
 (see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
 For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
 
-On Linux output is `\.{???}'.
+On Linux output is `\.{rrr\%r\%}'.
 
 \xdef\xxx{\secno}
 
