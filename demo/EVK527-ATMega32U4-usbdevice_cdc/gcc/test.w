@@ -89,8 +89,8 @@ ISR(USB_GEN_vect)
     UDINT &= ~(1 << EORSTI);
     if (!connected) {
       if (UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+} /* if this
-        will happen, it means UENUM is not automatically set to EP0 on CPU reset;
-        then just do |UENUM = EP0;| manually here */
+        will happen, it means UENUM is not automatically set to EP0 on CPU reset,
+        caused by |RSTCPU|; then just do |UENUM = EP0;| manually here */
       UECONX |= 1 << EPEN;
       UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
       UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
