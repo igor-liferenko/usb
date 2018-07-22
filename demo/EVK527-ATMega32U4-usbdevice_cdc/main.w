@@ -316,7 +316,8 @@ after first reset.
 Here we show how to make it work: it is necessary to clear |EORSTI| when reset occurs.
 
 BUT, here is an important gotcha: on some systems, SETUP request comes only once after
-reset signal (see test in \S\onesetup),
+reset signal (see test in \S\onesetup\footnote*{Keep in mind also, that according to
+test in \S\numreset, there may be only one SETUP request.}),
 and it comes too quickly ---~right at the time of reset timeout
 (see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
 For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
@@ -364,26 +365,35 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ In this test we show that only when |EORSTI| is cleared |RSTCPU| works.
-This test is extremely important. See \S\rstcpudoesnotworkafterfirstreset.
-We do not want to use interrupts for handling |RXSTPI|, but instead handle
+@ We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop and only after that continue to the main program.
 And results of this test show how to reset the program to initial state on host
 (re)boot.
 
+According to gotcha described in \S\xxx, we cannot use |RSTCPU| after every
+reset signal (because we will miss SETUP request).
+But we don't have to. We need only use |RSTCPU| on host
+reboot, when program on MCU lost connection, and thus needs to be reset to
+start the connection loop. And on host reboot there are plenty of reset signals,
+so we will not miss anything.
 
-According to gotcha described in \S\xxx,
+It only remains to learn how to start |RSTCPU| only when needed.
+The answer is that we enable |RSTCPU| in reset signal handler only
+when connection to host was already established (status of the connection is
+stored in a variable).
 
-On Linux output is `\.{rrxrx\%rx\%}'.
-On Windows XP output is `\.{rrxrxrxrx}'.
+When MCU was reset due to |RSTCPU|, 6th bit of |MCUSR| is one.
+On this condition we disable |RSTCPU|.
 
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+  if (MCUSR & 1 << 5) UDCON &= ~(1 << RSTCPU);
+  MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -398,22 +408,21 @@ void main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   UDCON &= ~(1 << DETACH);
-  UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UDCON |= 1 << RSTCPU;
 
   UDIEN |= 1 << EORSTE;
   sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '%';
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
 }
 
 ISR(USB_GEN_vect)
 {
   if (UDINT & (1 << EORSTI)) {
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'x'; while (!(UCSR1A & 1 << UDRE1)) ;
     UDINT &= ~(1 << EORSTI);
+    UECONX |= 1 << EPEN;
+    UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+    UDCON |= 1 << RSTCPU;
   }
 }
 
