@@ -709,7 +709,7 @@ const uint8_t lang_desc[]
 @ The trick here is that when defining a variable of type |S_string_descriptor|,
 the string content follows the first two elements in program memory (TODO: ask on
 SX why sizeof var (not type) does not show true size and explain here, and put
-in the question dump of \.{avr-objdump} to illustrate this).
+in the question dump of \.{avr-objdump} to illustrate this - see file "Q").
 @^TODO@>
 Although this happens in compile time, |sizeof| on the variable counts only first two elements.
 So, we use |pgm_read_byte| to read the size of the variable during execution time. (Why?)
