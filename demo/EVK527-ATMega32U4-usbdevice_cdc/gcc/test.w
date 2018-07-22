@@ -723,17 +723,17 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-@*2 Product descriptor.
-
-@<Global \null variables@>=
-const S_string_descriptor prod_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"AVR USB HID DEMO");
-
 @*2 Manufacturer descriptor.
 
 @<Global \null variables@>=
 const S_string_descriptor mfr_desc
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"ATMEL");
+
+@*2 Product descriptor.
+
+@<Global \null variables@>=
+const S_string_descriptor prod_desc
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"AVR USB HID DEMO");
 
 @*1 Serial number descriptor.
 
