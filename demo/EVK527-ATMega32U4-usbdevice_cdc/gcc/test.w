@@ -21,34 +21,14 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 @<Global \null variables@>@;
 @<Functions@>@;
 
+volatile int connected = 0;
 void main(void)
 {
   UHWCON = 1 << UVREGE;
 
-//  uint8_t mcusr = MCUSR; @+ MCUSR = 0; /* reset as early as possible (\S8.0.8 in datasheet) */
-
-#if 1==0
-// THIS DOES NOT INFLUENCE THAT IT FREEZES ON PC REBOOT AS I THOUGHT BEFORE (THE BUG WAS FOUND)
-  cli();
-  wdt_reset();
-  MCUSR &= ~(1 << WDRF); /* |WDE| is overriden by |WDRF| */
-  WDTCSR |= 1 << WDCE | 1 << WDE;
-  WDTCSR = 0;
-#endif
-
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-#if 1==0
-//THIS DOES NOT WORK - IT SHOWS NOTHING ON PC REBOOT!!!
-  // NOTE: if it will show 'p', 'e', 'w' or 'u', then it is possible to make device work after
-  // PC reboot without RSTCPU or other tricks
-  if (mcusr & 1 << PORF) UDR1 = 'p';
-  else if (mcusr & 1 << EXTRF) UDR1 = 'e';
-  else if (mcusr & 1 << WDRF) UDR1 = 'w';
-  else if (mcusr & 1 << 5) UDR1 = 'u';
-  else
-#endif
   UDR1 = 'v';
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
@@ -58,12 +38,11 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
+  UDCON &= ~(1 << RSTCPU);
 
   UDIEN = 1 << EORSTE;
-  SMCR = 1 << SE;
   sei();
 
-  int connected = 0;
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
       uint8_t bmRequestType = UEDATX;
@@ -117,6 +96,7 @@ ISR(USB_GEN_vect)
     UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
+    if (connected == 1) UDCON |= 1 << RSTCPU;
   }
 }
 
@@ -131,7 +111,7 @@ ISR(USB_COM_vect)
     if (UENUM != EP1) UDR1 = 'x';
     else UDR1 = 'y';
     UENUM = EP1;
-    for (int i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
@@ -142,7 +122,7 @@ ISR(USB_COM_vect)
     else UDR1 = 'z';
     UENUM = EP2;
     UEINTX &= ~(1 << RXOUTI);
-    for (int i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++)
       a[i] = UEDATX;
     UEINTX &= ~(1 << FIFOCON);
     UENUM = EP1;
@@ -758,20 +738,19 @@ if (buf == NULL) {
 @ @d SN_START_ADDRESS 0x0E
 @d hex(c) c<10 ? c+'0' : c-10+'A'
 
-@<Get serial number@>= {
-  sn_desc.bLength = 1 + 1 + SN_LENGTH * 2;
-  sn_desc.bDescriptorType = 0x03;
-  uint8_t addr = SN_START_ADDRESS;
-  for (uint8_t i = 0; i < SN_LENGTH; i++) {
-    uint8_t c = boot_signature_byte_get(addr);
-    if (i & 1) { /* we divide each byte of signature into halves, each of
-                    which is represented by a hex number */
-      c >>= 4;
-      addr++;
-    }
-    else c &= 0x0F;
-    sn_desc.wString[i] = hex(c);
+@<Get serial number@>=
+sn_desc.bLength = 1 + 1 + SN_LENGTH * 2;
+sn_desc.bDescriptorType = 0x03;
+uint8_t addr = SN_START_ADDRESS;
+for (uint8_t i = 0; i < SN_LENGTH; i++) {
+  uint8_t c = boot_signature_byte_get(addr);
+  if (i & 1) { /* we divide each byte of signature into halves, each of
+                  which is represented by a hex number */
+    c >>= 4;
+    addr++;
   }
+  else c &= 0x0F;
+  sn_desc.wString[i] = hex(c);
 }
 
 @* Headers.
