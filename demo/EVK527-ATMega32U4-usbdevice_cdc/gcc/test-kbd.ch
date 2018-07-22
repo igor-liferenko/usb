@@ -78,7 +78,7 @@ ISR(USB_COM_vect)
     if (UENUM != EP1) UDR1 = 'x';
     else UDR1 = 'y';
     UENUM = EP1;
-    for (int i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++)
       UEDATX = a[i];
     UEINTX &= ~(1 << TXINI);
     UEINTX &= ~(1 << FIFOCON);
@@ -89,7 +89,7 @@ ISR(USB_COM_vect)
     else UDR1 = 'z';
     UENUM = EP2;
     UEINTX &= ~(1 << RXOUTI);
-    for (int i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++)
       a[i] = UEDATX;
     UEINTX &= ~(1 << FIFOCON);
     UENUM = EP1;
