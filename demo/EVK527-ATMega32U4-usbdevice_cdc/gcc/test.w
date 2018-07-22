@@ -751,8 +751,8 @@ struct {
 int from_program = 1;
 if (buf == NULL) {
   from_program = 0;
-  if (sn_ptr == NULL) @<Get serial number@>@;
-  buf = sn_ptr;
+  @<Get serial number@>@;
+  buf = &sn_desc;
 }
 
 @ @d SN_START_ADDRESS 0x0E
