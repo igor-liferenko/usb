@@ -431,8 +431,6 @@ int main(void)
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
       usb_process_request();
-      if (line_status.DTR) connected = 1; /*process dtr here - grep
-        SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
     }
   }
 //detect DTR before each operation on USB this way:
@@ -441,6 +439,7 @@ prev = UENUM;
 UENUM = EP0;
 if (UEINTX & 1 << RXSTPI) {
   while (!<read DTR>) ;
+/*process dtr here - grep SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
   line_status.DTR = DTR ? 1 : 0;
 }
 UENUM = prev;
