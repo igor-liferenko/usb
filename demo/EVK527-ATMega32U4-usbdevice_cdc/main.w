@@ -373,10 +373,8 @@ so we will not miss anything.
 
 But how do we detect host reboot?
 The answer is: by checking in reset signal handler if the connection is
-established (status of the connection is
-stored in a variable). Considering that |RSTCPU| is used in conjunction
-with status variable anyway,
-we just use the status variable to trigger |RSTCPU|.
+established. As we have a variable to store status of the connection,
+we just use the status variable to decide when to enable |RSTCPU|.
 
 On MCU start we always disable |RSTCPU| (nothing will
 change if it is not enabled).
