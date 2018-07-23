@@ -24,13 +24,14 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 volatile int connected = 0;
 void main(void)
 {
-// TODO: ensure that all is done via `\char'174=', because MCU may be reset via RSTCPU,
-// when usb stuff remains active
+/* TODO: ensure that all is done via `\.{\char'174=}', because MCU may be reset via RSTCPU,
+ when usb stuff remains active */
   UHWCON = 1 << UVREGE;
-// TODO: reboot computer and test this on test-kbd.ch (first remove UENUM check and check
-// that PC7 is turned on)
+/* TODO: reboot computer and test this on test-kbd.ch (first remove UENUM check and check
+ that PC7 is turned on) */
   if (MCUSR & 1 << 5 && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+} /* if this
-    will happen, do |UENUM = EP0;| before |UECONX |= 1 << EPEN;| in |USB_GEN_vect| */
+    will happen, do `\.{UENUM = EP0;}' before `\.{UECONX \char'174= 1 << EPEN;}' in
+    |USB_GEN_vect| */
   MCUSR = 0;
 
   UBRR1 = 34; // table 18-12 in datasheet
