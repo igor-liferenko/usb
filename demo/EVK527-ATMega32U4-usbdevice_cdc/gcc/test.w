@@ -16,7 +16,6 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 
 @c
 @<Header files@>@;
-@<Macros@>@;
 @<Type \null definitions@>@;
 @<Global \null variables@>@;
 @<Functions@>@;
@@ -701,7 +700,6 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-@ @<Macros@>=
 #define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
 
 @*2 Manufacturer descriptor.
