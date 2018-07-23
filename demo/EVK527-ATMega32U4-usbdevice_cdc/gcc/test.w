@@ -691,6 +691,8 @@ So, we use |pgm_read_byte| to read the size of the variable during execution tim
 TODO: put here explanation from \.{https://stackoverflow.com/questions/27852062/}
 @^TODO@>
 
+@^GCC-specific@>
+
 @s S_string_descriptor int
 
 @<Type \null definitions@>=
