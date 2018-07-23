@@ -683,10 +683,7 @@ const uint8_t lang_desc[]
 
 @*1 String descriptors.
 
-@ @<Macros@>=
-#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
-
-@ The trick here is that when defining a variable of type |S_string_descriptor|,
+The trick here is that when defining a variable of type |S_string_descriptor|,
 the string content follows the first two elements in program memory.
 The C standard says that a flexible array member in a struct does not increase the size of the
 struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
@@ -703,6 +700,9 @@ typedef struct {
   uint8_t bDescriptorType;
   int16_t wString[];
 } S_string_descriptor;
+
+@ @<Macros@>=
+#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
 
 @*2 Manufacturer descriptor.
 
