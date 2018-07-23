@@ -322,7 +322,7 @@ We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop (until connection status variable is set to
 ``connected'') and only after that continue to the main program
 (so that USB interrupts will not intervene with interrupts used for application).
-But there is a small problem with this approach: on host reboot USB stays powered.
+But there is a small problem with this approach: on host reboot USB remains powered.
 We need to reset the program to initial state via |RSTCPU|
 (on host reboot usb reset signals are sent), because
 the connection with the host is lost on host reboot, and thus we need to start
