@@ -435,6 +435,16 @@ int main(void)
         SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
     }
   }
+//detect DTR before each operation on USB this way:
+#if 1==0
+prev = UENUM;
+UENUM = EP0;
+if (UEINTX & 1 << RXSTPI) {
+  while (!<read DTR>) ;
+  line_status.DTR = DTR ? 1 : 0;
+}
+UENUM = prev;
+if (line_status.DTR) ... else ...
 
   while (1) { /* main application loop */
 #if 1==0
