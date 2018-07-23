@@ -25,6 +25,11 @@ volatile int connected = 0;
 void main(void)
 {
   UHWCON = 1 << UVREGE;
+// TODO: reboot computer and test this on test-kbd.ch (first remove UENUM check and check
+// that PC7 is turned on)
+  if (MCUSR & 1 << 5 && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+} /* if this
+    will happen, do |UENUM = EP0;| before |UECONX |= 1 << EPEN;| in |USB_GEN_vect| */
+  MCUSR = 0;
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -88,9 +93,6 @@ ISR(USB_GEN_vect)
 {
     UDINT &= ~(1 << EORSTI);
     if (!connected) {
-      if (UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+} /* if this
-        will happen, it means UENUM is not automatically set to EP0 on CPU reset,
-        caused by |RSTCPU|; then just do |UENUM = EP0;| manually here */
       UECONX |= 1 << EPEN;
       UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
       UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
