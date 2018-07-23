@@ -292,7 +292,7 @@ bDescriptorType = UEDATX;
 
 @ See datasheet \S22.12.2.
 
-Here we also handle the case when serial number needs to be transmitted from memory,
+Here we also handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
 
 @<Functions@>=
