@@ -150,3 +150,7 @@ transaction-SETUP.eps: transaction-SETUP.gif
 hid-structure.eps: hid-structure.png
 	@convert $< $@
 	@imgsize $@ 5 -
+
+kbd-structure.eps: kbd-structure.png
+	@convert $< $@
+	@imgsize $@ 5 -
