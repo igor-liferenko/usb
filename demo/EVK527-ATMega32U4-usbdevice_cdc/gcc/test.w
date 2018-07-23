@@ -24,6 +24,8 @@ In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 volatile int connected = 0;
 void main(void)
 {
+// TODO: ensure that all is done via `\char'174=', because MCU may be reset via RSTCPU,
+// when usb stuff remains active
   UHWCON = 1 << UVREGE;
 // TODO: reboot computer and test this on test-kbd.ch (first remove UENUM check and check
 // that PC7 is turned on)
