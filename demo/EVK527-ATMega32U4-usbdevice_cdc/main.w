@@ -408,8 +408,7 @@ extern U8    usb_configuration_nb;
 
 @<EOR interrupt handler@>@;
 
-int connected = 0;
-
+volatile int connected = 0;
 int main(void)
 {
   sei();
@@ -426,26 +425,23 @@ int main(void)
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
   while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
   @#
-  UDIEN |= 1 << EORSTE;
   UDCON &= ~(1 << DETACH);
+
+  UDIEN |= 1 << EORSTE;
+  sei();
 
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
       usb_process_request();
+      if (line_status.DTR) connected = 1; /*process dtr here - grep
+        SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
     }
   }
-  UDIEN &= ~(1 << EORSTE);
+
   while (1) { /* main application loop */
-    UENUM = 0;
-    if (UEINTX & (1 << RXSTPI)) {
-//      |DDRB|=1<<PB0;PORTB|=1<<PB0;|
-      /*process dtr here - grep SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
-    }
 #if 1==0
-    if (line_status.DTR) {
       /* send a character (see cdc\_task.w) */
-    }
-    _delay_ms(1000);
+     _delay_ms(1000);
 #endif
   }
 }
@@ -453,17 +449,12 @@ int main(void)
 @ @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
-  if ((UDINT & (1 << EORSTI)) && (UDIEN & (1 << EORSTE))) {
-    UDINT &= ~(1 << EORSTI);
-    UDADDR &= ~(1 << ADDEN);
-    UENUM = 0;
+  UDINT &= ~(1 << EORSTI);
+  if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG0X |= 0 << EPTYPE0; /* control */
-    UECFG0X |= 0 << EPDIR; /* out */
-    UECFG1X |= 3 << EPSIZE0; /* 64 bytes (binary 011) - must be in accord with
-      |EP_CONTROL_LENGTH| */
-    UECFG1X |= 0 << EPBK0; /* one */
-    UECFG1X |= 1 << ALLOC;
+    UECFG0X = 0 << EPTYPE0 | 0 << EPDIR; /* control, out */
+    UECFG1X = 1 << EPSIZE1 + 1 << EPSIZE0 |  0 << EPBK0 | 1 << ALLOC; /* 64 bytes, one bank */
+//TODO: see operator precedence
   }
 }
 
