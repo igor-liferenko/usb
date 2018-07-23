@@ -411,8 +411,6 @@ extern U8    usb_configuration_nb;
 volatile int connected = 0;
 int main(void)
 {
-  sei();
-  @#
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
   @#
   PLLCSR |= 1 << PINDIV;
@@ -453,7 +451,7 @@ ISR(USB_GEN_vect)
   if (!connected) {
     UECONX |= 1 << EPEN;
     UECFG0X = 0 << EPTYPE0 | 0 << EPDIR; /* control, out */
-    UECFG1X = 1 << EPSIZE1 + 1 << EPSIZE0 |  0 << EPBK0 | 1 << ALLOC; /* 64 bytes, one bank */
+    UECFG1X = 1 << EPSIZE1 + 1 << EPSIZE0 | 0 << EPBK0 | 1 << ALLOC; /* 64 bytes, one bank */
 //TODO: see operator precedence
   }
 }
