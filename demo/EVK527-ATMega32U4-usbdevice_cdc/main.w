@@ -447,7 +447,7 @@ if (line_status.DTR) ... else ...
 
   while (1) { /* main application loop */
 #if 1==0
-  if (line_status.DTR == 1) {
+  if (line_status.DTR) {
       /* send a character (see cdc\_task.w) */
   }
   _delay_ms(1000);
