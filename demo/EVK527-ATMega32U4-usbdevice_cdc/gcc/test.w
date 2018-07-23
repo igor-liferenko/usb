@@ -687,12 +687,13 @@ const uint8_t lang_desc[]
 #define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
 
 @ The trick here is that when defining a variable of type |S_string_descriptor|,
-the string content follows the first two elements in program memory (TODO: ask on
-SX why sizeof var (not type) does not show true size and explain here, and put
-in the question dump of \.{avr-objdump} to illustrate this - see file "Q").
+the string content follows the first two elements in program memory.
+The C standard says that a flexible array member in a struct does not increase the size of the
+struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
+So, |sizeof| on the variable counts only first two elements.
+So, we use |pgm_read_byte| to read the size of the variable during execution time.
+TODO: put here explanation from \.{https://stackoverflow.com/questions/27852062/}
 @^TODO@>
-Although this happens in compile time, |sizeof| on the variable counts only first two elements.
-So, we use |pgm_read_byte| to read the size of the variable during execution time. (Why?)
 
 @s S_string_descriptor int
 
