@@ -117,7 +117,7 @@ const uint8_t dev_desc[]
 };
 
 uint8_t len = sizeof dev_desc;
-const void *ptr = &(dev_desc[0]);
+const void *ptr = dev_desc;
 
 volatile int num = 0;
 
