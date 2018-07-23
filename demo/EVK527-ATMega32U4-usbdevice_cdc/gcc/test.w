@@ -761,7 +761,6 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <avr/wdt.h>
 #include <stddef.h> /* |NULL| */
 
 @* Index.
