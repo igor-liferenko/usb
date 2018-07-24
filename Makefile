@@ -8,8 +8,8 @@ flash:
 
 .PHONY: test
 test:
-	@grep -q '^@(test@>=$$' test.w || { echo 'no section enabled'; false; }
-	@grep '^@(test@>=$$' test.w | wc -l | grep -q '^1$$' || { echo 'more than one section enabled'; false; }
+	@grep -q '^@(test@>=$$' test.w || ( echo 'no section enabled'; false )
+	@grep '^@(test@>=$$' test.w | wc -l | grep -q '^1$$' || ( echo 'more than one section enabled'; false )
 	@mv test test.c
 	avr-gcc -mmcu=atmega32u4 -g -Os -o test.elf test.c
 	@avr-objdump -S test.elf >x

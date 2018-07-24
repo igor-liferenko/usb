@@ -1,6 +1,9 @@
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
 
+\let\lheader\rheader
+%\datethis
+
 @* Testing.
 
 @ In this test we determine how endpoint configuration reacts to reset.
