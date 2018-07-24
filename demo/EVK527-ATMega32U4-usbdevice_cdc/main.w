@@ -515,25 +515,25 @@ void main(void)
       case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
         {
-        case 0x06: @/
+        case 0x06: /* GET DESCRIPTOR */
           (void) UEDATX; /* Descriptor Index */
           switch (UEDATX) /* |bDescriptorType| */
           {
-          case 0x01: @/
+          case 0x01: /* DEVICE */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
             ((uint8_t *) &wLength)[0] = UEDATX;
             ((uint8_t *) &wLength)[1] = UEDATX;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
             break;
-          case 0x02: @/
+          case 0x02: /* CONFIGURATION */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
             ((uint8_t *) &wLength)[0] = UEDATX;
             ((uint8_t *) &wLength)[1] = UEDATX;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(&user_conf_desc, wLength);
             break;
-          case 0x06: /* device qualifier */
+          case 0x06: /* DEVICE QUALIFIER */
             UECONX |= 1 << STALLRQ; /* according to the spec */
             UEINTX &= ~(1 << RXSTPI);
             break;
