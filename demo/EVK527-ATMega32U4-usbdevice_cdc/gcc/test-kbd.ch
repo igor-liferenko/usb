@@ -131,9 +131,9 @@ while (!(UESTA0X & (1 << CFGOK))) ;
 @z
   
 @x
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+@d SERIAL_NUMBER 0x03
 @y
-  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
+@d SERIAL_NUMBER 0x00
 @z
 
 @x
