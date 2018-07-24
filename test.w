@@ -1,6 +1,5 @@
 % To compile certain section, change "/dev/null" to "test", then do
-% as usual "ctangle test && make test", but beware that "/dev/null"
-% can be changed only for one section at a time.
+% as usual "ctangle test && make test".
 
 @* Testing.
 
