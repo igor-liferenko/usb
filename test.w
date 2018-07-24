@@ -400,7 +400,7 @@ This example implements a HID keyboard.
 
 Result: on connect yellow led is on; on host reboot green led is not on.
 
-@(test.c@>=
+@(null.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
