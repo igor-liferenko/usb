@@ -1,23 +1,22 @@
 kbd:
-	avr-gcc -mmcu=atmega32u4 -g -Os -o $@.elf $@.c
-	avr-objcopy -O ihex $@.elf $@.hex
-	avr-objdump -S $@.elf >x
+	avr-gcc -mmcu=atmega32u4 -g -Os -o kbd.elf kbd.c
+	@avr-objdump -S kbd.elf >x
+	avr-objcopy -O ihex kbd.elf fw.hex
 
 flash:
-	avrdude -c usbasp -p atmega32u4 -U flash:w:kbd.hex
+	avrdude -c usbasp -p atmega32u4 -U flash:w:fw.hex -q
 
 .PHONY: test
 test:
 	@mv test test.c
 	avr-gcc -mmcu=atmega32u4 -g -Os -o test.elf test.c
-	avr-objdump -S test.elf >x
-	avr-objcopy -O ihex test.elf test.hex
-	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
+	@avr-objdump -S test.elf >x
+	avr-objcopy -O ihex test.elf fw.hex
 
 asm:
 	avr-gcc -mmcu=atmega32u4 -g -o asm.elf asm.S
-	avr-objcopy -O ihex asm.elf asm.hex
-	avr-objdump -S asm.elf >x
+	@avr-objdump -S asm.elf >x
+	avr-objcopy -O ihex asm.elf fw.hex
 
 .PHONY: $(wildcard *.eps)
 

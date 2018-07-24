@@ -7,5 +7,5 @@
 *.tex
 *.toc
 *.elf
-*.hex
+fw.hex
 x
