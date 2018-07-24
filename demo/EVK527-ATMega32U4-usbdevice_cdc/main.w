@@ -539,8 +539,8 @@ void main(void)
         send_descriptor(rep_desc, sizeof rep_desc);
         UENUM = 1;
         UECONX |= 1 << EPEN;
-        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); 
-        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); 
+        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR);
+        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC);
         connected = 1;
         break;
       }

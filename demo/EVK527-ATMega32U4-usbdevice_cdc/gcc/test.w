@@ -224,7 +224,7 @@ case 0x03: @/
 case 0x06: /* device qualifier */
   UECONX |= 1 << STALLRQ; /* according to the spec */
   UEINTX &= ~(1 << RXSTPI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';  
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
   break;
 default: @/
   UEINTX &= ~(1 << RXSTPI);
@@ -622,7 +622,7 @@ The value is set in second byte.
 
 Line 6: Maximum value in each received byte, in logical units.
 The value is set in second byte. Two last bits of first byte show number of remaining bytes
-in this field. 
+in this field.
 Number |0x26| in binary is 00011010. Two last bits (10) is decimal 2. So, after
 first byte follow two bytes -- |0xFF| and |0x00|. FIXME: what for is second of them?
 
