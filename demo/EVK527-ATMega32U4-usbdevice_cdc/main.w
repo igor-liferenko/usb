@@ -101,7 +101,7 @@ const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x12, @/
   0x01, @/
-  0x10, 0x01, @/
+  0x00, 0x02, @/
   0x00, @/
   0x00, @/
   0x00, @/
