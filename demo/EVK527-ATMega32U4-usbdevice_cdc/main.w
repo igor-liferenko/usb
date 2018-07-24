@@ -382,7 +382,8 @@ ISR(USB_GEN_vect)
 @ In this test we show that setting |RSTCPU| in reset signal handler works.
 Result is that green led is turned on when host reboots.
 
-TODO: move here from corresponding part of TeX-part of previous section
+TODO: move here from corresponding part of TeX-part of previous section and
+use example from next section
 
 @d USBRF 5
 
@@ -395,6 +396,8 @@ caused by |RSTCPU|. This allows us not to set |UENUM| to zero before configuring
 control endpoint in reset interrupt handler. Note, that we set |UENUM| to one
 right before setting the |connected| flag.
 Result is that green led is turned on when host reboots.
+
+This example implements a HID keyboard. Is not designed to work on host reboot.
 
 @(test.c@>=
 #include <avr/io.h>
