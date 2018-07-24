@@ -379,7 +379,44 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
 }
 
-@ OK, enough tests. We now have all the information that we need.
+@ In this test we show that setting |RSTCPU| in reset signal handler works.
+Result is that green led is turned on when host reboots.
+
+  if (MCUSR & 1 << 5) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+  MCUSR = 0;
+
+@ In this test we show that |UENUM| is automatically set to zero on CPU reset,
+caused by |RSTCPU|. This allows us not to set |UENUM| to zero before configuring
+control endpoint in reset interrupt handler. Note, that we set |UENUM| to one
+right before setting the |connected| flag.
+Result is that green led is turned on when host reboots.
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+volatile int connected = 0;
+void main(void)
+{
+
+  if (MCUSR & 1 << 5 && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+  MCUSR = 0;
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  while (!connected) {
+    if (UEINTX & 1 << RXSTPI) {
+      UENUM = 1;
+      connected = 1;
+    }
+  }
+}
+
+ISR()
+{
+  UDINT &= ~(1 << EORSTI);
+}
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
 an infinite loop.
