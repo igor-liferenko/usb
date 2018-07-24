@@ -407,7 +407,7 @@ const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x12, @/
   0x01, @/
-  0x10, 0x01, @/
+  0x00, 0x02, @/
   0x00, @/
   0x00, @/
   0x00, @/
@@ -487,6 +487,26 @@ void main(void)
     if (UEINTX & 1 << RXSTPI) {
       switch (UEDATX) /* |bmRequestType| */
       {
+      case 0x00: @/
+        switch (UEDATX) /* |bRequest| */
+        {
+        case 0x05: /* SET ADDRESS */
+          UDADDR = UEDATX & 0x7F;
+          UEINTX &= ~(1 << RXSTPI);
+          UEINTX &= ~(1 << TXINI);
+          while (!(UEINTX & (1 << TXINI))) ;
+          UDADDR |= 1 << ADDEN;
+          break;
+        case 0x09: /* SET CONFIGURATION */
+          UEINTX &= ~(1 << RXSTPI);
+          UEINTX &= ~(1 << TXINI);
+          break;
+        }
+        break;
+      case 0x21: /* SET IDLE */
+        UEINTX &= ~(1 << RXSTPI);
+        UEINTX &= ~(1 << TXINI);
+        break;
       case 0x80: @/
         switch (UEDATX) /* |bRequest| */
         {
@@ -495,8 +515,6 @@ void main(void)
           switch (UEDATX) /* |bDescriptorType| */
           {
           case 0x01: @/
-            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            (void) UEDATX; @+ (void) UEDATX; /* wLength */
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(dev_desc, sizeof dev_desc);
             break;
@@ -508,33 +526,28 @@ void main(void)
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(&user_conf_desc, wLength);
             break;
-          }
-          break;
-        }
-        break;
-      case 0x81: @/
-        switch (UEDATX) /* |bRequest| */
-        {
-        case 0x06: @/
-          (void) UEDATX; /* Descriptor Index */
-          switch (UEDATX) /* |bDescriptorType| */
-          {
-          case 0x22: @/
-            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            (void) UEDATX; @+ (void) UEDATX; /* wLength */
+          case 0x06: /* device qualifier */
+            UECONX |= 1 << STALLRQ; /* according to the spec */
             UEINTX &= ~(1 << RXSTPI);
-            send_descriptor(rep_desc, sizeof rep_desc);
-            UENUM = 1;
-            connected = 1;
             break;
           }
           break;
         }
         break;
+      case 0x81: @/
+        UEINTX &= ~(1 << RXSTPI);
+        send_descriptor(rep_desc, sizeof rep_desc);
+        UENUM = 1;
+        UECONX |= 1 << EPEN;
+        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); 
+        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); 
+        connected = 1;
+        break;
       }
     }
   }
   UDR1 = '%';
+  while (1) ;
 }
 
 ISR(USB_GEN_vect)
