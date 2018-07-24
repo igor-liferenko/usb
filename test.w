@@ -321,30 +321,7 @@ For example, in this test on Windows XP the `\.{\%}' is never output: the output
 
 On Linux output is `\.{rrr\%r\%}'.
 
-We do not want to use interrupts for handling |RXSTPI|, but instead handle
-connection phase in a loop (until connection status variable is set to
-``connected'') and only after that continue to the main program
-(so that USB interrupts will not intervene with interrupts used for application).
-But there is a small problem with this approach: on host reboot USB remains powered.
-We need to reset the program to initial state via |RSTCPU|
-(on host reboot usb reset signals are sent), because
-the connection with the host is lost on host reboot, and thus we need to start
-the connection loop again.
-
-According to the gotcha, we cannot use |RSTCPU| after every
-reset signal (because we will miss SETUP request).
-But we don't have to. It is sufficient to use |RSTCPU| only once on host
-reboot. And on host reboot there are plenty of reset signals,
-so we will not miss anything.
-
-But how do we detect host reboot?
-The answer is: by checking in reset signal handler if the connection is
-established. As we have the variable to store status of the connection,
-we just check it: if connection is established, this means this
-reset signal comes after host reboot, and |RSTCPU| is enabled then.
-
-On MCU start we always disable |RSTCPU| (nothing will
-change if it is not enabled).
+\xdef\rstcpugotcha{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
@@ -383,11 +360,33 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
 }
 
-@ In this test we show that setting |RSTCPU| in reset signal handler works.
-Result: on connect yellow led is on; when host reboots second yellow led is on.
+@ We do not want to use interrupts for handling |RXSTPI|, but instead handle
+connection phase in a loop (until connection status variable is set to
+``connected'') and only after that continue to the main program
+(so that USB interrupts will not intervene with interrupts used for application).
+But there is a small problem with this approach: on host reboot USB remains powered.
+We need to reset the program to initial state via |RSTCPU|
+(on host reboot usb reset signals are sent), because
+the connection with the host is lost on host reboot, and thus we need to start
+the connection loop again.
 
-TODO: move here from corresponding part of TeX-part of previous section and
-use example from next section
+BUT according to the gotcha in \S\rstcpugotcha, we cannot use |RSTCPU| after every
+reset signal (because we will miss SETUP request).
+But we don't have to. It is sufficient to use |RSTCPU| only once on host
+reboot. And on host reboot there are plenty of reset signals,
+so we will not miss anything.
+
+But how do we detect host reboot?
+The answer is: by checking in reset signal handler if the connection is
+established. As we have the variable to store status of the connection,
+we just check it: if connection is established, this means this
+reset signal comes after host reboot, and |RSTCPU| is enabled then.
+
+On MCU start we always disable |RSTCPU| (nothing will
+change if it is not enabled).
+
+In this test we show that setting |RSTCPU| in reset signal handler works.
+Result: on connect yellow led is on; when host reboots second yellow led is on.
 
 @(/dev/null@>=
 #include <avr/io.h>
