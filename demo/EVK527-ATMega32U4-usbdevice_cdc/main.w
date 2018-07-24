@@ -380,7 +380,7 @@ ISR(USB_GEN_vect)
 }
 
 @ In this test we show that setting |RSTCPU| in reset signal handler works.
-Result is that green led is turned on when host reboots.
+Result: on connect yellow led is on; when host reboots second yellow led is on.
 
 TODO: move here from corresponding part of TeX-part of previous section and
 use example from next section
@@ -388,16 +388,17 @@ use example from next section
 @d USBRF 5
 
 @(/dev/null@>=
-  if (MCUSR & 1 << USBRF) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+  if (MCUSR & 1 << USBRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
   MCUSR = 0;
 
 @ In this test we show that |UENUM| is automatically set to zero on CPU reset,
 caused by |RSTCPU|. This allows us not to set |UENUM| to zero before configuring
 control endpoint in reset interrupt handler. Note, that we set |UENUM| to one
 right before setting the |connected| flag.
-Result is that green led is turned on when host reboots.
 
-This example implements a HID keyboard. Is not designed to work on host reboot.
+This example implements a HID keyboard.
+
+Result: on connect yellow led is on; on host reboot green led is not on.
 
 @(test.c@>=
 #include <avr/io.h>
@@ -459,6 +460,7 @@ void send_descriptor(const void *buf, int size)
   }
 }
 
+uint16_t wLength;
 volatile int connected = 0;
 void main(void)
 {
@@ -518,12 +520,14 @@ void main(void)
           switch (UEDATX) /* |bDescriptorType| */
           {
           case 0x01: @/
+            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+            ((uint8_t *) &wLength)[0] = UEDATX;
+            ((uint8_t *) &wLength)[1] = UEDATX;
             UEINTX &= ~(1 << RXSTPI);
-            send_descriptor(dev_desc, sizeof dev_desc);
+            send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
             break;
           case 0x02: @/
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            uint16_t wLength;
             ((uint8_t *) &wLength)[0] = UEDATX;
             ((uint8_t *) &wLength)[1] = UEDATX;
             UEINTX &= ~(1 << RXSTPI);
@@ -544,12 +548,13 @@ void main(void)
         UECONX |= 1 << EPEN;
         UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR);
         UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC);
+        DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         connected = 1;
         break;
       }
     }
   }
-  UDR1 = '%';
+
   while (1) ;
 }
 
