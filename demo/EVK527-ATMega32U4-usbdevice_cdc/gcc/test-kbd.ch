@@ -129,6 +129,12 @@ UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\foo
 while (!(UESTA0X & (1 << CFGOK))) ;
 @y
 @z
+
+@x
+case SERIAL_NUMBER: @/
+@y
+case 0x03: @/
+@z
   
 @x
 @d SERIAL_NUMBER 0x03
