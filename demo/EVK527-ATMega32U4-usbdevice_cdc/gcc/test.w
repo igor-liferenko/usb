@@ -561,7 +561,7 @@ typedef struct {
   0x0100, /* HID version 1.0 */
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
-  0x22, /* HID report */
+  0x22, /* HID report (value of |bDescriptorType| in GET DESCRIPTOR request for HID report) */
 @t\2@> sizeof hid_report_descriptor @/
 }
 
