@@ -382,7 +382,12 @@ ISR(USB_GEN_vect)
 @ In this test we show that setting |RSTCPU| in reset signal handler works.
 Result is that green led is turned on when host reboots.
 
-  if (MCUSR & 1 << 5) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+TODO: move here from corresponding part of TeX-part of previous section
+
+@d USBRF 5
+
+@(/dev/null@>=
+  if (MCUSR & 1 << USBRF) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
   MCUSR = 0;
 
 @ In this test we show that |UENUM| is automatically set to zero on CPU reset,
@@ -391,26 +396,126 @@ control endpoint in reset interrupt handler. Note, that we set |UENUM| to one
 right before setting the |connected| flag.
 Result is that green led is turned on when host reboots.
 
+@d USBRF 5
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+
+const uint8_t dev_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x12, @/
+  0x01, @/
+  0x10, 0x01, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+  0x20, @/
+  0xEB, 0x03, @/
+  0x13, 0x20, @/
+  0x00, 0x10, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+@t\2@> 1 @/
+};
+
+const uint8_t user_conf_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x09, 0x02, 0x22, 0x00, 0x01, 0x01, 0x00, 0x80, 0x32, 0x09, 0x04, @/
+  0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x09, 0x21, 0x00, 0x01, @/
+  0x00, 0x01, 0x22, 0x2b, 0x00, 0x07, 0x05, 0x81, 0x03, 0x08, 0x00, @/
+@t\2@> 0x0f @/
+};
+
+const uint8_t rep_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x05, 0x01, 0x09, 0x06, 0xa1, 0x01, 0x05, 0x07, 0x75, 0x01, 0x95, @/
+  0x08, 0x19, 0xe0, 0x29, 0xe7, 0x15, 0x00, 0x25, 0x01, 0x81, 0x02, @/
+  0x75, 0x08, 0x95, 0x01, 0x81, 0x03, 0x75, 0x08, 0x95, 0x06, 0x19, @/
+@t\2@> 0x00, 0x29, 0x65, 0x15, 0x00, 0x25, 0x65, 0x81, 0x00, 0xc0 @/
+};
 
 volatile int connected = 0;
 void main(void)
 {
+  UHWCON |= 1 << UVREGE;
 
-  if (MCUSR & 1 << 5 && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+  if (MCUSR & 1 << USBRF && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
   MCUSR = 0;
+
+  UBRR1 = 34;
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE;
+  while (!(USBSTA & (1 << VBUS))) ;
+  UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
 
   while (!connected) {
     if (UEINTX & 1 << RXSTPI) {
-      UENUM = 1;
-      connected = 1;
+      switch (UEDATX) /* |bmRequestType| */
+      {
+      case 0x80: @/
+        switch (UEDATX) /* |bRequest| */
+        {
+        case 0x06: @/
+          (void) UEDATX; /* Descriptor Index */
+          switch (UEDATX) /* |bDescriptorType| */
+          {
+          case 0x01: @/
+            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+            ((uint8_t *) &wLength)[0] = UEDATX;
+            ((uint8_t *) &wLength)[1] = UEDATX;
+            UEINTX &= ~(1 << RXSTPI);
+            send_descriptor(dev_desc, sizeof dev_desc);
+            break;
+          case 0x02: @/
+            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+            ((uint8_t *) &wLength)[0] = UEDATX;
+            ((uint8_t *) &wLength)[1] = UEDATX;
+            UEINTX &= ~(1 << RXSTPI);
+            send_descriptor(&user_conf_desc, wLength);
+            break;
+          }
+          break;
+        }
+        break;
+      case 0x81: @/
+        switch (UEDATX) /* |bRequest| */
+        {
+        case 0x06: @/
+          (void) UEDATX; /* Descriptor Index */
+          switch (UEDATX) /* |bDescriptorType| */
+          {
+          case 0x22: @/
+            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+            ((uint8_t *) &wLength)[0] = UEDATX;
+            ((uint8_t *) &wLength)[1] = UEDATX;
+            UEINTX &= ~(1 << RXSTPI);
+            send_descriptor(rep_desc, sizeof rep_desc);
+            UENUM = 1;
+            connected = 1;
+            break;
+          }
+          break;
+        }
+        break;
+      }
     }
   }
+  UDR1 = '%';
 }
 
 ISR()
@@ -469,6 +574,7 @@ int main(void)
       usb_process_request();
     }
   }
+
 //detect DTR before each operation on USB this way:
 #if 1==0
 prev = UENUM;
@@ -480,13 +586,18 @@ if (UEINTX & 1 << RXSTPI) {
 }
 UENUM = prev;
 if (line_status.DTR) ... else ...
+#endif
+
+/* http://we.easyelectronics.ru/electro-and-pc/
+  interfeys-usb-realizaciya-chast-2.html */
+/* http://www.usbmadesimple.co.uk/ums\_3.htm */
 
   while (1) { /* main application loop */
 #if 1==0
   if (line_status.DTR) {
       /* send a character (see cdc\_task.w) */
+    _delay_ms(1000);
   }
-  _delay_ms(1000);
 #endif
   }
 }
