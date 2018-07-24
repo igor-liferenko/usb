@@ -463,6 +463,7 @@ typedef struct {
 @ @d MANUFACTURER 0x01
 @d PRODUCT 0x02
 @d SERIAL_NUMBER 0x03
+@d NOT_USED 0x00
 
 @<Global \null variables@>=
 const S_device_descriptor dev_desc
@@ -479,7 +480,7 @@ const S_device_descriptor dev_desc
   0x1000, /* from Atmel demo */
   MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
   PRODUCT, /* (\.{Product} in \.{kern.log}) */
-  0x00, /* (\.{SerialNumber} in \.{kern.log}) */
+  NOT_USED, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
