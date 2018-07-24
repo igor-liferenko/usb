@@ -7,10 +7,10 @@ flash:
 	avrdude -c usbasp -p atmega32u4 -U flash:w:kbd.hex
 
 test:
-	avr-gcc -mmcu=$(MCU) -g -Os -o $@.elf $@.c
-	avr-objdump -d $@.elf >x
-	avr-objcopy -O ihex $@.elf $@.hex
-	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
+	avr-gcc -mmcu=$(MCU) -g -Os -o null.elf null.c
+	avr-objdump -d null.elf >x
+	avr-objcopy -O ihex null.elf null.hex
+	avrdude -c usbasp -p atmega32u4 -U flash:w:null.hex
 
 asm:
 	avr-gcc -mmcu=atmega32u4 -g -o asm.elf asm.S
