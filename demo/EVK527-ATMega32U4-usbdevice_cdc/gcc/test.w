@@ -257,19 +257,19 @@ send_descriptor(&user_conf_desc, wLength);
 @ @<d\_str@>=
 switch (index)
 {
-case 0x00:
+case 0x00: /* language */
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
   send_descriptor(lang_desc, sizeof lang_desc);
   break;
-case 0x01:
+case MANUFACTURER: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
   send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
   break;
-case 0x02:
+case PRODUCT: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
   send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
   break;
-case 0x03:
+case SERIAL_NUMBER: @/
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
   send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
   break;
@@ -427,7 +427,11 @@ typedef struct {
   uint8_t      bNumConfigurations;
 } S_device_descriptor;
 
-@ @<Global \null variables@>=
+@ @d MANUFACTURER 0x01
+@d PRODUCT 0x02
+@d SERIAL_NUMBER 0x03
+
+@<Global \null variables@>=
 const S_device_descriptor dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   sizeof (S_device_descriptor), @/
@@ -440,9 +444,9 @@ const S_device_descriptor dev_desc
   0x03EB, /* ATMEL */
   0x2013, /* standard Human Interaction Device */
   0x1000, /* from Atmel demo */
-  0x01, /* (\.{Mfr} in \.{kern.log}) */
-  0x02, /* (\.{Product} in \.{kern.log}) */
-  0x03, /* (\.{SerialNumber} in \.{kern.log}) */
+  MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
+  PRODUCT, /* (\.{Product} in \.{kern.log}) */
+  SERIAL_NUMBER, /* (\.{SerialNumber} in \.{kern.log}) */
 @t\2@> 1 /* one configuration for this device */
 };
 
