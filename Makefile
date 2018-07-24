@@ -10,7 +10,7 @@ flash:
 test:
 	@mv test test.c
 	avr-gcc -mmcu=atmega32u4 -g -Os -o test.elf test.c
-	avr-objdump -d test.elf >x
+	avr-objdump -S test.elf >x
 	avr-objcopy -O ihex test.elf test.hex
 	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
 
