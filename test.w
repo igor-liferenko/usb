@@ -2,6 +2,8 @@
 % as usual "ctangle test && make test", but beware that "/dev/null"
 % can be changed only for one section at a time.
 
+@* Testing.
+
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
 So, we have learned that |CFGOK| need not be checked after configuring control endpoint,

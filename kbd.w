@@ -2,6 +2,8 @@
 %\datethis
 \secpagedepth=2 % begin new page only on *
 
+@i test.w
+
 @* Program. This embedded application source code illustrates how to implement a HID
 with the ATmega32U4 controller.
 
