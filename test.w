@@ -385,8 +385,6 @@ Result: on connect yellow led is on; when host reboots second yellow led is on.
 TODO: move here from corresponding part of TeX-part of previous section and
 use example from next section
 
-@d USBRF 5
-
 @(/dev/null@>=
   if (MCUSR & 1 << USBRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
   MCUSR = 0;
@@ -400,7 +398,7 @@ This example implements a HID keyboard.
 
 Result: on connect yellow led is on; on host reboot green led is not on.
 
-@(null.c@>=
+@(test@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
