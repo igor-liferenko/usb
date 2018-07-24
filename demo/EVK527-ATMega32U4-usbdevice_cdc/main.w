@@ -492,7 +492,7 @@ void main(void)
     if (UEINTX & 1 << RXSTPI) {
       switch (UEDATX) /* |bmRequestType| */
       {
-      case 0x00: @/
+      case 0x00: /* Direction: host to device, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
         {
         case 0x05: /* SET ADDRESS */
@@ -508,11 +508,11 @@ void main(void)
           break;
         }
         break;
-      case 0x21: /* SET IDLE */
+      case 0x21: /* Direction: host to device, Type: class, Recipient: interface */
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
         break;
-      case 0x80: @/
+      case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
         {
         case 0x06: @/
@@ -541,7 +541,7 @@ void main(void)
           break;
         }
         break;
-      case 0x81: @/
+      case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
         UEINTX &= ~(1 << RXSTPI);
         send_descriptor(rep_desc, sizeof rep_desc);
         UENUM = 1;
