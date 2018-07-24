@@ -94,56 +94,6 @@ void main(void)
   }
 }
 
-@ @<Press button `a'@>=
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0x04;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-        new packet to be sent when following IN request arrives (for key release) */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
-
-@ @<Press button `ESC'@>=
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0x29;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-        new packet to be sent when following IN request arrives (for key release) */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
-
 @ @c
 ISR(USB_GEN_vect)
 {
@@ -687,6 +637,56 @@ const uint8_t hid_report_descriptor[]
   0x81, 0x00, @t\hskip21pt@> //   \.{INPUT (Data,Ary,Abs)}
 @t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
+
+@ @<Press button `a'@>=
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0x04;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+        new packet to be sent when following IN request arrives (for key release) */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
+
+@ @<Press button `ESC'@>=
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0x29;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+        new packet to be sent when following IN request arrives (for key release) */
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEDATX = 0;
+      UEINTX &= ~(1 << TXINI);
+      UEINTX &= ~(1 << FIFOCON);
+      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
 
 @*1 Language descriptor.
 
