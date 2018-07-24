@@ -396,12 +396,12 @@ control endpoint in reset interrupt handler. Note, that we set |UENUM| to one
 right before setting the |connected| flag.
 Result is that green led is turned on when host reboots.
 
-@d USBRF 5
-
-@(/dev/null@>=
+@(test.c@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
+#define USBRF 5
 
 const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
@@ -437,12 +437,31 @@ const uint8_t rep_desc[]
 @t\2@> 0x00, 0x29, 0x65, 0x15, 0x00, 0x25, 0x65, 0x81, 0x00, 0xc0 @/
 };
 
+void send_descriptor(const void *buf, int size)
+{
+  while (1) {
+    int nb_byte = 0;
+    while (size != 0) {
+      if (nb_byte++ == 32)
+        break;
+      UEDATX = pgm_read_byte(buf++);
+      size--;
+    }
+    UEINTX &= ~(1 << TXINI);
+    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
+    if (UEINTX & (1 << RXOUTI)) {
+      UEINTX &= ~(1 << RXOUTI);
+      break;
+    }
+  }
+}
+
 volatile int connected = 0;
 void main(void)
 {
   UHWCON |= 1 << UVREGE;
 
-  if (MCUSR & 1 << USBRF && UENUM != EP0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
+  if (MCUSR & 1 << USBRF && UENUM != 0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
   MCUSR = 0;
 
   UBRR1 = 34;
@@ -459,6 +478,7 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
+  UDCON &= ~(1 << RSTCPU);
 
   UDIEN |= 1 << EORSTE;
   sei();
@@ -476,13 +496,13 @@ void main(void)
           {
           case 0x01: @/
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            (void) UEDATX; @+ (void) UEDATX; /* wLength */
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(dev_desc, sizeof dev_desc);
             break;
           case 0x02: @/
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+            uint16_t wLength;
             ((uint8_t *) &wLength)[0] = UEDATX;
             ((uint8_t *) &wLength)[1] = UEDATX;
             UEINTX &= ~(1 << RXSTPI);
@@ -501,8 +521,7 @@ void main(void)
           {
           case 0x22: @/
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            (void) UEDATX; @+ (void) UEDATX; /* wLength */
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(rep_desc, sizeof rep_desc);
             UENUM = 1;
@@ -518,9 +537,15 @@ void main(void)
   UDR1 = '%';
 }
 
-ISR()
+ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
+  if (!connected) {
+    UECONX |= 1 << EPEN;
+    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR);
+    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC);
+  }
+  else UDCON |= 1 << RSTCPU;
 }
 
 @ The main function first performs the initialization of a scheduler module and then runs it in
@@ -606,12 +631,12 @@ if (line_status.DTR) ... else ...
 ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
-  if (!connected) {
+//  if (!connected) {
     UECONX |= 1 << EPEN;
     UECFG0X = 0 << EPTYPE0 | 0 << EPDIR; /* control, out */
     UECFG1X = 1 << EPSIZE1 + 1 << EPSIZE0 | 0 << EPBK0 | 1 << ALLOC; /* 64 bytes, one bank */
 //TODO: see operator precedence
-  }
+//  }
 }
 
 
