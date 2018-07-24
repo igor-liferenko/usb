@@ -6,11 +6,13 @@ kbd:
 flash:
 	avrdude -c usbasp -p atmega32u4 -U flash:w:kbd.hex
 
+.PHONY: test
 test:
-	avr-gcc -mmcu=$(MCU) -g -Os -o null.elf null.c
-	avr-objdump -d null.elf >x
-	avr-objcopy -O ihex null.elf null.hex
-	avrdude -c usbasp -p atmega32u4 -U flash:w:null.hex
+	@mv test test.c
+	avr-gcc -mmcu=atmega32u4 -g -Os -o test.elf test.c
+	avr-objdump -d test.elf >x
+	avr-objcopy -O ihex test.elf test.hex
+	avrdude -c usbasp -p atmega32u4 -U flash:w:test.hex
 
 asm:
 	avr-gcc -mmcu=atmega32u4 -g -o asm.elf asm.S
