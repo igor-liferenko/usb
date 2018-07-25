@@ -87,9 +87,7 @@ void main(void)
             }
             break; /* |case 0x00| */
           case MANUFACTURER: @/
-            UEINTX &= ~(1 << RXSTPI);
-            while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
-            send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+            @<GET DESCRIPTOR STRING (manufacturer)@>@;
             break;
           case PRODUCT: @/
             UEINTX &= ~(1 << RXSTPI);
@@ -202,6 +200,11 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
 send_descriptor(lang_desc, sizeof lang_desc);
+
+@ @<GET DESCRIPTOR STRING (manufacturer)@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
+send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
 
 @ @<GET DESCRIPTOR HID@>=
 UEINTX &= ~(1 << RXSTPI);
