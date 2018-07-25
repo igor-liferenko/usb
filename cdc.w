@@ -1,3 +1,6 @@
+% http://we.easyelectronics.ru/electro-and-pc/interfeys-usb-zavershenie-realizacii.html
+% (CDC device descriptor)
+
 @* IN endpoint management.
 
 There is only one stage (data). It corresponds to the following transaction(s):
