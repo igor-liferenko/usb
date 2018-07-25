@@ -738,3 +738,9 @@ ISR(USB_GEN_vect)
   }
   else UDCON |= 1 << RSTCPU;
 }
+
+@ In this test we show that when MCU starts, TXINI is 0, and that it is changed from
+0 to 1 for the first time when setup packet arrives.
+
+@(/dev/null@>=
+UDR1 = '!';
