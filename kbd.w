@@ -90,9 +90,7 @@ void main(void)
             @<GET DESCRIPTOR STRING (manufacturer)@>@;
             break;
           case PRODUCT: @/
-            UEINTX &= ~(1 << RXSTPI);
-            while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
-            send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
+            @<GET DESCRIPTOR STRING (product)@>@;
             break;
           case SERIAL_NUMBER: @/
             UEINTX &= ~(1 << RXSTPI);
@@ -205,6 +203,11 @@ send_descriptor(lang_desc, sizeof lang_desc);
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
 send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+
+@ @<GET DESCRIPTOR STRING (product)@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
+send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 
 @ @<GET DESCRIPTOR HID@>=
 UEINTX &= ~(1 << RXSTPI);
