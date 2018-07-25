@@ -1,4 +1,5 @@
-% http://we.easyelectronics.ru/electro-and-pc/interfeys-usb-zavershenie-realizacii.html
+% http://we.easyelectronics.ru/electro-and-pc/
+%   interfeys-usb-zavershenie-realizacii.html
 % (CDC device descriptor)
 
 @* IN endpoint management.
