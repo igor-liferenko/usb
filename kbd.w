@@ -78,10 +78,8 @@ void main(void)
             case 0x02: @/
               @<GET DESCRIPTOR CONFIGURATION@>@;
               break;
-            case 0x03: /* STRING */
-              UEINTX &= ~(1 << RXSTPI);
-              while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
-              send_descriptor(lang_desc, sizeof lang_desc);
+            case 0x03: @/
+              @<GET DESCRIPTOR STRING (language)@>@;
               break;
             case 0x06: /* DEVICE QUALIFIER */
               UECONX |= 1 << STALLRQ; /* according to the spec */
@@ -219,6 +217,11 @@ means that host lets the device send reports only when it needs.
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+
+@ @<GET DESCRIPTOR STRING (language)@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
+send_descriptor(lang_desc, sizeof lang_desc);
 
 @ See datasheet \S22.12.2.
 
