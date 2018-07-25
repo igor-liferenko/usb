@@ -1,4 +1,5 @@
-\secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after \datethis in test.w (with and without kbd.ch)
+\secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
+                                           % \datethis in test.w (with and without kbd.ch)
 
 @i test.w % \datethis is here
 
@@ -43,39 +44,111 @@ void main(void)
   UDIEN = 1 << EORSTE;
   sei();
 
+  uint16_t wLength;
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
-      uint8_t bmRequestType = UEDATX;
-      uint8_t bRequest = UEDATX;
-      uint8_t bDescriptorType;
-      uint16_t wLength;
-      int index;
-      const void *buf;
-      int size;
-      switch (bRequest)
+      switch (UEDATX) /* |bmRequestType| */
       {
-      case 0x06: /* TODO: first check bmRequestType, not bRequest, like bRequest
-        is checked before bDescriptorType, not after */
-        /* TODO: this bRequest is for two requests - device descriptor and hid report descriptor */
-        @<get\_dsc@>@;
-        break;
-      case 0x05: @/
-        @<set\_adr@>@;
-        break;
-      case 0x09:
-        if (bmRequestType == 0x00) {
-          @<set\_cfg@>@;
-        } /* TODO: what is SET\_REPORT ? (its bRequest is also 0x09) ANSWER: SET\_REPORT
-             lets host transfer data to device vie EP0 */
-        break;
-      case 0x0A:
-        if (bmRequestType == 0x21) {
-          @<set\_idle@>@;
+      case 0x00: /* Direction: host to device, Type: standard, Recipient: device */
+        switch (UEDATX) /* |bRequest| */
+        {
+        case 0x05: /* SET ADDRESS */
+          UDADDR = UEDATX & 0x7F;
+          UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
+          UEINTX &= ~(1 << TXINI); /* STATUS stage */
+          while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
+            sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
+            firmware must send ZLP in the STATUS stage before enabling the new address.
+            The reason is that the request started by using zero address, and all the stages of the
+            request must use the same address.
+            Otherwise STATUS stage will not complete, and thus set address request will not
+            succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
+            See ``Control write (by host)'' in table of contents for the picture (note that DATA
+            stage is absent).} */
+          UDADDR |= 1 << ADDEN;
+          break;
+        case 0x09: /* SET CONFIGURATION */
+          UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
+          UEINTX &= ~(1 << TXINI); /* STATUS stage */
+          break;
         }
         break;
-      default: @/
+      case 0x21: /* Direction: host to device, Type: class, Recipient: interface */
+        /* This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
+           means that host lets the device send reports only when it needs. */
         UEINTX &= ~(1 << RXSTPI);
-        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
+        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
+        UEINTX &= ~(1 << TXINI); /* STATUS stage */
+        break;
+      case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
+        switch (UEDATX) /* |bRequest| */
+        {
+        case 0x06: /* GET DESCRIPTOR */
+          switch (UEDATX) /* Descriptor Index */
+          {
+          case 0x00: @/
+            switch (UEDATX) /* |bDescriptorType| */
+            {
+            case 0x01: /* DEVICE */
+              (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+              ((uint8_t *) &wLength)[0] = UEDATX;
+              ((uint8_t *) &wLength)[1] = UEDATX;
+              UEINTX &= ~(1 << RXSTPI);
+              @<GET DESCRIPTOR Request DEVICE@>@;
+              break;
+            case 0x02: /* CONFIGURATION */
+              (void) UEDATX; @+ (void) UEDATX; /* Language Id */
+              ((uint8_t *) &wLength)[0] = UEDATX;
+              ((uint8_t *) &wLength)[1] = UEDATX;
+              UEINTX &= ~(1 << RXSTPI);
+              @<GET DESCRIPTOR Request CONFIGURATION@>@;
+              break;
+            case 0x03: /* STRING */
+              UEINTX &= ~(1 << RXSTPI);
+              while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
+              send_descriptor(lang_desc, sizeof lang_desc);
+              break;
+            case 0x06: /* DEVICE QUALIFIER */
+              UECONX |= 1 << STALLRQ; /* according to the spec */
+              UEINTX &= ~(1 << RXSTPI);
+              while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
+              break;
+            }
+            break; /* |case 0x00| */
+          case MANUFACTURER: @/
+            UEINTX &= ~(1 << RXSTPI);
+            while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
+            send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+            break;
+          case PRODUCT: @/
+            UEINTX &= ~(1 << RXSTPI);
+            while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
+            send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
+            break;
+          case SERIAL_NUMBER: @/
+            UEINTX &= ~(1 << RXSTPI);
+            while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
+            send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
+            break;
+          }
+          break; /* |case 0x06| */
+        }
+        break; /* |case 0x80| */
+      case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
+        UEINTX &= ~(1 << RXSTPI);
+        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
+        send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+        connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
+        UENUM = EP1;
+        UECONX |= 1 << EPEN;
+        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
+          {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
+        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
+          {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
+        while (!(UESTA0X & (1 << CFGOK))) ; // TODO: test with led if it is necessary
+        break;
       }
     }
   }
@@ -122,98 +195,6 @@ ISR(USB_GEN_vect)
 @c
 /*  \.{OUT \char'174\ 2} */
 
-@ @<get\_dsc@>=
-switch (bmRequestType)
-{
-case 0x80: @/
-  @<stand\_desc@>@;
-  break;
-case 0x81: @/
-  @<int\_desc@>@;
-  UENUM = EP1;
-  connected = 1;
-  break;
-default: @/
-  UEINTX &= ~(1 << RXSTPI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
-}
-
-@ @<set\_adr@>=
-UDADDR = UEDATX & 0x7F;
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
-
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
-while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
-  sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
-  firmware must send ZLP in the STATUS stage before enabling the new address.
-  The reason is that the request started by using zero address, and all the stages of the request
-  must use the same address.
-  Otherwise STATUS stage will not complete, and thus set address request will not succeed.
-  We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
-  See ``Control write (by host)'' in table of contents for the picture (note that DATA
-  stage is absent).} */
-UDADDR |= 1 << ADDEN;
-
-@ @<set\_cfg@>=
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
-
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
-UENUM = EP1;
-UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
-{Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
-{\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-while (!(UESTA0X & (1 << CFGOK))) ;
-
-UENUM = EP0;
-
-@ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
-means that host lets the device send reports only when it needs.
-
-@<set\_idle@>=
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
-
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
-@ @<stand\_desc@>=
-@<Read buffer@>@;
-switch (bDescriptorType)
-{
-case 0x01: @/
-  UEINTX &= ~(1 << RXSTPI);
-  @<d\_dev@>@;
-  break;
-case 0x02: @/
-  UEINTX &= ~(1 << RXSTPI);
-  @<d\_con@>@;
-  break;
-case 0x03: @/
-  UEINTX &= ~(1 << RXSTPI);
-  @<d\_str@>@;
-  break;
-case 0x06: /* device qualifier */
-  UECONX |= 1 << STALLRQ; /* according to the spec */
-  UEINTX &= ~(1 << RXSTPI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
-  break;
-default: @/
-  UEINTX &= ~(1 << RXSTPI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '#';
-}
-
-@ @<int\_desc@>=
-@<Read buffer@>@;
-UEINTX &= ~(1 << RXSTPI);
-if (bDescriptorType == 0x22) {
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
-  send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
-}
 
 @ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
@@ -221,43 +202,14 @@ sufficient for first request of device descriptor). If host is operational,
 It is OK if we transfer less than the requested amount. But if we try to
 transfer more, device will hang.
 
-@<d\_dev@>=
+@<GET DESCRIPTOR Request DEVICE@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
-@ @<d\_con@>=
+@ @<GET DESCRIPTOR Request CONFIGURATION@>=
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
-
-@ @<d\_str@>=
-switch (index)
-{
-case 0x00: /* language */
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
-  send_descriptor(lang_desc, sizeof lang_desc);
-  break;
-case MANUFACTURER: @/
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
-  send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
-  break;
-case PRODUCT: @/
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
-  send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
-  break;
-case SERIAL_NUMBER: @/
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
-  send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
-  break;
-}
-
-@ @<Read buffer@>=
-index = UEDATX;
-bDescriptorType = UEDATX;
-(void) UEDATX;
-(void) UEDATX;
-((uint8_t *) &wLength)[0] = UEDATX;
-((uint8_t *) &wLength)[1] = UEDATX;
 
 @ See datasheet \S22.12.2.
 
