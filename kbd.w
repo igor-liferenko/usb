@@ -56,9 +56,7 @@ void main(void)
           @<SET ADDRESS Request@>@;
           break;
         case 0x09: /* SET CONFIGURATION */
-          UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
-          UEINTX &= ~(1 << TXINI); /* STATUS stage */
+          @<SET CONFIGURATION Request@>@;
           break;
         }
         break;
@@ -197,6 +195,11 @@ ISR(USB_GEN_vect)
             See ``Control write (by host)'' in table of contents for the picture (note that DATA
             stage is absent).} */
           UDADDR |= 1 << ADDEN;
+
+@ @<SET CONFIGURATION Request@>=
+          UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
+          UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
