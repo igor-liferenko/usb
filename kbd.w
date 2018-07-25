@@ -141,20 +141,6 @@ ISR(USB_GEN_vect)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
 }
 
-@ To receive data on an OUT endpoint:
-
-@c
-#if 1==0
-    UEINTX &= ~(1 << RXOUTI);
-    <read UEDATX>
-    UEINTX &= ~(1 << FIFOCON);
-#endif
-
-@ initialization of out endpoint structure
-@d OUT (0 << 7)
-@c
-/*  \.{OUT \char'174\ 2} */
-
 @ @<SET ADDRESS@>=
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);

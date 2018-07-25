@@ -24,6 +24,20 @@ code const S_usb_device_descriptor dev_desc =
   1
 };
 
+@ To receive data on an OUT endpoint:
+
+@c
+#if 1==0
+    UEINTX &= ~(1 << RXOUTI);
+    <read UEDATX>
+    UEINTX &= ~(1 << FIFOCON);
+#endif
+
+@ initialization of out endpoint structure
+@d OUT (0 << 7)
+@c
+/*  \.{OUT \char'174\ 2} */
+
 @* IN endpoint management.
 
 There is only one stage (data). It corresponds to the following transaction(s):
