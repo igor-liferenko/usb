@@ -746,5 +746,7 @@ It is important to understand that control endpoint can receive IN and OUT packe
 as a normal endpoint (to transfer user data), not only IN and OUT packets which
 follow SETUP packets (to transfer control data).
 
+TODO: after setting RXSTPI to zero check TXINI - it must always be 1 (ensure with a led)
+
 @(/dev/null@>=
 UDR1 = '!';
