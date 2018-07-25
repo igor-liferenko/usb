@@ -630,7 +630,6 @@ void send_descriptor(const void *buf, int size)
   }
 }
 
-uint16_t wLength;
 volatile int connected = 0;
 void main(void)
 {
@@ -658,6 +657,7 @@ void main(void)
   UDIEN |= 1 << EORSTE;
   sei();
 
+  uint16_t wLength;
   while (!connected) {
     if (UEINTX & 1 << RXSTPI) {
       switch (UEDATX) /* |bmRequestType| */
@@ -669,7 +669,7 @@ void main(void)
           UDADDR = UEDATX & 0x7F;
           UEINTX &= ~(1 << RXSTPI);
           UEINTX &= ~(1 << TXINI);
-          while (!(UEINTX & (1 << TXINI))) ;
+          while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
           UDADDR |= 1 << ADDEN;
           break;
         case 0x09: /* SET CONFIGURATION */
