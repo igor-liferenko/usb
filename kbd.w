@@ -209,7 +209,7 @@ UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\
 UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
-  a test for this in test.w) */
+  a test for this in test.w, like the first test for control endpoint) */
 
 @ See datasheet \S22.12.2.
 
