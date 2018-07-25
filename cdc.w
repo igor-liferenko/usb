@@ -1,9 +1,28 @@
-% http://we.easyelectronics.ru/electro-and-pc/
-%   interfeys-usb-zavershenie-realizacii.html
-% (CDC device descriptor)
-
 % TODO: put "Control endpoint management." from kbd.w to separete file and @i'nclude it here
 % and in kbd.w
+
+@ TODO: make it as similar to |dev_desc| in kbd.w as possible
+(except 5th byte, maybe VID PID bytes)
+@^TODO@>
+
+@c
+code const S_usb_device_descriptor dev_desc =
+{
+  sizeof(usb_dev_desc),
+  0x01, @/
+  0x00, 0x20, @/
+  0x02, /* CDC */
+  0x00, @/
+  0x00, @/
+  EP0_SIZE,
+  0xEB, 0x03, /* VID */
+  0x18, 0x20, /* PID */
+  0x00, 0x10, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+  1
+};
 
 @* IN endpoint management.
 
