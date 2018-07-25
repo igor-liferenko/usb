@@ -7,7 +7,7 @@ all:
 	avr-objcopy -O ihex $@.elf fw.hex
 
 flash:
-	avrdude -c usbasp -p atmega32u4 -U flash:w:fw.hex -q
+	avrdude -c usbasp -p atmega32u4 -U flash:w:fw.hex -qq
 
 .PHONY: test
 test:
