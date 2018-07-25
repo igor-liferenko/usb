@@ -149,8 +149,7 @@ transfer more, device will hang.
 
 @<GET DESCRIPTOR DEVICE\null@>=
 (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-((uint8_t *) &wLength)[0] = UEDATX;
-((uint8_t *) &wLength)[1] = UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
@@ -162,8 +161,7 @@ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 
 @ @<GET DESCRIPTOR CONFIGURATION@>=
 (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-((uint8_t *) &wLength)[0] = UEDATX;
-((uint8_t *) &wLength)[1] = UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
