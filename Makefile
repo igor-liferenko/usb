@@ -64,3 +64,11 @@ hid-structure.eps: hid-structure.png
 kbd-structure.eps: kbd-structure.png
 	@convert $< $@
 	@imgsize $@ 5 -
+
+IN.eps: IN.png
+	@convert $< $@
+	@imgsize $@ 14 -
+
+OUT.eps: OUT.png
+	@convert $< $@
+	@imgsize $@ 16 -
