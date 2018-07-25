@@ -1,7 +1,10 @@
-kbd:
-	avr-gcc -mmcu=atmega32u4 -g -Os -o kbd.elf kbd.c
-	@avr-objdump -S kbd.elf >x
-	avr-objcopy -O ihex kbd.elf fw.hex
+all:
+	@echo NoOp
+
+%:
+	avr-gcc -mmcu=atmega32u4 -g -Os -o $@.elf $@.c
+	@avr-objdump -S $@.elf >x
+	avr-objcopy -O ihex $@.elf fw.hex
 
 flash:
 	avrdude -c usbasp -p atmega32u4 -U flash:w:fw.hex -q
