@@ -124,13 +124,6 @@ ISR(USB_GEN_vect)
 @c
 /*  \.{OUT \char'174\ 2} */
 
-@ @c
-//wait until previous packet was sent by polling TXINI (check that in set address it is so) - doit
-
-/* TODO: via UDR1 ensure that TXINI is initially 0 and that it is changed from 0 to 1 for
-the first time when setup packet arrives */ - create a test for it in test.w
-@^TODO@>
-
 @ @<get\_dsc@>=
 switch (bmRequestType)
 {
