@@ -47,59 +47,44 @@ void main(void)
   uint16_t wLength;
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
-      switch (UEDATX) /* |bmRequestType| */
+      switch (UEDATX << 8 | UEDATX)
       {
-      case 0x00: /* Direction: host to device, Type: standard, Recipient: device */
-        switch (UEDATX) /* |bRequest| */
-        {
-        case 0x05: @/
-          @<SET ADDRESS@>@;
-          break;
-        case 0x09: @/
-          @<SET CONFIGURATION@>@;
-          break;
-        }
+      case 0x0005: @/
+        @<SET ADDRESS@>@;
         break;
-      case 0x21: /* Direction: host to device, Type: class, Recipient: interface */
+      case 0x0009: @/
+        @<SET CONFIGURATION@>@;
+        break;
+      case 0x210a: @/
         @<SET IDLE@>@;
         break;
-      case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
-        switch (UEDATX) /* |bRequest| */
+      case 0x8006: @/
+        switch (UEDATX << 8 | UEDATX)
         {
-        case 0x06: @/
-          switch (UEDATX) /* Descriptor Index */
-          {
-          case 0x00: @/
-            switch (UEDATX) /* |bDescriptorType| */
-            {
-            case 0x01: @/
-              @<GET DESCRIPTOR DEVICE\null@>@;
-              break;
-            case 0x02: @/
-              @<GET DESCRIPTOR CONFIGURATION@>@;
-              break;
-            case 0x03: @/
-              @<GET DESCRIPTOR STRING (language)@>@;
-              break;
-            case 0x06: @/
-              @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
-              break;
-            }
-            break;
-          case MANUFACTURER: @/
-            @<GET DESCRIPTOR STRING (manufacturer)@>@;
-            break;
-          case PRODUCT: @/
-            @<GET DESCRIPTOR STRING (product)@>@;
-            break;
-          case SERIAL_NUMBER: @/
-            @<GET DESCRIPTOR STRING (serial)@>@;
-            break;
-          }
+        case 0x0001: @/
+          @<GET DESCRIPTOR DEVICE\null@>@;
+          break;
+        case 0x0002: @/
+          @<GET DESCRIPTOR CONFIGURATION@>@;
+          break;
+        case 0x0003: @/
+          @<GET DESCRIPTOR STRING (language)@>@;
+          break;
+        case 0x0006: @/
+          @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
+          break;
+        case MANUFACTURER << 8 | 0x03: @/
+          @<GET DESCRIPTOR STRING (manufacturer)@>@;
+          break;
+        case PRODUCT << 8 | 0x03: @/
+          @<GET DESCRIPTOR STRING (product)@>@;
+          break;
+        case SERIAL_NUMBER << 8 | 0x03: @/
+          @<GET DESCRIPTOR STRING (serial)@>@;
           break;
         }
         break;
-      case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
+      case 0x8106: @/
         @<GET DESCRIPTOR HID@>@;
         @<Finish connection@>@;
         break;
