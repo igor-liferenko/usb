@@ -1,6 +1,3 @@
-% TODO: put "Control endpoint management." from kbd.w to separete file and @i'nclude it here
-% and in kbd.w
-
 @ TODO: make it as similar to |dev_desc| in kbd.w as possible
 (except 5th byte, maybe VID PID bytes)
 @^TODO@>
@@ -37,6 +34,8 @@ code const S_usb_device_descriptor dev_desc =
 @d OUT (0 << 7)
 @c
 /*  \.{OUT \char'174\ 2} */
+
+@i control-endpoint-management.w
 
 @* IN endpoint management.
 
