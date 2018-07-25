@@ -52,20 +52,16 @@ void main(void)
       case 0x00: /* Direction: host to device, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
         {
-        case 0x05: /* SET ADDRESS */
-          @<SET ADDRESS Request@>@;
+        case 0x05: @/
+          @<SET ADDRESS@>@;
           break;
-        case 0x09: /* SET CONFIGURATION */
-          @<SET CONFIGURATION Request@>@;
+        case 0x09: @/
+          @<SET CONFIGURATION@>@;
           break;
         }
         break;
       case 0x21: /* Direction: host to device, Type: class, Recipient: interface */
-        /* This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
-           means that host lets the device send reports only when it needs. */
-        UEINTX &= ~(1 << RXSTPI);
-        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
-        UEINTX &= ~(1 << TXINI); /* STATUS stage */
+        @<SET IDLE@>@;
         break;
       case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
@@ -180,12 +176,12 @@ ISR(USB_GEN_vect)
 @c
 /*  \.{OUT \char'174\ 2} */
 
-@ @<SET ADDRESS Request@>=
-          UDADDR = UEDATX & 0x7F;
-          UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
-          UEINTX &= ~(1 << TXINI); /* STATUS stage */
-          while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
+@ @<SET ADDRESS@>=
+UDADDR = UEDATX & 0x7F;
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
+while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
             sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
             firmware must send ZLP in the STATUS stage before enabling the new address.
             The reason is that the request started by using zero address, and all the stages of the
@@ -194,12 +190,12 @@ ISR(USB_GEN_vect)
             succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
             See ``Control write (by host)'' in table of contents for the picture (note that DATA
             stage is absent).} */
-          UDADDR |= 1 << ADDEN;
+UDADDR |= 1 << ADDEN;
 
-@ @<SET CONFIGURATION Request@>=
-          UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
-          UEINTX &= ~(1 << TXINI); /* STATUS stage */
+@ @<SET CONFIGURATION@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
@@ -207,14 +203,22 @@ sufficient for first request of device descriptor). If host is operational,
 It is OK if we transfer less than the requested amount. But if we try to
 transfer more, device will hang.
 
-@<GET DESCRIPTOR Request DEVICE@>=
+@<GET DESCRIPTOR DEVICE@>=
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
-@ @<GET DESCRIPTOR Request CONFIGURATION@>=
+@ @<GET DESCRIPTOR CONFIGURATION@>=
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
+
+@ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
+means that host lets the device send reports only when it needs.
+
+@<SET IDLE@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ See datasheet \S22.12.2.
 
