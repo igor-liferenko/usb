@@ -66,7 +66,7 @@ void main(void)
       case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
         switch (UEDATX) /* |bRequest| */
         {
-        case 0x06: /* GET DESCRIPTOR */
+        case 0x06: @/
           switch (UEDATX) /* Descriptor Index */
           {
           case 0x00: @/
@@ -106,9 +106,8 @@ void main(void)
         }
         break; /* |case 0x80| */
       case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
-        UEINTX &= ~(1 << RXSTPI);
-        while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
-        send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+        @<GET DESCRIPTOR HID@>@;
+        @<Finish connection stage@>@;
         connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
         UENUM = EP1;
         UECONX |= 1 << EPEN;
@@ -225,6 +224,11 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
 send_descriptor(lang_desc, sizeof lang_desc);
+
+@ @<GET DESCRIPTOR HID@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
+send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
 @ See datasheet \S22.12.2.
 
