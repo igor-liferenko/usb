@@ -4,6 +4,8 @@
 \let\lheader\rheader
 %\datethis
 
+% NOTE: this file is included from other files - do not commit here \noinx, \nosec, \notoc
+
 @* Testing.
 
 @ In this test we determine how endpoint configuration reacts to reset.
