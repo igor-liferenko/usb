@@ -2,6 +2,9 @@
 %   interfeys-usb-zavershenie-realizacii.html
 % (CDC device descriptor)
 
+% TODO: put "Control endpoint management." from kbd.w to separete file and @i'nclude it here
+% and in kbd.w
+
 @* IN endpoint management.
 
 There is only one stage (data). It corresponds to the following transaction(s):
