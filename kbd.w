@@ -1,4 +1,4 @@
-\secpagedepth=2 % begin new page only on *
+\secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after \datethis in test.w (with and without kbd.ch)
 
 @i test.w % \datethis is here
 
