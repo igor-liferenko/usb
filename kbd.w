@@ -148,7 +148,7 @@ It is OK if we transfer less than the requested amount. But if we try to
 transfer more, device will hang.
 
 @<GET DESCRIPTOR DEVICE\null@>=
-(void) UEDATX; @+ (void) UEDATX; /* Language Id */
+(void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
@@ -160,7 +160,7 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 
 @ @<GET DESCRIPTOR CONFIGURATION@>=
-(void) UEDATX; @+ (void) UEDATX; /* Language Id */
+(void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ;
