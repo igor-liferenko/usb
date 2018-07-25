@@ -740,7 +740,7 @@ ISR(USB_GEN_vect)
 }
 
 @ In this test we show that when MCU starts, TXINI is 0, and that it is changed from
-0 to 1 for the first time when setup packet arrives.
+0 to 1 for the first time when SETUP packet arrives.
 
 It is important to understand that control endpoint can receive IN and OUT packets
 as a normal endpoint (to transfer user data), not only IN and OUT packets which
