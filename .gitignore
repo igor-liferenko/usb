@@ -8,4 +8,5 @@
 *.toc
 *.elf
 fw.hex
+test
 x
