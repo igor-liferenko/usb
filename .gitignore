@@ -9,6 +9,5 @@
 *.elf
 fw.hex
 test
-
 x
 *.eps
