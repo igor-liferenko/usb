@@ -85,7 +85,7 @@ void main(void)
               @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
               break;
             }
-            break; /* |case 0x00| */
+            break;
           case MANUFACTURER: @/
             @<GET DESCRIPTOR STRING (manufacturer)@>@;
             break;
@@ -96,9 +96,9 @@ void main(void)
             @<GET DESCRIPTOR STRING (serial)@>@;
             break;
           }
-          break; /* |case 0x06| */
+          break;
         }
-        break; /* |case 0x80| */
+        break;
       case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
         @<GET DESCRIPTOR HID@>@;
         @<Finish connection@>@;
