@@ -2,7 +2,7 @@
 % as usual "ctangle test && make test".
 
 \let\lheader\rheader
-%\datethis
+%\ifx\ignoredatethis\undefined \datethis\fi % use instead of \datethis in test.w
 
 @* Testing.
 
