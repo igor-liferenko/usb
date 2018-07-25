@@ -63,10 +63,6 @@ UENUM = prev;
 if (line_status.DTR) ... else ...
 #endif
 
-/* http://we.easyelectronics.ru/electro-and-pc/
-  interfeys-usb-realizaciya-chast-2.html */
-/* http://www.usbmadesimple.co.uk/ums\_3.htm */
-
   while (1) { /* main application loop */
 #if 1==0
   if (line_status.DTR) {
