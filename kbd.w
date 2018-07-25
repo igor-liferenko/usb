@@ -75,12 +75,8 @@ void main(void)
             case 0x01: @/
               @<GET DESCRIPTOR DEVICE@>@;
               break;
-            case 0x02: /* CONFIGURATION */
-              (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-              ((uint8_t *) &wLength)[0] = UEDATX;
-              ((uint8_t *) &wLength)[1] = UEDATX;
-              UEINTX &= ~(1 << RXSTPI);
-              @<GET DESCRIPTOR Request CONFIGURATION@>@;
+            case 0x02: @/
+              @<GET DESCRIPTOR CONFIGURATION@>@;
               break;
             case 0x03: /* STRING */
               UEINTX &= ~(1 << RXSTPI);
@@ -208,6 +204,10 @@ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
 @ @<GET DESCRIPTOR CONFIGURATION@>=
+(void) UEDATX; @+ (void) UEDATX; /* Language Id */
+((uint8_t *) &wLength)[0] = UEDATX;
+((uint8_t *) &wLength)[1] = UEDATX;
+UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
