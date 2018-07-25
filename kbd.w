@@ -53,20 +53,7 @@ void main(void)
         switch (UEDATX) /* |bRequest| */
         {
         case 0x05: /* SET ADDRESS */
-          UDADDR = UEDATX & 0x7F;
-          UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
-          UEINTX &= ~(1 << TXINI); /* STATUS stage */
-          while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
-            sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
-            firmware must send ZLP in the STATUS stage before enabling the new address.
-            The reason is that the request started by using zero address, and all the stages of the
-            request must use the same address.
-            Otherwise STATUS stage will not complete, and thus set address request will not
-            succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
-            See ``Control write (by host)'' in table of contents for the picture (note that DATA
-            stage is absent).} */
-          UDADDR |= 1 << ADDEN;
+          @<SET ADDRESS Request@>@;
           break;
         case 0x09: /* SET CONFIGURATION */
           UEINTX &= ~(1 << RXSTPI);
@@ -195,6 +182,21 @@ ISR(USB_GEN_vect)
 @c
 /*  \.{OUT \char'174\ 2} */
 
+@ @<SET ADDRESS Request@>=
+          UDADDR = UEDATX & 0x7F;
+          UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
+          UEINTX &= ~(1 << TXINI); /* STATUS stage */
+          while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
+            sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
+            firmware must send ZLP in the STATUS stage before enabling the new address.
+            The reason is that the request started by using zero address, and all the stages of the
+            request must use the same address.
+            Otherwise STATUS stage will not complete, and thus set address request will not
+            succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
+            See ``Control write (by host)'' in table of contents for the picture (note that DATA
+            stage is absent).} */
+          UDADDR |= 1 << ADDEN;
 
 @ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
