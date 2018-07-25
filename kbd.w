@@ -107,15 +107,7 @@ void main(void)
         break; /* |case 0x80| */
       case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
         @<GET DESCRIPTOR HID@>@;
-        @<Finish connection stage@>@;
-        connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
-        UENUM = EP1;
-        UECONX |= 1 << EPEN;
-        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
-          {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
-        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
-          {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-        while (!(UESTA0X & (1 << CFGOK))) ; // TODO: test with led if it is necessary
+        @<Finish connection@>@;
         break;
       }
     }
@@ -229,6 +221,17 @@ send_descriptor(lang_desc, sizeof lang_desc);
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+
+@ @<Finish connection@>=
+connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
+UENUM = EP1;
+UECONX |= 1 << EPEN;
+UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
+  {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
+UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
+  {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
+while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
+  a test for this in test.w) */
 
 @ See datasheet \S22.12.2.
 
