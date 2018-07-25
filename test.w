@@ -748,5 +748,7 @@ follow SETUP packets (to transfer control data).
 
 TODO: after setting RXSTPI to zero check TXINI - it must always be 1 (ensure with a led)
 
+Also, when we set TXINI to 0, is it necessary to always wait until it becomes 1?
+
 @(/dev/null@>=
 UDR1 = '!';
