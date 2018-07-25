@@ -12,9 +12,3 @@
 \advance\hoffset by-1in
 \advance\pageshift by-1in
 @z
-
-@x
-\let\lheader\rheader
-@y
-\def\ignoredatethis{} % this is for test.w
-@z

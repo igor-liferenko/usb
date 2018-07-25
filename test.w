@@ -2,7 +2,7 @@
 % as usual "ctangle test && make test".
 
 \let\lheader\rheader
-%\ifx\ignoredatethis\undefined \datethis\fi % use instead of \datethis in test.w
+%\datethis
 
 @* Testing.
 
@@ -570,7 +570,7 @@ This example implements a HID keyboard.
 
 Result: on connect yellow led is on; on host reboot green led is not on.
 
-@(test@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
