@@ -491,7 +491,7 @@ void main(void)
           UDADDR = UEDATX & 0x7F;
           UEINTX &= ~(1 << RXSTPI);
           UEINTX &= ~(1 << TXINI);
-          while (!(UEINTX & (1 << TXINI))) ;
+          while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
           UDADDR |= 1 << ADDEN;
           break;
         case 0x09: /* SET CONFIGURATION */
