@@ -73,7 +73,7 @@ void main(void)
             switch (UEDATX) /* |bDescriptorType| */
             {
             case 0x01: @/
-              @<GET DESCRIPTOR DEVICE@>@;
+              @<GET DESCRIPTOR DEVICE\null@>@;
               break;
             case 0x02: @/
               @<GET DESCRIPTOR CONFIGURATION@>@;
@@ -81,10 +81,8 @@ void main(void)
             case 0x03: @/
               @<GET DESCRIPTOR STRING (language)@>@;
               break;
-            case 0x06: /* DEVICE QUALIFIER */
-              UECONX |= 1 << STALLRQ; /* according to the spec */
-              UEINTX &= ~(1 << RXSTPI);
-              while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
+            case 0x06: @/
+              @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
               break;
             }
             break; /* |case 0x00| */
@@ -193,13 +191,18 @@ sufficient for first request of device descriptor). If host is operational,
 It is OK if we transfer less than the requested amount. But if we try to
 transfer more, device will hang.
 
-@<GET DESCRIPTOR DEVICE@>=
+@<GET DESCRIPTOR DEVICE\null@>=
 (void) UEDATX; @+ (void) UEDATX; /* Language Id */
 ((uint8_t *) &wLength)[0] = UEDATX;
 ((uint8_t *) &wLength)[1] = UEDATX;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
+
+@ @<GET DESCRIPTOR DEVICE QUALIFIER@>=
+UECONX |= 1 << STALLRQ; /* according to the spec */
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 
 @ @<GET DESCRIPTOR CONFIGURATION@>=
 (void) UEDATX; @+ (void) UEDATX; /* Language Id */
