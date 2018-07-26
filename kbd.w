@@ -268,6 +268,8 @@ void send_descriptor(const void *buf, int size)
 
 @i control-endpoint-management.w
 
+@i IN-endpoint-management.w
+
 @* USB stack.
 
 The order of descriptors here is the same as the order in which they are transmitted.
