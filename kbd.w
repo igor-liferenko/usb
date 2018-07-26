@@ -39,7 +39,7 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU);
+  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 
   UDIEN = 1 << EORSTE;
   sei();
@@ -73,7 +73,7 @@ ISR(USB_GEN_vect)
     UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
-  else UDCON |= 1 << RSTCPU;
+  else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
 }
 

@@ -394,6 +394,8 @@ change if it is not enabled).
 In this test we show that setting |RSTCPU| in reset signal handler works.
 Result: on connect yellow led is on; when host reboots second yellow led is on.
 
+\xdef\cpuresetonlyonhostreboot{\secno}
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
