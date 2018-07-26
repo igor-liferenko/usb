@@ -529,7 +529,7 @@ void main(void)
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         connected = 1;
         break;
-      case 0x0900:                        
+      case 0x0900:
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
         break;
