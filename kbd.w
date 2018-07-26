@@ -135,11 +135,6 @@ while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous comma
             stage is absent).} */
 UDADDR |= 1 << ADDEN;
 
-@ @<Handle {\req set configuration}@>=
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
 @ When host is booting, |wLength| is 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
 |wLength| is 64 bytes in first request of device descriptor.
@@ -153,11 +148,6 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
-@ @<Handle {\req get descriptor device qualifier}@>=
-UECONX |= 1 << STALLRQ; /* according to the spec */
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
-
 @ @<Handle {\req get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
@@ -165,14 +155,6 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
-
-@ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
-means that host lets the device send reports only when it needs.
-
-@<Handle {\req set idle}@>=
-UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ @<Handle {\req get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
@@ -194,6 +176,11 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
 send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
 
+@ @<Handle {\req get descriptor device qualifier}@>=
+UECONX |= 1 << STALLRQ; /* according to the spec */
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
+
 @ @<Handle {\req get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
@@ -209,6 +196,19 @@ UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\foo
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
   a test for this in test.w, like the first test for control endpoint) */
+
+@ @<Handle {\req set configuration}@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
+
+@ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
+means that host lets the device send reports only when it needs.
+
+@<Handle {\req set idle}@>=
+UEINTX &= ~(1 << RXSTPI);
+while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ See datasheet \S22.12.2.
 
