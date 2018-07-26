@@ -62,8 +62,8 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
-    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
+    UECFG0X = 0; /* control, OUT */
+    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
   else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
