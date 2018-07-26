@@ -1,14 +1,14 @@
 @x
   UHWCON = 1 << UVREGE;
 @y
-  UHWCON = 1 << UVREGE;  
+  UHWCON = 1 << UVREGE;
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
   UDR1 = 'v';
 @z
-  
+
 @x
   else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
 @y
@@ -20,7 +20,7 @@
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 @y
-UDADDR = UEDATX & 0x7F;  
+UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
 @z
@@ -69,14 +69,14 @@ send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
 @z
 
 @x
-UECONX |= 1 << STALLRQ; /* according to the spec */
+UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
 @y
-UECONX |= 1 << STALLRQ; /* according to the spec */  
+UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'Q';
 @z
-  
+
 @x
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 @y
@@ -88,7 +88,7 @@ send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 @y
-@ @<Handle {\caps set configuration}@>=  
+@ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'S';
 @z
@@ -97,7 +97,7 @@ while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'S';
 @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 @y
-@<Handle {\caps set idle}@>=  
+@<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'I';
 @z
