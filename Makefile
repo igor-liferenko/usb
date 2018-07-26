@@ -1,5 +1,7 @@
 all:
-	@echo NoOp
+	make -C demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/
+	mv demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.hex fw.hex
+	@#echo NoOp
 
 %:
 	avr-gcc -mmcu=atmega32u4 -g -Os -o $@.elf $@.c
