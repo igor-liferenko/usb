@@ -456,7 +456,6 @@ void send_descriptor(const void *buf, int size)
   }
 }
 
-uint16_t wLength;
 volatile int connected = 0;
 void main(void)
 {
@@ -484,6 +483,7 @@ void main(void)
   UDIEN |= 1 << EORSTE;
   sei();
 
+  uint16_t wLength;
   while (!connected) {
     if (UEINTX & 1 << RXSTPI) {
       switch (UEDATX) /* |bmRequestType| */
@@ -517,15 +517,13 @@ void main(void)
           {
           case 0x01: /* DEVICE */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            wLength = UEDATX | UEDATX << 8;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
             break;
           case 0x02: /* CONFIGURATION */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            wLength = UEDATX | UEDATX << 8;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(&user_conf_desc, wLength);
             break;
@@ -695,15 +693,13 @@ void main(void)
           {
           case 0x01: /* DEVICE */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            wLength = UEDATX | UEDATX << 8;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
             break;
           case 0x02: /* CONFIGURATION */
             (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            ((uint8_t *) &wLength)[0] = UEDATX;
-            ((uint8_t *) &wLength)[1] = UEDATX;
+            wLength = UEDATX | UEDATX << 8;
             UEINTX &= ~(1 << RXSTPI);
             send_descriptor(&user_conf_desc, wLength);
             break;
