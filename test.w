@@ -563,7 +563,7 @@ This example implements a HID keyboard.
 Result: on connect yellow led is on; on host reboot green led is not on.
 
 @(/dev/null@>=
-//put here from previous test
+//put here from previous test after checking that it works
 if (MCUSR & 1 << USBRF && UENUM != 0) {@+ DDRC |= 1 << PC7; @+ PORTC |= 1 << PC7; @+}
 
 @ In this test we show that when MCU starts, TXINI is 0, and that it is changed from
