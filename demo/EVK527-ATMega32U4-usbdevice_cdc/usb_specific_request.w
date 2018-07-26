@@ -168,7 +168,7 @@ void cdc_get_line_coding(void)
 //! @return none
 //!
 void cdc_set_line_coding (void)
-{ /* this is a stub */
+{
    Usb_ack_receive_setup();
    while (!(Is_usb_receive_out()));
    LSB0(line_coding.dwDTERate) = Usb_read_byte();
@@ -182,9 +182,12 @@ void cdc_set_line_coding (void)
 
      Usb_send_control_in();                // send a ZLP for STATUS phase
      while(!(Is_usb_read_control_enabled()));
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1 | 1 << RXEN1;
 }
 
-@ @c
 //! cdc_set_control_line_state.
 //!
 //! @brief This function manages the SET_CONTROL_LINE_LINE_STATE CDC request.
