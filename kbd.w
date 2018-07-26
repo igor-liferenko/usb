@@ -62,7 +62,6 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG0X = 0; /* control, OUT */
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
@@ -183,9 +182,9 @@ send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
 UENUM = EP1;
 UECONX |= 1 << EPEN;
-UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR); /* interrupt\footnote\dag
+UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
-UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\footnote
+UECFG1X = 1 << ALLOC; /* one bank, 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
   a test for this in test.w, like the first test for control endpoint) */

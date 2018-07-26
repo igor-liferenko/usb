@@ -524,8 +524,8 @@ void main(void)
         send_descriptor(rep_desc, sizeof rep_desc);
         UENUM = 1;
         UECONX |= 1 << EPEN;
-        UECFG0X = (1 << EPTYPE1) + (1 << EPTYPE0) | (1 << EPDIR);
-        UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC);
+        UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
+        UECFG1X = 1 << ALLOC;
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         connected = 1;
         break;
@@ -547,8 +547,7 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR);
-    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC);
+    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
   }
   else UDCON |= 1 << RSTCPU;
 }
