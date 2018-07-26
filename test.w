@@ -7,6 +7,11 @@
 % NOTE: this file is included from other files - do not commit here \noinx, \nosec, \notoc
 
 @* Testing.
+The microcontroller is ATmega32U4.
+
+Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
+unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com/fusecalc}).
+In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
 
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
@@ -484,58 +489,37 @@ void main(void)
   sei();
 
   uint16_t wLength;
-  while (!connected) {
-    if (UEINTX & 1 << RXSTPI) {
-      switch (UEDATX) /* |bmRequestType| */
-      {
-      case 0x00: /* Direction: host to device, Type: standard, Recipient: device */
-        switch (UEDATX) /* |bRequest| */
-        {
-        case 0x05: /* SET ADDRESS */
-          UDADDR = UEDATX & 0x7F;
-          UEINTX &= ~(1 << RXSTPI);
-          UEINTX &= ~(1 << TXINI);
-          while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
-          UDADDR |= 1 << ADDEN;
-          break;
-        case 0x09: /* SET CONFIGURATION */
-          UEINTX &= ~(1 << RXSTPI);
-          UEINTX &= ~(1 << TXINI);
-          break;
-        }
-        break;
-      case 0x21: /* Direction: host to device, Type: class, Recipient: interface */
+  while (!connected)
+    if (UEINTX & 1 << RXSTPI)
+      switch (UEDATX | UEDATX << 8) {
+      case 0x0500:
+        UDADDR = UEDATX & 0x7F;
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
+        while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
+        UDADDR |= 1 << ADDEN;
         break;
-      case 0x80: /* Direction: device to host, Type: standard, Recipient: device */
-        switch (UEDATX) /* |bRequest| */
-        {
-        case 0x06: /* GET DESCRIPTOR */
-          (void) UEDATX; /* Descriptor Index */
-          switch (UEDATX) /* |bDescriptorType| */
-          {
-          case 0x01: /* DEVICE */
-            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            wLength = UEDATX | UEDATX << 8;
-            UEINTX &= ~(1 << RXSTPI);
-            send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
-            break;
-          case 0x02: /* CONFIGURATION */
-            (void) UEDATX; @+ (void) UEDATX; /* Language Id */
-            wLength = UEDATX | UEDATX << 8;
-            UEINTX &= ~(1 << RXSTPI);
-            send_descriptor(&user_conf_desc, wLength);
-            break;
-          case 0x06: /* DEVICE QUALIFIER */
-            UECONX |= 1 << STALLRQ; /* according to the spec */
-            UEINTX &= ~(1 << RXSTPI);
-            break;
-          }
+      case 0x0680:
+        switch (UEDATX | UEDATX << 8) {
+        case 0x0100:
+          (void) UEDATX; @+ (void) UEDATX;
+          wLength = UEDATX | UEDATX << 8;
+          UEINTX &= ~(1 << RXSTPI);
+          send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
+          break;
+        case 0x0200:
+          (void) UEDATX; @+ (void) UEDATX;
+          wLength = UEDATX | UEDATX << 8;
+          UEINTX &= ~(1 << RXSTPI);
+          send_descriptor(&user_conf_desc, wLength);
+          break;
+        case 0x0600:
+          UECONX |= 1 << STALLRQ; /* according to the spec */
+          UEINTX &= ~(1 << RXSTPI);
           break;
         }
         break;
-      case 0x81: /* Direction: device to host, Type: standard, Recipient: interface */
+      case 0x0681:
         UEINTX &= ~(1 << RXSTPI);
         send_descriptor(rep_desc, sizeof rep_desc);
         UENUM = 1;
@@ -544,6 +528,14 @@ void main(void)
         UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC);
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         connected = 1;
+        break;
+      case 0x0900:                        
+        UEINTX &= ~(1 << RXSTPI);
+        UEINTX &= ~(1 << TXINI);
+        break;
+      case 0x0a21:
+        UEINTX &= ~(1 << RXSTPI);
+        UEINTX &= ~(1 << TXINI);
         break;
       }
     }
