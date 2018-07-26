@@ -168,6 +168,10 @@ If a full-speed only device receives a Get Descriptor request for a device quali
 respond with a request error. Then, the host must not make a request device information for
 high-speed.
 
+FIXME: it is not clear how |STALLRQ| works, because it works before clearing |RXSTPI|, and
+it works after
+@^FIXME@>
+
 @<Handle {\caps get descriptor device qualifier}@>=
 UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
