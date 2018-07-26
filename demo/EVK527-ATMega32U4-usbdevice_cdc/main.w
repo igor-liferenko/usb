@@ -32,11 +32,11 @@ int main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
-  while (!(USBSTA & (1 << VBUS))) ;
-  UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  UDCON &= ~(1 << DETACH);
 
   while (1) {
       Usb_select_endpoint(EP_CONTROL);
