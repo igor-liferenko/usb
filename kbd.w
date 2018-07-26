@@ -45,8 +45,39 @@ void main(void)
   sei();
 
   uint16_t wLength;
-  while (!connected) {
-    if (UEINTX & (1 << RXSTPI)) {
+  while (!connected)
+    if (UEINTX & (1 << RXSTPI))
+      @<Process {\sc SETUP} request@>@;
+
+  PORTD |= 1 << PD0;
+  PORTD |= 1 << PD1;
+  while (1) {
+    if (!(PIND & 1 << PD0)) {
+      @<Press button `a'@>@;
+      _delay_ms(1000);
+    }
+    if (!(PIND & 1 << PD1)) {
+      @<Press button `ESC'@>@;
+      _delay_ms(1000);
+    }
+  }
+}
+
+@ @c
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI);
+  if (!connected) {
+    UECONX |= 1 << EPEN;
+    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
+    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
+      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+  }
+  else UDCON |= 1 << RSTCPU;
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
+}
+
+@ @<Process {\sc SETUP} request@>=
       switch (UEDATX | UEDATX << 8)
       {
       case 0x0500: @/
@@ -89,36 +120,6 @@ void main(void)
         @<SET IDLE@>@;
         break;
       }
-    }
-  }
-
-  PORTD |= 1 << PD0;
-  PORTD |= 1 << PD1;
-  while (1) {
-    if (!(PIND & 1 << PD0)) {
-      @<Press button `a'@>@;
-      _delay_ms(1000);
-    }
-    if (!(PIND & 1 << PD1)) {
-      @<Press button `ESC'@>@;
-      _delay_ms(1000);
-    }
-  }
-}
-
-@ @c
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-  if (!connected) {
-    UECONX |= 1 << EPEN;
-    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
-    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
-      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
-  }
-  else UDCON |= 1 << RSTCPU;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
-}
 
 @ @<SET ADDRESS@>=
 UDADDR = UEDATX & 0x7F;
