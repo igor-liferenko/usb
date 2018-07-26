@@ -30,12 +30,10 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
-  while (!(USBSTA & (1 << VBUS))) ;
-  UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
-
   UDIEN = 1 << EORSTE;
   sei();
+  UDCON &= ~(1 << DETACH);
+  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 
   uint16_t wLength;
   while (!connected)

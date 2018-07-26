@@ -45,7 +45,7 @@ void main(void)
   USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+
   UDCON &= ~(1 << DETACH);
 
   configure;
@@ -85,11 +85,11 @@ void main(void)
   USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  UDCON &= ~(1 << DETACH);
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
@@ -151,11 +151,11 @@ void main(void)
   USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  UDCON &= ~(1 << DETACH);
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
@@ -210,11 +210,11 @@ void main(void)
   USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  UDCON &= ~(1 << DETACH);
 
   while (1) ;
 }
@@ -255,11 +255,10 @@ void main(void)
   while (!(PLLCSR & (1<<PLOCK))) ;
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  USBCON |= 1 << OTGPADE;
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
   UDCON |= 1 << RSTCPU;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
@@ -292,12 +291,12 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
 
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  UDCON &= ~(1 << DETACH);
+  USBCON |= 1 << OTGPADE;
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  UDCON &= ~(1 << DETACH);
 
   while (1) ;
 }
@@ -352,15 +351,13 @@ void main(void)
   while (!(PLLCSR & (1<<PLOCK))) ;
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
+  USBCON |= 1 << OTGPADE;
+  UDIEN |= 1 << EORSTE;
+  sei();
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
   UDCON |= 1 << RSTCPU;
-
-  UDIEN |= 1 << EORSTE;
-  sei();
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
@@ -481,12 +478,11 @@ void main(void)
   USBCON &= ~(1 << FRZCLK);
 
   USBCON |= 1 << OTGPADE;
-  while (!(USBSTA & (1 << VBUS))) ;
-  UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU);
 
   UDIEN |= 1 << EORSTE;
   sei();
+  UDCON &= ~(1 << DETACH);
+  UDCON &= ~(1 << RSTCPU);
 
   uint16_t wLength;
   while (!connected)
