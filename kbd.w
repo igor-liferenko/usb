@@ -77,7 +77,9 @@ ISR(USB_GEN_vect)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
 }
 
-@ @<Process {\sc SETUP} request@>=
+@ Here we dispatch {\sc SETUP} request to corresponding processing module.
+
+@<Process {\sc SETUP} request@>=
       switch (UEDATX | UEDATX << 8)
       {
       case 0x0500: @/
