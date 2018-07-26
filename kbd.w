@@ -1,7 +1,7 @@
 \secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
                                            % \datethis in test.w (with and without kbd.ch)
 
-\font\req=cmcsc10 at 9pt
+\font\caps=cmcsc10 at 9pt
 
 @i test.w % \datethis is here (and \let\lheader...)
 
@@ -45,7 +45,7 @@ void main(void)
   uint16_t wLength;
   while (!connected)
     if (UEINTX & (1 << RXSTPI))
-      @<Process {\req setup} request@>@;
+      @<Process SETUP request@>@;
 
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
@@ -75,51 +75,51 @@ ISR(USB_GEN_vect)
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
 }
 
-@ Here we just dispatch {\req setup} request to corresponding processing module.
+@ Here we just dispatch SETUP request to corresponding processing module.
 
-@<Process {\req setup} request@>=
+@<Process SETUP request@>=
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
-  @<Handle {\req set address}@>@;
+  @<Handle {\caps set address}@>@;
   break;
 case 0x0680: @/
   switch (UEDATX | UEDATX << 8) {
   case 0x0100: @/
-    @<Handle {\req get descriptor device}\null@>@;
+    @<Handle {\caps get descriptor device}\null@>@;
     break;
   case 0x0200: @/
-    @<Handle {\req get descriptor configuration}@>@;
+    @<Handle {\caps get descriptor configuration}@>@;
     break;
   case 0x0300: @/
-    @<Handle {\req get descriptor string} (language)@>@;
+    @<Handle {\caps get descriptor string} (language)@>@;
     break;
   case 0x03 << 8 | MANUFACTURER: @/
-    @<Handle {\req get descriptor string} (manufacturer)@>@;
+    @<Handle {\caps get descriptor string} (manufacturer)@>@;
     break;
   case 0x03 << 8 | PRODUCT: @/
-    @<Handle {\req get descriptor string} (product)@>@;
+    @<Handle {\caps get descriptor string} (product)@>@;
     break;
   case 0x03 << 8 | SERIAL_NUMBER: @/
-    @<Handle {\req get descriptor string} (serial)@>@;
+    @<Handle {\caps get descriptor string} (serial)@>@;
     break;
   case 0x0600: @/
-    @<Handle {\req get descriptor device qualifier}@>@;
+    @<Handle {\caps get descriptor device qualifier}@>@;
     break;
   }
   break;
 case 0x0681: @/
-  @<Handle {\req get descriptor hid}@>@;
+  @<Handle {\caps get descriptor hid}@>@;
   @<Finish connection@>@;
   break;
 case 0x0900: @/
-  @<Handle {\req set configuration}@>@;
+  @<Handle {\caps set configuration}@>@;
   break;
 case 0x0a21: @/
-  @<Handle {\req set idle}@>@;
+  @<Handle {\caps set idle}@>@;
   break;
 }
 
-@ @<Handle {\req set address}@>=
+@ @<Handle {\caps set address}@>=
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
@@ -141,14 +141,14 @@ sufficient for first request of device descriptor). If host is operational,
 It is OK if we transfer less than the requested amount. But if we try to
 transfer more, device will hang.
 
-@<Handle {\req get descriptor device}\null@>=
+@<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
-@ @<Handle {\req get descriptor configuration}@>=
+@ @<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -156,32 +156,32 @@ while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
 
-@ @<Handle {\req get descriptor string} (language)@>=
+@ @<Handle {\caps get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
 send_descriptor(lang_desc, sizeof lang_desc);
 
-@ @<Handle {\req get descriptor string} (manufacturer)@>=
+@ @<Handle {\caps get descriptor string} (manufacturer)@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
 send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
 
-@ @<Handle {\req get descriptor string} (product)@>=
+@ @<Handle {\caps get descriptor string} (product)@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
 send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 
-@ @<Handle {\req get descriptor string} (serial)@>=
+@ @<Handle {\caps get descriptor string} (serial)@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
 send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
 
-@ @<Handle {\req get descriptor device qualifier}@>=
+@ @<Handle {\caps get descriptor device qualifier}@>=
 UECONX |= 1 << STALLRQ; /* according to the spec */
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 
-@ @<Handle {\req get descriptor hid}@>=
+@ @<Handle {\caps get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
@@ -197,7 +197,7 @@ UECFG1X = (0 << EPBK0) | (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 8 bytes\foo
 while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
   a test for this in test.w, like the first test for control endpoint) */
 
-@ @<Handle {\req set configuration}@>=
+@ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
@@ -205,7 +205,7 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
 means that host lets the device send reports only when it needs.
 
-@<Handle {\req set idle}@>=
+@<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
