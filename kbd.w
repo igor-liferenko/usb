@@ -164,7 +164,7 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 
 @ @<Handle {\caps get descriptor string} (serial)@>=
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
+send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
 
 @ @<Handle {\caps get descriptor device qualifier}@>=
 UECONX |= 1 << STALLRQ; /* according to the spec */
@@ -613,7 +613,7 @@ Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it 
 arguments): we pass a null pointer if serial number is to be transmitted.
 In |send_descriptor| |sn_desc| is filled in.
 
-@d SN_LENGTH 20 /* length of device signature, multiplied by two */
+@d SN_LENGTH 20 /* length of device signature, multiplied by two (because each byte in hex) */
 
 @<Global \null variables@>=
 struct {
@@ -634,7 +634,7 @@ if (buf == NULL) {
 @d hex(c) c<10 ? c+'0' : c-10+'A'
 
 @<Get serial number@>=
-sn_desc.bLength = 1 + 1 + SN_LENGTH * 2;
+sn_desc.bLength = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 sn_desc.bDescriptorType = 0x03;
 uint8_t addr = SN_START_ADDRESS;
 for (uint8_t i = 0; i < SN_LENGTH; i++) {
