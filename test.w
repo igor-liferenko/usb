@@ -167,7 +167,7 @@ void main(void)
   UEINTX &= ~(1 << RXSTPI);
   num = 0;
   while (len--)
-    UEDATX = pgm_read_byte_near((unsigned int) ptr++);
+    UEDATX = pgm_read_byte_near((unsigned int) ptr++); // TODO: try |pgm_read_byte(ptr++)|
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
