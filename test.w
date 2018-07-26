@@ -514,7 +514,7 @@ void main(void)
           send_descriptor(&user_conf_desc, wLength);
           break;
         case 0x0600:
-          UECONX |= 1 << STALLRQ; /* according to the spec */
+          UECONX |= 1 << STALLRQ;
           UEINTX &= ~(1 << RXSTPI);
           break;
         }
