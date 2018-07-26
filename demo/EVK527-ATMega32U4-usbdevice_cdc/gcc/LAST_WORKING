@@ -1,1 +1,20 @@
-ce2d5aefe64a8271991975e5dfddd4c4fa5f2f97
+git reset --hard ce2d5aefe64a8271991975e5dfddd4c4fa5f2f97, remove reset_done in file where error will be, do git clean -X -d -f, git clean -d -f and copy ~/usb/ to ~/usb2/, then git checkout ., git pull and cp -a ~/usb2/* ~/usb/ and then rm -fr ~/usb2/ and then git st
+if necessary, add the following to comm-utf8.ch:
+
+   encTeX[0xfc] = "№";
+ @z
+ 
++@x
++@d buf_size 100 /* for \.{CWEAVE} and \.{CTANGLE} */
++@y
++@d buf_size 10000 /* for \.{CWEAVE} and \.{CTANGLE} */
++@z
+-------------------
+     the last newline */
+ @z
+ 
++@x
++@d max_file_name_length 60
++@y
++@d max_file_name_length 600
++@z
