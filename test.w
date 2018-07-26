@@ -538,8 +538,6 @@ void main(void)
         UEINTX &= ~(1 << TXINI);
         break;
       }
-    }
-  }
 
   while (1) ;
 }
