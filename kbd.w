@@ -82,48 +82,46 @@ ISR(USB_GEN_vect)
 @ Here we just dispatch {\req setup} request to corresponding processing module.
 
 @<Process {\req setup} request@>=
-      switch (UEDATX | UEDATX << 8)
-      {
-      case 0x0500: @/
-        @<Handle {\req set address}@>@;
-        break;
-      case 0x0680: @/
-        switch (UEDATX | UEDATX << 8)
-        {
-        case 0x0100: @/
-          @<Handle {\req get descriptor device}\null@>@;
-          break;
-        case 0x0200: @/
-          @<Handle {\req get descriptor configuration}@>@;
-          break;
-        case 0x0300: @/
-          @<Handle {\req get descriptor string} (language)@>@;
-          break;
-        case 0x03 << 8 | MANUFACTURER: @/
-          @<Handle {\req get descriptor string} (manufacturer)@>@;
-          break;
-        case 0x03 << 8 | PRODUCT: @/
-          @<Handle {\req get descriptor string} (product)@>@;
-          break;
-        case 0x03 << 8 | SERIAL_NUMBER: @/
-          @<Handle {\req get descriptor string} (serial)@>@;
-          break;
-        case 0x0600: @/
-          @<Handle {\req get descriptor device qualifier}@>@;
-          break;
-        }
-        break;
-      case 0x0681: @/
-        @<Handle {\req get descriptor hid}@>@;
-        @<Finish connection@>@;
-        break;
-      case 0x0900: @/
-        @<Handle {\req set configuration}@>@;
-        break;
-      case 0x0a21: @/
-        @<Handle {\req set idle}@>@;
-        break;
-      }
+switch (UEDATX | UEDATX << 8) {
+case 0x0500: @/
+  @<Handle {\req set address}@>@;
+  break;
+case 0x0680: @/
+  switch (UEDATX | UEDATX << 8) {
+  case 0x0100: @/
+    @<Handle {\req get descriptor device}\null@>@;
+    break;
+  case 0x0200: @/
+    @<Handle {\req get descriptor configuration}@>@;
+    break;
+  case 0x0300: @/
+    @<Handle {\req get descriptor string} (language)@>@;
+    break;
+  case 0x03 << 8 | MANUFACTURER: @/
+    @<Handle {\req get descriptor string} (manufacturer)@>@;
+    break;
+  case 0x03 << 8 | PRODUCT: @/
+    @<Handle {\req get descriptor string} (product)@>@;
+    break;
+  case 0x03 << 8 | SERIAL_NUMBER: @/
+    @<Handle {\req get descriptor string} (serial)@>@;
+    break;
+  case 0x0600: @/
+    @<Handle {\req get descriptor device qualifier}@>@;
+    break;
+  }
+  break;
+case 0x0681: @/
+  @<Handle {\req get descriptor hid}@>@;
+  @<Finish connection@>@;
+  break;
+case 0x0900: @/
+  @<Handle {\req set configuration}@>@;
+  break;
+case 0x0a21: @/
+  @<Handle {\req set idle}@>@;
+  break;
+}
 
 @ @<Handle {\req set address}@>=
 UDADDR = UEDATX & 0x7F;
