@@ -47,46 +47,46 @@ void main(void)
   uint16_t wLength;
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
-      switch (UEDATX << 8 | UEDATX)
+      switch (UEDATX | UEDATX << 8)
       {
-      case 0x0005: @/
+      case 0x0500: @/
         @<SET ADDRESS@>@;
         break;
-      case 0x0009: @/
-        @<SET CONFIGURATION@>@;
-        break;
-      case 0x210a: @/
-        @<SET IDLE@>@;
-        break;
-      case 0x8006: @/
-        switch (UEDATX << 8 | UEDATX)
+      case 0x0680: @/
+        switch (UEDATX | UEDATX << 8)
         {
-        case 0x0001: @/
+        case 0x0100: @/
           @<GET DESCRIPTOR DEVICE\null@>@;
           break;
-        case 0x0002: @/
+        case 0x0200: @/
           @<GET DESCRIPTOR CONFIGURATION@>@;
           break;
-        case 0x0003: @/
+        case 0x0300: @/
           @<GET DESCRIPTOR STRING (language)@>@;
           break;
-        case 0x0006: @/
-          @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
-          break;
-        case MANUFACTURER << 8 | 0x03: @/
+        case 0x03 << 8 | MANUFACTURER: @/
           @<GET DESCRIPTOR STRING (manufacturer)@>@;
           break;
-        case PRODUCT << 8 | 0x03: @/
+        case 0x03 << 8 | PRODUCT: @/
           @<GET DESCRIPTOR STRING (product)@>@;
           break;
-        case SERIAL_NUMBER << 8 | 0x03: @/
+        case 0x03 << 8 | SERIAL_NUMBER: @/
           @<GET DESCRIPTOR STRING (serial)@>@;
+          break;
+        case 0x0600: @/
+          @<GET DESCRIPTOR DEVICE QUALIFIER@>@;
           break;
         }
         break;
-      case 0x8106: @/
+      case 0x0681: @/
         @<GET DESCRIPTOR HID@>@;
         @<Finish connection@>@;
+        break;
+      case 0x0900: @/
+        @<SET CONFIGURATION@>@;
+        break;
+      case 0x0a21: @/
+        @<SET IDLE@>@;
         break;
       }
     }
