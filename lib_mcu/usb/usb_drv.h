@@ -161,6 +161,8 @@
 #define Is_usb_read_control_enabled()             (UEINTX&(1<<TXINI))
    //! tests if a NAK has been sent
 #define Is_usb_nak_out_sent()                     (UEINTX&(1<<NAKOUTI))
+   //! tests if SETUP received
+#define Is_usb_receive_setup()                    (UEINTX&(1<<RXSTPI))
    //! tests if OUT received
 #define Is_usb_receive_out()                      (UEINTX&(1<<RXOUTI))
    //! tests if IN ready
@@ -171,6 +173,8 @@
 #define Usb_send_control_in()                     (UEINTX &= ~(1<<TXINI))
    //! frees OUT bank
 #define Usb_free_out_bank()                       (UEINTX &= ~(1<<FIFOCON))
+   //! acks OUT on control endpoint
+#define Usb_ack_control_out()                     (UEINTX &= ~(1<<RXOUTI))
 
    //! enables flow error interrupt
 #define Usb_enable_flow_error_interrupt()         (UEIENX  |=  (1<<FLERRE))

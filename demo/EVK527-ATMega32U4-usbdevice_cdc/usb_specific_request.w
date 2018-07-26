@@ -47,7 +47,6 @@ extern S_line_status line_status;
 //! @return FALSE, if the request is'nt know (STALL handshake is managed by the main
 // standard request function).
 //!
-extern int connected;
 Bool usb_user_read_request(U8 type, U8 request)
 {
    U16 wValue;
@@ -61,7 +60,6 @@ Bool usb_user_read_request(U8 type, U8 request)
       {
          case SETUP_CDC_SET_LINE_CODING:
          cdc_set_line_coding();
-         connected = 1;
          return TRUE;
          break;
    
@@ -183,7 +181,7 @@ void cdc_set_line_coding (void)
      Usb_ack_receive_out();
 
      Usb_send_control_in();                // send a ZLP for STATUS phase
-     while (!(UEINTX & (1 << TXINI))) ; /* wait until bank is ready to accept new IN packet */
+     while(!(Is_usb_read_control_enabled()));
 }
 
 @ @c

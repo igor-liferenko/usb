@@ -22,27 +22,29 @@ The sample dual role application is based on two different tasks:
 
 extern U8    usb_configuration_nb;
 
-@<EOR interrupt handler@>@;
-
 volatile int connected = 0;
 int main(void)
 {
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-  @#
+  UHWCON |= 1 << UVREGE;
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
-  @#
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
-  @#
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-  while (!(USBSTA & (1 << VBUS))) ; /* wait until VBUS line detects power from host */
-  @#
+  USBCON |= 1 << OTGPADE;
+  while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
 
   UDIEN |= 1 << EORSTE;
   sei();
+
+  while (1) {
+      Usb_select_endpoint(EP_CONTROL);
+      if (Is_usb_receive_setup()) {
+        usb_process_request();
+      }
+      cdc_task();
+  }
 
   while (!connected) {
     if (UEINTX & (1 << RXSTPI)) {
@@ -73,17 +75,12 @@ if (line_status.DTR) ... else ...
   }
 }
 
-@ @<EOR interrupt handler@>=
 ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
-//  if (!connected) {
+  if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG0X = 0 << EPTYPE0 | 0 << EPDIR; /* control, out */
-    UECFG1X = 1 << EPSIZE1 + 1 << EPSIZE0 | 0 << EPBK0 | 1 << ALLOC; /* 64 bytes, one bank */
-//TODO: see operator precedence
-//  }
+    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* 32
+      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+  }
 }
-
-
-@* Index.

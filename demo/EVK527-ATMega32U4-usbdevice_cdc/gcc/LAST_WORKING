@@ -9,12 +9,3 @@ if necessary, add the following to comm-utf8.ch:
 +@y
 +@d buf_size 10000 /* for \.{CWEAVE} and \.{CTANGLE} */
 +@z
--------------------
-     the last newline */
- @z
- 
-+@x
-+@d max_file_name_length 60
-+@y
-+@d max_file_name_length 600
-+@z

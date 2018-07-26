@@ -38,11 +38,13 @@
 
 //_____ P R I V A T E   D E C L A R A T I O N ______________________________
 
+static  void    usb_get_descriptor(   void);
 static  void    usb_set_address(      void);
 static  void    usb_set_configuration(void);
 static  void    usb_clear_feature(    void);
 static  void    usb_set_feature(      void);
 static  void    usb_get_status(       void);
+static  void    usb_get_configuration(void);
 static  void    usb_get_interface (void);
 static  void    usb_set_interface (void);
 
@@ -79,105 +81,55 @@ static  U8   bmRequestType;
 //! SETUP_SET_FEATURE
 //! SETUP_GET_STATUS
 //!
-/*
-STATUS фаза нужна для подтверждения
-корректности обработки всего запроса.
-На данной фазе
-устройство или хост просто посылает
-пакет данных нулевой длины, что
-свидетельствует об успешной
-обработке запроса на логическом уровне.
-Если запрос предполагал получение ответа
-от устройства
-то данный пакет посылает хост, подтверждая,
-что ответ получен/обработан. В другом случае пакет
-нулевой длины шлет устройство, подтверждая,
-что запрос (запрос и дополнительные параметры)
-получены и обработаны.
-*/
-
-/*
-8 байт данных получены устройством в SETUP фазе.
-Запрос состоит из следующих полей:
-
-bmRequestType — 1 байт
-bRequest – 1 байт
-wValue – 2 байта, WORD
-wIndex – 2 байта, WORD
-wLength – 2 байта, WORD
-*/
-/*
-22.12 CONTROL endpoint management
-A SETUP request is always ACK’ed
-*/
-
-/*
-Two first packets in wireshark "GET DESCRIPTOR Request" and "GET DESCRIPTOR Response"
-consist of the following 9 USB packets:
-{{SETUP, DATA0, ACK}, {IN, DATAx, ACK}, {OUT, ZLP, ACK}}
-
-Here is to what it corresponds:
-{{detect RXSTPI}, {write UEDATX, clear TXINI, wait until TXINI is 1},
-{detect RXOUTI}}
-
-to detect RXSTPI and RXOUTI, they must be cleared after reading data (if data is not ZLP)
-
-NAKOUTI bit is set if ACK was not sent (by avr) in RXSTPI or RXOUTI transaction, therefore
-UEDATX must not be read (i.e., RXSTPI and RXOUTI must not be believed to)
-В этом случае хост должен отправить пакет повторно
-
-NAKINI bit is set if ACK was not sent (by host) in IN transaction, therefore UEDATX
-must be written again (i.e., TXINI = 1 must not be believed to)
-
-Если в устройстве нет данных для передачи
-хосту – устройство в ответ на TOKEN IN пакет
-посылает NAK пакет, и хост переходит к
-обмену данными со следующим устройством. 
-*/
-
 void usb_process_request(void)
 {
-   U8  bRequest;
-   if (UEINTX & (1<<RXOUTI)) { DDRD|=1<<PD5; PORTD|=1<<PD5; }
-   bmRequestType = UEDATX;
-   bRequest = UEDATX;
+   U8  bmRequest;
 
-   switch (bRequest)
+   Usb_ack_control_out();
+   bmRequestType = Usb_read_byte();
+   bmRequest     = Usb_read_byte();
+
+   switch (bmRequest)
    {
     case SETUP_GET_DESCRIPTOR:
-    {
-         @<Process GET DESCRIPTOR request@>@;
+         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) { usb_get_descriptor(); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
-    }
+
+    case SETUP_GET_CONFIGURATION:
+         if (USB_SETUP_GET_STAND_DEVICE == bmRequestType) { usb_get_configuration(); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
+         break;
+
     case SETUP_SET_ADDRESS:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_address(); }
-         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
     case SETUP_SET_CONFIGURATION:
          if (USB_SETUP_SET_STAND_DEVICE == bmRequestType) { usb_set_configuration(); }
-         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
     case SETUP_CLEAR_FEATURE:
          if (USB_SETUP_SET_STAND_ENDPOINT >= bmRequestType) { usb_clear_feature(); }
-         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
     case SETUP_SET_FEATURE:
          if (USB_SETUP_SET_STAND_ENDPOINT >= bmRequestType) { usb_set_feature(); }
-         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
     case SETUP_GET_STATUS:
          if ((0x7F < bmRequestType) & (0x82 >= bmRequestType))
                                     { usb_get_status(); }
-         else                       { usb_user_read_request(bmRequestType, bRequest); }
+         else                       { usb_user_read_request(bmRequestType, bmRequest); }
          break;
 
     case SETUP_GET_INTERFACE:
           if (bmRequestType == USB_SETUP_GET_STAND_INTERFACE) { usb_get_interface(); }
-          else { usb_user_read_request(bmRequestType, bRequest); }
+          else { usb_user_read_request(bmRequestType, bmRequest); }
           break;
 
 
@@ -188,7 +140,7 @@ void usb_process_request(void)
     case SETUP_SET_DESCRIPTOR:
     case SETUP_SYNCH_FRAME:
     default: //!< un-supported request => call to user read request
-         if(usb_user_read_request(bmRequestType, bRequest) == FALSE)
+         if(usb_user_read_request(bmRequestType, bmRequest) == FALSE)
          {
             Usb_enable_stall_handshake();
             Usb_ack_receive_setup();
@@ -254,67 +206,126 @@ U8 configuration_number;
    usb_user_endpoint_init(usb_configuration_nb);  //!< endpoint configuration
 }
 
-@ @<Process GET DESCRIPTOR request@>=
-@<Read SETUP packet@>@;
 
-switch (bDescriptorType)
+//! This function manages the GET DESCRIPTOR request. The device descriptor,
+//! the configuration descriptor and the device qualifier are supported. All
+//! other descriptors must be supported by the usb_user_get_descriptor
+//! function.
+//! Only 1 configuration is supported.
+//!
+void usb_get_descriptor(void)
 {
-  case 0x01: /* device */
-    data_to_transfer = sizeof (usb_dev_desc);
-    pbuffer = &usb_dev_desc.bLength;
-    break;
-  case 0x02: /* configuration */
-    data_to_transfer = sizeof (usb_conf_desc);
-    pbuffer = &usb_conf_desc.cfg.bLength;
-    break;
-}
+U16  wLength;
+U8   descriptor_type ;
+U8   string_type;
+U8   dummy;
+U8   nb_byte;
 
-@<Send descriptor to host@>@;
+   zlp             = FALSE;                  /* no zero length packet */
+   string_type     = Usb_read_byte();        /* read LSB of wValue    */
+   descriptor_type = Usb_read_byte();        /* read MSB of wValue    */
 
-@ @<Read SETUP packet@>=
-(void) UEDATX; /* don't care of Descriptor Index */
+   switch (descriptor_type)
+   {
+    case DESCRIPTOR_DEVICE:
+      data_to_transfer = Usb_get_dev_desc_length(); //!< sizeof (usb_user_device_descriptor);
+      pbuffer          = Usb_get_dev_desc_pointer();
+      break;
+    case DESCRIPTOR_CONFIGURATION:
+      data_to_transfer = Usb_get_conf_desc_length(); //!< sizeof (usb_user_configuration_descriptor);
+      pbuffer          = Usb_get_conf_desc_pointer();
+      break;
+    default:
+      if( usb_user_get_descriptor(descriptor_type, string_type)==FALSE )
+      {
+         Usb_enable_stall_handshake();
+         Usb_ack_receive_setup();
+         return;
+      }
+      break;
+   }
 
-U8 bDescriptorType = UEDATX;
+   dummy = Usb_read_byte();                     //!< don't care of wIndex field
+   dummy = Usb_read_byte();
+   LSB(wLength) = Usb_read_byte();              //!< read wLength
+   MSB(wLength) = Usb_read_byte();
+   Usb_ack_receive_setup() ;                  //!< clear the receive setup flag
 
-(void) UEDATX; @+ (void) UEDATX; /* don't care of Language Id */
-
-U16 wLength; /* how many bytes host can get (i.e., we must not send more than that) */
-((U8*) &wLength)[0] = UEDATX; /* wLength LSB */
-((U8*) &wLength)[1] = UEDATX; /* wLength MSB */
-
-UEINTX &= ~(1 << RXSTPI);
-
-@ @<Send descriptor to host@>=
-zlp = FALSE;
-   if (data_to_transfer < wLength) {
-      if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) zlp = TRUE;
-      else zlp = FALSE;                   //!< no need of zero length packet
+   if (wLength > data_to_transfer)
+   {
+      if ((data_to_transfer % EP_CONTROL_LENGTH) == 0) { zlp = TRUE; }
+      else { zlp = FALSE; }                   //!< no need of zero length packet
    }
    else
-     data_to_transfer = (U8) wLength;         /* send only requested number of data */
-U8 nb_byte;
-   while ((data_to_transfer != 0)) {
-      if (!(UEINTX & (1 << TXINI))) { DDRC|=1<<PC7; PORTC|=1<<PC7; }
-      while (!(UEINTX & (1 << TXINI))) ;
-
-      nb_byte=0;
-      while(data_to_transfer != 0) { /* Send data until necessary */
-         if (nb_byte++==EP_CONTROL_LENGTH) /* Check endpoint 0 size */
-            break;
-
-         UEDATX = pgm_read_byte_near((unsigned int) pbuffer++);
-         data_to_transfer--;
-      }
-
-        UEINTX &= ~(1 << TXINI);
+   {
+      data_to_transfer = (U8)wLength;         //!< send only requested number of data
    }
 
-//FIXME: how it could be that "while (!(UEINTX & (1 << NAKOUTI))) ;" worked here?
+   Usb_ack_nak_out();
 
-   while (!(UEINTX & (1 << RXOUTI))) ;
-   UEINTX &= ~(1 << RXOUTI);
+   while((data_to_transfer != 0) && (!Is_usb_nak_out_sent()))
+   {
+      while(!Is_usb_read_control_enabled())
+      {
+        if (Is_usb_nak_out_sent())
+          break;    // don't clear the flag now, it will be cleared after
+      }
 
-@ @c
+      nb_byte=0;
+      while(data_to_transfer != 0)        //!< Send data until necessary
+      {
+         if(nb_byte++==EP_CONTROL_LENGTH) //!< Check endpoint 0 size
+         {
+            break;
+         }
+
+         Usb_write_byte(pgm_read_byte_near((unsigned int)pbuffer++));
+         data_to_transfer --;
+      }
+
+      if (Is_usb_nak_out_sent())
+        break;
+      else
+        Usb_send_control_in();
+   }
+
+   if((zlp == TRUE) && (!Is_usb_nak_out_sent()))
+   {
+     while(!Is_usb_read_control_enabled());
+     Usb_send_control_in();
+   }
+
+   while (!(Is_usb_nak_out_sent()));
+   Usb_ack_nak_out();
+   Usb_ack_control_out();
+
+
+
+}
+
+
+//! usb_get_configuration.
+//!
+//! This function manages the GET CONFIGURATION request. The current
+//! configuration number is returned.
+//!
+//! @warning Code:xx bytes (function code length)
+//!
+//! @param none
+//!
+//! @return none
+//!
+void usb_get_configuration(void)
+{
+   Usb_ack_receive_setup();
+
+   Usb_write_byte(usb_configuration_nb);
+   Usb_ack_in_ready();
+
+   while( !Is_usb_receive_out() );
+   Usb_ack_receive_out();
+}
+
 //! usb_get_status.
 //!
 //! This function manages the GET STATUS request. The device, interface or

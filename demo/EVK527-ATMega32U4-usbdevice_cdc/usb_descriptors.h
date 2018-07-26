@@ -37,10 +37,13 @@
 #define DEVICE_CLASS          CDC_GLOB_CLASS  // CDC class
 #define DEVICE_SUB_CLASS      0      // each configuration has its own sub-class
 #define DEVICE_PROTOCOL       0      // each configuration has its own protocol
-#define EP_CONTROL_LENGTH     64
+#define EP_CONTROL_LENGTH     32
 #define VENDOR_ID             VID_ATMEL
 #define PRODUCT_ID            PID_MegaCDC
 #define RELEASE_NUMBER        0x1000
+#define MAN_INDEX             0x00
+#define PROD_INDEX            0x00
+#define SN_INDEX              0x00
 #define NB_CONFIGURATION      1
 
                // CDC CONFIGURATION
