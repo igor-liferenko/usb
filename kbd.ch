@@ -12,3 +12,15 @@
 \advance\hoffset by-1in
 \advance\pageshift by-1in
 @z
+
+@x
+  UDR1 = 'v';
+@y
+@z
+
+@x
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
+@y
+@z
+
+...
