@@ -1,6 +1,10 @@
 @x
-  UCSR1B = 1 << TXEN1;
+  UHWCON = 1 << UVREGE;
 @y
+  UHWCON = 1 << UVREGE;  
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
   UDR1 = 'v';
 @z
