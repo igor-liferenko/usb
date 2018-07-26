@@ -166,8 +166,17 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 UEINTX &= ~(1 << RXSTPI);
 send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
 
-@ @<Handle {\caps get descriptor device qualifier}@>=
-UECONX |= 1 << STALLRQ; /* according to the spec */
+@ A high-speed capable device that has different device information for full-speed and high-speed
+must have a Device Qualifier Descriptor. For example, if the device is currently operating at
+full-speed, the Device Qualifier returns information about how it would operate at high-speed and
+vice-versa.
+
+If a full-speed only device receives a Get Descriptor request for a device qualifier, it must
+respond with a request error. Then, the host must not make a request device information for
+high-speed.
+
+@<Handle {\caps get descriptor device qualifier}@>=
+UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
 
 @ @<Handle {\caps get descriptor hid}@>=
