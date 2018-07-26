@@ -28,7 +28,6 @@ void main(void)
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'v';
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
@@ -72,7 +71,6 @@ ISR(USB_GEN_vect)
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
   else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
 }
 
 @ Here we just dispatch SETUP request to corresponding processing module.
@@ -122,7 +120,6 @@ case 0x0a21: @/
 @ @<Handle {\caps set address}@>=
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'A';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
             sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
@@ -145,45 +142,36 @@ transfer more, device will hang.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'D';
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
 
 @ @<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ;
-if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
 send_descriptor(&user_conf_desc, wLength);
 
 @ @<Handle {\caps get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'L';
 send_descriptor(lang_desc, sizeof lang_desc);
 
 @ @<Handle {\caps get descriptor string} (manufacturer)@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'M';
 send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
 
 @ @<Handle {\caps get descriptor string} (product)@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'P';
 send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 
 @ @<Handle {\caps get descriptor string} (serial)@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'N';
 send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
 
 @ @<Handle {\caps get descriptor device qualifier}@>=
 UECONX |= 1 << STALLRQ; /* according to the spec */
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'Q';
 
 @ @<Handle {\caps get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'R';
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
 @ @<Finish connection@>=
@@ -199,7 +187,6 @@ while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (c
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'S';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
@@ -207,7 +194,6 @@ means that host lets the device send reports only when it needs.
 
 @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'I';
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ See datasheet \S22.12.2.
