@@ -35,7 +35,6 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
-
   UDIEN = (1 << SUSPE) | (1 << EORSTE);
   UEIENX = 1 << RXSTPE;
   SMCR = 1 << SE;
@@ -82,8 +81,6 @@ volatile uint8_t a[8];
 
 @ FIXME: seems like this interrupt is not triggered in WinXP - why?
 @^FIXME@>
-Try to add checking for |EORSTE|, |SUSPE| and |WAKEUPE| in |USB_GEN_vect| and see if it helps
-(test with rstcpu.ch)
 
 @c
 ISR(USB_COM_vect)
