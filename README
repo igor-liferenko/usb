@@ -7,8 +7,8 @@ rm -fr doc/ doc.html EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-A
 5. remove trailing \r from all files
 find . -type f | xargs perl -i -pe 's/\r$//'
 8. git add .
-9. git ci "initial import"
-10. make it compile (fix usb_specific_request.c like this:
+9. git ci -m "initial import"
+10. make it compile (fix demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c like this:
 -extern U8   code *pbuffer;
 +#ifdef __GNUC__
 +  extern PGM_VOID_P pbuffer;
@@ -16,9 +16,8 @@ find . -type f | xargs perl -i -pe 's/\r$//'
 +  extern U8   code *pbuffer;
 +#endif
 )
-11. configure (change "#define FOSC" to 16000 and "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ and
-"#define BAUDRATE" to 57600) + flash and check that it actually works (if it will not work - see
-what else must be configured in commits up to commit "it is working now" here)
+11. edit demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h (change "#define FOSC" to 16000 and "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ and "#define BAUDRATE" to 57600)
+patch -p1 <~/usb/cleanup.patch
 12. make
 13. Save "avr-objdump -d" from .elf file.
 14. Do the following example for every .c file and then remove all .h files:
