@@ -1,6 +1,6 @@
 Proper steps to cleanup original Atmel's code:
 1. github init demo
-2. TODO: md5sum of the usb-cdc archive (from ub0ali in 2 emails and from ub0ali in dropbox) - ensure that it is the same and remove this line
+2. download cdc archive from ub0ali dropbox avr-usb/ directory
 3. unpack
 4. delete unused files and directories:
 rm -fr EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-ATMega32U4-usbdevice_cdc/doc/ lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
