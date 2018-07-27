@@ -583,7 +583,7 @@ The C standard says that a flexible array member in a struct does not increase t
 struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
 So, |sizeof| on the variable counts only first two elements.
 So, we use |pgm_read_byte|\footnote*{In |@<Handle {\caps get descriptor string} (manufacturer)@>|
-and |@<Handle {\caps get descriptor string} (product)@>|.} to read the size of the variable during
+and |@<Handle {\caps get descriptor string} (product)@>|.} to read the size of the variable at
 execution time.
 TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/}
 @^TODO@>
