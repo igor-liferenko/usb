@@ -1,2 +1,0 @@
-on original usb-arduino fuses are: E:CB, H:D8, L:FF - and the same are on chinese usb-arduino
-now working is firmware from commit 291517e67a00b54bff45bb6662dc8a42a0af6e82
