@@ -21,12 +21,10 @@ Proper steps to convert original Atmel's code to CWEB (in this repo it was done 
 what else must be configured in commits up to commit "it is working now" here)
 12. remove copyright
 13. remove "#ifdef _GNUC_" to use avr-gcc
-14. do maximum purging to preserve md5 of resulting .hex file (use "alias chk='md5sum -c /tex_tmp/md5'")
-15. expand all "#define xxxxxx()" (also check that md5 is preserved)
-16. convert to CWEB (rename .c to .w and add @ @c at the beginning of each .w file)
---------------------------
-To do preprocessing of all .c files (to eliminate .h files and expand macros and remove #ifdef's)
+14. Do preprocessing of all .c files (to eliminate .h files and expand macros and remove #ifdef's)
 use this:
+cd ~/demo/
+~/usb/mksurrogatehdr.sh `~/usb/listsyshdrs.sh`
 avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P modules/usb/device_chap9/usb_device_task.c|sponge modules/usb/device_chap9/usb_device_task.c
 Do this for every .c file and then remove all .h files.
-See https://stackoverflow.com/questions/20889460/
+Check "avr-objdump -d bin.elf" before and after - must be equal.
