@@ -20,7 +20,12 @@ find . -type f | xargs perl -i -pe 's/\r$//'
 patch -p1 <~/usb/cleanup.patch
 12. make
 13. Save "avr-objdump -d" from .elf file.
-14. Do the following example for every .c file and then remove all .h files:
-~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
-avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P modules/usb/device_chap9/usb_device_task.c|sponge modules/usb/device_chap9/usb_device_task.c
-15. Do "avr-objdump -d" on .elf file and compare with previous - must be equal.
+14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
+14.1. Remove #if-#endif for "AVRLIBC bug #23871" from lib_mcu/power/power_drv.h
+15. Run CPP:
+for i in $(find . -name \*.c); do
+  avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P $i|sponge $i
+done
+16: make
+17. Do "avr-objdump -d" on .elf file and compare with previous - must be equal.
+18. find . -name \*.h|xargs rm
