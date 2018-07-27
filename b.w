@@ -33,15 +33,13 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
-  while (!(USBSTA & (1 << VBUS))) ;
+  UDIEN = 1 << EORSTE;
+  sei();
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
   UDCON |= 1 << RSTCPU;
-  UDIEN = (1 << SUSPE) | (1 << EORSTE);
   UEIENX = 1 << RXSTPE;
-  SMCR = 1 << SE;
-  sei();
   while (1) ;
 }
 
