@@ -27,5 +27,6 @@ what else must be configured in commits up to commit "it is working now" here)
 --------------------------
 To do preprocessing of all .c files (to eliminate .h files and expand macros and remove #ifdef's)
 use this:
-avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P usb_device_task.c
+avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P modules/usb/device_chap9/usb_device_task.c|sponge modules/usb/device_chap9/usb_device_task.c
+Do this for every .c file and then remove all .h files.
 See https://stackoverflow.com/questions/20889460/
