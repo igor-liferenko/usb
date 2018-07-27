@@ -55,9 +55,7 @@ ISR(USB_GEN_vect)
       is needed to ensure that things don't go wrong during PC reboot, when USB reset is
       done multiple times */
     UECONX |= 1 << EPEN;
-    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
-    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
-      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
   }
   else if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
