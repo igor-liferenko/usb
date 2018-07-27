@@ -33,12 +33,9 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
-  while (!(USBSTA & (1 << VBUS))) ;
-  UDCON &= ~(1 << DETACH);
-  UDIEN = (1 << SUSPE) | (1 << EORSTE);
-  UEIENX = 1 << RXSTPE;
-  SMCR = 1 << SE;
+  UDIEN = 1 << EORSTE;
   sei();
+  UDCON &= ~(1 << DETACH);
   while (1) ;
 }
 
@@ -56,6 +53,7 @@ ISR(USB_GEN_vect)
       done multiple times */
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
+    UEIENX = 1 << RXSTPE;
   }
   else if (UDINT & (1 << SUSPI)) {
     UDINT &= ~(1 << SUSPI);
