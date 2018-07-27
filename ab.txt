@@ -1,6 +1,0 @@
-Linux:
-without RSTCPU: EP0 handling inside interrupt does not work (a)
-
-with RSTCPU: EP0 handling inside interrupt works (b)
-
-!!! how can this be - in one case interrputs work and in another not - check again using a.w and b.w
