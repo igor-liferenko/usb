@@ -24,3 +24,8 @@ what else must be configured in commits up to commit "it is working now" here)
 14. do maximum purging to preserve md5 of resulting .hex file (use "alias chk='md5sum -c /tex_tmp/md5'")
 15. expand all "#define xxxxxx()" (also check that md5 is preserved)
 16. convert to CWEB (rename .c to .w and add @ @c at the beginning of each .w file)
+--------------------------
+To do preprocessing of all .c files (to eliminate .h files and expand macros and remove #ifdef's)
+use this:
+avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P usb_device_task.c
+See https://stackoverflow.com/questions/20889460/
