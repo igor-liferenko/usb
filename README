@@ -29,3 +29,9 @@ done
 16: make
 17. Do "avr-objdump -d" on .elf file and compare with previous - must be equal.
 18. find . -name \*.h|xargs rm
+----------------------------------------------
+Convert include files to absolute paths:
+perl -ne 'if(/^\s*#include "(.*)"/){$x=$1;$x=~s#.*/##;$y=`find . -name $x`;$y=$x if!$y;chomp$y;$y=~s#^\./##;print"#include \"",$y,"\"\n";next}print'
+Expand all includes (repeat until nothing will be output to terminal):
+perl -i -ne 'if(/^\s*#include "(.*)"/){$x=$1;print STDERR $x,"\n";print `cat $x`if -e $x;next}print' modules/usb/usb_task.c
+The result is that infinite include occurs - they are never expanded in full. So, avr-gcc -E can produce different output than avr-gcc (this is why comparing avr-objdump is necessary). In fact, this caused a real bug when converting - 1<<PLLUSB was added to preprocessed output, while it should not have been.
