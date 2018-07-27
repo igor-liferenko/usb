@@ -3,11 +3,10 @@ Proper steps to cleanup original Atmel's code:
 2. TODO: md5sum of the usb-cdc archive (from ub0ali in 2 emails and from ub0ali in dropbox) - ensure that it is the same and remove this line
 3. unpack
 4. delete unused files and directories:
-rm -fr EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 doc/ doc.html lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
-5. git add
-6. git st + check + git add
-7. remove trailing \r from all files
-8. git st + check + git add
+rm -fr EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-ATMega32U4-usbdevice_cdc/doc/ lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
+5. remove trailing \r from all files
+find . -type f | perl -i -pe 's/\r$//'
+8. git add
 9. git ci "initial import"
 10. make it compile (fix usb_specific_request.c like this:
 -extern U8   code *pbuffer;
