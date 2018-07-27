@@ -35,9 +35,6 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   while (!(USBSTA & (1 << VBUS))) ;
   UDCON &= ~(1 << DETACH);
-  while (!(UDINT & (1 << EORSTI))) ;
-  UDINT &= ~(1 << EORSTI);
-  UENUM = EP0;
   UECONX |= 1 << EPEN;
   UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
   UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
