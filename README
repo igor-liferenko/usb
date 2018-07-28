@@ -18,20 +18,18 @@ find . -type f | xargs perl -i -pe 's/\r$//'
 )
 11. edit demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h (change "#define FOSC" to 16000 and "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ and "#define BAUDRATE" to 57600)
 patch -p1 <~/usb/cleanup.patch
-12. make
-13. Save "avr-objdump -d" from .elf file.
+12. cd demo/E*/gcc && make
+13. avr-objdump -d *.elf >../../../dump.orig; cd ../../../
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
 14.1. Remove #if-#endif for "AVRLIBC bug #23871" from lib_mcu/power/power_drv.h
 15. Run CPP:
 for i in $(find . -name \*.c); do
   avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P $i|sponge $i
 done
-16: make
-17. Do "avr-objdump -d" on .elf file and compare with previous - must be equal.
-18. find . -name \*.h|xargs rm
-----------------------------------------------
-Convert include files to absolute paths:
-perl -ne 'if(/^\s*#include "(.*)"/){$x=$1;$x=~s#.*/##;$y=`find . -name $x`;$y=$x if!$y;chomp$y;$y=~s#^\./##;print"#include \"",$y,"\"\n";next}print'
-Expand all includes (repeat until nothing will be output to terminal):
-perl -i -ne 'if(/^\s*#include "(.*)"/){$x=$1;print STDERR $x,"\n";print `cat $x`if -e $x;next}print' modules/usb/usb_task.c
-The result is that infinite include occurs - they are never expanded in full. So, avr-gcc -E can produce different output than avr-gcc (this is why comparing avr-objdump is necessary). In fact, this caused a real bug when converting - 1<<PLLUSB was added to preprocessed output, while it should not have been.
+16. find . -name \*.h|xargs rm
+17: cd demo/E*/gcc && make
+18. avr-objdump -d *.elf|diff ../../../dump.orig - # must be equal
+For some mysterious bug, "avr-gcc -E" may produce different result than "avr-gcc".
+This is why comparing avr-objdump is necessary. If the diff is small (like in this case),
+look up the name of register by address in datasheet and grep it in source and change.
+If the diff is not so simple, try to use mcpp.
