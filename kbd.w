@@ -48,16 +48,16 @@ void main(void)
     @<Get |btn| and |mod|@>@;
     if (btn != 0) {
       @<Press button@>@;
-      uint16_t prev_button = btn|mod;
+      uint16_t prev_button = btn|mod<<8;
       int timeout = 2000;
       while (--timeout) {
         @<Get |btn| and |mod|@>@;
-        if ((btn|mod) != prev_button) break;
+        if ((btn|mod<<8) != prev_button) break;
         _delay_ms(1);
       }
       while (1) {
         @<Get |btn| and |mod|@>@;
-        if ((btn|mod) != prev_button) break;
+        if ((btn|mod<<8) != prev_button) break;
         @<Press button@>@;
         _delay_ms(50);
       }
