@@ -62,10 +62,10 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 @z
 
 @x
-send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
+send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'N';
-send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2);
+send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
 @z
 
 @x
