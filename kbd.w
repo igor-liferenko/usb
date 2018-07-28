@@ -677,8 +677,7 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @<Get |button|@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      while (~PINB & 0xF0) ; /* input may read zero earlier
-                                than anything is pressed */
+      while (~PINB & 0xF0) ; /* What is going on here? Why is it necessary? */
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
