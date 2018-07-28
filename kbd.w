@@ -40,16 +40,49 @@ void main(void)
     if (UEINTX & (1 << RXSTPI))
       @<Process SETUP request@>@;
 
-  PORTD |= 1 << PD0;
-  PORTD |= 1 << PD1;
+  PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
+
+  DDRB |= 1 << PB0;
+  DDRD |= 1 << PD5;
+  DDRC |= 1 << PC7;
+
+  uint 16_t button = 0;
   while (1) {
-    if (!(PIND & 1 << PD0)) {
-      @<Press button `a'@>@;
-      _delay_ms(1000);
-    }
-    if (!(PIND & 1 << PD1)) {
-      @<Press button `ESC'@>@;
-      _delay_ms(1000);
+    for (int i = 0; i <= 2; i++) {
+      DDRD |= 1 << i; @+ while ((PINB & 0xF0) != 0xF0) ;
+      switch (~PINB & 0xF0) {
+      case 1 << PB4:
+        switch (i+1) {
+        case 1: button = 1 << 0; break;
+        case 2: button = 1 << 1; break;
+        case 3: button = 1 << 2; break;
+        }
+        break;
+      case 1 << PB5:
+        switch (i+1) {
+        case 1: button = 1 << 3; break;
+        case 2: button = 1 << 4; break;
+        case 3: button = 1 << 5; break;
+        }
+        break;
+      case 1 << PB6:
+        switch (i+1) {
+        case 1: button = 1 << 6; break;
+        case 2: button = 1 << 7; break;
+        case 3: button = 1 << 8; break;
+        }
+        break;
+      case 1 << PB7:
+        switch (i+1) {
+        case 1: button = 1 << 9; break;
+        case 2: button = 1 << 10; break;
+        case 3: button = 1 << 11; break;
+        }
+        break;
+      default:
+        button = 0;
+      }
+      DDRD &= ~(1 << i);
     }
   }
 }
