@@ -26,10 +26,13 @@ patch -p1 <~/usb/cleanup.patch
 for i in $(find . -name \*.c); do
   avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P $i|sponge $i
 done
+Equivalent with "mcpp":
+for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i|sponge $i; done
 16. find . -name \*.h|xargs rm
+16.1. git add .
 17: cd demo/E*/gcc && make
 18. avr-objdump -d *.elf|diff ../../../dump.orig - # must be equal
-For some mysterious bug, "avr-gcc -E" may produce different result than "avr-gcc".
+For some mysterious bug, "avr-gcc -E" (and "mcpp") may produce different result than "avr-gcc".
 This is why comparing avr-objdump is necessary. If the diff is small (like in this case),
 look up the name of register by address in datasheet and grep it in source and change.
-If the diff is not so simple, try to use mcpp.
+If the diff is not so simple, further digging is necessary...
