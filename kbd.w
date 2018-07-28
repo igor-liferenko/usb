@@ -647,7 +647,7 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @<Get |btn| and |mod|@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      while (~PINB & 0xF0) ; /* What is going on here? Why is it necessary? */
+      while (~PINB & 0xF0) ;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
