@@ -42,28 +42,23 @@ void main(void)
 
   PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 
-  uint16_t button = 0;
+  uint8_t btn = 0;
+  uint8_t mod = 0;
   while (1) {
-    @<Get |button|@>@;
-    if (button != 0) {
-#if 1==0
-      @<Press button `a'@>@;
-#endif
-      while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = button;
-      uint16_t prev_button = button;
+    @<Get |btn| and |mod|@>@;
+    if (btn != 0) {
+      @<Press button@>@;
+      uint16_t prev_button = btn|mod;
       int timeout = 2000;
       while (--timeout) {
-        @<Get |button|@>@;
-        if (button != prev_button) break;
+        @<Get |btn| and |mod|@>@;
+        if ((btn|mod) != prev_button) break;
         _delay_ms(1);
       }
       while (1) {
-        @<Get |button|@>@;
-        if (button != prev_button) break;
-#if 1==0
-        @<Press button `a'@>@;
-#endif
-        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = button;
+        @<Get |btn| and |mod|@>@;
+        if ((btn|mod) != prev_button) break;
+        @<Press button@>@;
         _delay_ms(50);
       }
     }
@@ -529,35 +524,10 @@ const uint8_t hid_report_descriptor[]
 @t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
 
-@ @<Press button `a'@>=
+@ @<Press button@>=
+      UEDATX = mod;
       UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0x04;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-        new packet to be sent when following IN request arrives (for key release) */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
-
-@ @<Press button `ESC'@>=
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0x29;
+      UEDATX = btn;
       UEDATX = 0;
       UEDATX = 0;
       UEDATX = 0;
@@ -674,41 +644,42 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 
 @* Matrix.
 
-@<Get |button|@>=
+@<Get |btn| and |mod|@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
       while (~PINB & 0xF0) ; /* What is going on here? Why is it necessary? */
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
-        case PD0: button = '1'; done = 1; break;
-        case PD1: button = '2'; done = 1; break; 
-        case PD2: button = '3'; done = 1; break;         
+        case PD0: mod = 0; btn = 0x1e; done = 1; break;
+        case PD1: mod = 0; btn = 0x1f; done = 1; break; 
+        case PD2: mod = 0; btn = 0x20; done = 1; break;         
         }
         break;
       case 1 << PB5:
         switch (i) {
-        case PD0: button = '4'; done = 1; break;
-        case PD1: button = '5'; done = 1; break; 
-        case PD2: button = '6'; done = 1; break;         
+        case PD0: mod = 0; btn = 0x21; done = 1; break;
+        case PD1: mod = 0; btn = 0x22; done = 1; break; 
+        case PD2: mod = 0; btn = 0x23; done = 1; break;         
         }
         break;
       case 1 << PB6:
         switch (i) {
-        case PD0: button = '7'; done = 1; break;
-        case PD1: button = '8'; done = 1; break;
-        case PD2: button = '9'; done = 1; break; 
+        case PD0: mod = 0; btn = 0x24; done = 1; break;
+        case PD1: mod = 0; btn = 0x25; done = 1; break;
+        case PD2: mod = 0; btn = 0x26; done = 1; break; 
         }
         break;
       case 1 << PB7:
         switch (i) {
-        case PD0: button = '*'; done = 1; break;
-        case PD1: button = '0'; done = 1; break; 
-        case PD2: button = '#'; done = 1; break;         
+        case PD0: mod = 0x02; btn = 0x25; done = 1; break;
+        case PD1: mod = 0x00; btn = 0x27; done = 1; break; 
+        case PD2: mod = 0x02; btn = 0x20; done = 1; break;         
         }
         break;
       default:
-        button = 0;
+        btn = 0;
+        mod = 0;
       }
       DDRD &= ~(1 << i);
     }
