@@ -675,35 +675,37 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @* Matrix.
 
 @<Get |button|@>=
-    for (int i = 0, done = 0; i <= 2 && !done; i++) {
-      DDRD |= 1 << i; @+ while ((PINB & 0xF0) != 0xF0) ;
+    for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
+      DDRD |= 1 << i;
+      while (~PINB & 0xF0) ; /* input may read zero earlier
+                                than anything is pressed */
       switch (~PINB & 0xF0) {
       case 1 << PB4:
-        switch (i+1) {
-        case 1: button = '1'; done = 1; break;
-        case 2: button = '2'; done = 1; break; 
-        case 3: button = '3'; done = 1; break;         
+        switch (i) {
+        case PD0: button = '1'; done = 1; break;
+        case PD1: button = '2'; done = 1; break; 
+        case PD2: button = '3'; done = 1; break;         
         }
         break;
       case 1 << PB5:
-        switch (i+1) {
-        case 1: button = '4'; done = 1; break;
-        case 2: button = '5'; done = 1; break; 
-        case 3: button = '6'; done = 1; break;         
+        switch (i) {
+        case PD0: button = '4'; done = 1; break;
+        case PD1: button = '5'; done = 1; break; 
+        case PD2: button = '6'; done = 1; break;         
         }
         break;
       case 1 << PB6:
-        switch (i+1) {
-        case 1: button = '7'; done = 1; break;
-        case 2: button = '8'; done = 1; break;
-        case 3: button = '9'; done = 1; break; 
+        switch (i) {
+        case PD0: button = '7'; done = 1; break;
+        case PD1: button = '8'; done = 1; break;
+        case PD2: button = '9'; done = 1; break; 
         }
         break;
       case 1 << PB7:
-        switch (i+1) {
-        case 1: button = '*'; done = 1; break;
-        case 2: button = '0'; done = 1; break; 
-        case 3: button = '#'; done = 1; break;         
+        switch (i) {
+        case PD0: button = '*'; done = 1; break;
+        case PD1: button = '0'; done = 1; break; 
+        case PD2: button = '#'; done = 1; break;         
         }
         break;
       default:
