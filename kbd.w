@@ -46,7 +46,10 @@ void main(void)
   while (1) {
     @<Get |button|@>@;
     if (button != 0) {
+#if 1==0
       @<Press button `a'@>@;
+#endif
+      while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = button;
       uint16_t prev_button = button;
       int timeout = 2000;
       while (--timeout) {
@@ -57,7 +60,10 @@ void main(void)
       while (1) {
         @<Get |button|@>@;
         if (button != prev_button) break;
+#if 1==0
         @<Press button `a'@>@;
+#endif
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = button;
         _delay_ms(50);
       }
     }
@@ -669,71 +675,35 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @* Matrix.
 
 @<Get |button|@>=
-    for (int i = 0; i <= 2; i++) {
+    for (int i = 0, done = 0; i <= 2 && !done; i++) {
       DDRD |= 1 << i; @+ while ((PINB & 0xF0) != 0xF0) ;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i+1) {
-        case 1:
-          button = 1 << 0;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '1';
-          break;
-        case 2:
-          button = 1 << 1;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '2';
-          break;
-        case 3:
-          button = 1 << 2;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '3';
-          break;
+        case 1: button = '1'; done = 1; break;
+        case 2: button = '2'; done = 1; break; 
+        case 3: button = '3'; done = 1; break;         
         }
         break;
       case 1 << PB5:
         switch (i+1) {
-        case 1:
-          button = 1 << 3;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '4';
-          break;
-        case 2:
-          button = 1 << 4;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '5';
-          break;
-        case 3:
-          button = 1 << 5;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '6';
-          break;
+        case 1: button = '4'; done = 1; break;
+        case 2: button = '5'; done = 1; break; 
+        case 3: button = '6'; done = 1; break;         
         }
         break;
       case 1 << PB6:
         switch (i+1) {
-        case 1:
-          button = 1 << 6;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '7';
-          break;
-        case 2:
-          button = 1 << 7;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '8';
-          break;
-        case 3:
-          button = 1 << 8;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '9';
-          break;
+        case 1: button = '7'; done = 1; break;
+        case 2: button = '8'; done = 1; break;
+        case 3: button = '9'; done = 1; break; 
         }
         break;
       case 1 << PB7:
         switch (i+1) {
-        case 1:
-          button = 1 << 9;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '*';
-          break;
-        case 2:
-          button = 1 << 10;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '0';
-          break;
-        case 3:
-          button = 1 << 11;
-          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '#';
-          break;
+        case 1: button = '*'; done = 1; break;
+        case 2: button = '0'; done = 1; break; 
+        case 3: button = '#'; done = 1; break;         
         }
         break;
       default:
@@ -741,7 +711,6 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
       }
       DDRD &= ~(1 << i);
     }
-
 
 @* Headers.
 \secpagedepth=1 % index on current page
