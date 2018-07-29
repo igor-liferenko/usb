@@ -1,3 +1,4 @@
+Note about "while":
 It is not efficient to wait right after writing to UDR.
 We may do other things - meanwhile the data will be transmitted.
 It is only necessary to wait right before sending next data.
