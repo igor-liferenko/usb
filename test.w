@@ -1,5 +1,3 @@
-%TODO: check all tests once again
-
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
 
@@ -165,7 +163,7 @@ void main(void)
   UEINTX &= ~(1 << RXSTPI);
   num = 0;
   while (len--)
-    UEDATX = pgm_read_byte_nearr((unsigned int) ptr++); // TODO: try |pgm_read_byte(ptr++)|
+    UEDATX = pgm_read_byte(ptr++);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
   UEINTX &= ~(1 << RXOUTI);
@@ -184,7 +182,9 @@ ISR(USB_GEN_vect)
 }
 
 @ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
-it is necessary to enable |RXSTPE| after each reset.
+it is necessary to enable |RXSTPE| at the time when you configure EP0.
+
+Result: `\.{\%}' is output (after timeout may be more --- depends on host).
 
 \xdef\controlinterrupt{\secno}
 
@@ -207,7 +207,7 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
 
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  USBCON |= 1 << OTGPADE;
 
   UDIEN |= 1 << EORSTE;
   sei();
@@ -227,26 +227,30 @@ ISR(USB_GEN_vect)
 
 ISR(USB_COM_vect)
 {
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this */
   UDR1 = '%';
 }
 
 @ In this test we show that |RSTCPU| does not work after first reset.
-Output is `\.{rr}'.
+Output is `\.{vr}'.
 
 \xdef\rstcpudoesnotworkafterfirstreset{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
-
+#define USBRF 5
+uint8_t usb_reset = 0;
 void main(void)
 {
   UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
 
+  if (MCUSR & 1 << USBRF) usb_reset = 1;
+  MCUSR = 0;
+
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'r';
+  if (!usb_reset) { UDR1 = 'v'; while (!(UCSR1A & 1 << UDRE1)) ; }
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -254,6 +258,7 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
+  if (usb_reset) { UDR1 = 'r'; while (!(UCSR1A & 1 << UDRE1)) ; }
   UDCON |= 1 << RSTCPU;
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
@@ -551,7 +556,7 @@ established. As we have the variable to store status of the connection,
 we just check it: if connection is established, this means this
 reset signal comes after host reboot, and |RSTCPU| is enabled then.
 
-According to test in \S\remainsenabled, |RSTCPU| remains enabled on MCU
+According to test in \S\rstcpuremainsenabled, |RSTCPU| remains enabled on MCU
 restart, so we need to disable it: on MCU start we always disable
 |RSTCPU| (nothing will change if it is not enabled).
 
