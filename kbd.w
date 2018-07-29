@@ -190,7 +190,7 @@ UEINTX &= ~(1 << RXSTPI);
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
 @ @<Finish connection@>=
-connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
+connected = 1; /* in contrast with \S\uenumtozero, it must be before switching from |EP0| */
 UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
