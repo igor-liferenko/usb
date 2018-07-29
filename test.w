@@ -892,20 +892,61 @@ ISR(USB_GEN_vect)
 
 It is important to understand that control endpoint can receive IN and OUT packets
 as a normal endpoint (to transfer user data), not only IN and OUT packets which
-follow SETUP packets (to transfer control data).
+follow SETUP packets (to transfer control data). - ??? - specify exact place in
+datasheet or somewhere - don't know if it is really so
 
-TODO: after setting RXSTPI to zero check TXINI - it must always be 1 (ensure with a led)
+The third `\.0' (if present) shows that after setting RXSTPI to zero, TXINI
+becomes `\.0'.
 
-Also, when we set TXINI to 0, is it necessary to always wait until it becomes 1?
+When previous packet was sent, TXINI becomes 1. A new packet may be sent only
+after TXINI becomes 1. With TXINI the logic is the same as with UDRE.
 
-When previous packet was sent, TXINI becomes 1. This means also that new packet may
-be sent. With TXINI the logic is the same as with UDRE.
-
-If SETUP packet arrives, TXINI is set to 1. If TXINI is 0, SETUP packet should not
-arrive (?).
+Result is `\.{01}'; final `\.0' appears after a long pause (FIXME:
+why TXINI becomes `\.0'?).
 
 @(/dev/null@>=
-UDR1 = '!';
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE;
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE;
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  UDCON &= ~(1 << DETACH);
+
+  if (UEINTX & 1 << TXINI) UDR1 = '1';
+  else UDR1 = '0';
+  while (!(UEINTX & 1 << RXSTPI)) ;
+  while (!(UCSR1A & 1 << UDRE1)) ;
+  if (UEINTX & 1 << TXINI) UDR1 = '1';
+  else UDR1 = '0';
+  UEINTX &= ~(1 << RXSTPI);
+  while (UEINTX & 1 << TXINI) ;
+  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '0';
+}
+
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI);
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+}
 
 @ In this test we check if |RXSTPI| is automatically acknowledged.
 Do not clear |RXSTPI| on first request and see in wireshark if response will
