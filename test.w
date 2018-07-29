@@ -393,7 +393,10 @@ On MCU start we always disable |RSTCPU| (nothing will
 change if it is not enabled).
 
 In this test we show that setting |RSTCPU| in reset signal handler works.
-Result: on connect yellow led is on; when host reboots second yellow led is on.
+Result: on connect first yellow led is on; when host reboots, first led is off and
+second yellow led is on at the same time, and first led is on again after a while.
+On WinXP this test works excellent. On linux some on and of of both leds happen
+during boot. - find out wtf
 
 \xdef\cpuresetonlyonhostreboot{\secno}
 
@@ -573,7 +576,8 @@ UDR1 = '!';
 Do not clear |RXSTPI| on first request and see in wireshark if response will
 be sent with the same status as normal.
 
-Result: wireshark shows error status in response URB.
+Result: wireshark shows ENOENT error status in response URB (while checking wireshark
+ensure that `\.{\%}' is printed to terminal).
 
 \xdef\rxstpiautoack{\secno}
 
