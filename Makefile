@@ -35,15 +35,15 @@ control-OUT.eps: control-OUT.png
 
 direction.eps: direction.gif
 	@convert $< $@
-	@imgsize $@ 6 -
+	@imgsize $@
 
 control-read-stages.eps: control-read-stages.gif
 	@convert $< $@
-	@imgsize $@ 10 -
+	@imgsize $@
 
 control-write-stages.eps: control-write-stages.png
 	@convert $< $@
-	@imgsize $@ 10 -
+	@imgsize $@
 
 transaction-IN.eps: transaction-IN.gif
 	@convert $< $@
