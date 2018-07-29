@@ -896,7 +896,7 @@ After a timeout appear `\.{01}'. It means that TXINI is set
 to `\.0' when next SETUP packet arrives and then
 immediately it is set to `\.1'.
 
-@(test@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -1016,7 +1016,7 @@ ISR(USB_GEN_vect)
 
 @ In this test we show that CFGOK must not be called after configuring EP1.
 
-TODO: 11,10,7 - uenum=1 is used - take one of these
+Result: `\.=' is not output.
 
 @(/dev/null@>=
 #include <avr/io.h>
@@ -1070,8 +1070,6 @@ volatile int connected = 0;
 void main(void)
 {
   UHWCON |= 1 << UVREGE;
-
-  UDCON &= ~(1 << RSTCPU);
 
   UBRR1 = 34;
   UCSR1A |= 1 << U2X1;
@@ -1130,23 +1128,16 @@ void main(void)
         break;
       case 0x0681:
         UEINTX &= ~(1 << RXSTPI);
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
         send_descriptor(rep_desc, sizeof rep_desc);
+        connected = 1;
         UENUM = 1;
         UECONX |= 1 << EPEN;
         UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
         UECFG1X = 1 << ALLOC;
-        DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
-        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
-        connected = 1;
-
-
-connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
-UENUM = EP1;
-UECONX |= 1 << EPEN;
-UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
-UECFG1X = 1 << ALLOC;
-if (!(UESTA0X & 1 << CFGOK)) UDR1 = '=';
-
+        if (!(UESTA0X & 1 << CFGOK)) {
+          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '=';
+        }
         break;
       case 0x0900:
         UEINTX &= ~(1 << RXSTPI);
@@ -1170,9 +1161,5 @@ ISR(USB_GEN_vect)
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
-  }
-  else {
-    UDCON |= 1 << RSTCPU;
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
   }
 }
