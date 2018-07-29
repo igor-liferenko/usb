@@ -21,8 +21,6 @@ keyboard.
 volatile int connected = 0;
 void main(void)
 {
-/* TODO: ensure that all is done via `\.{\char'174=}', because MCU may be reset via RSTCPU,
- when usb stuff remains active (and cmp with original asm.S) */
   UHWCON = 1 << UVREGE;
 
   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
@@ -38,7 +36,7 @@ void main(void)
 
   uint16_t wLength;
   while (!connected)
-    if (UEINTX & (1 << RXSTPI))
+    if (UEINTX & 1 << RXSTPI)
       @<Process SETUP request@>@;
 
   @<Initialize input pins@>@;
