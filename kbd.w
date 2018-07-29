@@ -178,7 +178,8 @@ respond with a request error. Then, the host must not make a request device info
 high-speed.
 
 FIXME: it is not clear how |STALLRQ| works, because it works before clearing |RXSTPI|, and
-it works after
+it works after; but according to test in \S\rxstpiautoack, |RXSTPI| is not automatically
+acknowledged...
 @^FIXME@>
 
 @<Handle {\caps get descriptor device qualifier}@>=
