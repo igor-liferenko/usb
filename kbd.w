@@ -655,39 +655,38 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
-        case PD0: mod = 0; btn = 0x1e; break;
-        case PD1: mod = 0; btn = 0x1f; break; 
-        case PD2: mod = 0; btn = 0x20; break;         
+        case PD0: mod = 0; @+ btn = 0x1e; @+ break;
+        case PD1: mod = 0; @+ btn = 0x1f; @+ break; 
+        case PD2: mod = 0; @+ btn = 0x20; @+ break;         
         }
         done = 1;
         break;
       case 1 << PB5:
         switch (i) {
-        case PD0: mod = 0; btn = 0x21; break;
-        case PD1: mod = 0; btn = 0x22; break; 
-        case PD2: mod = 0; btn = 0x23; break;         
+        case PD0: mod = 0; @+ btn = 0x21; @+ break;
+        case PD1: mod = 0; @+ btn = 0x22; @+ break; 
+        case PD2: mod = 0; @+ btn = 0x23; @+ break;         
         }
         done = 1;
         break;
       case 1 << PB6:
         switch (i) {
-        case PD0: mod = 0; btn = 0x24; break;
-        case PD1: mod = 0; btn = 0x25; break;
-        case PD2: mod = 0; btn = 0x26; break; 
+        case PD0: mod = 0; @+ btn = 0x24; @+ break;
+        case PD1: mod = 0; @+ btn = 0x25; @+ break;
+        case PD2: mod = 0; @+ btn = 0x26; @+ break; 
         }
         done = 1;
         break;
       case 1 << PB7:
         switch (i) {
-        case PD0: mod = 0x02; btn = 0x25; break;
-        case PD1: mod = 0x00; btn = 0x27; break; 
-        case PD2: mod = 0x02; btn = 0x20; break;         
+        case PD0: mod = 0x02; @+ btn = 0x25; @+ break;
+        case PD1: mod = 0x00; @+ btn = 0x27; @+ break; 
+        case PD2: mod = 0x02; @+ btn = 0x20; @+ break;         
         }
         done = 1;
         break;
-      default:
-        btn = 0;
-        mod = 0;
+      default: @/
+        btn = 0; @+ mod = 0;
       }
       DDRD &= ~(1 << i);
     }
