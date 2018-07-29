@@ -40,7 +40,7 @@ void main(void)
     if (UEINTX & (1 << RXSTPI))
       @<Process SETUP request@>@;
 
-  PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
+  @<Initialize input pins@>@;
 
   uint8_t btn = 0;
   uint8_t mod = 0;
@@ -644,7 +644,10 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 
 @* Matrix.
 
-@<Get |btn| and |mod|@>=
+@ @<Initialize input pins@>=
+PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
+
+@ @<Get |btn| and |mod|@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
       while (~PINB & 0xF0) ;
