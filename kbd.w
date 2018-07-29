@@ -586,7 +586,7 @@ typedef struct {
   int16_t wString[];
 } S_string_descriptor;
 
-#define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
+#define STR_DESC(str) @,@,@,@, {@, 1 + 1 + sizeof str - 2, 0x03, str @t\hskip1pt@>}
 
 @*2 Manufacturer descriptor.
 
