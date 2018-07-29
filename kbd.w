@@ -145,7 +145,7 @@ transfer more, device will hang.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
+send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
 
 @ @<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
