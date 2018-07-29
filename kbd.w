@@ -206,10 +206,7 @@ while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (c
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
-@ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
-means that host lets the device send reports only when it needs.
-
-@<Handle {\caps set idle}@>=
+@ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
