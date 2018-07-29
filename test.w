@@ -572,8 +572,9 @@ restart, so we need to disable it: on MCU start we always disable
 In this test we show that setting |RSTCPU| in reset signal handler works.
 Result: on connect first yellow led is on; when host reboots, first led is off and
 second yellow led is on at the same time, and first led is on again after a while.
-On WinXP this test works excellent. On linux this happens twice, because
-device is connected twice during reboot.
+On WinXP this test works excellent. On Linux this happens twice, because
+device is connected twice during reboot (on Linux another machine is used for
+testing, and I am sure that the first connect is made by BIOS on that machine).
 
 WinXP before reboot:
 vrrDrADgGQDgGSIR
