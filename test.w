@@ -1,3 +1,5 @@
+%TODO: check all tests once again
+
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
 
@@ -395,12 +397,21 @@ change if it is not enabled).
 In this test we show that setting |RSTCPU| in reset signal handler works.
 Result: on connect first yellow led is on; when host reboots, first led is off and
 second yellow led is on at the same time, and first led is on again after a while.
-On WinXP this test works excellent. On linux some on and of of both leds happen
-during boot. TODO: add printing to UART temporarily here and check what is going on
+On WinXP this test works excellent. On linux this happens twice, because
+device is connected twice during reboot.
+
+WinXP before reboot:
+vrrDrADgGQDgGSIR
+WinXP while reboot:
+uvrrdDGrrrrDrADgGQDgGSIR
+On Linux before reboot:
+vrrrDrADQQQgGSIR
+On Linux while reboot:
+uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 \xdef\cpuresetonlyonhostreboot{\secno}
 
-@(/dev/null@>=
+@(test@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -458,6 +469,11 @@ void main(void)
 
   UDCON &= ~(1 << RSTCPU);
 
+  UBRR1 = 34;
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+  UDR1 = 'v';
+
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
@@ -480,6 +496,7 @@ void main(void)
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
         while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
         UDADDR |= 1 << ADDEN;
         break;
       case 0x0680:
@@ -488,17 +505,22 @@ void main(void)
           (void) UEDATX; @+ (void) UEDATX;
           wLength = UEDATX | UEDATX << 8;
           UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ;
+          if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
           send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
           wLength = UEDATX | UEDATX << 8;
           UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ;
+          if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
           send_descriptor(&user_conf_desc, wLength);
           break;
         case 0x0600:
           UECONX |= 1 << STALLRQ;
           UEINTX &= ~(1 << RXSTPI);
+          while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'Q';
           break;
         }
         break;
@@ -510,15 +532,18 @@ void main(void)
         UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
         UECFG1X = 1 << ALLOC;
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
         connected = 1;
         break;
       case 0x0900:
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'S';
         break;
       case 0x0a21:
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'I';
         break;
       }
 
@@ -531,8 +556,12 @@ ISR(USB_GEN_vect)
   if (!connected) {
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
-  else UDCON |= 1 << RSTCPU;
+  else {
+    UDCON |= 1 << RSTCPU;
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
+  }
 }
 
 @ In this test we show that |UENUM| is automatically set to zero on CPU reset,
