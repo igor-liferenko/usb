@@ -42,8 +42,6 @@ void main(void)
 
   @<Initialize input pins@>@;
 
-  uint8_t btn = 0;
-  uint8_t mod = 0;
   while (1) {
     @<Get button@>@;
     if (btn != 0) {
@@ -641,6 +639,9 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 }
 
 @* Matrix.
+
+@ @<Global \null variables@>=
+uint8_t btn = 0, mod = 0;
 
 @ @<Initialize input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
