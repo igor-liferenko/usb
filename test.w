@@ -163,10 +163,6 @@ void main(void)
   while (!(UEINTX & (1 << RXSTPI))) ;
   (void) UEDATX;
   if (UEDATX != 0x06) return;
-  (void) UEDATX;
-  (void) UEDATX;
-  (void) UEDATX; @+ (void) UEDATX;
-  (void) UEDATX; @+ (void) UEDATX;
   UEINTX &= ~(1 << RXSTPI);
   num = 0;
   while (len--)
@@ -575,5 +571,82 @@ TODO: after setting RXSTPI to zero check TXINI - it must always be 1 (ensure wit
 
 Also, when we set TXINI to 0, is it necessary to always wait until it becomes 1?
 
+When previous packet was sent, TXINI becomes 1. This means also that new packet may
+be sent. With TXINI the logic is the same as with UDRE.
+
+If SETUP packet arrives, TXINI is set to 1. If TXINI is 0, SETUP packet should not
+arrive (?).
+
 @(/dev/null@>=
 UDR1 = '!';
+
+@ In this test we check if |RXSTPI| is automatically acknowledged.
+Do not clear |RXSTPI| on first request and see in wireshark if response will
+be sent with the same status as normal.
+
+Result: wireshark shows error status in response URB.
+
+\xdef\rxstpiautoack{\secno}
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+
+const uint8_t dev_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x12, @/
+  0x01, @/
+  0x00, 0x02, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+  0x20, @/
+  0xEB, 0x03, @/
+  0x13, 0x20, @/
+  0x00, 0x10, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+@t\2@> 1 @/
+};
+
+uint8_t len = sizeof dev_desc;
+const void *ptr = dev_desc;
+
+volatile int num = 0;
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  UDCON &= ~(1 << DETACH);
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  (void) UEDATX;
+  if (UEDATX == 0x06) UDR1 = '%';
+}
+
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI);
+  num++;
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+}
