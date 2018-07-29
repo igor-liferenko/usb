@@ -1,3 +1,7 @@
+% IMPORTANT: while testing, disconnect programmer and if not used UART, and
+% reconnect manually (not with reset given by programmer, but you must
+% not test with programmer plugged in anyway, but just in case...)
+
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
 
@@ -184,7 +188,7 @@ ISR(USB_GEN_vect)
 @ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
 it is necessary to enable |RXSTPE| at the time when you configure EP0.
 
-Result: `\.{\%}' is output (after timeout may be more --- depends on host).
+Result: `\.{\%\%\%}' (on WinXP).
 
 \xdef\controlinterrupt{\secno}
 
@@ -490,27 +494,31 @@ after EORSTE interrupt exits.
 
 BUT, here is an important gotcha: on some systems, SETUP request comes only once after
 reset signal (see test in \S\onesetup\footnote*{Keep in mind also, that according to
-test in \S\numreset, there may be only one SETUP request.}),
+test in \S\numreset, there may be only {\sl one\/} SETUP request.}),
 and it comes too quickly ---~right at the time of reset timeout
 (see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
-For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{rrrrr}'.
+For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{vrrrr}'.
 
-On Linux output is `\.{rrr\%r\%}'.
+On Linux output is `\.{vrr\%r\%}'.
 
 \xdef\rstcpugotcha{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
+#define USBRF 5
+uint8_t usb_reset = 0;
 void main(void)
 {
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+  UHWCON |= 1 << UVREGE;
+
+  if (MCUSR & 1 << USBRF) usb_reset = 1;
+  MCUSR = 0;
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
-  UDR1 = 'r';
+  if (!usb_reset) { UDR1 = 'v'; while (!(UCSR1A & 1 << UDRE1)) ; }
 
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -520,6 +528,7 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   UDIEN |= 1 << EORSTE;
   sei();
+  if (usb_reset) { UDR1 = 'r'; while (!(UCSR1A & 1 << UDRE1)) ; }
   UDCON |= 1 << RSTCPU;
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
