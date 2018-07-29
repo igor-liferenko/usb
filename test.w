@@ -1,6 +1,6 @@
-% IMPORTANT: while testing, disconnect programmer and if not used UART, and
-% reconnect manually (not with reset given by programmer, but you must
-% not test with programmer plugged in anyway, but just in case...)
+% IMPORTANT: while testing disconnect as much as possible from MCU
+% (i.e., programmer and UART), but most important is to unplug the
+% programmer - replug manually, not via programmer's reset.
 
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
