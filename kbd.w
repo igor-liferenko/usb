@@ -197,8 +197,6 @@ UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
 UECFG1X = 1 << ALLOC; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
-  a test for this in test.w, like the first test for control endpoint) */
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
