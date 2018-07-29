@@ -1173,3 +1173,53 @@ ISR(USB_GEN_vect)
 It is necessary to know if we must wait for TXINI to become 1 after
 receiving RXSTPI or not. According to the test in \S\txinichange,
 TXINI becomes 0 when RXSTPI arrives.
+
+Result: `\.x' never appears. So, there is no change that
+TXINI is not 1 after we clear RXSTPI---we need not do any checking
+and waiting.
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE;
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR |= 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE;
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  UDCON &= ~(1 << DETACH);
+
+  if (UEINTX & 1 << TXINI) UDR1 = '1';
+  else UDR1 = '0';
+  while (!(UEINTX & 1 << RXSTPI)) ;
+  while (!(UCSR1A & 1 << UDRE1)) ;
+  if (UEINTX & 1 << TXINI) UDR1 = '1';
+  else UDR1 = '0';
+  UEINTX &= ~(1 << RXSTPI);
+  while (UEINTX & 1 << TXINI) ;
+  if (UEINTX & 1 << RXSTPI) {
+    while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'x';
+  }
+}
+
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI);
+  UECONX |= 1 << EPEN;
+  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+}
