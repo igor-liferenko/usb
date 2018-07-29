@@ -94,10 +94,10 @@ while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'S';
 @z
 
 @x
-@<Handle {\caps set idle}@>=
+@ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 @y
-@<Handle {\caps set idle}@>=
+@ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'I';
 @z
