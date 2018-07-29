@@ -7,7 +7,7 @@ all:
 	avr-objcopy -O ihex $@.elf fw.hex
 
 flash:
-	avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex # TODO: check if with -qq error will be shown if device is not connected
+	avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
 
 .PHONY: test
 test:
