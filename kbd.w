@@ -551,7 +551,7 @@ const uint8_t hid_report_descriptor[]
 
 @*1 Language descriptor.
 
-This is necessary to transmit serial number.
+This is necessary to transmit manufacturer, product and serial number.
 
 @<Global \null variables@>=
 const uint8_t lang_desc[]
