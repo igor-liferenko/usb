@@ -458,10 +458,6 @@ void main(void)
 
   UDCON &= ~(1 << RSTCPU);
 
-  UBRR1 = 34;
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
   PLLCSR |= 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
