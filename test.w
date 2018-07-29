@@ -683,7 +683,7 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           while (!(UCSR1A & 1 << UDRE1)) ;
           if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
-          send_descriptor(dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
+          send_descriptor(dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
