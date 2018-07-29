@@ -18,6 +18,9 @@ The result is `\.{esa}'.
 So, we have learned that |CFGOK| need not be checked after configuring control endpoint,
 and that after USB\_RESET control endpoint must be configured anew.
 
+This is logical, because endpoint must not respond to any requests until it gets
+a reset (because all devices on a bus receive all data).
+
 \xdef\epconf{\secno}
 
 @(/dev/null@>=
