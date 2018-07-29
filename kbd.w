@@ -45,20 +45,20 @@ void main(void)
   uint8_t btn = 0;
   uint8_t mod = 0;
   while (1) {
-    @<Get |btn| and |mod|@>@;
+    @<Get button@>@;
     if (btn != 0) {
-      @<Press button@>@;
+      @<Send button@>@;
       uint16_t prev_button = btn|mod<<8;
       int timeout = 2000;
       while (--timeout) {
-        @<Get |btn| and |mod|@>@;
+        @<Get button@>@;
         if ((btn|mod<<8) != prev_button) break;
         _delay_ms(1);
       }
       while (1) {
-        @<Get |btn| and |mod|@>@;
+        @<Get button@>@;
         if ((btn|mod<<8) != prev_button) break;
-        @<Press button@>@;
+        @<Send button@>@;
         _delay_ms(50);
       }
     }
@@ -524,7 +524,7 @@ const uint8_t hid_report_descriptor[]
 @t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
 
-@ @<Press button@>=
+@ @<Send button@>=
       UEDATX = mod;
       UEDATX = 0;
       UEDATX = btn;
@@ -647,7 +647,7 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @ @<Initialize input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 
-@ @<Get |btn| and |mod|@>=
+@ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
       while (~PINB & 0xF0) ;
