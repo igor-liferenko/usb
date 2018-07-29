@@ -899,6 +899,8 @@ immediately it is set to `\.1'.
 Maybe this is done for TXINI interrupt to work (in order for interrupt to work
 TXINI must change from 0 to 1).
 
+\xdef\txinichange{\secno}
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -1166,3 +1168,8 @@ ISR(USB_GEN_vect)
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
 }
+
+@ In this test we check if TXINI is set to 1 befor RXSTPI or after.
+It is necessary to know if we must wait for TXINI to become 1 after
+receiving RXSTPI or not. According to the test in \S\txinichange,
+TXINI becomes 0 when RXSTPI arrives.
