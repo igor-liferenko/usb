@@ -896,6 +896,9 @@ After a timeout appear `\.{01}'. It means that TXINI is set
 to `\.0' when next SETUP packet arrives and then
 immediately it is set to `\.1'.
 
+Maybe this is done for TXINI interrupt to work (in order for interrupt to work
+TXINI must change from 0 to 1).
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
