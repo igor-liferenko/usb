@@ -396,7 +396,7 @@ In this test we show that setting |RSTCPU| in reset signal handler works.
 Result: on connect first yellow led is on; when host reboots, first led is off and
 second yellow led is on at the same time, and first led is on again after a while.
 On WinXP this test works excellent. On linux some on and of of both leds happen
-during boot. - find out wtf
+during boot. TODO: add printing to UART temporarily here and check what is going on
 
 \xdef\cpuresetonlyonhostreboot{\secno}
 
