@@ -888,21 +888,14 @@ ISR(USB_GEN_vect)
 }
 
 @ In this test we show that when MCU starts, TXINI is 0, and that it is changed from
-0 to 1 for the first time when SETUP packet arrives.
+0 to 1 for the first time when SETUP packet arrives. Output is `\.{01}'.
+The third `\.0' appears only after a long pause. It means that TXINI is set
+to `\.0' when next SETUP packet arrives. But why?
 
-It is important to understand that control endpoint can receive IN and OUT packets
-as a normal endpoint (to transfer user data), not only IN and OUT packets which
-follow SETUP packets (to transfer control data). - ??? - specify exact place in
-datasheet or somewhere - don't know if it is really so
-
-The third `\.0' (if present) shows that after setting RXSTPI to zero, TXINI
-becomes `\.0'.
-
-When previous packet was sent, TXINI becomes 1. A new packet may be sent only
-after TXINI becomes 1. With TXINI the logic is the same as with UDRE.
-
-Result is `\.{01}'; final `\.0' appears after a long pause (FIXME:
-why TXINI becomes `\.0'?).
+FIXME: can control endpoint receive IN and OUT packets
+as a normal endpoint (to transfer user data)? or it can
+only receive IN and OUT packets which follow SETUP packets
+(to transfer control data)?
 
 @(/dev/null@>=
 #include <avr/io.h>

@@ -210,6 +210,9 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ See datasheet \S22.12.2.
 
+When previous packet was sent, TXINI becomes 1. A new packet may be sent only
+after TXINI becomes 1. With TXINI the logic is the same as with UDRE.
+
 Here we also handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
 
