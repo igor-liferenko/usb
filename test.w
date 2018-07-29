@@ -255,10 +255,10 @@ void main(void)
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
+  UDCON |= 1 << RSTCPU;
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
-  UDCON |= 1 << RSTCPU;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
@@ -353,10 +353,10 @@ void main(void)
   USBCON |= 1 << OTGPADE;
   UDIEN |= 1 << EORSTE;
   sei();
+  UDCON |= 1 << RSTCPU;
   UDCON &= ~(1 << DETACH);
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UDCON |= 1 << RSTCPU;
 
   while (!(UEINTX & (1 << RXSTPI))) ;
   while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
@@ -406,20 +406,8 @@ Result: on connect yellow led is on; when host reboots second yellow led is on.
 
 const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x12, @/
-  0x01, @/
-  0x00, 0x02, @/
-  0x00, @/
-  0x00, @/
-  0x00, @/
-  0x20, @/
-  0xEB, 0x03, @/
-  0x13, 0x20, @/
-  0x00, 0x10, @/
-  0x00, @/
-  0x00, @/
-  0x00, @/
-@t\2@> 1 @/
+  0x12, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x20, 0xEB, 0x03, @/
+@t\2@> 0x13, 0x20, 0x00, 0x10, 0x00, 0x00, 0x00, 1 @/
 };
 
 const uint8_t user_conf_desc[]
@@ -465,6 +453,8 @@ void main(void)
   if (MCUSR & 1 << USBRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
   MCUSR = 0;
 
+  UDCON &= ~(1 << RSTCPU);
+
   UBRR1 = 34;
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
@@ -481,7 +471,6 @@ void main(void)
   UDIEN |= 1 << EORSTE;
   sei();
   UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU);
 
   uint16_t wLength;
   while (!connected)

@@ -25,6 +25,8 @@ void main(void)
  when usb stuff remains active (and cmp with original asm.S) */
   UHWCON = 1 << UVREGE;
 
+  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
+
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
   while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
@@ -33,7 +35,6 @@ void main(void)
   UDIEN = 1 << EORSTE;
   sei();
   UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 
   uint16_t wLength;
   while (!connected)
