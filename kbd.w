@@ -244,7 +244,7 @@ void send_descriptor(const void *buf, int size)
         last_packet_full = 1;
         break;
       }
-      UEDATX = pgm_read_byte_near((unsigned int) buf++);
+      UEDATX = pgm_read_byte(buf++);
       size--;
     }
     if (nb_byte == 0) {
