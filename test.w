@@ -482,7 +482,7 @@ ISR(USB_GEN_vect)
 
 ISR(USB_COM_vect)
 {
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will fire right away until you acknowledge */
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this */
   UDR1 = '%';
 }
 
