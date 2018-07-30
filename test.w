@@ -899,6 +899,9 @@ immediately it is set to `\.1'.
 Maybe this is done for TXINI interrupt to work (in order for interrupt to work
 TXINI must change from 0 to 1).
 
+Note, that SETUP packet may be received by CONTROL and OUT endpoints, but not
+by IN endpoint.
+
 \xdef\txinichange{\secno}
 
 @(/dev/null@>=
