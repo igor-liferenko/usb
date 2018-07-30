@@ -1019,7 +1019,8 @@ ISR(USB_GEN_vect)
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 }
 
-@ In this test we show that CFGOK must not be called after configuring EP1.
+@ In this test we show that CFGOK must not be called after configuring
+non-control endpoint.
 
 Result: `\.=' is not output.
 
