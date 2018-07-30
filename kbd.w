@@ -218,7 +218,7 @@ not from program.
 void send_descriptor(const void *buf, int size)
 {
   @<Fill in serial number if |buf == NULL|@>@;
-#if 1==1
+#if 1
   while (1) {
     int nb_byte = 0;
     while (size != 0) {

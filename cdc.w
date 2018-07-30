@@ -24,7 +24,7 @@ code const S_device_descriptor dev_desc =
 @ To receive data on an OUT endpoint:
 
 @c
-#if 1==0
+#if 0
     UEINTX &= ~(1 << RXOUTI);
     <read UEDATX>
     UEINTX &= ~(1 << FIFOCON);
