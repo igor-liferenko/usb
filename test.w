@@ -1,6 +1,6 @@
 % IMPORTANT: while testing disconnect as much as possible from MCU
-% (i.e., programmer and UART), but most important is to unplug the
-% programmer - replug manually, not via programmer's reset.
+% (i.e., usbasp and UART), but most important is to unplug
+% usbasp - replug manually, not via usbasp's reset.
 
 % To compile certain section, change "/dev/null" to "test", then do
 % as usual "ctangle test && make test".
