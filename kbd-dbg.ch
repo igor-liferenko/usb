@@ -31,7 +31,7 @@ while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
 @z
 
 @x
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? 8 : sizeof dev_desc);
+send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
 @y
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 8) UDR1 = 'd'; else UDR1 = 'D';
