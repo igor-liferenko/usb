@@ -485,7 +485,10 @@ ISR(USB_GEN_vect)
 
 ISR(USB_COM_vect)
 {
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this */
+  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this;
++    but this is a contradiction to datasheet page 15 where it is said that after
++    returning from interrupt one instruction from main program is executed before
++    another interruput is served... */
   UDR1 = '%';
 }
 
