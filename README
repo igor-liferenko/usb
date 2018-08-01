@@ -8,31 +8,9 @@ rm -fr doc/ doc.html EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-A
 find . -type f | xargs perl -i -pe 's/\r$//'
 8. git add .
 9. git ci -m "initial import"
-10. make it compile (fix demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c like this:
--extern U8   code *pbuffer;
-+#ifdef __GNUC__
-+  extern PGM_VOID_P pbuffer;
-+#else
-+  extern U8   code *pbuffer;
-+#endif
-)
-11. edit demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h (change "#define FOSC" to 16000 and "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ and "#define BAUDRATE" to 57600)
-patch -p1 <~/usb/cleanup.patch
-12. cd demo/E*/gcc && make
-13. avr-objdump -d *.elf >../../../dump.orig; cd ../../../
+10. patch -p1 <~/usb/cdc-cleanup.patch # TODO: add here removing PLLUSB
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
-14.1. Remove #if-#endif for "AVRLIBC bug #23871" from lib_mcu/power/power_drv.h
 15. Run CPP:
-for i in $(find . -name \*.c); do
-  avr-gcc -nostdinc -Dinclude=#include -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ -E -P $i|sponge $i
-done
-Equivalent with "mcpp":
-for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i|sponge $i; done
-16. find . -name \*.h|xargs rm
-16.1. git add .
-17: cd demo/E*/gcc && make
-18. avr-objdump -d *.elf|diff ../../../dump.orig - # must be equal
-For some mysterious bug, "avr-gcc -E" (and "mcpp") may produce different result than "avr-gcc".
-This is why comparing avr-objdump is necessary. If the diff is small (like in this case),
-look up the name of register by address in datasheet and grep it in source and change.
-If the diff is not so simple, further digging is necessary...
+for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
+16. find . -name \*.h | xargs rm
+17. git add .

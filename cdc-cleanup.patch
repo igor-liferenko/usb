@@ -1,3 +1,25 @@
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h b/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
+index e573d2d..d075caa 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
+@@ -69,14 +69,14 @@
+ #include "lib_board/evk_527/evk_527.h"
+ 
+ //! CPU core frequency in kHz
+-#define FOSC 8000
+-#define PLL_OUT_FRQ  PLL_OUT_96MHZ
++#define FOSC 16000
++#define PLL_OUT_FRQ  PLL_OUT_48MHZ
+ 
+ 
+ // -------- END Generic Configuration -------------------------------------
+ 
+ // UART Sample configuration, if we have one ... __________________________
+-#define BAUDRATE        38400
++#define BAUDRATE        57600
+ #define USE_UART2
+ #define UART_U2
+ 
 diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile b/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
 index 775cf60..f5859f7 100644
 --- a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
@@ -69,6 +91,23 @@ index 56b7d12..95b7586 100644
    sizeof(usb_user_language_id)
  , DESCRIPTOR_STRING
  , Usb_write_word_enum_struc(LANGUAGE_ID)
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
+index 351dc82..05c84d1 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
+@@ -58,7 +58,11 @@
+ 
+ //_____ P R I V A T E   D E C L A R A T I O N ______________________________
+ 
+-extern U8   code *pbuffer;
++#ifdef __GNUC__
++  extern PGM_VOID_P pbuffer;
++#else
++  extern U8   code *pbuffer;
++#endif
+ extern U8   data_to_transfer;
+ extern S_line_coding   line_coding;
+ extern S_line_status line_status;
 diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h
 index 14f8ef4..3b4897a 100644
 --- a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h
@@ -96,6 +135,54 @@ index 14f8ef4..3b4897a 100644
  
  
  
+diff --git a/lib_mcu/power/power_drv.h b/lib_mcu/power/power_drv.h
+index 0f91aed..0bea5da 100644
+--- a/lib_mcu/power/power_drv.h
++++ b/lib_mcu/power/power_drv.h
+@@ -47,43 +47,6 @@
+ 
+ #ifdef  __GNUC__
+    #include <avr/power.h>
+-   
+-   #if (__AVR_LIBC_VERSION__<=10602UL) //for AVRLIBC bug #23871 : clock_prescale_set() not available for ATmega32U4
+-   typedef enum
+-   {
+-       clock_div_1 = 0,
+-       clock_div_2 = 1,
+-       clock_div_4 = 2,
+-       clock_div_8 = 3,
+-       clock_div_16 = 4,
+-       clock_div_32 = 5,
+-       clock_div_64 = 6,
+-       clock_div_128 = 7,
+-       clock_div_256 = 8
+-   } clock_div_t;
+-
+-   #define clock_prescale_set(x) \
+-   { \
+-           uint8_t tmp = _BV(CLKPCE); \
+-           __asm__ __volatile__ ( \
+-                   "in __tmp_reg__,__SREG__" "\n\t" \
+-                   "cli" "\n\t" \
+-                   "sts %1, %0" "\n\t" \
+-                   "sts %1, %2" "\n\t" \
+-                   "out __SREG__, __tmp_reg__" \
+-                   : /* no outputs */ \
+-                   : "d" (tmp), \
+-                     "M" (_SFR_MEM_ADDR(CLKPR)), \
+-                     "d" (x) \
+-                   : "r0"); \
+-   }
+-
+-
+-   #define clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)|(1<<CLKPS3)))
+-
+-   #endif
+-
+-
+ #endif
+ //! @defgroup powermode Power management drivers
+ //!
 diff --git a/modules/usb/device_chap9/usb_standard_request.c b/modules/usb/device_chap9/usb_standard_request.c
 index 0c8d9bc..055973a 100644
 --- a/modules/usb/device_chap9/usb_standard_request.c
