@@ -650,7 +650,7 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      @<Wait until we may read |PINB|@>@;
+      @<Wait until we may read the inputs@>@;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
@@ -700,7 +700,7 @@ If the delay is bigger than one instruction, give your inputs time to settle to 
 correct values before reading them. Set the outputs before a delay and then the inputs are read
 at the end of the delay.
 
-@<Wait until we may read |PINB|@>=
+@<Wait until we may read the inputs@>=
 for (int = 0; i < 0; i++) ;
 
 @* Headers.
