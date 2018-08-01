@@ -650,7 +650,7 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      while (~PINB & 0xF0) ;
+      @<Wait until we may read |PINB|@>@;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
@@ -689,6 +689,21 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
       }
       DDRD &= ~(1 << i);
     }
+
+@ Adjust the value empirically here.
+
+Without thinking about the time scale involved, we may set a row output high in one instruction
+and read the column inputs in the next instruction 62.5 nanoseconds later, and expect to get a
+valid input. The problem is, the world is full of parasitic Rs and Cs and Ls, and signals don't
+change instantly. If you have a pullup of 1kOhms and a parasitic capacitance of 10pf, that's an
+RC time constant of 10ns, meaning your pullup is not going to produce a valid '0' until about
+10ns later. This is within the time of next instruction. So we may expect to read valid inputs.
+If the delay is bigger than one instruction, give your inputs plenty of time to settle to their
+correct values before reading them. Set the outputs before a delay and then the inputs are read
+at the end of the delay.
+
+@<Wait until we may read |PINB|@>=
+for (int i = 0; i < 65536; i++) ;
 
 @* Headers.
 \secpagedepth=1 % index on current page
