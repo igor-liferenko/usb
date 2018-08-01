@@ -644,8 +644,19 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
 
-@ @<Initialize input pins@>=
-PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
+@ Do not use built-in pullup. Use external pullup of 1 kOhms.
+Built-in pullup is 20-50 kOhms (see \S29.2 in datasheet).
+
+The following experiment shows why built-in pullup must not be used:
+TODO: put here from https://arduino.stackexchange.com/questions/54919/
+and https://electronics.stackexchange.com/questions/388648/
+
+Moreover, using built-in pullup would require waiting non-zero time
+in |@<Wait until we may read the inputs@>|.
+
+@<Initialize input pins@>=
+DDRB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
+PORTB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
 
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
