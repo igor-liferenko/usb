@@ -651,8 +651,8 @@ The following experiment shows why built-in pullup must not be used:
 TODO: put here from https://arduino.stackexchange.com/questions/54919/
 and https://electronics.stackexchange.com/questions/388648/
 
-Moreover, using built-in pullup would require waiting non-zero time
-in |@<Wait until we may read the inputs@>|.
+Note, that the resistor value chosen here influences(?) the length
+of the delay in |@<Wait until we may read the inputs@>|.
 
 @<Initialize input pins@>=
 DDRB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
