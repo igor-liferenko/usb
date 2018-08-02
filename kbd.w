@@ -21,6 +21,7 @@ keyboard.
 volatile int connected = 0;
 void main(void)
 {
+/* TODO: check if after RSTCPU all these except USBE and RSTCPU are disabled and remove from here*/
   USBCON &= ~(1 << USBE); /* reset USB device controller; FRZCLK and DETACH are set */
   PLLCSR &= ~(1 << PLLE); /* TODO: check if after clearing USBE PLLE and PLOCK are cleared */
   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
