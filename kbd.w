@@ -653,7 +653,7 @@ PORTD |= 1 << PD4 | 1 << PD7;
 
 @ @<Get button@>=
     for (int i = PB3, done = 0; i <= PB5 && !done; i++) {
-      DDRD |= 1 << i;
+      DDRB |= 1 << i;
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
@@ -695,7 +695,7 @@ PORTD |= 1 << PD4 | 1 << PD7;
       default: @/
         btn = 0; @+ mod = 0;
       }
-      DDRD &= ~(1 << i);
+      DDRB &= ~(1 << i);
 #if 0
       if (done) {@+ DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0; @+}
 #endif
