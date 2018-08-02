@@ -2,15 +2,12 @@ Proper steps to cleanup original Atmel's code:
 1. github init demo
 2. download cdc archive from ub0ali dropbox avr-usb/ directory
 3. unpack
-4. delete unused files and directories:
-rm -fr doc/ doc.html EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-ATMega32U4-usbdevice_cdc/doc/ lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
-5. remove trailing \r from all files
-find . -type f | xargs perl -i -pe 's/\r$//'
+4. rm -fr doc/ doc.html EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-ATMega32U4-usbdevice_cdc/doc/ lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
+5. find . -type f | xargs perl -i -pe 's/\r$//'
 8. git add .
 9. git ci -m "initial import"
-10. patch -p1 <~/usb/cdc-cleanup.patch # TODO: add here removing PLLUSB
+10. patch -p1 <~/usb/cdc-cleanup.patch
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
-15. Run CPP:
-for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
+15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
 16. find . -name \*.h | xargs rm
 17. git add .
