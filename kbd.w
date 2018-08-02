@@ -653,7 +653,7 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      __asm__ __volatile__ ("nop"); /* number of no-ops adjusted as said in \.{keypad.w} */
+      __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
@@ -695,6 +695,9 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
         btn = 0; @+ mod = 0;
       }
       DDRD &= ~(1 << i);
+#if 0
+      if (done) {@+ DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0; @+}
+#endif
     }
 
 @* Headers.
