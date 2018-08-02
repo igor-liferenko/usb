@@ -21,14 +21,15 @@ keyboard.
 volatile int connected = 0;
 void main(void)
 {
-  USBCON &= ~(1 << USBE); /* reset USB device controller */
+  USBCON &= ~(1 << USBE); /* reset USB device controller; FRZCLK and DETACH are set */
+  PLLCSR &= ~(1 << PLLE); /* TODO: check if after clearing USBE PLLE and PLOCK are cleared */
   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 @#
   UHWCON = 1 << UVREGE;
 
   USBCON |= 1 << USBE;
-  PLLCSR = 1 << PINDIV | 1 << PLLE;
-  while (!(PLLCSR & (1 << PLOCK))) ;
+  PLLCSR = 1 << PINDIV | 1 << PLLE; /* FIXME: PLLE must be after PINDIV of may be at once? */
+  while (!(PLLCSR & 1 << PLOCK)) ;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
   UDIEN = 1 << EORSTE;
