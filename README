@@ -11,3 +11,4 @@ Proper steps to cleanup original Atmel's code:
 15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
 16. find . -name \*.h | xargs rm
 17. git add .
+18. beginning with main.c replace each function body one by one (and check each time) until only main.c is left
