@@ -648,46 +648,47 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 uint8_t btn = 0, mod = 0;
 
 @ @<Initialize input pins@>=
-PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
+PORTB |= 1 << PB1 | 1 << PB2;
+PORTD |= 1 << PD4 | 1 << PD7;
 
 @ @<Get button@>=
-    for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
+    for (int i = PB3, done = 0; i <= PB5 && !done; i++) {
       DDRD |= 1 << i;
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
-      switch (~PINB & 0xF0) {
-      case 1 << PB4:
+      switch (~PINB & (1 << PB1 | 1 << PB2) | ~PIND & (1 << PD4 | 1 << PD7)) {
+      case 1 << PB1:
         switch (i) {
-        case PD0: mod = 0; @+ btn = 0x1e; @+ break;
-        case PD1: mod = 0; @+ btn = 0x1f; @+ break;
-        case PD2: mod = 0; @+ btn = 0x20; @+ break;
+        case PB3: mod = 0; @+ btn = 0x1e; @+ break;
+        case PB4: mod = 0; @+ btn = 0x1f; @+ break;
+        case PB5: mod = 0; @+ btn = 0x20; @+ break;
         }
         done = 1;
         break;
-      case 1 << PB5:
+      case 1 << PB2:
         switch (i) {
-        case PD0: mod = 0; @+ btn = 0x21; @+ break;
-        case PD1: mod = 0; @+ btn = 0x22; @+ break;
-        case PD2: mod = 0; @+ btn = 0x23; @+ break;
+        case PB3: mod = 0; @+ btn = 0x21; @+ break;
+        case PB4: mod = 0; @+ btn = 0x22; @+ break;
+        case PB5: mod = 0; @+ btn = 0x23; @+ break;
         }
         done = 1;
         break;
-      case 1 << PB6:
+      case 1 << PD4:
         switch (i) {
-        case PD0: mod = 0; @+ btn = 0x24; @+ break;
-        case PD1: mod = 0; @+ btn = 0x25; @+ break;
-        case PD2: mod = 0; @+ btn = 0x26; @+ break;
+        case PB3: mod = 0; @+ btn = 0x24; @+ break;
+        case PB4: mod = 0; @+ btn = 0x25; @+ break;
+        case PB5: mod = 0; @+ btn = 0x26; @+ break;
         }
         done = 1;
         break;
-      case 1 << PB7:
+      case 1 << PD7:
         switch (i) {
-        case PD0: mod = 0x02; @+ btn = 0x25; @+ break;
-        case PD1: mod = 0x00; @+ btn = 0x27; @+ break;
-        case PD2: mod = 0x02; @+ btn = 0x20; @+ break;
+        case PB3: mod = 0x02; @+ btn = 0x25; @+ break;
+        case PB4: mod = 0x00; @+ btn = 0x27; @+ break;
+        case PB5: mod = 0x02; @+ btn = 0x20; @+ break;
         }
         done = 1;
         break;
