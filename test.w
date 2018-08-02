@@ -1233,3 +1233,8 @@ ISR(USB_GEN_vect)
   UECONX |= 1 << EPEN;
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 }
+
+@ In this test we check that PLLE is disabled after usb reset.
+
+@(/dev/null@>=
+<copy here from second test with greed led>
