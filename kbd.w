@@ -23,6 +23,7 @@ void main(void)
 {
   UHWCON = 1 << UVREGE;
 
+  /*??? USBCON &= ~(1 << USBE);*/ /* reset USB device controller */
   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 
   PLLCSR = (1 << PINDIV) | (1 << PLLE);
