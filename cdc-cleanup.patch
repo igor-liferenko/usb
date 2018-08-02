@@ -16,7 +16,7 @@ How this patch was created:
 
 5. Remove #if-#endif for "AVRLIBC bug #23871" from lib_mcu/power/power_drv.h
 
-6. remove PLLUSB (avr-objdump before and after preprocessor shows this difference)
+6. do not set PLLUSB (avr-objdump before and after preprocessor shows this difference)
 
 diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h b/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 index e573d2d..d075caa 100644
@@ -156,10 +156,10 @@ index 14f8ef4..3b4897a 100644
  
  
 diff --git a/lib_mcu/pll/pll_drv.h b/lib_mcu/pll/pll_drv.h
-index 4560f93..2542258 100644
+index 4560f93..d24448a 100644
 --- a/lib_mcu/pll/pll_drv.h
 +++ b/lib_mcu/pll/pll_drv.h
-@@ -73,12 +73,6 @@
+@@ -73,11 +73,7 @@
  #define PLL_OUT_96MHZ     ( (1<<PDIV3)| (0<<PDIV2) | (1<<PDIV1)| (0<<PDIV0))
  #define PLL_OUT_MSK       ( (1<<PDIV3)| (1<<PDIV2) | (1<<PDIV1)| (1<<PDIV0))
  
@@ -168,10 +168,10 @@ index 4560f93..2542258 100644
 -#else
 -   #define PLL_USB_DIV  (0<<PLLUSB)    
 -#endif       
--      
++#define PLL_USB_DIV  (0<<PLLUSB)    
+       
  #define PLL_HS_TMR_PSCAL_NULL          ( (0<<PLLTM1) | (0<<PLLTM0) )
  #define PLL_HS_TMR_PSCAL_1             ( (0<<PLLTM1) | (1<<PLLTM0) )
- #define PLL_HS_TMR_PSCAL_1DOT5         ( (1<<PLLTM1) | (0<<PLLTM0) )
 diff --git a/lib_mcu/power/power_drv.h b/lib_mcu/power/power_drv.h
 index 0f91aed..0bea5da 100644
 --- a/lib_mcu/power/power_drv.h
