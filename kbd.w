@@ -653,6 +653,10 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
+      __asm__ __volatile__ ("nop"); /* number of no-ops adjusted as said in \.{keypad.w} */
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       switch (~PINB & 0xF0) {
       case 1 << PB4:
