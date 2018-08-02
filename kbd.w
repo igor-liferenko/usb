@@ -714,6 +714,10 @@ If the delay is bigger than one instruction, give your inputs time to settle to 
 correct values before reading them. Set the outputs before a delay and then the inputs are read
 at the end of the delay.
 
+When doing things like button matrices it's usual to drive the outputs then wait a very short
+time for the drive to overcome the capacitance in the circuit before then reading the inputs from
+the matrix.
+
 @<Wait until we may read the inputs@>=
 for (int = 0; i < 0; i++) ;
 
