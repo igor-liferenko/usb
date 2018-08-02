@@ -660,8 +660,7 @@ of the delay in |@<Wait until we may read the inputs@>|.
 One microsecond is enough here.
 
 @<Initialize input pins@>=
-DDRB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
-PORTB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
+PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
@@ -721,7 +720,7 @@ time for the drive to overcome the capacitance in the circuit before then readin
 the matrix.
 
 @<Wait until we may read the inputs@>=
-for (int = 0; i < 0; i++) ;
+for (int i = 0; i < 0; i++) ;
 
 @* Headers.
 \secpagedepth=1 % index on current page
