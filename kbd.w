@@ -647,25 +647,12 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
 
-@ Do not use built-in pullup. Use external pullup of 1 kOhms.
-Built-in pullup is 20-50 kOhms (see \S29.2 in datasheet).
-
-The following experiment shows why built-in pullup must not be used:
-TODO: put here from https://arduino.stackexchange.com/questions/54919/
-and https://electronics.stackexchange.com/questions/388648/
-
-Note, that the resistor value chosen here influences(?) the length
-of the delay in |@<Wait until we may read the inputs@>|.
-
-One microsecond is enough here.
-
-@<Initialize input pins@>=
+@ @<Initialize input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
 
 @ @<Get button@>=
     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
       DDRD |= 1 << i;
-      @<Wait until we may read the inputs@>@;
       switch (~PINB & 0xF0) {
       case 1 << PB4:
         switch (i) {
@@ -704,23 +691,6 @@ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
       }
       DDRD &= ~(1 << i);
     }
-
-@ Without thinking about the time scale involved, we may set output high in one instruction
-and read the inputs in the next instruction 62.5\footnote*{With 16MHz.} nanoseconds later.
-The problem is, the world is full of parasitic Rs and Cs and Ls, and signals don't
-change instantly. If you have a pullup of 1kOhms and a parasitic capacitance of 10pf, that's an
-RC time constant of 10ns, meaning your pullup is not going to produce a valid `\.0' until about
-10ns later. This is within the time of next instruction. So we may expect to read valid inputs.
-If the delay is bigger than one instruction, give your inputs time to settle to their
-correct values before reading them. Set the outputs before a delay and then the inputs are read
-at the end of the delay.
-
-When doing things like button matrices it's usual to drive the outputs then wait a very short
-time for the drive to overcome the capacitance in the circuit before then reading the inputs from
-the matrix.
-
-@<Wait until we may read the inputs@>=
-for (int i = 0; i < 0; i++) ;
 
 @* Headers.
 \secpagedepth=1 % index on current page
