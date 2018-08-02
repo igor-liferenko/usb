@@ -26,9 +26,9 @@ void main(void)
   /*??? USBCON &= ~(1 << USBE);*/ /* reset USB device controller */
   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 
-  PLLCSR = (1 << PINDIV) | (1 << PLLE);
-  while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON |= 1 << USBE;
+  PLLCSR = 1 << PINDIV | 1 << PLLE;
+  while (!(PLLCSR & (1 << PLOCK))) ;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
   UDIEN = 1 << EORSTE;
