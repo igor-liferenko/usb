@@ -657,6 +657,8 @@ and https://electronics.stackexchange.com/questions/388648/
 Note, that the resistor value chosen here influences(?) the length
 of the delay in |@<Wait until we may read the inputs@>|.
 
+One microsecond is enough here.
+
 @<Initialize input pins@>=
 DDRB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
 PORTB |= 0 << PB4 | 0 << PB5 | 0 << PB6 | 0 << PB7;
