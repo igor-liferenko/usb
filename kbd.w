@@ -654,11 +654,7 @@ PORTD |= 1 << PD4 | 1 << PD7;
 @ @<Get button@>=
     for (int i = PB3, done = 0; i <= PB5 && !done; i++) {
       DDRB |= 1 << i;
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
+      @<Eliminate capacitance@>@;
       switch (~PINB & (1 << PB1 | 1 << PB2) | ~PIND & (1 << PD4 | 1 << PD7)) {
       case 1 << PB1:
         switch (i) {
@@ -696,10 +692,21 @@ PORTD |= 1 << PD4 | 1 << PD7;
         btn = 0; @+ mod = 0;
       }
       DDRB &= ~(1 << i);
-#if 0
-      if (done) {@+ DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0; @+}
-#endif
     }
+
+@ To adjust number of no-ops use a separate program (it is in
+the next section), because USB...
+
+@<Eliminate capacitance@>=
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
+      __asm__ __volatile__ ("nop");
+
+@ This is a program to adjust number of no-ops (see previous section).
+
+@(/dev/null@>=
 
 @* Headers.
 \secpagedepth=1 % index on current page
