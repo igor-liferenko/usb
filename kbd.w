@@ -671,18 +671,29 @@ To unset output pin, do this;
 
 @ This is how keypad is connected:
 
-+-------+
-|1234567|
-+-------+
+\chardef\ttv='174 % vertical line
+$$\vbox{\halign{\tt#\cr
++-----------+ \cr
+{\ttv} 1 {\ttv} 2 {\ttv} 3 {\ttv} \cr
+{\ttv} 4 {\ttv} 5 {\ttv} 6 {\ttv} \cr
+{\ttv} 7 {\ttv} 8 {\ttv} 9 {\ttv} \cr
+{\ttv} * {\ttv} 0 {\ttv} \char`#\ {\ttv} \cr
++-----------+ \cr
+\ \ \ \ \ {\ttv} {\ttv} \cr
+\ \ \ \ \ {\ttv} {\ttv} \cr
+\ \ +-------+ \cr
+\ \ {\ttv}1234567{\ttv} \cr
+\ \ +-------+ \cr
+}}$$
 
 Where 1,2,3,4 are PB1,PB2,PD4,PD7 and 5,6,7 are PB3,PB4,PB5.
-
-@ @<Global \null variables@>=
-uint8_t btn = 0, mod = 0;
 
 @ @<Initialize input pins@>=
 PORTB |= 1 << PB1 | 1 << PB2;
 PORTD |= 1 << PD4 | 1 << PD7;
+
+@ @<Global \null variables@>=
+uint8_t btn = 0, mod = 0;
 
 @ @<Get button@>=
     for (int i = PB3, done = 0; i <= PB5 && !done; i++) {
