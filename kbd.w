@@ -686,7 +686,7 @@ $$\vbox{\halign{\tt#\cr
 \ \ +-------+ \cr
 }}$$
 
-Where 1,2,3,4 are PB1,PB2,PD4,PD7 and 5,6,7 are PB3,PB4,PB5.
+Where 1,2,3,4 are |PB1|,|PB2|,|PD4|,|PD7| and 5,6,7 are |PB3|,|PB4|,|PB5|.
 
 @ @<Pullup input pins@>=
 PORTB |= 1 << PB1 | 1 << PB2;
