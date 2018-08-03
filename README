@@ -1,12 +1,19 @@
 Proper steps to cleanup original Atmel's code:
 1. github init demo
 2. download cdc archive from ub0ali dropbox avr-usb/ directory
-3. unpack
-4. rm -fr doc/ doc.html EVK527-ATMega32U4-usbdevice_cdc-2_0_1-doc.a90 demo/EVK527-ATMega32U4-usbdevice_cdc/doc/ lib_board/evk_527/evk_527.gif demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/EVK527-ATMega32U4-usbdevice_cdc.aps demo/EVK527-ATMega32U4-usbdevice_cdc/LICENSE.TXT demo/EVK527-ATMega32U4-usbdevice_cdc/iar/ lib_mcu/flash/flash_drv.s90 demo/EVK527-ATMega32U4-usbdevice_cdc/at90usbxxx_cdc.inf
+3. unpack and cd
+4. git init
+4. git add .
+4. git clean -d -f &>/dev/null; find . -type f | grep -v '\.git' >/tmp/x
+for i in `cat /tmp/x`; do rm $i; cd demo/E*/gcc; make &>/dev/null && echo git reset $i;
+  cd ../../../; git checkout .; git clean -d -f &>/dev/null; done
+4. run printed commands
+4. git clean -d -f
+4. git add .
 5. find . -type f | xargs perl -i -pe 's/\r$//'
 8. git add .
 9. git ci -m "initial import"
-10. patch -p1 <~/usb/cdc-cleanup.patch
+10. patch -p1 <~/usb/cdc-fix.patch
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
 15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
 16. find . -name \*.h | xargs rm
