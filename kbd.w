@@ -694,8 +694,11 @@ PORTD |= 1 << PD4 | 1 << PD7;
       DDRB &= ~(1 << i);
     }
 
-@ To adjust number of no-ops use a separate program (it is in
-the next section), because USB...
+@ To adjust the number of no-ops, remove all no-ops from here,
+then do this: 1) If symbol(s) will appear by themselves,
+add one no-op. Repeat until this does not happen. 2) If
+symbol does not appear after pressing a key, add one no-op.
+Repeat until this does not happen.
 
 @<Eliminate capacitance@>=
       __asm__ __volatile__ ("nop");
@@ -703,10 +706,6 @@ the next section), because USB...
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
       __asm__ __volatile__ ("nop");
-
-@ This is a program to adjust number of no-ops (see previous section).
-
-@(/dev/null@>=
 
 @* Headers.
 \secpagedepth=1 % index on current page
