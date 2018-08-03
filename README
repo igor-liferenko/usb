@@ -2,17 +2,15 @@ Proper steps to cleanup original Atmel's code:
 1. github init demo
 2. download cdc archive from ub0ali dropbox avr-usb/ directory
 3. unpack and cd
-4. git init
-4. git add .
+5. find . -type f | xargs perl -i -pe 's/\r$//'
+10. patch -p1 <~/usb/cdc-fix.patch
+1. git init
+1. git add .
 4. git clean -d -f &>/dev/null; find . -type f | grep -v '\.git' >/tmp/x
 for i in `cat /tmp/x`; do rm $i; cd demo/E*/gcc; make &>/dev/null && echo git reset $i;
   cd ../../../; git checkout .; git clean -d -f &>/dev/null; done
 4. run printed commands
 4. git clean -d -f
-4. git add .
-5. find . -type f | xargs perl -i -pe 's/\r$//'
-8. git add .
-10. patch -p1 <~/usb/cdc-fix.patch
 8. cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../
 8. git add .
 9. git ci -m "initial import"
