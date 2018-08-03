@@ -644,8 +644,8 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 
 @* Matrix.
 
-$$\hbox to7cm{\vbox to2.82cm{\vfil\special{psfile=keymap.eps
-  clip llx=0 lly=0 urx=650 ury=262 rwi=1984}}\hfil}$$
+$$\hbox to6cm{\vbox to6.59cm{\vfil\special{psfile=keymap.eps
+  clip llx=0 lly=0 urx=321 ury=353 rwi=1700}}\hfil}$$
 
 This is the working principle:
 $$\hbox to7cm{\vbox to4.2cm{\vfil\special{psfile=keypad.eps

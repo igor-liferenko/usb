@@ -77,4 +77,4 @@ keypad.eps: keypad.png
 	@imgsize $@ 7 -
 keymap.eps: keymap.gif
 	@convert $< $@
-	@imgsize $@ 7 -
+	@imgsize $@ 6 -
