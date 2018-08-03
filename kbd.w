@@ -727,7 +727,11 @@ PORTD |= 1 << PD4 | 1 << PD7;
       DDRB &= ~(1 << i);
     }
 
-@ To adjust the number of no-ops, remove all no-ops from here,
+@ Delay to eliminate capacitance on the wire which may be open-ended on
+the side of input pin (i.e., when button is not pressed), and capacitance
+on the longer wire (i.e., when button is pressed).
+
+To adjust the number of no-ops, remove all no-ops from here,
 then do this: 1) If symbol(s) will appear by themselves,
 add one no-op. Repeat until this does not happen. 2) If
 symbol does not appear after pressing a key, add one no-op.
