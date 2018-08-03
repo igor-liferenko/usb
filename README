@@ -16,8 +16,8 @@ for i in `cat /tmp/x`; do rm $i; cd demo/E*/gcc; make &>/dev/null && echo git re
 9. git ci -m "initial import"
 1. git clean -d -f
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
-15. Change "demo" to required directory in the following command and run it:
-15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i 2>/dev/null | sponge $i; done
+15. Change "demo" to required directory in the following command and set __AVR_LIBC_VERSION__ to what is in /usr/lib/avr/include/avr/version.h and run it:
+15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -D__AVR_LIBC_VERSION__=20000UL -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i 2>/dev/null | sponge $i; done
 16. find . -name \*.h | xargs rm
 17. git add .
 8. cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../

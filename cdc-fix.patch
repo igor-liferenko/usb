@@ -12,8 +12,6 @@ How this patch was created:
 
 3. remove ".exe" from Makefile
 
-5. Remove #if-#endif for "AVRLIBC bug #23871" from lib_mcu/power/power_drv.h
-
 diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile b/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
 index 775cf60..f5859f7 100644
 --- a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
@@ -129,54 +127,6 @@ index 14f8ef4..3b4897a 100644
  
  
  
-diff --git a/lib_mcu/power/power_drv.h b/lib_mcu/power/power_drv.h
-index 0f91aed..0bea5da 100644
---- a/lib_mcu/power/power_drv.h
-+++ b/lib_mcu/power/power_drv.h
-@@ -47,43 +47,6 @@
- 
- #ifdef  __GNUC__
-    #include <avr/power.h>
--   
--   #if (__AVR_LIBC_VERSION__<=10602UL) //for AVRLIBC bug #23871 : clock_prescale_set() not available for ATmega32U4
--   typedef enum
--   {
--       clock_div_1 = 0,
--       clock_div_2 = 1,
--       clock_div_4 = 2,
--       clock_div_8 = 3,
--       clock_div_16 = 4,
--       clock_div_32 = 5,
--       clock_div_64 = 6,
--       clock_div_128 = 7,
--       clock_div_256 = 8
--   } clock_div_t;
--
--   #define clock_prescale_set(x) \
--   { \
--           uint8_t tmp = _BV(CLKPCE); \
--           __asm__ __volatile__ ( \
--                   "in __tmp_reg__,__SREG__" "\n\t" \
--                   "cli" "\n\t" \
--                   "sts %1, %0" "\n\t" \
--                   "sts %1, %2" "\n\t" \
--                   "out __SREG__, __tmp_reg__" \
--                   : /* no outputs */ \
--                   : "d" (tmp), \
--                     "M" (_SFR_MEM_ADDR(CLKPR)), \
--                     "d" (x) \
--                   : "r0"); \
--   }
--
--
--   #define clock_prescale_get()  (clock_div_t)(CLKPR & (uint8_t)((1<<CLKPS0)|(1<<CLKPS1)|(1<<CLKPS2)|(1<<CLKPS3)))
--
--   #endif
--
--
- #endif
- //! @defgroup powermode Power management drivers
- //!
 diff --git a/modules/usb/device_chap9/usb_standard_request.c b/modules/usb/device_chap9/usb_standard_request.c
 index 0c8d9bc..055973a 100644
 --- a/modules/usb/device_chap9/usb_standard_request.c
