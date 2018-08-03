@@ -42,7 +42,7 @@ void main(void)
     if (UEINTX & 1 << RXSTPI)
       @<Process SETUP request@>@;
 
-  @<Initialize input pins@>@;
+  @<Pullup input pins@>@;
 
   while (1) {
     @<Get button@>@;
@@ -688,7 +688,7 @@ $$\vbox{\halign{\tt#\cr
 
 Where 1,2,3,4 are PB1,PB2,PD4,PD7 and 5,6,7 are PB3,PB4,PB5.
 
-@ @<Initialize input pins@>=
+@ @<Pullup input pins@>=
 PORTB |= 1 << PB1 | 1 << PB2;
 PORTD |= 1 << PD4 | 1 << PD7;
 
