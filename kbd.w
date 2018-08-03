@@ -644,6 +644,39 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 
 @* Matrix.
 
+$$\hbox to7cm{\vbox to2.82cm{\vfil\special{psfile=keymap.eps
+  clip llx=0 lly=0 urx=650 ury=262 rwi=1984}}\hfil}$$
+
+This is the working principle:
+$$\hbox to7cm{\vbox to4.2cm{\vfil\special{psfile=keypad.eps
+  clip llx=0 lly=0 urx=240 ury=144 rwi=1984}}\hfil}$$
+
+A is input and  C1 ... Cn are outputs.
+We "turn on" one of C1, C2, ... Cn at a time by connecting it to ground inside the chip
+(i.e., setting it to logic zero).
+Other pins of C1, C2, ... Cn are not connected anywhere at that time.
+The current will always flow into the pin which is connected to ground.
+The current has to flow into your transmitter for the receiver to be able to tell it's a zero.
+Now when the switch connected to this output pin is pressed, the input A
+is pulled to ground through the switch, and its state becomes zero.
+Pressing other switches doesn't change anything, since their other pins
+are not connected to ground. When we want to read another switch, we
+change the output pin which is connected to ground, so that always
+just one of them is set like that.
+
+To set output pin, do this:
+|DDRx.y = 1|.
+To unset output pin, do this;
+|DDRx.y = 0|.
+
+@ This is how keypad is connected:
+
++-------+
+|1234567|
++-------+
+
+Where 1,2,3,4 are PB1,PB2,PD4,PD7 and 5,6,7 are PB3,PB4,PB5.
+
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
 
