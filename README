@@ -26,6 +26,6 @@ git ci -m "run preprocessor"
 cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../
 git diff objdump # must be empty - if not, fix
 1. move all *.c and *.s files to toplevel directory (compare objdump before and after moving - must be equal) - remove @ from commands in Makefile + rm echo + change $(shell mkdir... to mkdir -p and copy output to new Makefile and git rm config.mk, then via gedit's "find and replace" remove all "-I"
-for i in *.c; do cat -s $i | sponge $i; indent -kr -i2 -ci2 -lp $i; done; git clean -f
+for i in *.c; do cat -s $i | sponge $i; indent -kr -i2 -ci2 -lp --no-tabs -nce $i; done; git clean -f
 18. beginning with main.c replace each function body one by one until only main.c is left - do not remove anything and check all values in datasheet as you go (do not change config.h before mcpp)
 1. rm demo-old/ if all is OK and remove this line
