@@ -68,8 +68,8 @@ git reset demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 find . -name \*.h | xargs rm
 8. git add .
 8. git ci -m "configure and run preprocessor"
-1. move to toplevel directory and check objdump
+1. change 1<<PLLUSB to 0<<PLLUSB everywhere, compile and replace objdump and commit
+1. move to toplevel directory (compare objdump before and after moving - must be equal)
 1. run indent
-1. compare objdump with demo-comments/ and remove this line
 18. beginning with main.c replace each function body one by one (and check each time) until only main.c is left
-1. rm demo-old/ if all is OK
+1. rm demo-old/ if all is OK and remove this line
