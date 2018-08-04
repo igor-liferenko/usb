@@ -18,38 +18,53 @@ for i in `cat /tmp/x`; do rm $i; cd demo/E*/gcc; make &>/dev/null && echo git re
 1. git clean -d -f
 14. ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
 15. Change "demo" to required directory in the following command and set __AVR_LIBC_VERSION__ to what is in /usr/lib/avr/include/avr/version.h and run it:
-15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -D__AVR_LIBC_VERSION__=20000UL -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i 2>/dev/null | sponge $i; done
+15. for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -D__AVR_LIBC_VERSION__=20000UL -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
 8. cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../
 8. git diff objdump # must be empty - if not, fix
 mkdir 1/
-cp -r * 1/
+cp -r * 1/ 2>/dev/null
+rm -r 1/1/
+cd 1/; find . -name \*.h | xargs rm; git init; git add .; cd ../
 git checkout .
 1. change "#define FOSC" to 16000 in demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 1. run the same mcpp command as before
 mkdir 2/
-cp -r * 2/
-rm -r 2/1/
-diff -r 1 2 # check that the change in config.h was correctly propagated - if not, fix
-rm -r 1/
+cp -r * 2/ 2>/dev/null
+rm -r 2/1/ 2/2/
+cd 2/; find . -name \*.h | xargs rm; cd ../
+cp -r 2/* 1/; cd 1/; git wdiff # check that the change in config.h was correctly propagated
+cd ../
+rm -fr 1/
 mv 2/ 1/
+cd 1/; git init; git add .; cd ../
+git add demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 git checkout .
 1. change "#define PLL_OUT_FRQ" to PLL_OUT_48MHZ in demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 1. run the same mcpp command as before
 mkdir 2/
-cp -r * 2/
-rm -r 2/1/
-diff -r 1 2 # check that the change in config.h was correctly propagated - if not, fix
-rm -r 1/
+cp -r * 2/ 2>/dev/null
+rm -fr 2/1/ 2/2/
+cd 2/; find . -name \*.h | xargs rm; cd ../
+cp -r 2/* 1/; cd 1/; git wdiff # check that the change in config.h was correctly propagated
+# BUG: here we see that (1<<PLLUSB) was not changed to (0<<PLLUSB) !!! while in 'PLLFRQ|=' "(1<<PDIV3)| (0<<PDIV2)" was changed to "(0<<PDIV3)| (1<<PDIV2)" and "(1<<PDIV1)" to "(0<<PDIV1)" - find out why
+cd ../
+rm -fr 1/
 mv 2/ 1/
+cd 1/; git init; git add .; cd ../
+git add demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 git checkout .
 1. change "#define BAUDRATE" to 57600 in demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 1. run the same mcpp command as before
 mkdir 2/
-cp -r * 2/
-rm -r 2/1/
-diff -r 1 2 # check that the change in config.h was correctly propagated - if not, fix
-rm -r 1/ 2/
+cp -r * 2/ 2>/dev/null
+rm -fr 2/1/ 2/2/
+cd 2/; find . -name \*.h | xargs rm; cd ../
+cp -r 2/* 1/; cd 1/; git wdiff # check that the change in config.h was correctly propagated
+cd ../
+rm -fr 1/ 2/
 git clean -d -f
+git checkout demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
+git reset demo/EVK527-ATMega32U4-usbdevice_cdc/conf/config.h
 find . -name \*.h | xargs rm
 8. git add .
 8. git ci -m "configure and run preprocessor"
@@ -57,3 +72,4 @@ find . -name \*.h | xargs rm
 1. run indent
 1. compare objdump with demo-comments/ and remove this line
 18. beginning with main.c replace each function body one by one (and check each time) until only main.c is left
+1. rm demo-old/ if all is OK
