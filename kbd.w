@@ -121,7 +121,11 @@ case 0x0a21: @/
   break;
 }
 
-@ @<Handle {\caps set address}@>=
+@ No OUT packet arrives after SETUP packet, because there is no DATA stage
+in this request. IN packet arrives after SETUP packet, and we get ready to
+send a ZLP in advance.
+
+@<Handle {\caps set address}@>=
 UDADDR = UEDATX & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
