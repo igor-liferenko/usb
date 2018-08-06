@@ -77,7 +77,7 @@ ISR(USB_GEN_vect)
   else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
 }
 
-@ The following big switch just dispatch SETUP request.
+@ The following big switch just dispatches SETUP request.
 
 @<Process SETUP request@>=
 switch (UEDATX | UEDATX << 8) {
