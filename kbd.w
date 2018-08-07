@@ -693,7 +693,9 @@ $$\vbox{\halign{\tt#\cr
 Where 1,2,3,4 are |PB1|,|PB2|,|PB4|,|PB5| and 5,6,7 are |PF4|,|PF5|,|PF6|.
 
 @ @<Pullup input pins@>=
-PORTB |= 1 << PB1 | 1 << PB2 | 1 << PB4 | 1 << PB5;
+PORTB |= 1 << PB4 | 1 << PB5;
+PORTE |= 1 << PB6;
+PORTD |= 1 << PD7;
 
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
