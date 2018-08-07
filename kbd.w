@@ -690,56 +690,55 @@ $$\vbox{\halign{\tt#\cr
 \ \ +-------+ \cr
 }}$$
 
-Where 1,2,3,4 are |PB1|,|PB2|,|PD4|,|PD7| and 5,6,7 are |PB3|,|PB4|,|PB5|.
+Where 1,2,3,4 are |PB1|,|PB2|,|PB4|,|PB5| and 5,6,7 are |PF4|,|PF5|,|PF6|.
 
 @ @<Pullup input pins@>=
-PORTB |= 1 << PB1 | 1 << PB2;
-PORTD |= 1 << PD4 | 1 << PD7;
+PORTB |= 1 << PB1 | 1 << PB2 | 1 << PB4 | 1 << PB5;
 
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
 
 @ @<Get button@>=
-    for (int i = PB3, done = 0; i <= PB5 && !done; i++) {
-      DDRB |= 1 << i;
+    for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
+      DDRF |= 1 << i;
       @<Eliminate capacitance@>@;
-      switch (~PINB & (1 << PB1 | 1 << PB2) | ~PIND & (1 << PD4 | 1 << PD7)) {
+      switch (~PINB & (1 << PB1 | 1 << PB2 | 1 << PB4 | 1 << PB5)) {
       case 1 << PB1:
         switch (i) {
-        case PB3: mod = 0; @+ btn = 0x1e; @+ break;
-        case PB4: mod = 0; @+ btn = 0x1f; @+ break;
-        case PB5: mod = 0; @+ btn = 0x20; @+ break;
+        case PF4: mod = 0; @+ btn = 0x1e; @+ break;
+        case PF5: mod = 0; @+ btn = 0x1f; @+ break;
+        case PF6: mod = 0; @+ btn = 0x20; @+ break;
         }
         done = 1;
         break;
       case 1 << PB2:
         switch (i) {
-        case PB3: mod = 0; @+ btn = 0x21; @+ break;
-        case PB4: mod = 0; @+ btn = 0x22; @+ break;
-        case PB5: mod = 0; @+ btn = 0x23; @+ break;
+        case PF4: mod = 0; @+ btn = 0x21; @+ break;
+        case PF5: mod = 0; @+ btn = 0x22; @+ break;
+        case PF6: mod = 0; @+ btn = 0x23; @+ break;
         }
         done = 1;
         break;
-      case 1 << PD4:
+      case 1 << PB4:
         switch (i) {
-        case PB3: mod = 0; @+ btn = 0x24; @+ break;
-        case PB4: mod = 0; @+ btn = 0x25; @+ break;
-        case PB5: mod = 0; @+ btn = 0x26; @+ break;
+        case PF4: mod = 0; @+ btn = 0x24; @+ break;
+        case PF5: mod = 0; @+ btn = 0x25; @+ break;
+        case PF6: mod = 0; @+ btn = 0x26; @+ break;
         }
         done = 1;
         break;
-      case 1 << PD7:
+      case 1 << PB5:
         switch (i) {
-        case PB3: mod = 0x02; @+ btn = 0x25; @+ break;
-        case PB4: mod = 0x00; @+ btn = 0x27; @+ break;
-        case PB5: mod = 0x02; @+ btn = 0x20; @+ break;
+        case PF4: mod = 0x02; @+ btn = 0x25; @+ break;
+        case PF5: mod = 0x00; @+ btn = 0x27; @+ break;
+        case PF6: mod = 0x02; @+ btn = 0x20; @+ break;
         }
         done = 1;
         break;
       default: @/
         btn = 0; @+ mod = 0;
       }
-      DDRB &= ~(1 << i);
+      DDRF &= ~(1 << i);
     }
 
 @ Delay to eliminate capacitance on the wire which may be open-ended on
