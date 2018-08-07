@@ -702,8 +702,8 @@ uint8_t btn = 0, mod = 0;
     for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
       DDRF |= 1 << i;
       @<Eliminate capacitance@>@;
-      switch (~PINB & (1 << PB1 | 1 << PB2 | 1 << PB4 | 1 << PB5)) {
-      case 1 << PB1:
+      switch (~PINB & (1 << PB4 | 1 << PB5) | ~PINE & 1 << PE6 | ~PIND & 1 << PD7) {
+      case 1 << PB4:
         switch (i) {
         case PF4: mod = 0; @+ btn = 0x1e; @+ break;
         case PF5: mod = 0; @+ btn = 0x1f; @+ break;
@@ -711,7 +711,7 @@ uint8_t btn = 0, mod = 0;
         }
         done = 1;
         break;
-      case 1 << PB2:
+      case 1 << PB5:
         switch (i) {
         case PF4: mod = 0; @+ btn = 0x21; @+ break;
         case PF5: mod = 0; @+ btn = 0x22; @+ break;
@@ -719,7 +719,7 @@ uint8_t btn = 0, mod = 0;
         }
         done = 1;
         break;
-      case 1 << PB4:
+      case 1 << PE6:
         switch (i) {
         case PF4: mod = 0; @+ btn = 0x24; @+ break;
         case PF5: mod = 0; @+ btn = 0x25; @+ break;
@@ -727,7 +727,7 @@ uint8_t btn = 0, mod = 0;
         }
         done = 1;
         break;
-      case 1 << PB5:
+      case 1 << PD7:
         switch (i) {
         case PF4: mod = 0x02; @+ btn = 0x25; @+ break;
         case PF5: mod = 0x00; @+ btn = 0x27; @+ break;
