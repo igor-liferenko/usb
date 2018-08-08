@@ -152,7 +152,9 @@ wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
 
-@ @<Handle {\caps get descriptor configuration}@>=
+@ First request is 9 bytes, second is according to length given in response to first request.
+
+@<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
