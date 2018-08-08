@@ -1242,3 +1242,9 @@ ISR(USB_GEN_vect)
 @ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
 (in |send_descriptor|). And if yes, it becomes clear why in Atmel's demo they use
 NAKOUTI. And if no, Atmel's example makes no sense.
+
+@ TODO: it is not clear how |STALLRQ| works, because it works before clearing |RXSTPI|, and
+it works after; but according to test in \S\rxstpiautoack, |RXSTPI| is not automatically
+acknowledged...
+
+\xdef\stallrq{\secno}
