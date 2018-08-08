@@ -1240,4 +1240,5 @@ ISR(USB_GEN_vect)
 <copy here from second test with greed led>
 
 @ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
-(in |send_descriptor|).
+(in |send_descriptor|). And if yes, it becomes clear why in Atmel's demo they use
+NAKOUTI. And if no, Atmel's example makes no sense.
