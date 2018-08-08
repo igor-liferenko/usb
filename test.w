@@ -1238,3 +1238,6 @@ ISR(USB_GEN_vect)
 
 @(/dev/null@>=
 <copy here from second test with greed led>
+
+@ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
+(in |send_descriptor|).
