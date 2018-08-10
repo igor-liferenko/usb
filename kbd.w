@@ -706,9 +706,10 @@ uint8_t btn = 0, mod = 0;
 % int a[3] = { PF3, PD4, PB5 }; ... for (int i = 0, ... DDRF |= 1 << a[i]; ... switch (a[i]) ...
 
 % NOTE: use array of indexes to separate bits if pin numbers in "switch" collide:
-% <somehow create a hash "b" with strings as keys and all zeros as values>
-% if (~PINB & 1 << PB4) b["PB4"] = 1 << 0; ... if ... b["PB5"] = 1 << 1; ... b["PE6"] = 1 << 2;
-% ... switch (b["PB4"] | ... ) ... case b["PB4"]: ...
+% int b[256] = {0};
+% if (~PINB & 1 << PB4) b[0xB4] = 1 << 0; ... if ... b[0xB5] = 1 << 1; ... b[0xE6] = 1 << 2; ...
+% switch (b[0xB4] | ...) ... case b[0xB4]: ...
+% (here # in woven output will represent P)
 
 @<Get button@>=
     for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
