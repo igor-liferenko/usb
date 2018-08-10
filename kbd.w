@@ -21,12 +21,9 @@ keyboard.
 volatile int connected = 0;
 void main(void)
 {
-/* TODO: check if after RSTCPU all these except USBE and RSTCPU are disabled and remove from here*/
-  USBCON &= ~(1 << USBE); /* reset USB device controller; FRZCLK and DETACH are set */
-  PLLCSR &= ~(1 << PLLE); /* TODO: check if after clearing USBE PLLE and PLOCK are cleared */
-  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
-@#
   UHWCON = 1 << UVREGE;
+
+  @<Clear |WDRF|@>@;
 
   USBCON |= 1 << USBE;
   PLLCSR = 1 << PINDIV | 1 << PLLE; /* FIXME: PLLE must be after PINDIV of may be at once? */
@@ -65,6 +62,34 @@ void main(void)
   }
 }
 
+@ @<Reset MCU@>=
+@<Enable WDT@>@;
+while (1) ;
+
+@ Datasheet \S8.2.
+
+@<Enable WDT@>=
+cli();
+wdt_reset(); /* TODO: when everything will work, remove this and check */
+WDTCSR |= 1 << WDCE | 1 << WDE; /* enable WDT change */
+WDTCSR = 1 << WDE | 0 << WDP2 | 0 << WDP1 | 0 << WDP0; /* set 16ms */
+
+@ When reset is done via watchdog, WDRF (WatchDog Reset Flag) is set in MCUSR register.
+WDE (WatchDog system reset Enable) is always set in WDTCSR when WDRF is set. It
+is necessary to clear WDE to stop MCU from eternal resetting:
+on MCU start we always clear |WDRF| and WDE
+(nothing will change if they are not set).
+To avoid unintentional changes of WDE, a special write procedure must be followed
+to change the WDE bit. To clear WDE, WDRF must be cleared first.
+
+Datasheet \S8.2.
+
+@<Clear |WDRF|@>=
+wdt_reset();
+MCUSR = 0x00;
+WDTCSR |= 1 << WDCE | 1 << WDE;
+WDTCSR = 0x00;
+
 @ @c
 ISR(USB_GEN_vect)
 {
@@ -74,7 +99,9 @@ ISR(USB_GEN_vect)
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
-  else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
+  else {
+    @<Reset MCU@>@; /* see \S\cpuresetonlyonhostreboot\ */
+  }
 }
 
 @ The following big switch just dispatches SETUP request.
