@@ -701,6 +701,7 @@ PORTD |= 1 << PD7;
 @ @<Global \null variables@>=
 uint8_t btn = 0, mod = 0;
 
+@
 % NOTE: use index into an array of Pxn if pins in "for" are not consequtive:
 % int a[3] = { PF3, PD4, PB5 }; ... for (int i = 0, ... DDRF |= 1 << a[i]; ... switch (a[i]) ...
 
@@ -709,7 +710,7 @@ uint8_t btn = 0, mod = 0;
 % if (~PINB & 1 << PB4) b["PB4"] = 1 << 0; ... if ... b["PB5"] = 1 << 1; ... b["PE6"] = 1 << 2;
 % ... switch (b["PB4"] | ... ) ... case b["PB4"]: ...
 
-@ @<Get button@>=
+@<Get button@>=
     for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
       DDRF |= 1 << i;
       @<Eliminate capacitance@>@;
