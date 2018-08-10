@@ -18,6 +18,9 @@ unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com
 We do not use bootloader, so the following may also be unprogrammed: \.{BOOTRST}
 (TODO: find out why when this was programmed everything worked).
 In short, fuses must be these: \.{E:CB}, \.{H:D9}, \.{L:FF}.
+Set with the following command:
+
+\centerline{\tt avrdude -q -c usbasp -p m32u4 -U efuse:w:0xcb:m -U hfuse:w:0xd9:m -U lfuse:w:0xff:m}
 
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
