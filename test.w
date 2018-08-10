@@ -15,7 +15,9 @@ The microcontroller is ATmega32U4.
 
 Read fuses via ``\.{avrdude -c usbasp -p m32u4}'' and ensure that the following fuses are
 unprogrammed: \.{WDTON}, \.{CKDIV8}, \.{CKSEL3} (use \.{http://www.engbedded.com/fusecalc}).
-In short, fuses must be these: \.{E:CB}, \.{H:D8}, \.{L:FF}.
+We do not use bootloader, so the following may also be unprogrammed: \.{BOOTSZ1},
+\.{BOOTSZ0} and \.{BOOTRST}.
+In short, fuses must be these: \.{E:CB}, \.{H:DF}, \.{L:FF}.
 
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
