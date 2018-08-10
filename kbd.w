@@ -69,8 +69,6 @@ while (1) ;
 @ Datasheet \S8.2.
 
 @<Enable WDT@>=
-cli();
-wdt_reset(); /* TODO: when everything will work, remove this and check */
 WDTCSR |= 1 << WDCE | 1 << WDE; /* enable WDT change */
 WDTCSR = 1 << WDE | 0 << WDP2 | 0 << WDP1 | 0 << WDP0; /* set 16ms */
 
@@ -82,7 +80,7 @@ on MCU start we always clear |WDRF| and WDE
 To avoid unintentional changes of WDE, a special write procedure must be followed
 to change the WDE bit. To clear WDE, WDRF must be cleared first.
 
-Datasheet \S8.2.
+Done according to ``The sequence for clearing WDE'' in datasheet \S8.2.
 
 @<Clear |WDRF|@>=
 wdt_reset();
