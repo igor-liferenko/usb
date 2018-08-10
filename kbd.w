@@ -764,12 +764,14 @@ add one no-op. Repeat until this does not happen. 2) If
 symbol does not appear after pressing a key, add one no-op.
 Repeat until this does not happen.
 
+@d nop() __asm__ __volatile__ ("nop")
+
 @<Eliminate capacitance@>=
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
-      __asm__ __volatile__ ("nop");
+nop();
+nop();
+nop();
+nop();
+nop();
 
 @* Headers.
 \secpagedepth=1 % index on current page
