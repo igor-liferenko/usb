@@ -808,6 +808,7 @@ nop();
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h> /* |wdt_reset| */
 #include <stddef.h> /* |NULL| */
 #define F_CPU 16000000UL
 #include <util/delay.h>
