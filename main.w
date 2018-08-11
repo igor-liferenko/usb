@@ -10,17 +10,15 @@ Enabling DTR in application is necessary to avoid data being echoed back to AVR
 if it starts to transmit until echo was disabled by tty settings (done before
 enabling DTR).
 
-To detect DTR change from AVR, check RXSTPI each time while waiting FIFOCON (or TXINI?) (on non-control EP) to
-become 1.
+To detect DTR change from AVR, check RXSTPI each time while waiting FIFOCON (or TXINI?) (on non-control EP) to become 1 (i.e., when sending data TO host).
 
-//detect DTR before each operation on USB this way:
 prev = UENUM;
 UENUM = EP0;
 if (UEINTX & 1 << RXSTPI) {
   <read DTR into line_status.DTR>
 }
 UENUM = prev;
-if (line_status.DTR) ... else ...
+if (line_status.DTR) ...
 -----------------------------------------
 check if this is the same as in kbd.w and remove:
 ISR(USB_GEN_vect)
