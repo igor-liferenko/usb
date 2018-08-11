@@ -268,11 +268,13 @@ The order of descriptors here is the same as the order in which they are transmi
 
 @*1 Device descriptor.
 
+TODO: find what prefixes mean in names of variables (i.e., `b', `bcd', ...)
+
 @<Type \null definitions@>=
 typedef struct {
   uint8_t      bLength;
   uint8_t      bDescriptorType;
-  uint16_t     bcdUSB; /* Binay Coded Decimal Spec. release */
+  uint16_t     bcdUSB; /* version */
   uint8_t      bDeviceClass; /* class code assigned by the USB */
   uint8_t      bDeviceSubClass; /* sub-class code assigned by the USB */
   uint8_t      bDeviceProtocol; /* protocol code assigned by the USB */
@@ -300,9 +302,9 @@ const S_device_descriptor dev_desc
   0, /* no subclass */
   0, @/
   EP0_SIZE, @/
-  0x03EB, /* ATMEL */
-  0x2013, /* standard Human Interaction Device */
-  0x1000, /* from Atmel demo */
+  0x03EB, /* VID (Atmel) */
+  0x2015, /* PID (HID keyboard) */
+  0x1000, /* device revision */
   MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
   PRODUCT, /* (\.{Product} in \.{kern.log}) */
   NOT_USED, /* (\.{SerialNumber} in \.{kern.log}) */
