@@ -8,3 +8,5 @@ device. This is because each interface will be loaded into a separate driver
 instance, causing the two interfaces be become unlinked. To prevent this, you
 should use the "Interface Association Descriptor" addendum to the USB 2.0 standard
 which is available on most OSes when creating Composite devices.
+Check if this is the case on Linux and don't do "Interface Association Descriptor" if
+each interface will not be loaded into a separate driver instance.
