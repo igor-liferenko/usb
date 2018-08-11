@@ -119,7 +119,7 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
   else c &= 0x0F;
   sn_desc.wString[i] = hex(c);
 }
-
+---------------------------------
 
 @ initialization of out endpoint structure
 @d OUT (0 << 7)
