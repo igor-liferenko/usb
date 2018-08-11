@@ -1,85 +1,28 @@
-@ The main function first performs the initialization of a scheduler module and then runs it in
-an infinite loop.
-The scheduler is a simple infinite loop calling all its tasks defined in the \.{conf\_scheduler.h}
-file. No real time schedule is performed, when a task ends, the scheduler calls the next task
-defined in the configuration file (\.{conf\_scheduler.h}).
+If AVR is a usb-rs232 converter, DTR must be used by device on the other end of UART.
+If AVR is using usb to pass its own data, DTR may be used directly in program.
 
-The sample dual role application is based on two different tasks:
-\item{-} The |usb_task| (\.{usb\_task.c} associated source file), is the task performing the USB
-  low level enumeration process in device mode.
-\item{-} The |cdc_task| performs the loop back application between USB and USART interfaces.
+Checking DTR in AVR is necessary in order that data will not be transmitted to host until
+tty is opened, flushed and DTR enabled.
+Flushing is necessary to avoid data buffered by AVR in rs2usb buffer;
+data may also be buffered in cdc-acm driver's buffer from previous session
+if it was closed until all data was read (?).
+Enabling DTR in application is necessary to avoid data being echoed back to AVR
+if it starts to transmit until echo was disabled by tty settings (done before
+enabling DTR).
 
-@c
-#include "config.h"
-#include "modules/scheduler/scheduler.h"
-#include "lib_mcu/power/power_drv.h"
-#include "lib_mcu/usb/usb_drv.h"
-#include "modules/usb/ch9/usb_device_task.h"
-#include "modules/usb/ch9/usb_standard_request.h"
-
-#include "config.h"
-#include "conf_usb.h"
-
-extern U8    usb_configuration_nb;
-
-volatile int connected = 0;
-int main(void)
-{
-  UHWCON |= 1 << UVREGE;
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1 | 1 << RXEN1;
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE;
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  UDCON &= ~(1 << DETACH);
-
-  while (1) {
-      Usb_select_endpoint(EP_CONTROL);
-      if (Is_usb_receive_setup()) {
-        usb_process_request();
-      }
-      cdc_task();
-  }
-
-  while (!connected) {
-    if (UEINTX & (1 << RXSTPI)) {
-      usb_process_request();
-    }
-  }
+To detect DTR change from AVR, check RXSTPI each time while waiting FIFOCON (or TXINI?) (on non-control EP) to
+become 1.
 
 //detect DTR before each operation on USB this way:
-#if 1==0
 prev = UENUM;
 UENUM = EP0;
 if (UEINTX & 1 << RXSTPI) {
-  while (!<read DTR>) ;
-/*process dtr here - grep SETUP\_CDC\_SET\_CONTROL\_LINE\_STATE*/
-  line_status.DTR = DTR ? 1 : 0;
+  <read DTR into line_status.DTR>
 }
 UENUM = prev;
 if (line_status.DTR) ... else ...
-#endif
-
-  while (1) { /* main application loop */
-#if 1==0
-  if (line_status.DTR) {
-      /* send a character (see cdc\_task.w) */
-    _delay_ms(1000);
-  }
-#endif
-  }
-}
-
+-----------------------------------------
+check if this is the same as in kbd.w and remove:
 ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
