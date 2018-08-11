@@ -62,32 +62,6 @@ void main(void)
   }
 }
 
-@ @<Reset MCU@>=
-@<Enable WDT@>@;
-while (1) ;
-
-@ Datasheet \S8.2.
-
-@<Enable WDT@>=
-WDTCSR |= 1 << WDCE | 1 << WDE; /* enable WDT change */
-WDTCSR = 1 << WDE | 0 << WDP2 | 0 << WDP1 | 0 << WDP0; /* set 16ms */
-
-@ When reset is done via watchdog, WDRF (WatchDog Reset Flag) is set in MCUSR register.
-WDE (WatchDog system reset Enable) is always set in WDTCSR when WDRF is set. It
-is necessary to clear WDE to stop MCU from eternal resetting:
-on MCU start we always clear |WDRF| and WDE
-(nothing will change if they are not set).
-To avoid unintentional changes of WDE, a special write procedure must be followed
-to change the WDE bit. To clear WDE, WDRF must be cleared first.
-
-Done according to ``The sequence for clearing WDE'' in datasheet \S8.2.
-
-@<Clear |WDRF|@>=
-wdt_reset();
-MCUSR = 0x00;
-WDTCSR |= 1 << WDCE | 1 << WDE;
-WDTCSR = 0x00;
-
 @ @c
 ISR(USB_GEN_vect)
 {
