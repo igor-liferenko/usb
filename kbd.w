@@ -21,10 +21,8 @@ keyboard.
 volatile int connected = 0;
 void main(void)
 {
+  @<Disable WDT@>@;
   UHWCON = 1 << UVREGE;
-
-  @<Clear |WDRF|@>@;
-
   USBCON |= 1 << USBE;
   PLLCSR = 1 << PINDIV | 1 << PLLE; /* FIXME: PLLE must be after PINDIV of may be at once? */
   while (!(PLLCSR & 1 << PLOCK)) ;
