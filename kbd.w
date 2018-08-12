@@ -329,10 +329,10 @@ typedef struct {
 @<Global variables used in user configuration descriptor@>@;
 const S_user_configuration_descriptor user_conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  @<Initialize element 1...@>, @/
-  @<Initialize element 2...@>, @/
-  @<Initialize element 3...@>, @/
-@t\2@> @<Initialize element 4...@> @/
+  @<Initialize element 1 ...@>, @/
+  @<Initialize element 2 ...@>, @/
+  @<Initialize element 3 ...@>, @/
+@t\2@> @<Initialize element 4 ...@> @/
 };
 
 @*2 Configuration descriptor.
