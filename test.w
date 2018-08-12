@@ -244,43 +244,6 @@ ISR(USB_COM_vect)
   UDR1 = '%';
 }
 
-@ In this test we show that |RSTCPU| does not work after first reset.
-Output is `\.{vr}'.
-
-\xdef\rstcpudoesnotworkafterfirstreset{\secno}
-
-@(/dev/null@>=
-#include <avr/io.h>
-#define USBRF 5
-uint8_t usb_reset = 0;
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  if (MCUSR & 1 << USBRF) usb_reset = 1;
-  MCUSR = 0;
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-  if (!usb_reset) { UDR1 = 'v'; while (!(UCSR1A & 1 << UDRE1)) ; }
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE;
-  if (usb_reset) { UDR1 = 'r'; while (!(UCSR1A & 1 << UDRE1)) ; }
-  UDCON |= 1 << RSTCPU;
-  UDCON &= ~(1 << DETACH);
-  UECONX |= 1 << EPEN;
-  UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
-
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
-}
-
 @ Here we show that RSTCPU remains enabled on MCU restart.
 
 Result: on device connect yellow led is on,
