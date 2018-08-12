@@ -244,61 +244,6 @@ ISR(USB_COM_vect)
   UDR1 = '%';
 }
 
-@ In this test we show that on Windows XP, SETUP request comes only once after reset signal.
-Here we do according to test in \S\controlinterrupt. The only difference is that we output
-`\.r' when reset signal happens.
-The output is `\.{rr\%r\%r\%}'.
-
-On Linux output is `\.{rr\%\%\%r\%\%\%rr\%\%\%r\%\%\%rr\%\%r\%\%}'.
-\xdef\onesetup{\secno}
-
-@(/dev/null@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE;
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  UDCON &= ~(1 << DETACH);
-
-  while (1) ;
-}
-
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'r';
-  UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UEIENX |= 1 << RXSTPE;
-}
-
-ISR(USB_COM_vect)
-{
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this;
-    but this is a contradiction to datasheet page 15 where it is said that after
-    returning from interrupt one instruction from main program is executed before
-    another interruput is served... */
-  UDR1 = '%';
-}
-
 @ We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop (until connection status variable is set to
 ``connected'') and only after that continue to the main program
