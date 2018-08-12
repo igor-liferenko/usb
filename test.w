@@ -226,7 +226,7 @@ uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 @(/dev/null@>=
 
-/* TODO: re-do this test */
+/* TODO: re-do this test for WDT */
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
