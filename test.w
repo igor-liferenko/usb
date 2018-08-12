@@ -191,59 +191,6 @@ ISR(USB_GEN_vect)
   UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
 }
 
-@ This test shows that in order that |USB_COM_vect| is called for |RXSTPI|,
-it is necessary to enable |RXSTPE| at the time when you configure EP0.
-
-Result: `\.{\%\%\%}' (on WinXP).
-
-\xdef\controlinterrupt{\secno}
-
-@(/dev/null@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE;
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  UDCON &= ~(1 << DETACH);
-
-  while (1) ;
-}
-
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-  UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-  UEIENX |= 1 << RXSTPE;
-}
-
-ISR(USB_COM_vect)
-{
-  UEINTX &= ~(1 << RXSTPI); /* interrupt will trigger infinitely if you don't do this;
-    but this is a contradiction to datasheet page 15 where it is said that after
-    returning from interrupt one instruction from main program is executed before
-    another interruput is served... */
-  UDR1 = '%';
-}
-
 @ We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop (until connection status variable is set to
 ``connected'') and only after that continue to the main program
