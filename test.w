@@ -249,6 +249,7 @@ Here we do according to test in \S\controlinterrupt. The only difference is that
 `\.r' when reset signal happens.
 The output is `\.{rr\%r\%r\%}'.
 
+On Linux output is `\.{rr\%\%\%r\%\%\%rr\%\%\%r\%\%\%rr\%\%r\%\%}'.
 \xdef\onesetup{\secno}
 
 @(/dev/null@>=
