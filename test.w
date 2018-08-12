@@ -196,33 +196,22 @@ connection phase in a loop (until connection status variable is set to
 ``connected'') and only after that continue to the main program
 (so that USB interrupts will not intervene with interrupts used for application).
 But there is a small problem with this approach: on host reboot USB remains powered.
-We need to reset the program to initial state via |RSTCPU|
-(on host reboot usb reset signals are sent), because
+We need to reset the program to initial state by resetting MCU, because
 the connection with the host is lost on host reboot, and thus we need to start
 the connection loop again.
 
-BUT according to the gotcha in \S\rstcpugotcha, we cannot use |RSTCPU| after every
-reset signal (because we will miss SETUP request).
-But we don't have to. It is sufficient to use |RSTCPU| only once on host
-reboot. And on host reboot there are plenty of reset signals,
-so we will not miss anything.
-
-But how do we detect host reboot?
-The answer is: by checking in reset signal handler if the connection is
+On host reboot \.{USB\_RESET} is generated, so we may use this fact. 
+In reset signal handler we check if the connection is
 established. As we have the variable to store status of the connection,
 we just check it: if connection is established, this means this
-reset signal comes after host reboot, and |RSTCPU| is enabled then.
+reset signal comes after host reboot, and MCU is reset then.
 
-According to test in \S\rstcpuremainsenabled, |RSTCPU| remains enabled on MCU
-restart, so we need to disable it: on MCU start we always disable
-|RSTCPU| (nothing will change if it is not enabled).
-
-In this test we show that setting |RSTCPU| in reset signal handler works.
+In this test we show that resetting MCU in \.{USB\_RESET} signal handler works.
 Result: on connect first yellow led is on; when host reboots, first led is off and
 second yellow led is on at the same time, and first led is on again after a while.
 On WinXP this test works excellent. On Linux this happens twice, because
 device is connected twice during reboot (on Linux another machine is used for
-testing, and I am sure that the first connect is made by BIOS on that machine).
+testing, and the first connect is made by BIOS on that machine).
 
 WinXP before reboot:
 vrrDrADgGQDgGSIR
@@ -233,9 +222,12 @@ vrrrDrADQQQgGSIR
 On Linux while reboot:
 uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
-\xdef\cpuresetonlyonhostreboot{\secno}
+\xdef\resetmcuonhostreboot{\secno}
 
 @(/dev/null@>=
+
+/* TODO: re-do this test */
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
