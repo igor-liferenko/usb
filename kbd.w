@@ -264,8 +264,6 @@ void send_descriptor(const void *buf, int size)
 
 @* USB stack.
 
-The order of descriptors here is the same as the order in which they are transmitted.
-
 @*1 Device descriptor.
 
 TODO: find what prefixes mean in names of variables (i.e., `b', `bcd', ...)
