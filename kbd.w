@@ -189,7 +189,8 @@ send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
 @ @<Finish connection@>=
 connected = 1; /* in contrast with \S\uenumtozero, it must be before switching from |EP0| */
-UENUM = EP1;
+UENUM = EP1; /* FIXME: move this to ``set configuration'' and in
+\.{USB\_RESET} interrupt handler set |UENUM| to zero before configuring endpoint */
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
