@@ -319,10 +319,10 @@ $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=kbd-structure.eps
 @<Type \null definitions@>=
 @<Type definitions used in user configuration descriptor@>@;
 typedef struct {
-   S_configuration_descriptor conf_desc;
-   S_interface_descriptor     ifc;
-   S_hid_descriptor           hid;
-   S_endpoint_descriptor      ep1;
+   S_configuration_descriptor el1;
+   S_interface_descriptor     el2;
+   S_hid_descriptor           el3;
+   S_endpoint_descriptor      el4;
 } S_user_configuration_descriptor;
 
 @ @<Global \null variables@>=
