@@ -298,63 +298,6 @@ ISR(USB_COM_vect)
   UDR1 = '%';
 }
 
-@ As is shown by test in \S\rstcpudoesnotworkafterfirstreset, |RSTCPU| does not work
-after first reset.
-Here we show how to make it work: it is necessary to clear |EORSTI| when reset occurs.
-It seems RSTCPU is triggered only when EORSTI goes from zero to one, but only
-after EORSTE interrupt exits.
-
-BUT, here is an important gotcha: on some systems, SETUP request comes only once after
-reset signal (see test in \S\onesetup\footnote*{Keep in mind also, that according to
-test in \S\numreset, there may be only {\sl one\/} SETUP request.}),
-and it comes too quickly ---~right at the time of reset timeout
-(see picture in \S8.0.7 in datasheet). As such, the SETUP request is not received.
-For example, in this test on Windows XP the `\.{\%}' is never output: the output is `\.{vrrrr}'.
-
-On Linux output is `\.{vrr\%r\%}'.
-
-\xdef\rstcpugotcha{\secno}
-
-@(/dev/null@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#define USBRF 5
-uint8_t usb_reset = 0;
-void main(void)
-{
-  UHWCON |= 1 << UVREGE;
-
-  if (MCUSR & 1 << USBRF) usb_reset = 1;
-  MCUSR = 0;
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-  if (!usb_reset) { UDR1 = 'v'; while (!(UCSR1A & 1 << UDRE1)) ; }
-
-  PLLCSR |= 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE;
-  UDIEN |= 1 << EORSTE;
-  sei();
-  if (usb_reset) { UDR1 = 'r'; while (!(UCSR1A & 1 << UDRE1)) ; }
-  UDCON |= 1 << RSTCPU;
-  UDCON &= ~(1 << DETACH);
-  UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '%';
-}
-
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-}
-
 @ We do not want to use interrupts for handling |RXSTPI|, but instead handle
 connection phase in a loop (until connection status variable is set to
 ``connected'') and only after that continue to the main program
