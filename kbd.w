@@ -70,7 +70,7 @@ ISR(USB_GEN_vect)
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
   else {
-    @<Reset MCU@>@; /* see \S\cpuresetonlyonhostreboot\ */
+    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
   }
 }
 
