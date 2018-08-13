@@ -372,8 +372,8 @@ ISR(USB_GEN_vect)
   }
   else {
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
-    WDTCSR |= 1 << WDCE | 1 << WDE; /* allow to enable WDT */
-    WDTCSR = 1 << WDE; /* enable WDT */
+    WDTCSR |= 1 << WDCE | 1 << WDE;
+    WDTCSR = 1 << WDE;
     while (1) ;
   }
 }
@@ -725,3 +725,6 @@ it works after; but according to test in \S\rxstpiautoack, |RXSTPI| is not autom
 acknowledged...
 
 \xdef\stallrq{\secno}
+
+@ TODO: create test that if {\bf string descriptor} is multiple of bank size, OUT packet for
+STATUS never comes (see ``Send descriptor'' section in demo/main.w)
