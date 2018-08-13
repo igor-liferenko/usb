@@ -65,6 +65,7 @@ ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
+    UENUM = EP0;
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
@@ -115,7 +116,7 @@ case 0x0680: @/
   break;
 case 0x0681: @/
   @<Handle {\caps get descriptor hid}@>@;
-  @<Finish connection@>@;
+  connected = 1;
   break;
 case 0x0900: @/
   @<Handle {\caps set configuration}@>@;
@@ -197,18 +198,14 @@ UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << RXSTPI);
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
-@ @<Finish connection@>=
-connected = 1; /* in contrast with \S\uenumtozero, it must be before switching from |EP0| */
-UENUM = EP1; /* FIXME: move this to ``set configuration'' and in
-\.{USB\_RESET} interrupt handler set |UENUM| to zero before configuring endpoint */
+@ @<Handle {\caps set configuration}@>=
+UEINTX &= ~(1 << RXSTPI);
+UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
 UECFG1X = 1 << ALLOC; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-
-@ @<Handle {\caps set configuration}@>=
-UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ @<Handle {\caps set idle}@>=
