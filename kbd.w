@@ -74,6 +74,16 @@ ISR(USB_GEN_vect)
   }
 }
 
+@ @<Reset MCU@>=
+WDTCSR |= 1 << WDCE | 1 << WDE;
+WDTCSR = 1 << WDE;
+while (1) ;
+
+@ @<Disable WDT@>=
+MCUSR = 0x00;
+WDTCSR |= 1 << WDCE | 1 << WDE;
+WDTCSR = 0x00;
+
 @ The following big switch just dispatches SETUP request.
 
 @<Process SETUP request@>=
