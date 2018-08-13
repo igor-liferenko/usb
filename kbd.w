@@ -120,7 +120,7 @@ case 0x0680: @/
   break;
 case 0x0681: @/
   @<Handle {\caps get descriptor hid}@>@;
-  connected = 1;
+  @<Finish connection@>@;
   break;
 case 0x0900: @/
   @<Handle {\caps set configuration}@>@;
@@ -201,6 +201,10 @@ UEINTX &= ~(1 << RXSTPI);
 @ @<Handle {\caps get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
 send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+
+@ @<Finish connection@>=
+connected = 1;
+UENUM = EP1;
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
