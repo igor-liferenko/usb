@@ -33,9 +33,12 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   uint16_t wLength;
-  while (!connected)
+  while (!connected) {
+    UENUM = EP0; /* it is necessary to do it here because in {\caps set configuration}
+      another endpoint is selected */
     if (UEINTX & 1 << RXSTPI)
       @<Process SETUP request@>@;
+  }
 
   @<Pullup input pins@>@;
 
@@ -65,7 +68,8 @@ ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
-    UENUM = EP0;
+    UENUM = EP0; /* it is necessary because |connected| is set after
+      {\caps set configuration}, where another endpoint is selected */
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
