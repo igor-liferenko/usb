@@ -213,6 +213,7 @@ On WinXP this test works excellent. On Linux this happens twice, because
 device is connected twice during reboot (on Linux another machine is used for
 testing, and the first connect is made by BIOS on that machine).
 
+TODO: re-do these tests for WDT
 WinXP before reboot:
 vrrDrADgGQDgGSIR
 WinXP while reboot:
@@ -225,14 +226,9 @@ uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
 \xdef\resetmcuonhostreboot{\secno}
 
 @(/dev/null@>=
-
-/* TODO: re-do this test for WDT */
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-
-#define USBRF 5
 
 const uint8_t dev_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
@@ -278,14 +274,12 @@ void send_descriptor(const void *buf, int size)
 volatile int connected = 0;
 void main(void)
 {
-  @<Disable WDT@>@;
+  if (MCUSR & 1 << WDTRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
+  MCUSR = 0x00;
+  WDTCSR |= 1 << WDCE | 1 << WDE;
+  WDTCSR = 0x00;
 
   UHWCON |= 1 << UVREGE;
-
-  if (MCUSR & 1 << USBRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
-  MCUSR = 0;
-
-  UDCON &= ~(1 << RSTCPU);
 
   UBRR1 = 34;
   UCSR1A |= 1 << U2X1;
@@ -377,8 +371,10 @@ ISR(USB_GEN_vect)
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
-    @<Reset MCU@>@;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
+    WDTCSR |= 1 << WDCE | 1 << WDE; /* allow to enable WDT */
+    WDTCSR = 1 << WDE; /* enable WDT */
+    while (1) ;
   }
 }
 
