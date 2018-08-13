@@ -200,13 +200,14 @@ send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
 UECFG1X = 1 << ALLOC; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
 
 @ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
