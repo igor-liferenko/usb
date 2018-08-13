@@ -278,6 +278,8 @@ void send_descriptor(const void *buf, int size)
 volatile int connected = 0;
 void main(void)
 {
+  @<Disable WDT@>@;
+
   UHWCON |= 1 << UVREGE;
 
   if (MCUSR & 1 << USBRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
@@ -375,7 +377,7 @@ ISR(USB_GEN_vect)
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
-    UDCON |= 1 << RSTCPU;
+    @<Reset MCU@>@;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
   }
 }
