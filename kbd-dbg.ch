@@ -15,9 +15,11 @@ It is only necessary to wait right before sending next data.
 @z
 
 @x
-  else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
+    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
+  }
 @y
-  else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
+    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
+  }
   while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
 @z
 
@@ -39,11 +41,11 @@ send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc
 @z
 
 @x
-send_descriptor(&user_conf_desc, wLength);
+send_descriptor(&usb_conf_desc, wLength);
 @y
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
-send_descriptor(&user_conf_desc, wLength);
+send_descriptor(&usb_conf_desc, wLength);
 @z
 
 @x
@@ -65,13 +67,6 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'P';
 send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
-@z
-
-@x
-send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
-@y
-while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'N';
-send_descriptor(NULL, 1 + 1 + SN_LENGTH * 2); /* multiply because Unicode */
 @z
 
 @x
