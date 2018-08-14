@@ -14,7 +14,7 @@ keyboard.
 
 @c
 @<Header files@>@;
-@<Type \null definitions@>@;
+@<Type definitions@>@;
 @<Global \null variables@>@;
 @<Functions@>@;
 
@@ -328,13 +328,12 @@ struct {
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=kbd-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 
-@<Type \null definitions@>=
-@<Type definitions used in configuration descriptor@>@;
+@<Type definitions@>=
 typedef struct {
    @<Configuration header descriptor@> @,@,@! el1;
-   S_interface_descriptor el2;
-   S_hid_descriptor el3;
-   S_endpoint_descriptor el4;
+   @<Interface descriptor@> @,@,@! el2;
+   @<HID configuration descriptor@> @,@,@! el3;
+   @<Endpoint descriptor@> @,@,@! el4;
 } S_configuration_descriptor;
 
 @ @<Global \null variables@>=
@@ -376,10 +375,8 @@ struct {
 
 @*2 Interface descriptor.
 
-@s S_interface_descriptor int
-
-@<Type definitions ...@>=
-typedef struct {
+@<Interface descriptor@>=
+struct {
    uint8_t      bLength;
    uint8_t      bDescriptorType;
    uint8_t      bInterfaceNumber; /* number between 0 and |bNumInterfaces-1|, for
@@ -390,7 +387,7 @@ typedef struct {
    uint8_t      bInterfaceSubClass; /* sub-class code assigned by the USB */
    uint8_t      bInterfaceProtocol; /* protocol code assigned by the USB */
    uint8_t      iInterface; /* index of string descriptor */
-}  S_interface_descriptor;
+}
 
 @ |bInterfaceSubClass| signifies device type (non-bootable or bootable).
 
@@ -398,7 +395,7 @@ typedef struct {
 standard protocol which the device supports (user-defined, keyboard or mouse).
 
 @<Initialize element 2 in configuration descriptor@>= { @t\1@> @/
-  sizeof (S_interface_descriptor), @/
+  9, /* size of this structure */
   0x04, /* interface descriptor */
   0, /* this corresponds to `0' in `if0' on picture */
   0, /* this corresponds to `0' in `alt0' on picture */
@@ -409,12 +406,10 @@ standard protocol which the device supports (user-defined, keyboard or mouse).
 @t\2@> 0 /* no string descriptor */
 }
 
-@*2 HID descriptor.
+@*2 HID configuration descriptor.
 
-@s S_hid_descriptor int
-
-@<Type definitions ...@>=
-typedef struct {
+@<HID configuration descriptor@>=
+struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
   uint16_t bcdHID;
@@ -422,10 +417,10 @@ typedef struct {
   uint8_t bNumDescriptors;
   uint8_t bReportDescriptorType;
   uint16_t wReportDescriptorLength;
-} S_hid_descriptor;
+}
 
 @ @<Initialize element 3 in configuration descriptor@>= { @t\1@> @/
-  sizeof (S_hid_descriptor), @/
+  9, /* size of this structure */
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
   0x00, /* no localization */
@@ -436,22 +431,20 @@ typedef struct {
 
 @*2 Endpoint descriptor.
 
-@s S_endpoint_descriptor int
-
-@<Type definitions ...@>=
-typedef struct {
+@<Endpoint descriptor@>=
+struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
   uint8_t bEndpointAddress;
   uint8_t bmAttributes;
   uint16_t wMaxPacketSize;
   uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
-} S_endpoint_descriptor;
+}
 
 @ @d IN (1 << 7)
 
 @<Initialize element 4 in configuration descriptor@>= { @t\1@> @/
-  sizeof (S_endpoint_descriptor), @/
+  7, /* size of this structure */
   0x05, /* endpoint */
   IN | 1, /* this corresponds to `1' in `ep1' on picture */
   0x03, /* transfers via interrupts\footnote\dag{Must correspond to
@@ -580,7 +573,7 @@ TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/
 
 @s S_string_descriptor int
 
-@<Type \null definitions@>=
+@<Type definitions@>=
 typedef struct {
   uint8_t bLength;
   uint8_t bDescriptorType;
