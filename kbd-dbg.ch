@@ -41,11 +41,11 @@ send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc
 @z
 
 @x
-send_descriptor(&usb_conf_desc, wLength);
+send_descriptor(&conf_desc, wLength);
 @y
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
-send_descriptor(&usb_conf_desc, wLength);
+send_descriptor(&conf_desc, wLength);
 @z
 
 @x
