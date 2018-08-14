@@ -169,7 +169,7 @@ send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&usb_conf_desc, wLength);
+send_descriptor(&conf_desc, wLength);
 
 @ @<Handle {\caps get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
@@ -323,23 +323,23 @@ struct {
 @t\2@> 1 /* one configuration for this device */
 };
 
-@*1 USB configuration descriptor.
+@*1 Configuration descriptor.
 
 $$\hbox to5cm{\vbox to7.7cm{\vfil\special{psfile=kbd-structure.eps
   clip llx=0 lly=0 urx=187 ury=288 rwi=1417}}\hfil}$$
 
 @<Type \null definitions@>=
-@<Type definitions used in USB configuration descriptor@>@;
+@<Type definitions used in configuration descriptor@>@;
 typedef struct {
    @<Configuration header descriptor@> @,@,@! el1;
    S_interface_descriptor el2;
    S_hid_descriptor el3;
    S_endpoint_descriptor el4;
-} S_usb_configuration_descriptor;
+} S_configuration_descriptor;
 
 @ @<Global \null variables@>=
-@<Global variables used in USB configuration descriptor@>@;
-const S_usb_configuration_descriptor usb_conf_desc
+@<Global variables used in configuration descriptor@>@;
+const S_configuration_descriptor conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize element 1 ...@>, @/
   @<Initialize element 2 ...@>, @/
@@ -363,10 +363,10 @@ struct {
    uint8_t      MaxPower;
 }
 
-@ @<Initialize element 1 in USB configuration descriptor@>= { @t\1@> @/
+@ @<Initialize element 1 in configuration descriptor@>= { @t\1@> @/
   9, /* size of this structure */
   0x02, /* configuration descriptor */
-  sizeof (S_usb_configuration_descriptor), @/
+  sizeof (S_configuration_descriptor), @/
   1, /* one interface in this configuration */
   1, /* this corresponds to `1' in `cfg1' on picture */
   0, /* no string descriptor */
@@ -397,7 +397,7 @@ typedef struct {
 |bInterfaceProtocol| is used if device is determined as bootable. It signifies
 standard protocol which the device supports (user-defined, keyboard or mouse).
 
-@<Initialize element 2 in USB configuration descriptor@>= { @t\1@> @/
+@<Initialize element 2 in configuration descriptor@>= { @t\1@> @/
   sizeof (S_interface_descriptor), @/
   0x04, /* interface descriptor */
   0, /* this corresponds to `0' in `if0' on picture */
@@ -424,7 +424,7 @@ typedef struct {
   uint16_t wReportDescriptorLength;
 } S_hid_descriptor;
 
-@ @<Initialize element 3 in USB configuration descriptor@>= { @t\1@> @/
+@ @<Initialize element 3 in configuration descriptor@>= { @t\1@> @/
   sizeof (S_hid_descriptor), @/
   0x21, /* HID */
   0x0100, /* HID version 1.0 */
@@ -450,7 +450,7 @@ typedef struct {
 
 @ @d IN (1 << 7)
 
-@<Initialize element 4 in USB configuration descriptor@>= { @t\1@> @/
+@<Initialize element 4 in configuration descriptor@>= { @t\1@> @/
   sizeof (S_endpoint_descriptor), @/
   0x05, /* endpoint */
   IN | 1, /* this corresponds to `1' in `ep1' on picture */
