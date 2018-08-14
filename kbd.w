@@ -226,10 +226,12 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 When previous packet was sent, TXINI becomes 1. A new packet may be sent only
 after TXINI becomes 1. With TXINI the logic is the same as with UDRE (UEDATX is like UDR).
 
+TODO: if |size < wLength|, send empty packet if |size % EP0_SIZE == 0|.
+@^TODO@>
+
 @<Functions@>=
 void send_descriptor(const void *buf, int size)
 {
-#if 1
   while (1) {
     int nb_byte = 0;
     while (size != 0) {
@@ -245,34 +247,6 @@ void send_descriptor(const void *buf, int size)
       break;
     }
   }
-#else /* FIXME: where is it said in datasheet or USB spec that the last-packet-full check
-         is necessary? */
-  int last_packet_full = 0;
-  while (1) {
-    int nb_byte = 0;
-    while (size != 0) {
-      if (nb_byte++ == EP0_SIZE) {
-        last_packet_full = 1;
-        break;
-      }
-      UEDATX = pgm_read_byte(buf++);
-      size--;
-    }
-    if (nb_byte == 0) {
-      if (last_packet_full)
-        UEINTX &= ~(1 << TXINI);
-    }
-    else
-      UEINTX &= ~(1 << TXINI);
-    if (nb_byte != EP0_SIZE)
-      last_packet_full = 0;
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
-      break;
-    }
-  }
-#endif
 }
 
 @i control-endpoint-management.w
