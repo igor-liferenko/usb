@@ -285,8 +285,12 @@ void send_descriptor(const void *buf, int size)
 
 TODO: find what prefixes mean in names of variables (i.e., `b', `bcd', ...)
 
-@<Type \null definitions@>=
-typedef struct {
+@d MANUFACTURER 0x01
+@d PRODUCT 0x02
+@d NOT_USED 0x00
+
+@<Global \null variables@>=
+struct {
   uint8_t      bLength;
   uint8_t      bDescriptorType;
   uint16_t     bcdUSB; /* version */
@@ -301,16 +305,9 @@ typedef struct {
   uint8_t      iProduct; /* index of prod. string descriptor */
   uint8_t      iSerialNumber; /* index of S.N. string descriptor */
   uint8_t      bNumConfigurations;
-} S_device_descriptor;
-
-@ @d MANUFACTURER 0x01
-@d PRODUCT 0x02
-@d NOT_USED 0x00
-
-@<Global \null variables@>=
-const S_device_descriptor dev_desc
+} const dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  sizeof (S_device_descriptor), @/
+  18, /* size of this structure */
   0x01, /* device */
   0x0200, /* USB 2.0 */
   0, /* no class */
