@@ -223,8 +223,8 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ See datasheet \S22.12.2.
 
-When previous packet was sent, TXINI becomes 1. A new packet may be sent only
-after TXINI becomes 1. With TXINI the logic is the same as with UDRE (UEDATX is like UDR).
+When previous packet was sent, TXINI becomes `1'. After TXINI becomes `1', new data may be written
+to UEDATX. With TXINI the logic is the same as with UDRE, and UEDATX is like UDR.
 
 TODO: if |size < wLength|, send empty packet if |size % EP0_SIZE == 0|.
 add third argument to this function - emp
