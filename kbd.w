@@ -227,6 +227,7 @@ When previous packet was sent, TXINI becomes 1. A new packet may be sent only
 after TXINI becomes 1. With TXINI the logic is the same as with UDRE (UEDATX is like UDR).
 
 TODO: if |size < wLength|, send empty packet if |size % EP0_SIZE == 0|.
+add third argument to this function - emp
 @^TODO@>
 
 @<Functions@>=
