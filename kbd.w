@@ -240,7 +240,12 @@ void send_descriptor(const void *buf, int size)
       UEDATX = pgm_read_byte(buf++);
       size--;
     }
-    UEINTX &= ~(1 << TXINI);
+    UEINTX &= ~(1 << TXINI); /* this is suspicious, because it will send empty packet,
+      and if nakouti comes before rxouti, we txini is already set, but nothing more
+      must be transmitted (because nakouti was set), but an empty packet will be transmitted
+      (because the following condition will be true only when next packet arrives - this
+      is when RXOUTI is set); a check is required if nakouti comes before rxouti - see
+      test in \S\nakoutibeforerxouti\ */
     while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
     if (UEINTX & (1 << RXOUTI)) {
       UEINTX &= ~(1 << RXOUTI);
