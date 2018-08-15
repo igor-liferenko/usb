@@ -1,4 +1,13 @@
 % TODO: do here based on demo/main.w
+
+IMPORTANT: Never send more than one bank size less one byte to the host at a time, so that we
+don't block while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't
+listening.
+-----------
+In general, USB uses a less-than-max-length packet to demarcate an end-of-transfer. So in the case of a transfer which is an integer multiple of max-packet-length, a ZLP is used for demarcation.
+You see this in bulk pipes a lot. For example, if you have a 4096 byte transfer, that will be broken down into an integer number of max-length packets plus one zero-length-packet. If the SW driver has a big enough receive buffer set up, higher-level SW receives the entire transfer at once, when the ZLP occurs.
+-----------
+
 @** Data throughput, latency and handshaking issues.
 The Universal Serial Bus may be new to some users and developers. Here are
 described the major architecture differences that need to be considered by both software and
