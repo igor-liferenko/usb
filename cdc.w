@@ -7,6 +7,10 @@ listening.
 In general, USB uses a less-than-max-length packet to demarcate an end-of-transfer. So in the case of a transfer which is an integer multiple of max-packet-length, a ZLP is used for demarcation.
 You see this in bulk pipes a lot. For example, if you have a 4096 byte transfer, that will be broken down into an integer number of max-length packets plus one zero-length-packet. If the SW driver has a big enough receive buffer set up, higher-level SW receives the entire transfer at once, when the ZLP occurs.
 -----------
+Just never send anything if DTR is not active.
+Then you may use the trick between ---- ---- and don't afraid the thing mentioned before ----
+Because driver will flush everything which was not transmitted to application when tty
+is closed (fix the driver to do so if it does not do this).
 
 @** Data throughput, latency and handshaking issues.
 The Universal Serial Bus may be new to some users and developers. Here are
