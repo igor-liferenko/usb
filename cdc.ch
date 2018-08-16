@@ -1,5 +1,8 @@
 This change-file is for demo/main.w
 
+TODO: rm both "default:" and all unused cases (see via wireshark) + add "Reset MCU"
+
+
 IMPORTANT: Never send more than one bank size less one byte to the host at a time, so that we
 don't block while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't
 listening.
