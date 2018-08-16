@@ -376,14 +376,19 @@ $$\hbox to16cm{\vbox to4.29cm{\vfil\special{psfile=OUT.eps
   clip llx=0 lly=0 urx=1348 ury=362 rwi=4535}}\hfil}$$
 
 Make it work with tel.w + invert leds.
++see usbttl/avrtel.ch
 
 @x
+  DDRD |= 1 << PD5;
+  DDRB |= 1 << PB0;
   DDRF &= ~(1 << PF4), PORTF |= 1 << PF4; /* input */
   DDRF &= ~(1 << PF5), PORTF |= 1 << PF5; /* input */
   DDRF &= ~(1 << PF6), PORTF |= 1 << PF6; /* input */
   DDRD |= 1 << PD7; /* ground */
 @y
-  PORTD |= 1 << PD5; /* led off */
+  PORTD |= 1 << PD5; /* led off (before enabling output) */
+  DDRD |= 1 << PD5;
+  DDRB |= 1 << PB0;
   DDRE |= 1 << PE6;
   PORTE |= 1 << PE6; /* |DTR| pin high */
 @z
