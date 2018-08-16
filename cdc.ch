@@ -389,9 +389,9 @@ Make it work with tel.w + invert leds.
 @z
 
 @x
-            PORTD |= 1 << PD5; /* check if this ever happens */
+          if (rx_counter == 0) PORTD |= 1 << PD5; /* this cannot happen */
 @y
-            PORTD &= ~(1 << PD5); /* check if this ever happens */
+          if (rx_counter == 0) PORTD &= ~(1 << PD5); /* this cannot happen */
 @z
 
 @x
