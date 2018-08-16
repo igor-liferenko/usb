@@ -395,6 +395,22 @@ Make it work with tel.w + invert leds.
 @z
 
 @x
+    if (usb_configuration_nb != 0) { /* do not allow to receive data before
+                                        end of enumeration FIXME: does this make any sense? */
+      if (UCSR1A & 1 << UDRE1) {
+        UENUM = EP2;
+        if (UEINTX & 1 << RXOUTI) {
+          rx_counter = UEBCLX;
+          if (rx_counter == 0) PORTD |= 1 << PD5; /* this cannot happen */
+          while (rx_counter) {
+            while (!(UCSR1A & 1 << UDRE1)) ;
+            UDR1 = UEDATX;
+            rx_counter--;
+            if (rx_counter == 0)
+              UEINTX &= ~(1 << RXOUTI), UEINTX &= ~(1 << FIFOCON);
+          }
+        }
+      }
       if (cpt_sof >= 100) { /* debounce (FIXME: how is this even supposed to work?) */
         unsigned char data;
         if (!(PINF & 1 << PF4)) {
@@ -414,6 +430,12 @@ Make it work with tel.w + invert leds.
           serial_state.bDSR = 0;
         @<Notify host if |serial_state| changed@>@;
       }
+      if (usb_request_break_generation == 1) {
+        usb_request_break_generation = 0;
+        PORTB ^= 1 << PB0;
+        @<Reset MCU@>@;
+      }
+    }
 @y
 @z
 
