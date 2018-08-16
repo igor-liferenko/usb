@@ -423,7 +423,7 @@ Make it work with tel.w + invert leds.
 @z
 
 @x
-  line_status.all = UEDATX | UEDATX << 8;
+line_status.all = UEDATX | UEDATX << 8;
 @y
 line_status.all = UEDATX | UEDATX << 8;
 if (line_status.DTR) {
