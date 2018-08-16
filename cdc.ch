@@ -389,12 +389,6 @@ Make it work with tel.w + invert leds.
 @z
 
 @x
-          if (rx_counter == 0) PORTD |= 1 << PD5; /* this cannot happen */
-@y
-          if (rx_counter == 0) PORTD &= ~(1 << PD5); /* this cannot happen */
-@z
-
-@x
     if (usb_configuration_nb != 0) { /* do not allow to receive data before
                                         end of enumeration FIXME: does this make any sense? */
       if (UCSR1A & 1 << UDRE1) {
@@ -436,11 +430,6 @@ Make it work with tel.w + invert leds.
         @<Reset MCU@>@;
       }
     }
-@y
-@z
-
-@x
-        PORTB ^= 1 << PB0;
 @y
 @z
 
