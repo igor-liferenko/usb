@@ -4,8 +4,12 @@ IMPORTANT: Never send more than one bank size less one byte to the host at a tim
 don't block while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't
 listening.
 -----------
-In general, USB uses a less-than-max-length packet to demarcate an end-of-transfer. So in the case of a transfer which is an integer multiple of max-packet-length, a ZLP is used for demarcation.
-You see this in bulk pipes a lot. For example, if you have a 4096 byte transfer, that will be broken down into an integer number of max-length packets plus one zero-length-packet. If the SW driver has a big enough receive buffer set up, higher-level SW receives the entire transfer at once, when the ZLP occurs.
+In general, USB uses a less-than-max-length packet to demarcate an end-of-transfer. So in the case
+of a transfer which is an integer multiple of max-packet-length, a ZLP is used for demarcation.
+You see this in bulk pipes a lot. For example, if you have a 4096 byte transfer, that will be
+broken down into an integer number of max-length packets plus one zero-length-packet. If the SW
+driver has a big enough receive buffer set up, higher-level SW receives the entire transfer at
+once, when the ZLP occurs.
 -----------
 Just never send anything if DTR is not active.
 Then you may use the trick between ---- ---- and don't afraid the thing mentioned before ----
@@ -352,9 +356,9 @@ for (uint8_t i = 0; i < SN_LENGTH; i++) {
 @c
 /*  \.{OUT \char'174\ 2} */
 
-@i control-endpoint-management.w
+ @i control-endpoint-management.w
 
-@i IN-endpoint-management.w
+ @i IN-endpoint-management.w
 
 @* OUT endpoint management.
 
@@ -367,3 +371,64 @@ $$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=transaction-OU
 
 $$\hbox to16cm{\vbox to4.29cm{\vfil\special{psfile=OUT.eps
   clip llx=0 lly=0 urx=1348 ury=362 rwi=4535}}\hfil}$$
+
+Make it work with tel.w + invert leds.
+
+@x
+  DDRF &= ~(1 << PF4), PORTF |= 1 << PF4; /* input */
+  DDRF &= ~(1 << PF5), PORTF |= 1 << PF5; /* input */
+  DDRF &= ~(1 << PF6), PORTF |= 1 << PF6; /* input */
+  DDRD |= 1 << PD7; /* ground */
+@y
+  PORTD |= 1 << PD5; /* led off */
+  DDRE |= 1 << PE6;
+  PORTE |= 1 << PE6; /* |DTR| pin high */
+@z
+
+@x
+            PORTD |= 1 << PD5; /* check if this ever happens */
+@y
+            PORTD &= ~(1 << PD5); /* check if this ever happens */
+@z
+
+@x
+      if (cpt_sof >= 100) { /* debounce (FIXME: how is this even supposed to work?) */
+        unsigned char data;
+        if (!(PINF & 1 << PF4)) {
+          data = '*'; @+ uart_usb_send_buffer(&data, 1);
+          serial_state.bDCD = 1;
+        }
+        else
+          serial_state.bDCD = 0;
+        if (!(PINF & 1 << PF5)) {
+          data = '0'; @+ uart_usb_send_buffer(&data, 1);
+        }
+        if (!(PINF & 1 << PF6)) {
+          data = '#'; @+ uart_usb_send_buffer(&data, 1);
+          serial_state.bDSR = 1;
+        }
+        else
+          serial_state.bDSR = 0;
+        @<Notify host if |serial_state| changed@>@;
+      }
+@y
+@z
+
+@x
+        PORTB ^= 1 << PB0;
+@y
+@z
+
+@x
+  line_status.all = UEDATX | UEDATX << 8;
+@y
+line_status.all = UEDATX | UEDATX << 8;
+if (line_status.DTR) {
+  PORTE &= ~(1 << PE6); /* |DTR| pin low */
+  PORTB |= 1 << PB0; /* led off */
+}
+else {
+  PORTE |= 1 << PE6; /* |DTR| pin high */
+  PORTB &= ~(1 << PB0); /* led on */
+}
+@z
