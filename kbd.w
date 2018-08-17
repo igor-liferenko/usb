@@ -192,11 +192,20 @@ If a full-speed only device receives a Get Descriptor request for a device quali
 respond with a request error. Then, the host must not make a request device information for
 high-speed.
 
-See test in \S\stallrq\ to understand why we set |STALLRQ| before clearing |RXSTPI|.
+USB\S8.5.3.4: If the device is unable to complete a command, it returns a STALL in the Data
+and/or Status
+stages of the control transfer. Unlike the case of a functional stall, protocol stall does not
+indicate an error
+with the device. The protocol STALL condition lasts until the receipt of the next SETUP
+transaction, and
+the function will return STALL in response to any IN or OUT transaction on the pipe until the SETUP
+transaction is received. In general, protocol stall indicates that the request or its parameters
+are not
+understood by the device and thus provides a mechanism for extending USB requests.
 
 @<Handle {\caps get descriptor device qualifier}@>=
-UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
+UECONX |= 1 << STALLRQ;
 
 @ @<Handle {\caps get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
