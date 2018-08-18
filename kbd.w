@@ -1,4 +1,5 @@
 % TODO: re-do send_descriptor as in main.w?
+% TODO: do all via wValue, wIndex, wLength as in demo/main.w
 
 \secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
                                            % \datethis in test.w (with and without kbd.ch)
