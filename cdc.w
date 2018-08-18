@@ -837,39 +837,19 @@ typedef union {
 @ @<Global variables@>=
 S_line_status line_status;
 
-@ This request generates RS-232/V.24 style control signals.
-
-Only first two bits of the first byte are used. First bit indicates to DCE if DTE is
-present or not. This signal corresponds to V.24 signal 108/2 and RS-232 signal DTR.
-@^DTR@>
-Second bit activates or deactivates carrier. This signal corresponds to V.24 signal
-105 and RS-232 signal RTS\footnote*{For some reason on linux DTR and RTS signals
-are tied to each other.}. Carrier control is used for half duplex modems.
-The device ignores the value of this bit when operating in full duplex mode.
-
-\S6.2.14 in CDC spec.
-
-TODO: manage here hardware flow control
-@^TODO@>
-
-@<Handle {\caps set control line state}@>=
-line_status.all = UEDATX | UEDATX << 8;
+@ @<Handle {\caps set control line state}@>=
+wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+line_status.all = wValue;
 
-@ @<Handle {\caps set line coding}@>=
+@ This is a stub. Just discard the data.
+
+@<Handle {\caps set line coding}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
-
-@ This request allows the host to select an alternate setting for the specified interface.
-
-\S9.4.10 in USB spec.
-
-@<Handle {\caps set interface}@>=
-  UEINTX &= ~(1 << RXSTPI);
-  UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @* Headers.
 \secpagedepth=1 % index on current page
