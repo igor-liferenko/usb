@@ -186,13 +186,10 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 @ A high-speed capable device that has different device information for full-speed and high-speed
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
 full-speed, the Device Qualifier returns information about how it would operate at high-speed and
-vice-versa.
-
-Return a STALL as a response to IN token, which normally begins the DATA stage.
-Then, the host must not make a request device information for
-high-speed.
-
-Note, that this STALL does not indicate an error with the device.
+vice-versa. So as this device is full-speed, it tells the host not to request
+device information for high-speed by using ``protocol stall'' (this stall
+does not indicate an error with the device, it serves merely as a means of
+extending USB requests).
 
 This STALL condition is automatically cleared on the receipt of the
 next SETUP token.
@@ -201,7 +198,7 @@ USB\S8.5.3.4, datasheet\S22.11.
 
 @<Handle {\caps get descriptor device qualifier}@>=
 UEINTX &= ~(1 << RXSTPI);
-UECONX |= 1 << STALLRQ;
+UECONX |= 1 << STALLRQ; /* return STALL in response to IN token of the DATA stage */
 
 @ @<Handle {\caps get descriptor hid}@>=
 UEINTX &= ~(1 << RXSTPI);
