@@ -502,30 +502,32 @@ const uint8_t hid_report_descriptor[]
 @t\2@> 0xc0   @t\hskip36pt@> // \.{END\_COLLECTION}
 };
 
-@ @<Send button@>=
-      UEDATX = mod;
-      UEDATX = 0;
-      UEDATX = btn;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
-        new packet to be sent when following IN request arrives (for key release) */
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEDATX = 0;
-      UEINTX &= ~(1 << TXINI);
-      UEINTX &= ~(1 << FIFOCON);
-      while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
+@ Key press, then key release.
+
+@<Send button@>=
+while (!(UEINTX & (1 << TXINI))) ;
+UEINTX &= ~(1 << TXINI);
+UEDATX = mod;
+UEDATX = 0;
+UEDATX = btn;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEINTX &= ~(1 << FIFOCON);
+
+while (!(UEINTX & (1 << TXINI))) ;
+UEINTX &= ~(1 << TXINI);
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEDATX = 0;
+UEINTX &= ~(1 << FIFOCON);
 
 @*1 Language descriptor.
 
