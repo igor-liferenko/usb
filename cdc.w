@@ -1,13 +1,9 @@
-TODO: do via "connected" phase (then check DTR each time as said in usb/main.w) + add "Reset MCU"
-TODO: remove unused "handle" sections
-TODO: integrate changes from cdc.ch
-
 \let\lheader\rheader
 %\datethis
 \secpagedepth=2 % begin new page only on *
 \font\caps=cmcsc10 at 9pt
 
-@* Program. This is avrtel.
+@* Program.
 
 @c
 @<Header files@>@;
@@ -15,14 +11,6 @@ TODO: integrate changes from cdc.ch
 typedef unsigned char U8;
 typedef unsigned short U16;
 typedef unsigned long U32;
-typedef unsigned char Bool;
-
-#define EVT_USB_POWERED               1         // USB plugged
-#define EVT_USB_UNPOWERED             2         // USB un-plugged
-#define EVT_USB_SUSPEND               5
-#define EVT_USB_WAKE_UP               6
-#define EVT_USB_RESUME                7
-#define EVT_USB_RESET                 8
 
 @<Type \null definitions@>@;
 
@@ -380,14 +368,6 @@ struct {
 
 @ @c
 @<Global variables@>@;
-U8 endpoint_status[7];
-U8 usb_configuration_nb;
-volatile U8 usb_request_break_generation = 0;
-volatile U8 rs2usb[10];
-volatile U16 g_usb_event = 0;
-U8 usb_suspended = 0;
-U8 usb_connected = 0;
-U16 rx_counter;
 
 #define EP0 0
 #define EP1 1
@@ -397,73 +377,58 @@ U16 rx_counter;
 @ @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
 
 @c
-int main(void)
+volatile int connected = 0;
+void main(void)
 {
   @<Disable WDT@>@;
-
-  UHWCON |= 1 << UVREGE;
-  clock_prescale_set(0);
-  USBCON &= ~(1 << USBE);
+  UHWCON = 1 << UVREGE;
   USBCON |= 1 << USBE;
+  PLLCSR = 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & 1 << PLOCK)) ;
+  USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
-  USBCON |= 1 << VBUSTE;
+  UDIEN = 1 << EORSTE;
   sei();
-  DDRD |= 1 << PD5;
-  DDRB |= 1 << PB0;
-  @<Pullup input pins@>@;
+  UDCON &= ~(1 << DETACH);
 
-  while (1) {
-    if (!usb_connected) {
-      if (USBSTA & 1 << VBUS) {
-        USBCON |= 1 << USBE;
-        usb_connected = 1;
-        USBCON |= 1 << FRZCLK;
-
-        PLLFRQ &=
-          ~(1 << PDIV3 | 1 << PDIV2 | 1 << PDIV1 | 1 << PDIV0),
-          PLLFRQ |= 1 << PDIV2, PLLCSR = 1 << PINDIV | 1 << PLLE;
-        while (!(PLLCSR & 1 << PLOCK)) ;
-        USBCON &= ~(1 << FRZCLK);
-        UDCON &= ~(1 << DETACH);
-        UDCON &= ~(1 << RSTCPU);
-        UDIEN |= 1 << SUSPE;
-        UDIEN |= 1 << EORSTE;
-        sei();
-      }
-    }
-    if (g_usb_event & 1 << EVT_USB_RESET) {
-      g_usb_event &= ~(1 << EVT_USB_RESET);
-      UERST = 1 << EP0, UERST = 0;
-      usb_configuration_nb = 0;
-    }
-    UENUM = EP0;
+  while (!connected) {
+    UENUM = EP0; /* it is necessary to do it here because in {\caps set configuration}
+      another endpoint is selected */
     if (UEINTX & 1 << RXSTPI) {
       @<Process SETUP request@>@;
     }
-    if (usb_configuration_nb != 0) { /* do not allow to send data before
-                                        end of enumeration FIXME: does this make any sense? */
-      if (line_status.DTR) {
-        @<Get button@>@;
-        if (btn != 0) {
+  }
+
+  @<Pullup input pins@>@;
+
+  while (1) {
+    UENUM = EP0;
+    if (UEINTX & 1 << RXSTPI) {
+      (void) UEDATX; @+ (void) UEDATX;
+      @<Handle {\caps set control line state}@>@;
+    }
+    UENUM = EP1;
+    if (line_status.DTR) {
+      @<Get button@>@;
+      if (btn != 0) {
+        @<Send button@>@;
+        U8 prev_button = btn;
+        int timeout = 2000;
+        while (--timeout) {
+          @<Get button@>@;
+          if (btn != prev_button) break;
+          _delay_ms(1);
+        }
+        while (1) {
+          @<Get button@>@;
+          if (btn != prev_button) break;
           @<Send button@>@;
-          U8 prev_button = btn;
-          int timeout = 2000;
-          while (--timeout) {
-            @<Get button@>@;
-            if (btn != prev_button) break;
-            _delay_ms(1);
-          }
-          while (1) {
-            @<Get button@>@;
-            if (btn != prev_button) break;
-            @<Send button@>@;
-            _delay_ms(50);
-          }
+          _delay_ms(50);
         }
       }
     }
   }
-  return 0;
 }
 
 @ @<Pullup input pins@>=
@@ -537,19 +502,10 @@ nop();
 nop();
 
 @ @<Send button@>=
-UENUM = EP1;
 while (!(UEINTX & 1 << TXINI)) ;
 UEINTX &= ~(1 << TXINI);
 UEDATX = btn;
 UEINTX &= ~(1 << FIFOCON);
-
-@ @c
-char __low_level_init(void) __attribute__ ((section(".init3"), naked));
-char __low_level_init()
-{
-  clock_prescale_set(0);
-  return 1;
-}
 
 @ Used in \.{USB\_RESET} interrupt handler.
 
@@ -597,77 +553,16 @@ WDTCSR = 0x00; /* disable WDT */
 @ @c
 ISR(USB_GEN_vect)
 {
-  if (USBINT & 1 << VBUSTI && USBCON & 1 << VBUSTE) {
-    USBINT = ~(1 << VBUSTI);
-    if (USBSTA & 1 << VBUS) {
-      usb_connected = 1;
-      g_usb_event |= 1 << EVT_USB_POWERED;
-      UDIEN |= 1 << EORSTE;
-      USBCON |= 1 << FRZCLK;
-
-      PLLFRQ &= ~(1 << PDIV3 | 1 << PDIV2 | 1 << PDIV1 | 1 << PDIV0),
-        PLLFRQ |= 1 << PDIV2, PLLCSR = 1 << PINDIV | 1 << PLLE;
-      while (!(PLLCSR & 1 << PLOCK)) ;
-      USBCON &= ~(1 << FRZCLK);
-      UDCON &= ~(1 << DETACH);
-
-      UDCON &= ~(1 << RSTCPU);
-
-      UDIEN |= 1 << SUSPE;
-      UDIEN |= 1 << EORSTE;
-      sei();
-      UDCON &= ~(1 << DETACH);
-    }
-    else {
-      usb_connected = 0;
-      usb_configuration_nb = 0;
-      g_usb_event |= 1 << EVT_USB_UNPOWERED;
-    }
-  }
-  if (UDINT & 1 << SUSPI && UDIEN & 1 << SUSPE) {
-    usb_suspended = 1;
-    UDINT = ~(1 << WAKEUPI);
-    g_usb_event |= 1 << EVT_USB_SUSPEND;
-    UDINT = ~(1 << SUSPI);
-    UDIEN |= 1 << WAKEUPE;
-    UDIEN &= ~(1 << EORSME);
-    USBCON |= 1 << FRZCLK;
-    PLLCSR &= ~(1 << PLLE), PLLCSR = 0;
-  }
-  if (UDINT & 1 << WAKEUPI && UDIEN & 1 << WAKEUPE) {
-    if (!(PLLCSR & 1 << PLOCK)) {
-      PLLFRQ &=
-        ~(1 << PDIV3 | 1 << PDIV2 | 1 << PDIV1 | 1 << PDIV0),
-        PLLFRQ |= 1 << PDIV2, PLLCSR = 1 << PINDIV | 1 << PLLE;
-      while (!(PLLCSR & (1 << PLOCK))) ;
-    }
-    USBCON &= ~(1 << FRZCLK);
-    UDINT = ~(1 << WAKEUPI);
-    if (usb_suspended) {
-      UDIEN |= 1 << EORSME;
-      UDIEN |= 1 << EORSTE;
-      UDINT = ~(1 << WAKEUPI);
-      UDIEN &= ~(1 << WAKEUPE);
-      g_usb_event |= 1 << EVT_USB_WAKE_UP;
-      UDIEN |= 1 << SUSPE;
-      UDIEN |= 1 << EORSME;
-      UDIEN |= 1 << EORSTE;
-    }
-  }
-  if (UDINT & 1 << EORSMI && UDIEN & 1 << EORSME) {
-    usb_suspended = 0;
-    UDIEN &= ~(1 << WAKEUPE);
-    UDINT = ~(1 << EORSMI);
-    UDIEN &= ~(1 << EORSME);
-    g_usb_event |= 1 << EVT_USB_RESUME;
-  }
-  if (UDINT & 1 << EORSTI && UDIEN & 1 << EORSTE) {
-    UDINT = ~(1 << EORSTI);
-    UENUM = EP0;
+  UDINT &= ~(1 << EORSTI);
+  if (!connected) {
+    UENUM = EP0; /* it is necessary because |connected| is set after
+      {\caps set configuration}, where another endpoint is selected */
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     UECFG1X |= 1 << ALLOC;
-    g_usb_event |= 1 << EVT_USB_RESET;
+  }
+  else {
+    @<Reset MCU@>@;
   }
 }
 
@@ -677,7 +572,6 @@ ISR(USB_GEN_vect)
 U16 wValue;
 U16 wIndex;
 U16 wLength;
-U8 configuration_number;
 UEINTX &= ~(1 << RXOUTI); /* TODO: ??? - check if it is non-zero here */
 U8 nb_byte;
 U8 empty_packet;
@@ -703,9 +597,7 @@ case 0x0900: @/
   break;
 case 0x2021: @/
   @<Handle {\caps set line coding}@>@;
-  break;
-case 0x2221: @/
-  @<Handle {\caps set control line state}@>@;
+  connected = 1;
   break;
 }
 
@@ -791,38 +683,31 @@ UEINTX &= ~(1 << RXSTPI);
 UECONX |= 1 << STALLRQ;
 
 @ @<Handle {\caps set configuration}@>=
-  configuration_number = UEDATX;
-  if (configuration_number <= 1) {
-    UEINTX &= ~(1 << RXSTPI);
-    usb_configuration_nb = configuration_number;
+  UEINTX &= ~(1 << RXSTPI);
+
     UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
     UENUM = EP3;
     UECONX |= 1 << EPEN;
-    UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;       /* interrupt, IN */
-    UECFG1X = 1 << EPSIZE1;   /* 32 bytes */
+    UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt, IN */
+    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\dag{FIXME: must correspond to where?} */
     UECFG1X |= 1 << ALLOC;
 
     UENUM = EP1;
     UECONX |= 1 << EPEN;
-    UECFG0X = 1 << EPTYPE1 | 1 << EPDIR;      /* bulk, IN */
-    UECFG1X = 1 << EPSIZE1;   /* 32 bytes */
+    UECFG0X = 1 << EPTYPE1 | 1 << EPDIR; /* bulk, IN */
+    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\dag{FIXME: must correspond to where?} */
     UECFG1X |= 1 << ALLOC;
 
     UENUM = EP2;
     UECONX |= 1 << EPEN;
-    UECFG0X = 1 << EPTYPE1;   /* bulk, OUT */
-    UECFG1X = 1 << EPSIZE1;   /* 32 bytes */
+    UECFG0X = 1 << EPTYPE1; /* bulk, OUT */
+    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\dag{FIXME: must correspond to where?} */
     UECFG1X |= 1 << ALLOC;
 
-    UERST = 1 << EP3, UERST = 0;
+    UERST = 1 << EP3, UERST = 0; /* FIXME: is it necessary? */
     UERST = 1 << EP1, UERST = 0;
     UERST = 1 << EP2, UERST = 0;
-  }
-  else {
-    UEINTX &= ~(1 << RXSTPI);
-    UECONX |= 1 << STALLRQ; /* return STALL in response to IN token of STATUS stage */
-  }
 
 @ @<Type \null definitions@>=
 typedef union {
@@ -838,10 +723,9 @@ typedef union {
 S_line_status line_status;
 
 @ @<Handle {\caps set control line state}@>=
-wValue = UEDATX | UEDATX << 8;
+line_status.all = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
-line_status.all = wValue;
 
 @ This is a stub. Just discard the data.
 
