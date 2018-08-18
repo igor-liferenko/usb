@@ -27,7 +27,8 @@ void main(void)
   @<Disable WDT@>@;
   UHWCON = 1 << UVREGE;
   USBCON |= 1 << USBE;
-  PLLCSR = 1 << PINDIV | 1 << PLLE; /* FIXME: PLLE must be after PINDIV of may be at once? */
+  PLLCSR = 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & 1 << PLOCK)) ;
   USBCON &= ~(1 << FRZCLK);
   USBCON |= 1 << OTGPADE;
@@ -74,8 +75,8 @@ ISR(USB_GEN_vect)
     UENUM = EP0; /* it is necessary because |connected| is set after
       {\caps set configuration}, where another endpoint is selected */
     UECONX |= 1 << EPEN;
-    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* 32
-      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+    UECFG1X |= 1 << ALLOC;
   }
   else {
     @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
@@ -221,8 +222,9 @@ UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
-UECFG1X = 1 << ALLOC; /* 8 bytes\footnote
+UECFG1X = 0; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
+UECFG1X |= 1 << ALLOC;
 UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
 
 @ @<Handle {\caps set idle}@>=
