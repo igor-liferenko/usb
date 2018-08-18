@@ -35,7 +35,6 @@ void main(void)
   sei();
   UDCON &= ~(1 << DETACH);
 
-  uint16_t wLength;
   while (!connected) {
     UENUM = EP0; /* it is necessary to do it here because in {\caps set configuration}
       another endpoint is selected */
@@ -97,6 +96,7 @@ WDTCSR = 0x00;
 
 @<Process SETUP request@>=
 uint16_t wValue;
+uint16_t wLength;
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
   @<Handle {\caps set address}@>@;
