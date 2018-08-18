@@ -38,8 +38,9 @@ void main(void)
   while (!connected) {
     UENUM = EP0; /* it is necessary to do it here because in {\caps set configuration}
       another endpoint is selected */
-    if (UEINTX & 1 << RXSTPI)
+    if (UEINTX & 1 << RXSTPI) {
       @<Process SETUP request@>@;
+    }
   }
 
   @<Pullup input pins@>@;
@@ -94,6 +95,7 @@ WDTCSR = 0x00;
 @ The following big switch just dispatches SETUP request.
 
 @<Process SETUP request@>=
+uint16_t wValue;
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
   @<Handle {\caps set address}@>@;
@@ -137,7 +139,8 @@ in this request. IN packet arrives after SETUP packet, and we get ready to
 send a ZLP in advance.
 
 @<Handle {\caps set address}@>=
-UDADDR = UEDATX & 0x7F;
+wValue = UEDATX | UEDATX << 8;
+UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
