@@ -15,12 +15,15 @@ It is only necessary to wait right before sending next data.
 @z
 
 @x
-    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
   }
+  else {
+    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
 @y
-    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
-  while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
+  else {
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
+    @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */    
 @z
 
 @x
