@@ -716,7 +716,6 @@ nop();
 \secpagedepth=1 % index on current page
 
 @<Header files@>=
-#include <avr/boot.h> /* |boot_signature_byte_get| */
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
