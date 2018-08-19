@@ -20,6 +20,9 @@ typedef unsigned long U32;
 
 TODO: find what prefixes mean in names of variables (i.e., `b', `bcd', ...)
 
+@d NOT_USED 0x00
+@d SERIAL_NUMBER 0x03
+
 @<Global variables@>=
 struct {
   U8 bLength;
@@ -48,9 +51,9 @@ struct {
   0x03EB, /* VID (Atmel) */
   0x2018, /* PID (CDC ACM) */
   0x1000, /* device revision */
-  0x00, /* set it to non-zero in code derived from this example */
-  0x00, /* set it to non-zero in code derived from this example */
-  0x00, /* set it to non-zero in code derived from this example */
+  NOT_USED, @/
+  NOT_USED, @/
+  SERIAL_NUMBER, @/
 @t\2@> 1 /* one configuration for this device */
 };
 
@@ -575,6 +578,7 @@ U16 wLength;
 UEINTX &= ~(1 << RXOUTI); /* TODO: ??? - check if it is non-zero here */
 U8 nb_byte;
 U8 empty_packet;
+int from_program = 1;
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
   @<Handle {\caps set address}@>@;
@@ -586,6 +590,12 @@ case 0x0680: @/
     break;
   case 0x0200: @/
     @<Handle {\caps get descriptor configuration}@>@;
+    break;
+  case 0x0300: @/
+    @<Handle {\caps get descriptor string} (language)@>@;
+    break;
+  case 0x03 << 8 | SERIAL_NUMBER: @/
+    @<Handle {\caps get descriptor string} (serial)@>@;
     break;
   case 0x0600: @/
     @<Handle {\caps get descriptor device qualifier}@>@;
@@ -629,6 +639,23 @@ data_to_transfer = sizeof conf_desc;
 pbuffer = &conf_desc;
 @<Send descriptor@>@;
 
+@ @<Handle {\caps get descriptor string} (language)@>=
+UEINTX &= ~(1 << RXSTPI);
+data_to_transfer = sizeof lang_desc;
+pbuffer = lang_desc;
+@<Send descriptor@>@;
+
+@ Here we handle one case when data (serial number) needs to be transmitted from memory,
+not from program.
+
+@<Handle {\caps get descriptor string} (serial)@>=
+UEINTX &= ~(1 << RXSTPI);
+data_to_transfer = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+@<Get serial number@>@;
+pbuffer = &sn_desc;
+from_program = 0;
+@<Send descriptor@>@;
+
 @ @<Send descriptor@>=
     empty_packet = 0;
     if (data_to_transfer < wLength && data_to_transfer % EP0_SIZE == 0)
@@ -646,7 +673,7 @@ pbuffer = &conf_desc;
         if (nb_byte++ == EP0_SIZE) {
           break;
         }
-        UEDATX = (U8) pgm_read_byte_near((unsigned int) pbuffer++);
+        UEDATX = from_program ? pgm_read_byte(pbuffer++) : *(U8 *) pbuffer++;
         data_to_transfer--;
       }
       if (UEINTX & 1 << NAKOUTI)
@@ -736,6 +763,53 @@ while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
+@*1 Language descriptor.
+
+This is necessary to transmit manufacturer, product and serial number.
+
+@<Global variables@>=
+const uint8_t lang_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x04, /* size */
+  0x03, /* type (string) */
+@t\2@> 0x09,0x04 /* id (English) */
+};
+
+@*1 Serial number descriptor.
+
+This one is different in that its content cannot be prepared in compile time,
+only in execution time. So, it cannot be stored in program memory.
+Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it with
+arguments): we pass a null pointer if serial number is to be transmitted.
+In |send_descriptor| |sn_desc| is filled in.
+
+@d SN_LENGTH 20 /* length of device signature, multiplied by two (because each byte in hex) */
+
+@<Global variables@>=
+struct {
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  int16_t wString[SN_LENGTH];
+} sn_desc;
+
+@ @d SN_START_ADDRESS 0x0E
+@d hex(c) c<10 ? c+'0' : c-10+'A'
+
+@<Get serial number@>=
+sn_desc.bLength = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+sn_desc.bDescriptorType = 0x03;
+uint8_t addr = SN_START_ADDRESS;
+for (uint8_t i = 0; i < SN_LENGTH; i++) {
+  uint8_t c = boot_signature_byte_get(addr);
+  if (i & 1) { /* we divide each byte of signature into halves, each of
+                  which is represented by a hex number */
+    c >>= 4;
+    addr++;
+  }
+  else c &= 0x0F;
+  sn_desc.wString[i] = hex(c);
+}
+
 @* Headers.
 \secpagedepth=1 % index on current page
 
@@ -743,7 +817,7 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <avr/power.h> /* |clock_prescale_set| */
+#include <avr/boot.h> /* |boot_signature_byte_get| */
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
