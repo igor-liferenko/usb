@@ -83,7 +83,10 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ TODO: copy doc from demo/main.w @<Reset MCU@>=
+@ TODO: copy doc from demo/main.w
+@^TODO@>
+
+@<Reset MCU@>=
 WDTCSR |= 1 << WDCE | 1 << WDE;
 WDTCSR = 1 << WDE;
 while (1) ;
