@@ -194,8 +194,8 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
 full-speed, the Device Qualifier returns information about how it would operate at high-speed and
 vice-versa. So as this device is full-speed, it tells the host not to request
-device information for high-speed by using ``protocol stall'' (this stall
-does not indicate an error with the device, it serves merely as a means of
+device information for high-speed by using ``protocol stall'' (such stall
+does not indicate an error with the device, it serves as a means of
 extending USB requests).
 
 This STALL condition is automatically cleared on the receipt of the
