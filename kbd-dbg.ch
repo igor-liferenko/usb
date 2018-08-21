@@ -22,7 +22,7 @@ It is only necessary to wait right before sending next data.
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u'; while (!(UCSR1A & 1 << UDRE1)) ;
     @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */    
 @z
 

@@ -371,7 +371,7 @@ ISR(USB_GEN_vect)
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
-    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u';
+    while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'u'; while (!(UCSR1A & 1 << UDRE1)) ;
     WDTCSR |= 1 << WDCE | 1 << WDE;
     WDTCSR = 1 << WDE;
     while (1) ;
