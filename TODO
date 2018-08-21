@@ -10,3 +10,6 @@ should use the "Interface Association Descriptor" addendum to the USB 2.0 standa
 which is available on most OSes when creating Composite devices.
 Check if this is the case on Linux and don't do "Interface Association Descriptor" if
 each interface will not be loaded into a separate driver instance.
+
+https://forum.arduino.cc/index.php?topic=262897.0
+do only keyboard and compare wireshark with arduino-combined.pcapng and what differs change in cdc.w to make cdc-kbd.w out of it
