@@ -1,4 +1,6 @@
 @* Control endpoint management.
+(WARNING: these images are incomplete --- they do not show possible handshake
+phases)
 
 Device driver sends a
 packet to device's EP0. As the data is flowing out from the host, it will end
