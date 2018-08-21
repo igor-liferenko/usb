@@ -78,3 +78,7 @@ keypad.eps: keypad.png
 keymap.eps: keymap.gif
 	@convert $< $@
 	@imgsize $@ 6 -
+
+stall-control-read-with-data-stage.eps: stall-control-read-with-data-stage.png
+	@convert $< $@
+	@imgsize $@

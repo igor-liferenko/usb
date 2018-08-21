@@ -201,6 +201,10 @@ device information for high-speed by using ``protocol stall'' (such stall
 does not indicate an error with the device, it serves as a means of
 extending USB requests).
 
+$$\hbox to10.93cm{\vbox to5.15055555555556cm{\vfil\special{%
+  psfile=stall-control-read-with-data-stage.eps
+  clip llx=0 lly=0 urx=310 ury=146 rwi=3100}}\hfil}$$
+
 This STALL condition is automatically cleared on the receipt of the
 next SETUP token.
 
