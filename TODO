@@ -13,3 +13,23 @@ each interface will not be loaded into a separate driver instance.
 
 https://forum.arduino.cc/index.php?topic=262897.0
 do only keyboard and compare wireshark with arduino-combined.pcapng and what differs change in cdc.w to make cdc-kbd.w out of it
+
+use this sketch:
+int buttonPin = PORTD4;
+
+void setup()
+{
+  pinMode(buttonPin, INPUT);  // Set the button as an input
+  digitalWrite(buttonPin, HIGH);  // Pull the button high
+  TXLED0;
+}
+
+void loop()
+{
+  if (digitalRead(buttonPin) == 0)  // if the button goes low
+  {
+    Keyboard.press(KEY_ESC);
+    Keyboard.release(KEY_ESC);
+    delay(1000);  // delay so there aren't a kajillion z's
+  }
+}
