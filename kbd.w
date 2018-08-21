@@ -237,9 +237,8 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @ See datasheet \S22.12.2.
 
 When previous packet was sent, TXINI becomes `1'. After TXINI becomes `1', new data may be written
-to UEDATX. With TXINI the logic is the same as with UDRE, and UEDATX is like UDR, with the
-difference that here we specify when to send data (by clearing TXINI) and in UART it is sent
-automatically as soon as written to UDR.
+to UEDATX. For control endpoint we specify when to send data by clearing TXINI.
+(For non-control endpoints clearing TXINI serves different purpose.)
 
 TODO: if |size < wLength|, send empty packet if |size % EP0_SIZE == 0|.
 add third argument to this function - emp
