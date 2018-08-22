@@ -47,7 +47,7 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -87,7 +87,7 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -153,7 +153,7 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -286,7 +286,7 @@ void main(void)
   UCSR1B = 1 << TXEN1;
   UDR1 = 'v';
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -404,7 +404,7 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -501,7 +501,7 @@ void main(void)
   UCSR1B = 1 << TXEN1;
   UDR1 = 'v';
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
@@ -610,7 +610,7 @@ void main(void)
   UCSR1A |= 1 << U2X1;
   UCSR1B = 1 << TXEN1;
 
-  PLLCSR |= 1 << PINDIV;
+  PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
   while (!(PLLCSR & (1<<PLOCK))) ;
 
