@@ -111,7 +111,8 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   num++;
   UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
 }
 
 @ Now we can move further: to count number of resets before set address request.
@@ -188,7 +189,8 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   num++;
   UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
 }
 
 @ We do not want to use interrupts for handling |RXSTPI|, but instead handle
@@ -345,7 +347,8 @@ void main(void)
         UENUM = 1;
         UECONX |= 1 << EPEN;
         UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
-        UECFG1X = 1 << ALLOC;
+        UECFG1X = 0;
+        UECFG1X |= 1 << ALLOC;
         break;
       case 0x0900:
         UEINTX &= ~(1 << RXSTPI);
@@ -367,7 +370,8 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
+    UECFG1X = 1 << EPSIZE1;
+    UECFG1X |= 1 << ALLOC;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
@@ -435,7 +439,8 @@ ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
   UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
 }
 
 @ In this test we show that CFGOK must not be called after configuring
@@ -559,7 +564,8 @@ void main(void)
         UENUM = 1;
         UECONX |= 1 << EPEN;
         UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
-        UECFG1X = 1 << ALLOC;
+        UECFG1X = 0;
+        UECFG1X |= 1 << ALLOC;
         if (!(UESTA0X & 1 << CFGOK)) {
           while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = '=';
         }
@@ -584,7 +590,8 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG1X = 1 << EPSIZE1 | 1 << ALLOC;
+    UECFG1X = 1 << EPSIZE1;
+    UECFG1X |= 1 << ALLOC;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
 }
@@ -641,7 +648,8 @@ ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
   UECONX |= 1 << EPEN;
-  UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
 }
 
 @ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
