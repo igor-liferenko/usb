@@ -655,37 +655,35 @@ pbuffer = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ @<Send descriptor@>=
+@ Just transmit data and empty packet (if necessary) and wait for STATUS stage.
+
+For control endpoints, by clearing TXINI we say that when next IN token arrives,
+data must be sent. When data was sent, TXINI becomes `1'.
+After TXINI becomes `1', new data may be written to UEDATX.
+(For non-control endpoints clearing TXINI serves different purpose.)
+
+Datasheet\S22.12.2.
+
+@<Send descriptor@>=
 empty_packet = 0;
 if (data_to_transfer < wLength && data_to_transfer % EP0_SIZE == 0)
   empty_packet = 1; /* indicate to the host that no more data will follow (USB\S5.5.3) */
 if (data_to_transfer > wLength)
   data_to_transfer = wLength; /* never send more than requested */
-UEINTX &= ~(1 << NAKOUTI); /* TODO: ??? - check if it is non-zero here */
-while (data_to_transfer != 0 && !(UEINTX & 1 << NAKOUTI)) {
-  while (!(UEINTX & 1 << TXINI)) {
-    if (UEINTX & 1 << NAKOUTI)
-      break;
-  }
+while (data_to_transfer != 0) {
   U8 nb_byte = 0;
   while (data_to_transfer != 0) {
-    if (nb_byte++ == EP0_SIZE) {
+    if (nb_byte++ == EP0_SIZE)
       break;
-    }
     UEDATX = from_program ? pgm_read_byte(pbuffer++) : *(U8 *) pbuffer++;
     data_to_transfer--;
   }
-  if (UEINTX & 1 << NAKOUTI)
-    break;
-  else
-    UEINTX &= ~(1 << TXINI);
-}
-if (empty_packet && !(UEINTX & 1 << NAKOUTI)) {
-  while (!(UEINTX & 1 << TXINI)) ;
   UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & 1 << TXINI)) ;
 }
-while (!(UEINTX & 1 << NAKOUTI)) ;
-UEINTX &= ~(1 << NAKOUTI);
+if (empty_packet)
+  UEINTX &= ~(1 << TXINI);
+while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
 
 @ @<Handle {\caps set address}@>=
