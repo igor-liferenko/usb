@@ -596,12 +596,12 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ In this test we check if TXINI is set to 1 befor RXSTPI or after.
+@ In this test we check if TXINI is set to 1 before RXSTPI or after.
 It is necessary to know if we must wait for TXINI to become 1 after
 receiving RXSTPI or not. According to the test in \S\txinichange,
 TXINI becomes 0 when RXSTPI arrives.
 
-Result: `\.x' never appears. So, there is no change that
+Result: `\.x' never appears. So, there is no chance that
 TXINI is not 1 after we clear RXSTPI---we need not do any checking
 and waiting.
 
