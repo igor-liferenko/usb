@@ -632,6 +632,8 @@ buf = &conf_desc;
 @<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (language)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 size = sizeof lang_desc;
 buf = lang_desc;
@@ -641,6 +643,8 @@ buf = lang_desc;
 not from program.
 
 @<Handle {\caps get descriptor string} (serial)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 @<Get serial number@>@;
