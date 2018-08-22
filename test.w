@@ -172,11 +172,12 @@ void main(void)
   (void) UEDATX;
   if (UEDATX != 0x06) return;
   UEINTX &= ~(1 << RXSTPI);
-  num = 0;
+  while (!(UEINTX & 1 << TXINI)) ;
   while (len--)
     UEDATX = pgm_read_byte(ptr++);
   UEINTX &= ~(1 << TXINI);
   while (!(UEINTX & (1 << RXOUTI))) ;
+  num = 0;
   UEINTX &= ~(1 << RXOUTI);
 
   while (!(UEINTX & (1 << RXSTPI))) ;
