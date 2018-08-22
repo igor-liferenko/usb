@@ -1,4 +1,3 @@
-% TODO: re-do send_descriptor as in main.w?
 % TODO: do all via wValue, wIndex, wLength as in demo/main.w
 
 \secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
@@ -17,9 +16,10 @@ keyboard.
 
 @c
 @<Header files@>@;
+typedef unsigned char U8;
+typedef unsigned short U16;
 @<Type definitions@>@;
 @<Global \null variables@>@;
-@<Functions@>@;
 
 volatile int connected = 0;
 void main(void)
@@ -171,7 +171,9 @@ If we send more than requested by host, it does not send OUT packet to initiate 
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
+size = sizeof dev_desc;
+buf = &dev_desc;
+@<Send descriptor@>@;
 
 @ First request is 9 bytes, second is according to length given in response to first request.
 
@@ -179,19 +181,33 @@ send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&conf_desc, wLength);
+size = sizeof conf_desc;
+buf = &conf_desc;
+@<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (language)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(lang_desc, sizeof lang_desc);
+size = sizeof lang_desc;
+buf = lang_desc;
+@<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (manufacturer)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+size = pgm_read_byte(&mfr_desc.bLength);
+buf = &mfr_desc;
+@<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (product)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
+size = pgm_read_byte(&prod_desc.bLength);
+buf = &prod_desc;
+@<Send descriptor@>@;
 
 @ A high-speed capable device that has different device information for full-speed and high-speed
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
@@ -215,8 +231,13 @@ UEINTX &= ~(1 << RXSTPI);
 UECONX |= 1 << STALLRQ; /* return STALL in response to IN token of the DATA stage */
 
 @ @<Handle {\caps get descriptor hid}@>=
+(void) UEDATX; @+ (void) UEDATX;
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+size = sizeof hid_report_descriptor;
+buf = hid_report_descriptor;
+@<Send descriptor@>@;
 
 @ @<Finish connection@>=
 connected = 1;
@@ -237,6 +258,11 @@ UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
 @ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+
+@ @<Global \null variables@>=
+U16 size;
+const void *buf;
+U8 empty_packet;
 
 @ Just transmit data and empty packet (if necessary) and wait for STATUS stage.
 
