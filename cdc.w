@@ -678,7 +678,7 @@ while (data_to_transfer != 0) {
     UEDATX = from_program ? pgm_read_byte(pbuffer++) : *(U8 *) pbuffer++;
     data_to_transfer--;
   }
-  UEINTX &= ~(1 << TXINI);
+  UEINTX &= ~(1 << TXINI); /* no need to wait, according to test in \S\txiniafterclearingrxstpi\ */
   while (!(UEINTX & 1 << TXINI)) ;
 }
 if (empty_packet)
