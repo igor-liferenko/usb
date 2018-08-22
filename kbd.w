@@ -261,7 +261,7 @@ while (size != 0) {
     UEDATX = pgm_read_byte(buf++);
     size--;
   }
-  UEINTX &= ~(1 << TXINI);
+  UEINTX &= ~(1 << TXINI); /* no need to wait, according to test in \S\txiniafterclearingrxstpi\ */
   while (!(UEINTX & 1 << TXINI)) ;
 }
 if (empty_packet)
