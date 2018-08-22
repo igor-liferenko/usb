@@ -99,8 +99,8 @@ WDTCSR = 0x00;
 @ The following big switch just dispatches SETUP request.
 
 @<Process SETUP request@>=
-uint16_t wValue;
-uint16_t wLength;
+U16 wValue;
+U16 wLength;
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
   @<Handle {\caps set address}@>@;
