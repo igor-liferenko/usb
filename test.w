@@ -657,3 +657,78 @@ ISR(USB_GEN_vect)
 NAKOUTI. And if no, Atmel's example makes no sense.
 
 \xdef\nakoutibeforerxouti{\secno}
+
+@(/dev/null@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+
+const uint8_t dev_desc[]
+@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
+  0x12, @/
+  0x01, @/
+  0x00, 0x02, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+  0x20, @/
+  0xEB, 0x03, @/
+  0x13, 0x20, @/
+  0x00, 0x10, @/
+  0x00, @/
+  0x00, @/
+  0x00, @/
+@t\2@> 1 @/
+};
+
+uint8_t len = sizeof dev_desc;
+const void *ptr = dev_desc;
+
+volatile int num = 0;
+
+void main(void)
+{
+  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+
+  UBRR1 = 34; // table 18-12 in datasheet
+  UCSR1A |= 1 << U2X1;
+  UCSR1B = 1 << TXEN1;
+
+  PLLCSR = 1 << PINDIV;
+  PLLCSR |= 1 << PLLE;
+  while (!(PLLCSR & (1<<PLOCK))) ;
+
+  USBCON |= 1 << USBE;
+  USBCON &= ~(1 << FRZCLK);
+
+  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+
+  UDIEN |= 1 << EORSTE;
+  sei();
+
+  UDCON &= ~(1 << DETACH);
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  (void) UEDATX;
+  if (UEDATX != 0x06) return;
+  UEINTX &= ~(1 << RXSTPI);
+  num = 0;
+  while (len--)
+    UEDATX = pgm_read_byte(ptr++);
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & (1 << RXOUTI))) ;
+  UEINTX &= ~(1 << RXOUTI);
+
+  while (!(UEINTX & (1 << RXSTPI))) ;
+  (void) UEDATX;
+  if (UEDATX == 0x05) UDR1 = num + '0';
+}
+
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI);
+  num++;
+  UECONX |= 1 << EPEN;
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
+}
