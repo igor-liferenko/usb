@@ -653,12 +653,13 @@ ISR(USB_GEN_vect)
 }
 
 @ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
-(in |send_descriptor|). And if yes, it becomes clear why in Atmel's demo they use
-NAKOUTI. And if no, Atmel's example makes no sense.
+(for ``control read'').
+
+Result: `\.0' (which means that RXOUTI is 0 when NAKOUTI is set).
 
 \xdef\nakoutibeforerxouti{\secno}
 
-@(/dev/null@>=
+@(test@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -708,27 +709,28 @@ void main(void)
 
   UDCON &= ~(1 << DETACH);
 
-  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UEINTX & 1 << RXSTPI)) ;
   (void) UEDATX;
   if (UEDATX != 0x06) return;
   UEINTX &= ~(1 << RXSTPI);
-  num = 0;
   while (len--)
     UEDATX = pgm_read_byte(ptr++);
+  UEIENX |= 1 << NAKOUTE;
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
-  UEINTX &= ~(1 << RXOUTI);
-
-  while (!(UEINTX & (1 << RXSTPI))) ;
-  (void) UEDATX;
-  if (UEDATX == 0x05) UDR1 = num + '0';
+  while (1) ;
 }
 
 ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
-  num++;
   UECONX |= 1 << EPEN;
   UECFG1X = 1 << EPSIZE1;
   UECFG1X |= 1 << ALLOC;
+}
+
+ISR(USB_COM_vect)
+{
+  if (UEINTX & 1 << RXOUTI) UDR1 = '1';
+  else UDR1 = '0';
+  while (1) ;
 }
