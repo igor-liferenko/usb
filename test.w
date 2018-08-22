@@ -286,6 +286,7 @@ void main(void)
   uint8_t size;
   const void *buf;
   uint16_t wLength;
+  int i;
   while (!connected)
     if (UEINTX & 1 << RXSTPI)
       switch (UEDATX | UEDATX << 8) {
@@ -323,13 +324,19 @@ void main(void)
           size = wLength;
           buf = conf_desc;
           while (!(UEINTX & 1 << TXINI)) ;
-          int i = 0;
-          for (; i < 32; i++)
-            UEDATX = pgm_read_byte(buf++);
-          UEINTX &= ~(1 << TXINI);
-          while (!(UEINTX & 1 << TXINI)) ;
-          for (; i < 34; i++)
-            UEDATX = pgm_read_byte(buf++);
+          if (size == 9) {
+            while (size--)
+              UEDATX = pgm_read_byte(buf++);
+          }
+          else {
+            i = 0;
+            for (; i < 32; i++)
+              UEDATX = pgm_read_byte(buf++);
+            UEINTX &= ~(1 << TXINI);
+            while (!(UEINTX & 1 << TXINI)) ;
+            for (; i < 34; i++)
+              UEDATX = pgm_read_byte(buf++);
+          }
           UEINTX &= ~(1 << TXINI);
           while (!(UEINTX & 1 << RXOUTI)) ;
           UEINTX &= ~(1 << RXOUTI);
@@ -347,12 +354,12 @@ void main(void)
         size = sizeof rep_desc;
         buf = rep_desc;
         while (!(UEINTX & 1 << TXINI)) ;
-        int i = 0;
+        i = 0;
         for (; i < 32; i++)
           UEDATX = pgm_read_byte(buf++);
         UEINTX &= ~(1 << TXINI);
         while (!(UEINTX & 1 << TXINI)) ;
-        for (; i < 42; i++)
+        for (; i < 43; i++)
           UEDATX = pgm_read_byte(buf++);
         UEINTX &= ~(1 << TXINI);
         while (!(UEINTX & 1 << RXOUTI)) ;
