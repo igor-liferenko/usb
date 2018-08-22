@@ -238,40 +238,36 @@ UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
-@ See datasheet \S22.12.2.
+@ Just transmit data and empty packet (if necessary) and wait for STATUS stage.
 
-When previous packet was sent, TXINI becomes `1'. After TXINI becomes `1', new data may be written
-to UEDATX. For control endpoint we specify when to send data by clearing TXINI.
+For control endpoints, by clearing TXINI we say that when next IN token arrives,
+data must be sent. When data was sent, TXINI becomes `1'.
+After TXINI becomes `1', new data may be written to UEDATX.
 (For non-control endpoints clearing TXINI serves different purpose.)
 
-TODO: if |size < wLength|, send empty packet if |size % EP0_SIZE == 0|.
-add third argument to this function - emp
-@^TODO@>
+Datasheet\S22.12.2.
 
-@<Functions@>=
-void send_descriptor(const void *buf, int size)
-{
-  while (1) {
-    int nb_byte = 0;
-    while (size != 0) {
-      if (nb_byte++ == EP0_SIZE)
-        break;
-      UEDATX = pgm_read_byte(buf++);
-      size--;
-    }
-    UEINTX &= ~(1 << TXINI); /* this is suspicious, because it will send empty packet,
-      and if nakouti comes before rxouti, we txini is already set, but nothing more
-      must be transmitted (because nakouti was set), but an empty packet will be transmitted
-      (because the following condition will be true only when next packet arrives - this
-      is when RXOUTI is set); a check is required if nakouti comes before rxouti - see
-      test in \S\nakoutibeforerxouti\ */
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
+@<Send descriptor@>=
+empty_packet = 0;
+if (size < wLength && size % EP0_SIZE == 0)
+  empty_packet = 1; /* indicate to the host that no more data will follow (USB\S5.5.3) */
+if (size > wLength)
+  size = wLength; /* never send more than requested */
+while (size != 0) {
+  U8 nb_byte = 0;
+  while (size != 0) {
+    if (nb_byte++ == EP0_SIZE)
       break;
-    }
+    UEDATX = pgm_read_byte(buf++);
+    size--;
   }
+  UEINTX &= ~(1 << TXINI);
+  while (!(UEINTX & 1 << TXINI)) ;
 }
+if (empty_packet)
+  UEINTX &= ~(1 << TXINI);
+while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
+UEINTX &= ~(1 << RXOUTI);
 
 @i control-endpoint-management.w
 
