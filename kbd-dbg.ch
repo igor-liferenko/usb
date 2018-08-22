@@ -15,10 +15,12 @@ It is only necessary to wait right before sending next data.
 @z
 
 @x
+    UECFG1X |= 1 << ALLOC;
   }
   else {
     @<Reset MCU@>@; /* see \S\resetmcuonhostreboot\ */
 @y
+    UECFG1X |= 1 << ALLOC;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
   else {
@@ -27,10 +29,10 @@ It is only necessary to wait right before sending next data.
 @z
 
 @x
-UDADDR = UEDATX & 0x7F;
+UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 @y
-UDADDR = UEDATX & 0x7F;
+UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
 @z
@@ -73,11 +75,11 @@ send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
 @z
 
 @x
-UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
+UECONX |= 1 << STALLRQ; /* return STALL in response to IN token of the DATA stage */
 @y
-UECONX |= 1 << STALLRQ;
 UEINTX &= ~(1 << RXSTPI);
+UECONX |= 1 << STALLRQ; /* return STALL in response to IN token of the DATA stage */
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'Q';
 @z
 
