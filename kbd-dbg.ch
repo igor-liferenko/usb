@@ -38,40 +38,40 @@ while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
 @z
 
 @x
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
+buf = &dev_desc;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 8) UDR1 = 'd'; else UDR1 = 'D';
-send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
+buf = &dev_desc;
 @z
 
 @x
-send_descriptor(&conf_desc, wLength);
+buf = &conf_desc;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ;
 if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
-send_descriptor(&conf_desc, wLength);
+buf = &conf_desc;
 @z
 
 @x
-send_descriptor(lang_desc, sizeof lang_desc);
+buf = lang_desc;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'L';
-send_descriptor(lang_desc, sizeof lang_desc);
+buf = lang_desc;
 @z
 
 @x
-send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+buf = &mfr_desc;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'M';
-send_descriptor(&mfr_desc, pgm_read_byte(&mfr_desc.bLength));
+buf = &mfr_desc;
 @z
 
 @x
-send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
+buf = &prod_desc;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'P';
-send_descriptor(&prod_desc, pgm_read_byte(&prod_desc.bLength));
+buf = &prod_desc;
 @z
 
 @x
@@ -84,10 +84,10 @@ while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'Q';
 @z
 
 @x
-send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+buf = hid_report_descriptor;
 @y
 while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
-send_descriptor(hid_report_descriptor, sizeof hid_report_descriptor);
+buf = hid_report_descriptor;
 @z
 
 @x
