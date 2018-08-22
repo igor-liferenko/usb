@@ -608,12 +608,6 @@ case 0x2021: @/
   break;
 }
 
-@ @<Global variables@>=
-U16 size;
-const void *buf;
-U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
-U8 empty_packet;
-
 @ When host is booting, BIOS asks 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). OS asks
 64 bytes in first request of device descriptor.
@@ -654,6 +648,12 @@ size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
+
+@ @<Global variables@>=
+U16 size;
+const void *buf;
+U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
+U8 empty_packet;
 
 @ Just transmit data and empty packet (if necessary) and wait for STATUS stage.
 
