@@ -255,34 +255,6 @@ const uint8_t rep_desc[]
 @t\2@> 0x00, 0x29, 0x65, 0x15, 0x00, 0x25, 0x65, 0x81, 0x00, 0xc0 @/
 };
 
-uint16_t wLength;
-
-void send_descriptor(const void *buf, int size)
-{
-  int empty_packet = 0;
-  if (size < wLength && size % 32 == 0)
-    empty_packet = 1;
-  if (size > wLength)
-    size = wLength;
-  while (size != 0) {
-    while (!(UEINTX & 1 << TXINI)) ;
-    int nb_byte = 0;
-    while (size != 0) {
-      if (nb_byte++ == 32)
-        break;
-      UEDATX = pgm_read_byte(buf++);
-      size--;
-    }
-    UEINTX &= ~(1 << TXINI);
-  }
-  if (empty_packet) {
-    while (!(UEINTX & 1 << TXINI)) ;
-    UEINTX &= ~(1 << TXINI);
-  }
-  while (!(UEINTX & 1 << RXOUTI)) ;
-  UEINTX &= ~(1 << RXOUTI);
-}
-
 volatile int connected = 0;
 void main(void)
 {
@@ -311,6 +283,9 @@ void main(void)
   sei();
   UDCON &= ~(1 << DETACH);
 
+  uint8_t size;
+  const void *buf;
+  uint16_t wLength;
   while (!connected)
     if (UEINTX & 1 << RXSTPI)
       switch (UEDATX | UEDATX << 8) {
@@ -330,7 +305,14 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           while (!(UCSR1A & 1 << UDRE1)) ;
           if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
-          send_descriptor(dev_desc, sizeof dev_desc);
+          size = wLength < sizeof dev_desc ? wLength : sizeof dev_desc;
+          buf = dev_desc;
+          while (!(UEINTX & 1 << TXINI)) ;
+          while (size--)
+            UEDATX = pgm_read_byte(buf++);
+          UEINTX &= ~(1 << TXINI);
+          while (!(UEINTX & 1 << RXOUTI)) ;
+          UEINTX &= ~(1 << RXOUTI);
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
@@ -338,7 +320,19 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           while (!(UCSR1A & 1 << UDRE1)) ;
           if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
-          send_descriptor(&conf_desc, sizeof conf_desc);
+          size = wLength;
+          buf = conf_desc;
+          while (!(UEINTX & 1 << TXINI)) ;
+          int i = 0;
+          for (; i < 32; i++)
+            UEDATX = pgm_read_byte(buf++);
+          UEINTX &= ~(1 << TXINI);
+          while (!(UEINTX & 1 << TXINI)) ;
+          for (; i < 34; i++)
+            UEDATX = pgm_read_byte(buf++);
+          UEINTX &= ~(1 << TXINI);
+          while (!(UEINTX & 1 << RXOUTI)) ;
+          UEINTX &= ~(1 << RXOUTI);
           break;
         case 0x0600:
           UECONX |= 1 << STALLRQ;
@@ -348,12 +342,21 @@ void main(void)
         }
         break;
       case 0x0681:
-        (void) UEDATX; @+ (void) UEDATX;
-        (void) UEDATX; @+ (void) UEDATX;
-        wLength = UEDATX | UEDATX << 8;
         UEINTX &= ~(1 << RXSTPI);
         while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
-        send_descriptor(rep_desc, sizeof rep_desc);
+        size = sizeof rep_desc;
+        buf = rep_desc;
+        while (!(UEINTX & 1 << TXINI)) ;
+        int i = 0;
+        for (; i < 32; i++)
+          UEDATX = pgm_read_byte(buf++);
+        UEINTX &= ~(1 << TXINI);
+        while (!(UEINTX & 1 << TXINI)) ;
+        for (; i < 42; i++)
+          UEDATX = pgm_read_byte(buf++);
+        UEINTX &= ~(1 << TXINI);
+        while (!(UEINTX & 1 << RXOUTI)) ;
+        UEINTX &= ~(1 << RXOUTI);
         connected = 1;
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         UENUM = 1;
