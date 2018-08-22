@@ -227,7 +227,7 @@ uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 \xdef\resetmcuonhostreboot{\secno}
 
-@(/dev/null@>=
+@(test@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -238,7 +238,7 @@ const uint8_t dev_desc[]
 @t\2@> 0x13, 0x20, 0x00, 0x10, 0x00, 0x00, 0x00, 1 @/
 };
 
-const uint8_t user_conf_desc[]
+const uint8_t conf_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x09, 0x02, 0x22, 0x00, 0x01, 0x01, 0x00, 0x80, 0x32, 0x09, 0x04, @/
   0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x09, 0x21, 0x00, 0x01, @/
@@ -253,6 +253,8 @@ const uint8_t rep_desc[]
   0x75, 0x08, 0x95, 0x01, 0x81, 0x03, 0x75, 0x08, 0x95, 0x06, 0x19, @/
 @t\2@> 0x00, 0x29, 0x65, 0x15, 0x00, 0x25, 0x65, 0x81, 0x00, 0xc0 @/
 };
+
+uint16_t wLength;
 
 void send_descriptor(const void *buf, int size)
 {
@@ -283,7 +285,7 @@ void send_descriptor(const void *buf, int size)
 volatile int connected = 0;
 void main(void)
 {
-  if (MCUSR & 1 << WDTRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
+  if (MCUSR & 1 << WDRF) {@+ DDRD |= 1 << PD5; @+ PORTD |= 1 << PD5; @+}
   MCUSR = 0x00;
   WDTCSR |= 1 << WDCE | 1 << WDE;
   WDTCSR = 0x00;
@@ -308,7 +310,6 @@ void main(void)
   sei();
   UDCON &= ~(1 << DETACH);
 
-  uint16_t wLength;
   while (!connected)
     if (UEINTX & 1 << RXSTPI)
       switch (UEDATX | UEDATX << 8) {
@@ -328,7 +329,7 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           while (!(UCSR1A & 1 << UDRE1)) ;
           if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
-          send_descriptor(dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
+          send_descriptor(dev_desc, sizeof dev_desc);
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
@@ -336,7 +337,7 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           while (!(UCSR1A & 1 << UDRE1)) ;
           if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
-          send_descriptor(&user_conf_desc, wLength);
+          send_descriptor(&conf_desc, sizeof conf_desc);
           break;
         case 0x0600:
           UECONX |= 1 << STALLRQ;
@@ -346,6 +347,9 @@ void main(void)
         }
         break;
       case 0x0681:
+        (void) UEDATX; @+ (void) UEDATX;
+        (void) UEDATX; @+ (void) UEDATX;
+        wLength = UEDATX | UEDATX << 8;
         UEINTX &= ~(1 << RXSTPI);
         while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
         send_descriptor(rep_desc, sizeof rep_desc);
