@@ -25,23 +25,22 @@ Set with the following command:
 
 @ In this test we determine how endpoint configuration reacts to reset.
 The result is `\.{esa}'.
-So, we have learned that |CFGOK| need not be checked after configuring control endpoint,
-and that after USB\_RESET control endpoint must be configured anew.
+So, we have learned that after USB\_RESET control endpoint must be configured anew.
 
 \xdef\epconf{\secno}
 
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = (1 << EPSIZE1) | (1 << ALLOC);
-#define configured_en (UECONX & (1 << EPEN))
-#define configured_sz (UECFG1X & (1 << EPSIZE1))
-#define configured_al (UECFG1X & (1 << ALLOC))
-#define configured_ok (UESTA0X & (1 << CFGOK))
+#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = 1 << EPSIZE1;
+                                                  @+ UECFG1X |= 1 << ALLOC;
+#define configured_en (UECONX & 1 << EPEN)
+#define configured_sz (UECFG1X & 1 << EPSIZE1)
+#define configured_al (UECFG1X & 1 << ALLOC)
 
 void main(void)
 {
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
+  UHWCON |= 1 << UVREGE;
 
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
@@ -49,19 +48,18 @@ void main(void)
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
+  while (!(PLLCSR & 1 << PLOCK)) ;
 
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
 
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
+  USBCON |= 1 << OTGPADE;
 
   UDCON &= ~(1 << DETACH);
 
   configure;
-  if (!configured_ok) UDR1 = '=';
 
-  while(1) if (UDINT & (1 << EORSTI)) break; @+ UDINT &= ~(1 << EORSTI);
+  while(1) if (UDINT & 1 << EORSTI) break; @+ UDINT &= ~(1 << EORSTI);
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
   if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
