@@ -257,7 +257,7 @@ const uint8_t rep_desc[]
 void send_descriptor(const void *buf, int size)
 {
   int empty_packet = 0;
-  if (size < wLength && size % EP0_SIZE == 0)
+  if (size < wLength && size % 32 == 0)
     empty_packet = 1;
   if (size > wLength)
     size = wLength;
@@ -426,7 +426,7 @@ const uint8_t rep_desc[]
 void send_descriptor(const void *buf, int size)
 {
   int empty_packet = 0;
-  if (size < wLength && size % EP0_SIZE == 0)
+  if (size < wLength && size % 32 == 0)
     empty_packet = 1;
   if (size > wLength)
     size = wLength;
