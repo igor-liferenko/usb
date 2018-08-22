@@ -216,15 +216,14 @@ On WinXP this test works excellent. On Linux this happens twice, because
 device is connected twice during reboot (on Linux another machine is used for
 testing, and the first connect is made by BIOS on that machine).
 
-TODO: re-do these tests for WDT
 WinXP before reboot:
 vrrDrADgGQDgGSIR
 WinXP while reboot:
-uvrrdDGrrrrDrADgGQDgGSIR
+uvrdDGrrrrDrADgGQDgGSIR
 On Linux before reboot:
 vrrrDrADQQQgGSIR
 On Linux while reboot:
-uvrrdADgGSDgGGRuvrrrDrADQQQgGSIR
+uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 \xdef\resetmcuonhostreboot{\secno}
 
