@@ -605,6 +605,8 @@ Result: `\.x' never appears. So, there is no chance that
 TXINI is not 1 after we clear RXSTPI---we need not do any checking
 and waiting.
 
+\xdef\txiniafterclearingrxstpi{\secno}
+
 @(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -650,87 +652,4 @@ ISR(USB_GEN_vect)
   UECONX |= 1 << EPEN;
   UECFG1X = 1 << EPSIZE1;
   UECFG1X |= 1 << ALLOC;
-}
-
-@ In this test we check if NAKOUTI is set to 1 earlier than RXOUTI is set to 1
-(for ``control read'').
-
-Result: `\.0' (which means that RXOUTI is 0 when NAKOUTI is set).
-
-\xdef\nakoutibeforerxouti{\secno}
-
-@(test@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-
-const uint8_t dev_desc[]
-@t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
-  0x12, @/
-  0x01, @/
-  0x00, 0x02, @/
-  0x00, @/
-  0x00, @/
-  0x00, @/
-  0x20, @/
-  0xEB, 0x03, @/
-  0x13, 0x20, @/
-  0x00, 0x10, @/
-  0x00, @/
-  0x00, @/
-  0x00, @/
-@t\2@> 1 @/
-};
-
-uint8_t len = sizeof dev_desc;
-const void *ptr = dev_desc;
-
-volatile int num = 0;
-
-void main(void)
-{
-  UHWCON |= 1 << UVREGE; /* enable internal USB pads regulator */
-
-  UBRR1 = 34; // table 18-12 in datasheet
-  UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
-
-  PLLCSR = 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
-
-  USBCON |= 1 << USBE;
-  USBCON &= ~(1 << FRZCLK);
-
-  USBCON |= 1 << OTGPADE; /* enable VBUS pad */
-
-  UDIEN |= 1 << EORSTE;
-  sei();
-
-  UDCON &= ~(1 << DETACH);
-
-  while (!(UEINTX & 1 << RXSTPI)) ;
-  (void) UEDATX;
-  if (UEDATX != 0x06) return;
-  UEINTX &= ~(1 << RXSTPI);
-  while (len--)
-    UEDATX = pgm_read_byte(ptr++);
-  UEIENX |= 1 << NAKOUTE;
-  UEINTX &= ~(1 << TXINI);
-  while (1) ;
-}
-
-ISR(USB_GEN_vect)
-{
-  UDINT &= ~(1 << EORSTI);
-  UECONX |= 1 << EPEN;
-  UECFG1X = 1 << EPSIZE1;
-  UECFG1X |= 1 << ALLOC;
-}
-
-ISR(USB_COM_vect)
-{
-  if (UEINTX & 1 << RXOUTI) UDR1 = '1';
-  else UDR1 = '0';
-  while (1) ;
 }
