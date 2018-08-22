@@ -609,7 +609,7 @@ case 0x2021: @/
 }
 
 @ @<Global variables@>=
-U16 data_to_transfer;
+U16 size;
 const void *pbuffer;
 U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
 U8 empty_packet;
@@ -624,7 +624,7 @@ transfer more, host does not send OUT packet to initiate STATUS stage.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-data_to_transfer = sizeof dev_desc;
+size = sizeof dev_desc;
 pbuffer = &dev_desc;
 @<Send descriptor@>@;
 
@@ -634,13 +634,13 @@ pbuffer = &dev_desc;
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-data_to_transfer = sizeof conf_desc;
+size = sizeof conf_desc;
 pbuffer = &conf_desc;
 @<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
-data_to_transfer = sizeof lang_desc;
+size = sizeof lang_desc;
 pbuffer = lang_desc;
 @<Send descriptor@>@;
 
@@ -649,7 +649,7 @@ not from program.
 
 @<Handle {\caps get descriptor string} (serial)@>=
 UEINTX &= ~(1 << RXSTPI);
-data_to_transfer = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 @<Get serial number@>@;
 pbuffer = &sn_desc;
 from_program = 0;
@@ -666,17 +666,17 @@ Datasheet\S22.12.2.
 
 @<Send descriptor@>=
 empty_packet = 0;
-if (data_to_transfer < wLength && data_to_transfer % EP0_SIZE == 0)
+if (size < wLength && size % EP0_SIZE == 0)
   empty_packet = 1; /* indicate to the host that no more data will follow (USB\S5.5.3) */
-if (data_to_transfer > wLength)
-  data_to_transfer = wLength; /* never send more than requested */
-while (data_to_transfer != 0) {
+if (size > wLength)
+  size = wLength; /* never send more than requested */
+while (size != 0) {
   U8 nb_byte = 0;
-  while (data_to_transfer != 0) {
+  while (size != 0) {
     if (nb_byte++ == EP0_SIZE)
       break;
     UEDATX = from_program ? pgm_read_byte(pbuffer++) : *(U8 *) pbuffer++;
-    data_to_transfer--;
+    size--;
   }
   UEINTX &= ~(1 << TXINI); /* no need to wait, according to test in \S\txiniafterclearingrxstpi\ */
   while (!(UEINTX & 1 << TXINI)) ;
