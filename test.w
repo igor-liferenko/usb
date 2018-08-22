@@ -256,7 +256,13 @@ const uint8_t rep_desc[]
 
 void send_descriptor(const void *buf, int size)
 {
-  while (1) {
+  int empty_packet = 0;
+  if (size < wLength && size % EP0_SIZE == 0)
+    empty_packet = 1;
+  if (size > wLength)
+    size = wLength;
+  while (size != 0) {
+    while (!(UEINTX & 1 << TXINI)) ;
     int nb_byte = 0;
     while (size != 0) {
       if (nb_byte++ == 32)
@@ -265,12 +271,13 @@ void send_descriptor(const void *buf, int size)
       size--;
     }
     UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
-      break;
-    }
   }
+  if (empty_packet) {
+    while (!(UEINTX & 1 << TXINI)) ;
+    UEINTX &= ~(1 << TXINI);
+  }
+  while (!(UEINTX & 1 << RXOUTI)) ;
+  UEINTX &= ~(1 << RXOUTI);
 }
 
 volatile int connected = 0;
@@ -418,7 +425,13 @@ const uint8_t rep_desc[]
 
 void send_descriptor(const void *buf, int size)
 {
-  while (1) {
+  int empty_packet = 0;
+  if (size < wLength && size % EP0_SIZE == 0)
+    empty_packet = 1;
+  if (size > wLength)
+    size = wLength;
+  while (size != 0) {
+    while (!(UEINTX & 1 << TXINI)) ;
     int nb_byte = 0;
     while (size != 0) {
       if (nb_byte++ == 32)
@@ -427,12 +440,13 @@ void send_descriptor(const void *buf, int size)
       size--;
     }
     UEINTX &= ~(1 << TXINI);
-    while (!(UEINTX & (1 << TXINI)) && !(UEINTX & (1 << RXOUTI))) ;
-    if (UEINTX & (1 << RXOUTI)) {
-      UEINTX &= ~(1 << RXOUTI);
-      break;
-    }
   }
+  if (empty_packet) {
+    while (!(UEINTX & 1 << TXINI)) ;
+    UEINTX &= ~(1 << TXINI);
+  }
+  while (!(UEINTX & 1 << RXOUTI)) ;
+  UEINTX &= ~(1 << RXOUTI);
 }
 
 volatile int connected = 0;
