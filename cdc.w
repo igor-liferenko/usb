@@ -610,7 +610,7 @@ case 0x2021: @/
 
 @ @<Global variables@>=
 U16 size;
-const void *pbuffer;
+const void *buf;
 U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
 U8 empty_packet;
 
@@ -625,7 +625,7 @@ transfer more, host does not send OUT packet to initiate STATUS stage.
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 size = sizeof dev_desc;
-pbuffer = &dev_desc;
+buf = &dev_desc;
 @<Send descriptor@>@;
 
 @ First request is 9 bytes, second is according to length given in response to first request.
@@ -635,13 +635,13 @@ pbuffer = &dev_desc;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 size = sizeof conf_desc;
-pbuffer = &conf_desc;
+buf = &conf_desc;
 @<Send descriptor@>@;
 
 @ @<Handle {\caps get descriptor string} (language)@>=
 UEINTX &= ~(1 << RXSTPI);
 size = sizeof lang_desc;
-pbuffer = lang_desc;
+buf = lang_desc;
 @<Send descriptor@>@;
 
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
@@ -651,7 +651,7 @@ not from program.
 UEINTX &= ~(1 << RXSTPI);
 size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 @<Get serial number@>@;
-pbuffer = &sn_desc;
+buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
@@ -675,7 +675,7 @@ while (size != 0) {
   while (size != 0) {
     if (nb_byte++ == EP0_SIZE)
       break;
-    UEDATX = from_program ? pgm_read_byte(pbuffer++) : *(U8 *) pbuffer++;
+    UEDATX = from_program ? pgm_read_byte(buf++) : *(U8 *) buf++;
     size--;
   }
   UEINTX &= ~(1 << TXINI); /* no need to wait, according to test in \S\txiniafterclearingrxstpi\ */
