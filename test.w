@@ -32,8 +32,7 @@ So, we have learned that after USB\_RESET control endpoint must be configured an
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure @,@,@,@,@, UECONX |= 1 << EPEN; @+ UECFG1X = 1 << EPSIZE1;
-                                                  @+ UECFG1X |= 1 << ALLOC;
+#define configure @,@,@,@,@, UECONX |= 1 << EPEN;@+UECFG1X = 1 << EPSIZE1;@+UECFG1X |= 1 << ALLOC;
 #define configured_en (UECONX & 1 << EPEN)
 #define configured_sz (UECFG1X & 1 << EPSIZE1)
 #define configured_al (UECFG1X & 1 << ALLOC)
