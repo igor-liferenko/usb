@@ -43,6 +43,7 @@ void main(void)
       @<Process SETUP request@>@;
     }
   }
+  UENUM = EP1;
 
   @<Pullup input pins@>@;
 
@@ -129,7 +130,7 @@ case 0x0680: @/
   break;
 case 0x0681: @/
   @<Handle {\caps get descriptor hid}@>@;
-  @<Finish connection@>@;
+  connected = 1;
   break;
 case 0x0900: @/
   @<Handle {\caps set configuration}@>@;
@@ -238,10 +239,6 @@ UEINTX &= ~(1 << RXSTPI);
 size = sizeof hid_report_descriptor;
 buf = hid_report_descriptor;
 @<Send descriptor@>@;
-
-@ @<Finish connection@>=
-connected = 1;
-UENUM = EP1;
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
