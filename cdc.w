@@ -430,8 +430,10 @@ void main(void)
 }
 
 @ No other requests except {\caps set control line state} come
-after connection is established. Just remember not to set speed
-in application (it is unnecessary anyway).
+after connection is established (speed is not set in application, because it is irrelevant here).
+Note, that skipping here {\caps set line coding} makes no sense,
+because for this device to work with any application (not just where speed is not set),
+such application must set DTR, which is never (?) the case.
 
 @<Get |line_status|@>=
 UENUM = EP0;
