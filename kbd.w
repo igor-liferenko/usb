@@ -215,7 +215,7 @@ must have a Device Qualifier Descriptor. For example, if the device is currently
 full-speed, the Device Qualifier returns information about how it would operate at high-speed and
 vice-versa. So as this device is full-speed, it tells the host not to request
 device information for high-speed by using ``protocol stall'' (such stall
-does not indicate an error with the device, it serves as a means of
+does not indicate an error with the device ---~it serves as a means of
 extending USB requests).
 
 The host sends an IN token to the control pipe to initiate the DATA stage.
