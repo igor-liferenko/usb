@@ -32,11 +32,6 @@ So, we have learned that after USB\_RESET control endpoint must be configured an
 @(/dev/null@>=
 #include <avr/io.h>
 
-#define configure @,@,@,@,@, UECONX |= 1 << EPEN;@+UECFG1X = 1 << EPSIZE1;@+UECFG1X |= 1 << ALLOC;
-#define configured_en (UECONX & 1 << EPEN)
-#define configured_sz (UECFG1X & 1 << EPSIZE1)
-#define configured_al (UECFG1X & 1 << ALLOC)
-
 void main(void)
 {
   UHWCON |= 1 << UVREGE;
@@ -56,12 +51,14 @@ void main(void)
 
   UDCON &= ~(1 << DETACH);
 
-  configure;
+  UECONX |= 1 << EPEN;
+  UECFG1X = 1 << EPSIZE1;
+  UECFG1X |= 1 << ALLOC;
 
   while (!(UDINT & 1 << EORSTI)) ;
-  if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
-  if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
-  if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
+  if (!(UECONX & 1 << EPEN)) @+ UDR1 = 'e';
+  if (!(UECFG1X & 1 << EPSIZE1)) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
+  if (!(UECFG1X & 1 << ALLOC)) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
 }
 
 @ Here we want to find out how many resets happen until first setup packet arrives.
