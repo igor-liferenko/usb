@@ -58,7 +58,7 @@ void main(void)
 
   configure;
 
-  while(1) if (UDINT & 1 << EORSTI) break; @+ UDINT &= ~(1 << EORSTI);
+  while (!(UDINT & 1 << EORSTI)) ;
   if (!configured_en) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'e'; @+ }
   if (!configured_sz) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 's'; @+ }
   if (!configured_al) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = 'a'; @+ }
