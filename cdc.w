@@ -405,12 +405,7 @@ void main(void)
   @<Pullup input pins@>@;
 
   while (1) {
-    UENUM = EP0;
-    if (UEINTX & 1 << RXSTPI) {
-      (void) UEDATX; @+ (void) UEDATX;
-      @<Handle {\caps set control line state}@>@;
-    }
-    UENUM = EP1;
+    @<Get |line_status|@>@;
     if (line_status.DTR) {
       @<Get button@>@;
       if (btn != 0) {
@@ -432,6 +427,18 @@ void main(void)
     }
   }
 }
+
+@ No other requests except {\caps set control line state} come
+after connection is established. Just remember not to set speed
+in application (it is unnecessary anyway).
+
+@<Get |line_status|@>=
+UENUM = EP0;
+if (UEINTX & 1 << RXSTPI) {
+  (void) UEDATX; @+ (void) UEDATX;
+  @<Handle {\caps set control line state}@>@;
+}
+UENUM = EP1;
 
 @ @<Pullup input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5;
