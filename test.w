@@ -27,6 +27,18 @@ Set with the following command:
 The result is `\.{esa}'.
 So, we have learned that after USB\_RESET control endpoint must be configured anew.
 
+This is logical, because endpoint must not respond to any requests until it gets
+a reset (because all devices on a bus receive all data).
+
+There is no sense to configure EP0 before main loop because host always does
+\.{USB\_RESET} when it detects attach.
+
+http://we.easyelectronics.ru/electro-and-pc/interfeys-usb-realizaciya-chast-2.html:
+Хост всегда выставляет «Сброс» на шине сразу после того, как определит подключение устройства.
+До «сброса» устройство не должно передавать какие-либо данные в т. ч. в ответ на запрос по адресу 0 (благодаря этому, как я понимаю, решается проблема коллизии, возникающей в случае одновременного подключения к хосту нескольких новых устройств). - WRONG! because USB controller
+remains attached on host reboot, so it did receive reset earlier and starts to respond
+together with all other devices which are in PC
+
 \xdef\epconf{\secno}
 
 @(/dev/null@>=
