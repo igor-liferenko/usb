@@ -224,7 +224,7 @@ uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 \xdef\resetmcuonhostreboot{\secno}
 
-@(test@>=
+@(/dev/null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
