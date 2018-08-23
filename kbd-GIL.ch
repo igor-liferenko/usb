@@ -5,12 +5,12 @@
   {
 - /* TODO: ensure that all is done via `\.{\char'174=}', because MCU may be reset via RSTCPU,
 -  when usb stuff remains active (and cmp with original asm.S) */
-    UHWCON = 1 << UVREGE;
+    UHWCON |= 1 << UVREGE;
   
     PLLCSR = (1 << PINDIV) | (1 << PLLE);
 --- 23,28 ----
   {
-    UHWCON = 1 << UVREGE;
+    UHWCON |= 1 << UVREGE;
   
 +   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
 + 
