@@ -82,25 +82,6 @@
 ! send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
   
 ***************
-*** 171,173 ****
-  FIXME: it is not clear how |STALLRQ| works, because it works before clearing |RXSTPI|, and
-! it works after
-  @^FIXME@>
---- 179,182 ----
-  FIXME: it is not clear how |STALLRQ| works, because it works before clearing |RXSTPI|, and
-! it works after; but according to test in \S\rxstpiautoack, |RXSTPI| is not automatically
-! acknowledged...
-  @^FIXME@>
-***************
-*** 183,185 ****
-  @ @<Finish connection@>=
-! connected = 1; /* in contrast with \.{test.w}, it must be before switching from |EP0| */
-  UENUM = EP1;
---- 192,194 ----
-  @ @<Finish connection@>=
-! connected = 1; /* in contrast with \S\uenumtozero, it must be before switching from |EP0| */
-  UENUM = EP1;
-***************
 *** 190,193 ****
     {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 - while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
