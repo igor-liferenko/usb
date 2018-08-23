@@ -401,6 +401,7 @@ void main(void)
       @<Process SETUP request@>@;
     }
   }
+  UENUM = EP1;
 
   @<Pullup input pins@>@;
 
