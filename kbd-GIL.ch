@@ -24,7 +24,7 @@
 ***************
 *** 39,53 ****
     while (!connected)
-!     if (UEINTX & (1 << RXSTPI))
+!     if (UEINTX & 1 << RXSTPI)
         @<Process SETUP request@>@;
   
 !   PORTD |= 1 << PD0;
@@ -82,42 +82,6 @@
 ! send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
   
 ***************
-*** 190,193 ****
-    {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
-- while (!(UESTA0X & (1 << CFGOK))) ; /* TODO: test with led if it is necessary (create
--   a test for this in test.w, like the first test for control endpoint) */
-  
---- 199,200 ----
-***************
-*** 197,202 ****
-  
-! @ This request is used to set idle rate for reports. Duration 0 (first byte of wValue)
-! means that host lets the device send reports only when it needs.
-! 
-! @<Handle {\caps set idle}@>=
-  UEINTX &= ~(1 << RXSTPI);
---- 204,206 ----
-  
-! @ @<Handle {\caps set idle}@>=
-  UEINTX &= ~(1 << RXSTPI);
-***************
-*** 206,207 ****
---- 210,214 ----
-  
-+ When previous packet was sent, TXINI becomes 1. A new packet may be sent only
-+ after TXINI becomes 1. With TXINI the logic is the same as with UDRE.
-+ 
-  Here we also handle one case when data (serial number) needs to be transmitted from memory,
-***************
-*** 239,241 ****
-        }
-!       UEDATX = pgm_read_byte_near((unsigned int) buf++);
-        size--;
---- 246,248 ----
-        }
-!       UEDATX = pgm_read_byte(buf++);
-        size--;
-***************
 *** 515,545 ****
   
 ! @ @<Press button `a'@>=
@@ -131,7 +95,7 @@
 !       UEDATX = 0;
 !       UEINTX &= ~(1 << TXINI);
 !       UEINTX &= ~(1 << FIFOCON);
-!       while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent, then prepare
+!       while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet will be sent, then prepare
 !         new packet to be sent when following IN request arrives (for key release) */
 !       UEDATX = 0;
 !       UEDATX = 0;
@@ -143,7 +107,7 @@
 !       UEDATX = 0;
 !       UEINTX &= ~(1 << TXINI);
 !       UEINTX &= ~(1 << FIFOCON);
-!       while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet will be sent */
+!       while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet will be sent */
 ! 
 ! @ @<Press button `ESC'@>=
 !       UEDATX = 0;
