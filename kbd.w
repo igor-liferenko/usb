@@ -37,8 +37,6 @@ void main(void)
   UDCON &= ~(1 << DETACH);
 
   while (!connected) {
-    UENUM = EP0; /* it is necessary to do it here because in {\caps set configuration}
-      another endpoint is selected */
     if (UEINTX & 1 << RXSTPI) {
       @<Process SETUP request@>@;
     }
@@ -73,8 +71,6 @@ ISR(USB_GEN_vect)
 {
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
-    UENUM = EP0; /* it is necessary because |connected| is set after
-      {\caps set configuration}, where another endpoint is selected */
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     UECFG1X |= 1 << ALLOC;
@@ -248,7 +244,6 @@ buf = hid_report_descriptor;
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
 UENUM = EP1;
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
@@ -257,6 +252,8 @@ UECFG1X = 0; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 UECFG1X |= 1 << ALLOC;
 UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
+UENUM = EP0; /* restore for further setup requests */
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
