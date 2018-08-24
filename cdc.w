@@ -1,5 +1,7 @@
 % TODO: move "@* USB stack." to the bottom
 
+% TODO: add product "CDC MATRIX" as in avrtel/
+
 \let\lheader\rheader
 %\datethis
 \secpagedepth=2 % begin new page only on *
