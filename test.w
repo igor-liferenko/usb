@@ -222,6 +222,9 @@ vrrrDrADQQQgGSIR
 On Linux while reboot:
 uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
+Here is also ensured that TXINI is `1' when RXSTPI becomes `1' (otherwise connection would
+not be established).
+
 \xdef\resetmcuonhostreboot{\secno}
 
 @(/dev/null@>=

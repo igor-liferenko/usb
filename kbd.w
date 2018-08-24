@@ -270,6 +270,9 @@ data must be sent. When data was sent, TXINI becomes `1'.
 After TXINI becomes `1', new data may be written to UEDATX.
 (For non-control endpoints clearing TXINI serves different purpose.)
 
+Here is used the fact that TXINI is `1' when RXSTPI becomes `1' (see test in
+\S\resetmcuonhostreboot). 
+
 @<Send descriptor@>=
 empty_packet = 0;
 if (size < wLength && size % EP0_SIZE == 0)
@@ -277,7 +280,6 @@ if (size < wLength && size % EP0_SIZE == 0)
 if (size > wLength)
   size = wLength; /* never send more than requested */
 while (size != 0) {
-  while (!(UEINTX & 1 << TXINI)) ;
   U8 nb_byte = 0;
   while (size != 0) {
     if (nb_byte++ == EP0_SIZE)
@@ -286,11 +288,10 @@ while (size != 0) {
     size--;
   }
   UEINTX &= ~(1 << TXINI);
-}
-if (empty_packet) {
   while (!(UEINTX & 1 << TXINI)) ;
-  UEINTX &= ~(1 << TXINI);
 }
+if (empty_packet)
+  UEINTX &= ~(1 << TXINI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
 
