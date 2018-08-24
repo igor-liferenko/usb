@@ -291,8 +291,8 @@ void main(void)
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
         while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet was sent */
-        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
         UDADDR |= 1 << ADDEN;
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
         break;
       case 0x0680:
         switch (UEDATX | UEDATX << 8) {
@@ -300,26 +300,22 @@ void main(void)
           (void) UEDATX; @+ (void) UEDATX;
           wLength = UEDATX | UEDATX << 8;
           UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ;
-          if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
           size = wLength < sizeof dev_desc ? wLength : sizeof dev_desc;
           buf = dev_desc;
-          while (!(UEINTX & 1 << TXINI)) ;
           while (size--)
             UEDATX = pgm_read_byte(buf++);
           UEINTX &= ~(1 << TXINI);
           while (!(UEINTX & 1 << RXOUTI)) ;
           UEINTX &= ~(1 << RXOUTI);
+          while (!(UCSR1A & 1 << UDRE1)) ;
+          if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
           wLength = UEDATX | UEDATX << 8;
           UEINTX &= ~(1 << RXSTPI);
-          while (!(UCSR1A & 1 << UDRE1)) ;
-          if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
           size = wLength;
           buf = conf_desc;
-          while (!(UEINTX & 1 << TXINI)) ;
           if (size == 9) {
             while (size--)
               UEDATX = pgm_read_byte(buf++);
@@ -336,6 +332,8 @@ void main(void)
           UEINTX &= ~(1 << TXINI);
           while (!(UEINTX & 1 << RXOUTI)) ;
           UEINTX &= ~(1 << RXOUTI);
+          while (!(UCSR1A & 1 << UDRE1)) ;
+          if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
           break;
         case 0x0600:
           UECONX |= 1 << STALLRQ;
@@ -346,10 +344,8 @@ void main(void)
         break;
       case 0x0681:
         UEINTX &= ~(1 << RXSTPI);
-        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
         size = sizeof rep_desc;
         buf = rep_desc;
-        while (!(UEINTX & 1 << TXINI)) ;
         i = 0;
         for (; i < 32; i++)
           UEDATX = pgm_read_byte(buf++);
@@ -360,6 +356,7 @@ void main(void)
         UEINTX &= ~(1 << TXINI);
         while (!(UEINTX & 1 << RXOUTI)) ;
         UEINTX &= ~(1 << RXOUTI);
+        while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'R';
         connected = 1;
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
         break;
