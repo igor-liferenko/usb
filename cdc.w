@@ -439,7 +439,7 @@ if (UEINTX & 1 << RXSTPI) {
   (void) UEDATX; @+ (void) UEDATX;
   @<Handle {\caps set control line state}@>@;
 }
-UENUM = EP1;
+UENUM = EP1; /* restore */
 
 @ @<Pullup input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5;
