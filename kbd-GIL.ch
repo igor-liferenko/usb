@@ -131,31 +131,6 @@
 ! This is necessary to transmit manufacturer, product and serial number.
   
 ***************
-*** 583,588 ****
-  struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
-! So, |sizeof| on the variable counts only first two elements.
-! So, we use |pgm_read_byte|\footnote*{In |@<Handle {\caps get descriptor string} (manufacturer)@>|
-! and |@<Handle {\caps get descriptor string} (product)@>|.} to read the size of the variable at
-! execution time.
-  TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/}
---- 565,571 ----
-  struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
-! |sizeof| on the variable counts only first two elements.
-! So, we read the size of the variable at
-! execution time in |@<Handle {\caps get descriptor string} (manufacturer)@>|
-! and |@<Handle {\caps get descriptor string} (product)@>| by using |pgm_read_byte|.
-! 
-  TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/}
-***************
-*** 601,603 ****
-  
-! #define STR_DESC(str) { 1 + 1 + sizeof str - 2, 0x03, str }
-  
---- 584,586 ----
-  
-! #define STR_DESC(str) @,@,@,@, {@, 1 + 1 + sizeof str - 2, 0x03, str @t\hskip1pt@>}
-  
-***************
 *** 658,659 ****
 --- 641,693 ----
   
