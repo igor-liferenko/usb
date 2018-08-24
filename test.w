@@ -290,7 +290,7 @@ void main(void)
         UDADDR = UEDATX & 0x7F;
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
-        while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet was sent */
+        while (!(UEINTX & 1 << TXINI)) ;
         UDADDR |= 1 << ADDEN;
         while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
         break;
@@ -300,7 +300,8 @@ void main(void)
           (void) UEDATX; @+ (void) UEDATX;
           wLength = UEDATX | UEDATX << 8;
           UEINTX &= ~(1 << RXSTPI);
-          size = wLength < sizeof dev_desc ? wLength : sizeof dev_desc;
+          size = wLength;
+          if (wLength != 8) size = sizeof dev_desc; /* because host asks 64 bytes */
           buf = dev_desc;
           while (size--)
             UEDATX = pgm_read_byte(buf++);
@@ -308,7 +309,7 @@ void main(void)
           while (!(UEINTX & 1 << RXOUTI)) ;
           UEINTX &= ~(1 << RXOUTI);
           while (!(UCSR1A & 1 << UDRE1)) ;
-          if (wLength==8) UDR1 = 'd'; else UDR1 = 'D';
+          if (wLength == 8) UDR1 = 'd'; else UDR1 = 'D';
           break;
         case 0x0200:
           (void) UEDATX; @+ (void) UEDATX;
@@ -316,7 +317,7 @@ void main(void)
           UEINTX &= ~(1 << RXSTPI);
           size = wLength;
           buf = conf_desc;
-          if (size == 9) {
+          if (wLength == 9) {
             while (size--)
               UEDATX = pgm_read_byte(buf++);
           }
@@ -333,7 +334,7 @@ void main(void)
           while (!(UEINTX & 1 << RXOUTI)) ;
           UEINTX &= ~(1 << RXOUTI);
           while (!(UCSR1A & 1 << UDRE1)) ;
-          if (wLength==9) UDR1 = 'g'; else UDR1 = 'G';
+          if (wLength == 9) UDR1 = 'g'; else UDR1 = 'G';
           break;
         case 0x0600:
           UECONX |= 1 << STALLRQ;
@@ -344,7 +345,7 @@ void main(void)
         break;
       case 0x0681:
         UEINTX &= ~(1 << RXSTPI);
-        size = sizeof rep_desc;
+        size = sizeof rep_desc; /* not wLength because winxp requests wrong size */
         buf = rep_desc;
         i = 0;
         for (; i < 32; i++)
@@ -386,7 +387,7 @@ ISR(USB_GEN_vect)
   UDINT &= ~(1 << EORSTI);
   if (!connected) {
     UECONX |= 1 << EPEN;
-    UECFG1X = 1 << EPSIZE1;
+    UECFG1X = 1 << EPSIZE1; /* it was checked that on atmega32u4 64 bytes does not work */
     UECFG1X |= 1 << ALLOC;
     while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'r';
   }
