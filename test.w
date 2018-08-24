@@ -268,7 +268,7 @@ void main(void)
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
+  while (!(PLLCSR & 1 << PLOCK)) ;
 
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
@@ -290,7 +290,7 @@ void main(void)
         UDADDR = UEDATX & 0x7F;
         UEINTX &= ~(1 << RXSTPI);
         UEINTX &= ~(1 << TXINI);
-        while (!(UEINTX & (1 << TXINI))) ; /* wait until previous packet was sent */
+        while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet was sent */
         while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'A';
         UDADDR |= 1 << ADDEN;
         break;
@@ -362,14 +362,15 @@ void main(void)
         UEINTX &= ~(1 << RXOUTI);
         connected = 1;
         DDRB |= 1 << PB0; @+ PORTB |= 1 << PB0;
+        break;
+      case 0x0900:
+        UEINTX &= ~(1 << RXSTPI);
         UENUM = 1;
         UECONX |= 1 << EPEN;
         UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR;
         UECFG1X = 0;
         UECFG1X |= 1 << ALLOC;
-        break;
-      case 0x0900:
-        UEINTX &= ~(1 << RXSTPI);
+        UENUM = 0;
         UEINTX &= ~(1 << TXINI);
         while (!(UCSR1A & 1 << UDRE1)) ; UDR1 = 'S';
         break;
