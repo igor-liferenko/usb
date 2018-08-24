@@ -86,7 +86,7 @@ void main(void)
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
+  while (!(PLLCSR & 1 << PLOCK)) ;
 
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
@@ -98,7 +98,7 @@ void main(void)
 
   UDCON &= ~(1 << DETACH);
 
-  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UEINTX & 1 << RXSTPI)) ;
   (void) UEDATX;
   if (UEDATX == 0x06) UDR1 = num + '0';
 }
@@ -153,7 +153,7 @@ void main(void)
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & (1<<PLOCK))) ;
+  while (!(PLLCSR & 1 << PLOCK)) ;
 
   USBCON |= 1 << USBE;
   USBCON &= ~(1 << FRZCLK);
@@ -165,7 +165,7 @@ void main(void)
 
   UDCON &= ~(1 << DETACH);
 
-  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UEINTX & 1 << RXSTPI)) ;
   (void) UEDATX;
   if (UEDATX != 0x06) return;
   UEINTX &= ~(1 << RXSTPI);
@@ -173,11 +173,11 @@ void main(void)
   while (len--)
     UEDATX = pgm_read_byte(ptr++);
   UEINTX &= ~(1 << TXINI);
-  while (!(UEINTX & (1 << RXOUTI))) ;
+  while (!(UEINTX & 1 << RXOUTI)) ;
   num = 0;
   UEINTX &= ~(1 << RXOUTI);
 
-  while (!(UEINTX & (1 << RXSTPI))) ;
+  while (!(UEINTX & 1 << RXSTPI)) ;
   (void) UEDATX;
   if (UEDATX == 0x05) UDR1 = num + '0';
 }
