@@ -345,7 +345,7 @@ void main(void)
         break;
       case 0x0681:
         UEINTX &= ~(1 << RXSTPI);
-        size = sizeof rep_desc; /* not wLength because winxp requests wrong size */
+        size = sizeof rep_desc; /* not wLength because winxp requests 98 bytes */
         buf = rep_desc;
         i = 0;
         for (; i < 32; i++)
