@@ -613,7 +613,7 @@ const S_string_descriptor mfr_desc
 
 @<Global \null variables@>=
 const S_string_descriptor prod_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"AVR USB HID DEMO");
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"HID MATRIX");
 
 @* Matrix.
 
