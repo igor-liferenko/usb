@@ -1,3 +1,5 @@
+% TODO: move "@* USB stack." to the bottom
+
 \let\lheader\rheader
 %\datethis
 \secpagedepth=2 % begin new page only on *
