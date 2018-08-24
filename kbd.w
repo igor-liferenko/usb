@@ -251,7 +251,6 @@ UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
 UECFG1X = 0; /* 8 bytes\footnote
   {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
 UECFG1X |= 1 << ALLOC;
-UERST = 1 << EP1, UERST = 0; /* FIXME: is this needed? */
 UENUM = EP0; /* restore for further setup requests */
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
