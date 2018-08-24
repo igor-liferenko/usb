@@ -145,7 +145,7 @@ wValue = UEDATX | UEDATX << 8;
 UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
-while (!(UEINTX & (1 << TXINI))) ; /* wait until ZLP, prepared by previous command, is
+while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command, is
             sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
             firmware must send ZLP in the STATUS stage before enabling the new address.
             The reason is that the request started by using zero address, and all the stages of the
@@ -540,7 +540,7 @@ const uint8_t hid_report_descriptor[]
 @ Key press, then key release.
 
 @<Send button@>=
-while (!(UEINTX & (1 << TXINI))) ;
+while (!(UEINTX & 1 << TXINI)) ;
 UEINTX &= ~(1 << TXINI);
 UEDATX = mod;
 UEDATX = 0;
@@ -552,7 +552,7 @@ UEDATX = 0;
 UEDATX = 0;
 UEINTX &= ~(1 << FIFOCON);
 
-while (!(UEINTX & (1 << TXINI))) ;
+while (!(UEINTX & 1 << TXINI)) ;
 UEINTX &= ~(1 << TXINI);
 UEDATX = 0;
 UEDATX = 0;
