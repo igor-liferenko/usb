@@ -1,27 +1,3 @@
-*** /tmp/gbcyOh_kbd.w	2018-07-30 14:18:44.944534248 +0700
---- /tmp/wXICNh_kbd.w	2018-07-30 14:18:44.944534248 +0700
-***************
-*** 23,28 ****
-  {
-- /* TODO: ensure that all is done via `\.{\char'174=}', because MCU may be reset via RSTCPU,
--  when usb stuff remains active (and cmp with original asm.S) */
-    UHWCON |= 1 << UVREGE;
-  
-    PLLCSR = (1 << PINDIV) | (1 << PLLE);
---- 23,28 ----
-  {
-    UHWCON |= 1 << UVREGE;
-  
-+   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
-+ 
-    PLLCSR = (1 << PINDIV) | (1 << PLLE);
-***************
-*** 35,37 ****
-    UDCON &= ~(1 << DETACH);
--   UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
-  
---- 35,36 ----
-***************
 *** 39,53 ****
     while (!connected)
 !     if (UEINTX & 1 << RXSTPI)
