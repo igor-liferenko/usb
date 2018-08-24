@@ -1,1 +1,2 @@
 http://microsin.net/programming/avr-working-with-usb/avr298-usb-audio-demonstration.html
+HINT: compile Atmel's audio demo and see wireshark trace what is used and take only that
