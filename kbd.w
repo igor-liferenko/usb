@@ -249,7 +249,8 @@ UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag
   {Must correspond to IN endpoint description in |@<Initialize element 4...@>|.}, IN */
 UECFG1X = 0; /* 8 bytes\footnote
-  {\dag\dag}{Must correspond to IN endpoint description in |hid_report_descriptor|.} */
+  {\dag\dag}{Must correspond to IN endpoint description in |@<Initialize element 4...@>|
+  and |hid_report_descriptor|.} */
 UECFG1X |= 1 << ALLOC;
 UENUM = EP0; /* restore for further setup requests */
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
@@ -468,7 +469,8 @@ struct {
   IN | 1, /* this corresponds to `1' in `ep1' on picture */
   0x03, /* transfers via interrupts\footnote\dag{Must correspond to
     |UECFG0X| of |EP1|.} */
-  0x0008, /* 8 bytes */
+  0x0008, /* 8 bytes\footnote\ddag{Must correspond to |UECFG1X| of |EP1| and
+             |hid_report_descriptor|.} */
 @t\2@> 0x0F /* 16 */
 }
 
@@ -509,6 +511,9 @@ bit 7: right GUI\par
 
 {\bf Note:} This report descriptor was prepared in ``HID descriptor tool'' (it works
 in \.{wine}; start the executable from the same folder to which it was unpacked).
+
+TODO: see microsin article and add here footnote reference
+to |Initialize element 4...| and |UECFG1X| of |EP1|
 
 @<Global variables ...@>=
 const uint8_t hid_report_descriptor[]
