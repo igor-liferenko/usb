@@ -294,7 +294,7 @@ if (empty_packet) @+ UEINTX &= ~(1 << TXINI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
 
-@i control-endpoint-management.w
+@i CONTROL-endpoint-management.w
 
 @i IN-endpoint-management.w
 
