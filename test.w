@@ -224,7 +224,7 @@ uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 Here is used the fact that TXINI is `1' when RXSTPI becomes `1' (TODO: create test as in
 \S\numreset\ and and refer to it from here and change places which refer to here to
-refer to new test); and in this test also check that RXOUTI is `0'.
+refer to new test); and in new test also check that RXOUTI is `0'.
 
 \xdef\resetmcuonhostreboot{\secno}
 
