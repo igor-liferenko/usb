@@ -222,11 +222,6 @@ vrrrDrADQQQgGSIR
 On Linux while reboot:
 uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
-Here is used the fact that TXINI is `1' when RXSTPI becomes `1' (TODO: create test as in
-\S\numreset\ and and refer to it from here and change doc-part of ``Send descriptor''
-section in all programs to refer to new test); and in new test also check that RXOUTI is
-`0' (just to make sure).
-
 \xdef\resetmcuonhostreboot{\secno}
 
 @(/dev/null@>=
