@@ -37,11 +37,11 @@ There is no sense to configure EP0 before main loop because host always does
 
 void main(void)
 {
-  UHWCON |= 1 << UVREGE;
-
   UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
+  UCSR1B |= 1 << TXEN1;
+
+  UHWCON |= 1 << UVREGE;
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
@@ -132,12 +132,12 @@ void main(void)
   WDTCSR |= 1 << WDCE | 1 << WDE;
   WDTCSR = 0x00;
 
-  UHWCON |= 1 << UVREGE;
-
-  UBRR1 = 34;
+  UBRR1 = 34; // table 18-12 in datasheet
   UCSR1A |= 1 << U2X1;
-  UCSR1B = 1 << TXEN1;
+  UCSR1B |= 1 << TXEN1;
   UDR1 = 'v';
+
+  UHWCON |= 1 << UVREGE;
 
   PLLCSR = 1 << PINDIV;
   PLLCSR |= 1 << PLLE;
