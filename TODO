@@ -36,4 +36,4 @@ void loop()
     delay(1000);  // delay so there aren't a kajillion z's
   }
 }
-after you do this, rm gsettings for Debian-gdm, trick with /tmp/installer*.zenity from post-install.sh and installer.tex
+after you do this, rm gsettings for Debian-gdm from post-install.sh, trick with /tmp/installer*.zenity from post-install.sh and installer.tex
