@@ -12,7 +12,8 @@ keyboard.
 
 @d EP0 0
 @d EP1 1
-@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
+@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
+                  (max for atmega32u4) */
 
 @c
 @<Header files@>@;

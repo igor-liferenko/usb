@@ -341,7 +341,8 @@ struct {
 #define EP2 2
 #define EP3 3
 
-@ @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.} */
+@ @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
+                    (max for atmega32u4) */
 
 @c
 volatile int connected = 0;
