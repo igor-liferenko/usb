@@ -1,6 +1,4 @@
-\secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
-                                           % \datethis in test.w (with and without kbd.ch)
-
+\secpagedepth=2 % begin new page only on *
 \font\caps=cmcsc10 at 9pt
 
 @i test.w % \datethis is here (and \let\lheader...)
