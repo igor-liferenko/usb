@@ -1,5 +1,3 @@
-% TODO: do all via wValue, wIndex, wLength as in demo/main.w
-
 \secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
                                            % \datethis in test.w (with and without kbd.ch)
 
@@ -80,7 +78,7 @@ ISR(USB_GEN_vect)
   }
 }
 
-@ TODO: copy doc from demo/main.w
+@ TODO: copy doc from demo/main.w (and compare with doc in avrtel/avrtel.w)
 @^TODO@>
 
 @<Reset MCU@>=
