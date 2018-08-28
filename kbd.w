@@ -47,7 +47,7 @@ void main(void)
     @<Get button@>@;
     if (btn != 0) {
       @<Send button@>@;
-      uint16_t prev_button = btn|mod<<8;
+      U16 prev_button = btn|mod<<8;
       int timeout = 2000;
       while (--timeout) {
         @<Get button@>@;
@@ -312,20 +312,20 @@ TODO: find what prefixes mean in names of variables (i.e., `b', `bcd', ...)
 
 @<Global \null variables@>=
 struct {
-  uint8_t      bLength;
-  uint8_t      bDescriptorType;
-  uint16_t     bcdUSB; /* version */
-  uint8_t      bDeviceClass; /* class code assigned by the USB */
-  uint8_t      bDeviceSubClass; /* sub-class code assigned by the USB */
-  uint8_t      bDeviceProtocol; /* protocol code assigned by the USB */
-  uint8_t      bMaxPacketSize0; /* max packet size for EP0 */
-  uint16_t     idVendor;
-  uint16_t     idProduct;
-  uint16_t     bcdDevice; /* device release number */
-  uint8_t      iManufacturer; /* index of manu. string descriptor */
-  uint8_t      iProduct; /* index of prod. string descriptor */
-  uint8_t      iSerialNumber; /* index of S.N. string descriptor */
-  uint8_t      bNumConfigurations;
+  U8 bLength;
+  U8 bDescriptorType;
+  U16 bcdUSB; /* version */
+  U8 bDeviceClass; /* class code assigned by the USB */
+  U8 bDeviceSubClass; /* sub-class code assigned by the USB */
+  U8 bDeviceProtocol; /* protocol code assigned by the USB */
+  U8 bMaxPacketSize0; /* max packet size for EP0 */
+  U16 idVendor;
+  U16 idProduct;
+  U16 bcdDevice; /* device release number */
+  U8 iManufacturer; /* index of manu. string descriptor */
+  U8 iProduct; /* index of prod. string descriptor */
+  U8 iSerialNumber; /* index of S.N. string descriptor */
+  U8 bNumConfigurations;
 } const dev_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   18, /* size of this structure */
@@ -371,16 +371,16 @@ const S_configuration_descriptor conf_desc
 
 @<Configuration header descriptor@>=
 struct {
-   uint8_t      bLength;
-   uint8_t      bDescriptorType;
-   uint16_t     wTotalLength;
-   uint8_t      bNumInterfaces;
-   uint8_t      bConfigurationValue; /* number between 1 and |bNumConfigurations|, for
+   U8 bLength;
+   U8 bDescriptorType;
+   U16 wTotalLength;
+   U8 bNumInterfaces;
+   U8 bConfigurationValue; /* number between 1 and |bNumConfigurations|, for
      each configuration\footnote\dag{For some reason
      configurations start numbering with `1', and interfaces and altsettings with `0'.} */
-   uint8_t      iConfiguration; /* index of string descriptor */
-   uint8_t      bmAttibutes;
-   uint8_t      MaxPower;
+   U8 iConfiguration; /* index of string descriptor */
+   U8 bmAttibutes;
+   U8 MaxPower;
 }
 
 @ @<Initialize element 1 in configuration descriptor@>= { @t\1@> @/
@@ -398,16 +398,16 @@ struct {
 
 @<Interface descriptor@>=
 struct {
-   uint8_t      bLength;
-   uint8_t      bDescriptorType;
-   uint8_t      bInterfaceNumber; /* number between 0 and |bNumInterfaces-1|, for
+   U8 bLength;
+   U8 bDescriptorType;
+   U8 bInterfaceNumber; /* number between 0 and |bNumInterfaces-1|, for
                                      each interface */
-   uint8_t      bAlternativeSetting; /* number starting from 0, for each interface */
-   uint8_t      bNumEndpoints; /* number of EP except EP 0 */
-   uint8_t      bInterfaceClass; /* class code assigned by the USB */
-   uint8_t      bInterfaceSubClass; /* sub-class code assigned by the USB */
-   uint8_t      bInterfaceProtocol; /* protocol code assigned by the USB */
-   uint8_t      iInterface; /* index of string descriptor */
+   U8 bAlternativeSetting; /* number starting from 0, for each interface */
+   U8 bNumEndpoints; /* number of EP except EP 0 */
+   U8 bInterfaceClass; /* class code assigned by the USB */
+   U8 bInterfaceSubClass; /* sub-class code assigned by the USB */
+   U8 bInterfaceProtocol; /* protocol code assigned by the USB */
+   U8 iInterface; /* index of string descriptor */
 }
 
 @ |bInterfaceSubClass| signifies device type (non-bootable or bootable).
@@ -431,13 +431,13 @@ standard protocol which the device supports (user-defined, keyboard or mouse).
 
 @<HID configuration descriptor@>=
 struct {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint16_t bcdHID;
-  uint8_t bCountryCode;
-  uint8_t bNumDescriptors;
-  uint8_t bReportDescriptorType;
-  uint16_t wReportDescriptorLength;
+  U8 bLength;
+  U8 bDescriptorType;
+  U16 bcdHID;
+  U8 bCountryCode;
+  U8 bNumDescriptors;
+  U8 bReportDescriptorType;
+  U16 wReportDescriptorLength;
 }
 
 @ @<Initialize element 3 in configuration descriptor@>= { @t\1@> @/
@@ -454,12 +454,12 @@ struct {
 
 @<Endpoint descriptor@>=
 struct {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
-  uint8_t bEndpointAddress;
-  uint8_t bmAttributes;
-  uint16_t wMaxPacketSize;
-  uint8_t bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
+  U8 bLength;
+  U8 bDescriptorType;
+  U8 bEndpointAddress;
+  U8 bmAttributes;
+  U16 wMaxPacketSize;
+  U8 bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 }
 
 @ @d IN (1 << 7)
@@ -479,7 +479,7 @@ struct {
 This is necessary to transmit manufacturer and product.
 
 @<Global \null variables@>=
-const uint8_t lang_desc[]
+const U8 lang_desc[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x04, /* size of this structure */
   0x03, /* type (string) */
@@ -506,8 +506,8 @@ TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/
 
 @<Type definitions@>=
 typedef struct {
-  uint8_t bLength;
-  uint8_t bDescriptorType;
+  U8 bLength;
+  U8 bDescriptorType;
   int16_t wString[];
 } S_string_descriptor;
 
@@ -567,7 +567,7 @@ Note, that sum of \.{REPORT\_SIZE} multiplied by corresponding \.{REPORT\_COUNT}
 must be not greater than endpoint size of EP1 (specified by |UECFG1X|), multiplied by 8.
 
 @<Global variables ...@>=
-const uint8_t hid_report_descriptor[]
+const U8 hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x05, 0x01, @t\hskip10pt@> // \.{USAGE\_PAGE (Generic Desktop)}
   0x09, 0x06, @t\hskip10pt@> // \.{USAGE (Keyboard)}
@@ -672,7 +672,7 @@ PORTE |= 1 << PE6;
 PORTD |= 1 << PD7;
 
 @ @<Global \null variables@>=
-uint8_t btn = 0, mod = 0;
+U8 btn = 0, mod = 0;
 
 @
 % NOTE: use index into an array of Pxn if pins in "for" are not consequtive:
