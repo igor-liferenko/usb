@@ -37,11 +37,10 @@ void main(void)
   sei();
   UDCON &= ~(1 << DETACH);
 
-  while (!connected) {
+  while (!connected)
     if (UEINTX & 1 << RXSTPI) {
       @<Process SETUP request@>@;
     }
-  }
   UENUM = EP1;
 
   @<Pullup input pins@>@;
