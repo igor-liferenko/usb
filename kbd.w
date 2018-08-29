@@ -152,7 +152,6 @@ case 0x0680: @/
   break;
 case 0x0681: @/
   @<Handle {\caps get descriptor hid}@>@;
-  connected = 1;
   break;
 case 0x0900: @/
   @<Handle {\caps set configuration}@>@;
@@ -259,7 +258,9 @@ UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN tok
   stage */
 UEINTX &= ~(1 << RXSTPI);
 
-@ @<Handle {\caps get descriptor hid}@>=
+@ This is the last request after attachment to host.
+
+@<Handle {\caps get descriptor hid}@>=
 (void) UEDATX; @+ (void) UEDATX;
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
@@ -267,6 +268,7 @@ UEINTX &= ~(1 << RXSTPI);
 size = sizeof hid_report_descriptor;
 buf = hid_report_descriptor;
 @<Send descriptor@>@;
+connected = 1;
 
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
