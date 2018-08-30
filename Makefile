@@ -6,7 +6,7 @@ all:
 	@avr-objcopy -O ihex fw.elf fw.hex
 
 objdump:
-	@avr-objdump -d fw.elf >x
+	@avr-objdump -d fw.elf
 
 flash:
 	@avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
