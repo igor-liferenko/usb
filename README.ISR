@@ -1,0 +1,10 @@
+ISR(...)
+{
+  if (XXXE) { /* can it trigger? (not necessary to check this if it is enabled and never disabled) */
+    if (XXXI) { /* did it trigger? (not necessary if it is the only one for which XXXE is set in
+                   this ISR) */
+      ...
+    }
+  }
+  if (YYYE) { ...
+}
