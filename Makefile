@@ -11,6 +11,9 @@ objdump:
 flash:
 	@avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
 
+clean:
+	@git clean -X -d -f
+
 .PHONY: test
 test:
 	@grep -q '^@(test@>=$$' test.w || ( echo 'NO SECTION ENABLED'; false )
