@@ -12,7 +12,7 @@ flash:
 	@avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
 
 clean:
-	@git clean -X -d -f
+	@git clean -X -d -f -e '!*.eps'
 
 .PHONY: test
 test:
