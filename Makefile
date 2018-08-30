@@ -3,7 +3,7 @@ all:
 
 %:
 	avr-gcc -mmcu=atmega32u4 -g -Os -o $@.elf $@.c
-	@avr-objdump -d $@.elf >x
+	@echo avr-objdump -d $@.elf; avr-objdump -d $@.elf >x
 	avr-objcopy -O ihex $@.elf fw.hex
 
 flash:
