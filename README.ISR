@@ -8,3 +8,5 @@ ISR(...)
   }
   if (YYYE) { ...
 }
+
+TODO: add above comments to kbd.w, avrtel.w and demo.w
