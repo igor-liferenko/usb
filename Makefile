@@ -12,7 +12,10 @@ flash:
 	@avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
 
 clean:
-	@git clean -X -d -f -e '!*.eps'
+	@git clean -X -d -f
+
+imgs:
+	@perl -ne 'if (/^([\w-]+\.eps): (.*)/) { system "convert $$2 $$1" }' Makefile
 
 .PHONY: test
 test:
@@ -60,10 +63,6 @@ transaction-OUT.eps: transaction-OUT.gif
 transaction-SETUP.eps: transaction-SETUP.gif
 	@convert $< $@
 	@imgsize $@
-
-hid-structure.eps: hid-structure.png
-	@convert $< $@
-	@imgsize $@ 5 -
 
 kbd-structure.eps: kbd-structure.png
 	@convert $< $@
