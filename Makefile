@@ -2,21 +2,22 @@ all:
 	@echo NoOp
 
 %:
-	avr-gcc -mmcu=atmega32u4 -g -Os -o $@.elf $@.c
-	@echo avr-objdump -d $@.elf; avr-objdump -d $@.elf >x
-	@avr-objcopy -O ihex $@.elf fw.hex
+	@avr-gcc -mmcu=atmega32u4 -g -Os -o fw.elf $@.c
+	@avr-objcopy -O ihex fw.elf fw.hex
+
+objdump:
+	@avr-objdump -d fw.elf >x
 
 flash:
-	avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
+	@avrdude -qq -c usbasp -p atmega32u4 -U flash:w:fw.hex
 
 .PHONY: test
 test:
 	@grep -q '^@(test@>=$$' test.w || ( echo 'NO SECTION ENABLED'; false )
 	@grep '^@(test@>=$$' test.w | wc -l | grep -q '^1$$' || ( echo 'MORE THAN ONE SECTION ENABLED'; false )
 	@mv test test.c
-	avr-gcc -mmcu=atmega32u4 -g -Os -o test.elf test.c
-	@avr-objdump -S test.elf >x
-	avr-objcopy -O ihex test.elf fw.hex
+	@avr-gcc -mmcu=atmega32u4 -g -Os -o fw.elf test.c
+	@avr-objcopy -O ihex fw.elf fw.hex
 
 asm:
 	avr-gcc -mmcu=atmega32u4 -g -o asm.elf asm.S
