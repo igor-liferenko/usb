@@ -151,7 +151,7 @@ case 0x0680: @/
   }
   break;
 case 0x0681: @/
-  @<Handle {\caps get descriptor hid}@>@;
+  @<Handle {\caps get descriptor hid report}@>@;
   break;
 case 0x0900: @/
   @<Handle {\caps set configuration}@>@;
@@ -197,6 +197,33 @@ size = sizeof dev_desc;
 buf = &dev_desc;
 @<Send descriptor@>@;
 
+@ A high-speed capable device that has different device information for full-speed and high-speed
+must have a Device Qualifier Descriptor. For example, if the device is currently operating at
+full-speed, the Device Qualifier returns information about how it would operate at high-speed and
+vice-versa. So as this device is full-speed, it tells the host not to request
+device information for high-speed by using ``protocol stall'' (such stall
+does not indicate an error with the device ---~it serves as a means of
+extending USB requests).
+
+The host sends an IN token to the control pipe to initiate the DATA stage.
+
+$$\hbox to10.93cm{\vbox to5.15055555555556cm{\vfil\special{%
+  psfile=stall-control-read-with-data-stage.eps
+  clip llx=0 lly=0 urx=310 ury=146 rwi=3100}}\hfil}$$
+
+Note, that next token comes after \.{RXSTPI} is cleared, so we set \.{STALLRQ} before
+clearing \.{RXSTPI}, to make sure that \.{STALLRQ} is already set when next token arrives.
+
+This STALL condition is automatically cleared on the receipt of the
+next SETUP token.
+
+USB\S8.5.3.4, datasheet\S22.11.
+
+@<Handle {\caps get descriptor device qualifier}@>=
+UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN token of the DATA
+  stage */
+UEINTX &= ~(1 << RXSTPI);
+
 @ First request is 9 bytes, second is according to length given in response to first request.
 
 @<Handle {\caps get descriptor configuration}@>=
@@ -231,45 +258,6 @@ size = pgm_read_byte(&prod_desc.bLength);
 buf = &prod_desc;
 @<Send descriptor@>@;
 
-@ A high-speed capable device that has different device information for full-speed and high-speed
-must have a Device Qualifier Descriptor. For example, if the device is currently operating at
-full-speed, the Device Qualifier returns information about how it would operate at high-speed and
-vice-versa. So as this device is full-speed, it tells the host not to request
-device information for high-speed by using ``protocol stall'' (such stall
-does not indicate an error with the device ---~it serves as a means of
-extending USB requests).
-
-The host sends an IN token to the control pipe to initiate the DATA stage.
-
-$$\hbox to10.93cm{\vbox to5.15055555555556cm{\vfil\special{%
-  psfile=stall-control-read-with-data-stage.eps
-  clip llx=0 lly=0 urx=310 ury=146 rwi=3100}}\hfil}$$
-
-Note, that next token comes after \.{RXSTPI} is cleared, so we set \.{STALLRQ} before
-clearing \.{RXSTPI}, to make sure that \.{STALLRQ} is already set when next token arrives.
-
-This STALL condition is automatically cleared on the receipt of the
-next SETUP token.
-
-USB\S8.5.3.4, datasheet\S22.11.
-
-@<Handle {\caps get descriptor device qualifier}@>=
-UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN token of the DATA
-  stage */
-UEINTX &= ~(1 << RXSTPI);
-
-@ This is the last request after attachment to host.
-
-@<Handle {\caps get descriptor hid}@>=
-(void) UEDATX; @+ (void) UEDATX;
-(void) UEDATX; @+ (void) UEDATX;
-wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-size = sizeof hid_report_descriptor;
-buf = hid_report_descriptor;
-@<Send descriptor@>@;
-connected = 1;
-
 @ @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 UENUM = EP1;
@@ -285,6 +273,18 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @ @<Handle {\caps set idle}@>=
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+
+@ This is the last request after attachment to host.
+
+@<Handle {\caps get descriptor hid report}@>=
+(void) UEDATX; @+ (void) UEDATX;
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
+UEINTX &= ~(1 << RXSTPI);
+size = sizeof hid_report_descriptor;
+buf = hid_report_descriptor;
+@<Send descriptor@>@;
+connected = 1;
 
 @ @<Global \null variables@>=
 U16 size;
