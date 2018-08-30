@@ -3,16 +3,42 @@ DTR is used by \.{tel} to switch the phone off (on timeout and for
 special commands) by switching off/on
 base station for one second.
 
-On initialization MCU powers off base station (by setting DTR pin to high)
-so that firmware is in `off-line' state when connection is done to USB host.
+Base station is powered when MCU is not powered.
+When MCU is powered and connection to host is established,
+wait until DTR is set for the first time (which is zero)
+and set DTR to one if phone was off-hook, but this can
+create problems due to case in avrtel-poweron.ch,
+so to avoid need to determine hook state, just poweroff
+base station when TTY is opened in \.{tel} (for this add
+sleep 1 in two places in tel.w)
+
+host driver powers off base station (by disabling DTR --- due to the patch).
 When \.{tel} opens the TTY, DTR is used to switch on base station;
 and when \.{tel} closes the TTY, DTR is used to switch off base station.
+Note, that 1 second delay is used before enabling DTR in \.{tel} after
+opening the TTY in order to reset base station in order to guarantee that
+phone is switched off when \.{tel} starts, to make number of `\.{@@}'
+match number of `\.{\%}' in log output
+(otherwise just wait first RXSTPI after connection is establised and
+clear it immediately).
 
-Note, that base station is powered when MCU is not powered.
+TODO: when phone is off-hook, unplug arduino and ensure that it stays off-hook (and
+check that "terminal disappeared" is printed)
+TODO: when phone is off-hook, plug arduino and ensure that it stays off-hook
+and that "terminal appeared" or "terminal opened" is printed and digits appear
 
 The following phone model is used: Panasonic KX-TCD245.
-The main requirement is that power supply for base station must be DC, and it
-must have led indicator for on-hook / off-hook on base station.
+The main requirement is that power supply for base station must be DC (to
+be able to switch off power supply output via relay ---~because switching
+off on power supply input (which does not require output to be DC)
+could damage the power supply due to transition processes from 220v to
+voltage of the power supply output), and it
+must have led indicator for on-hook / off-hook on base station (to be able
+to reset to initial state in state machine in \.{tel}; note, that
+measuring voltage drop in phone line does not work reliably, because it
+falsely triggers when dtmf signal is produced ---~the dtmf signal is alternating
+below the trigger level and multiple on-hook/off-hook events occur in high
+succession).
 
 %Note, that we can not use simple cordless phone---a DECT phone is needed, because
 %resetting base station to put the phone on-hook will not work
@@ -21,15 +47,11 @@ must have led indicator for on-hook / off-hook on base station.
 @z
 
 @x
-@ @c
 volatile int keydetect = 0;
-
 ISR(INT1_vect)
 {
   keydetect = 1;
 }
-
-@ @c
 @y
 @z
 
@@ -37,13 +59,13 @@ ISR(INT1_vect)
   PORTD |= 1 << PD5; /* led off (before enabling output, because this led is inverted) */
   DDRD |= 1 << PD5; /* on-line/off-line indicator; also |PORTD & 1 << PD5| is used to get current
                        state to determine if transition happened (to save extra variable) */
-  DDRB |= 1 << PB0; /* DTR indicator; also |PORTB & 1 << PB0| is used to get current DTR state
-                       to determine if transition happened (to save extra variable) */
-  DDRE |= 1 << PE6; /* TLP281 */
-  PORTE |= 1 << PE6; /* base station off */
   @<Set |PD2| to pullup mode@>@;
   EICRA |= 1 << ISC11 | 1 << ISC10; /* set INT1 to trigger on rising edge */
   EIMSK |= 1 << INT1; /* turn on INT1 */
+  PORTB |= 1 << PB0; /* led off (before enabling output, because this led is inverted) */
+  DDRB |= 1 << PB0; /* DTR indicator; also |PORTB & 1 << PB0| is used to get current DTR state
+                       to determine if transition happened (to save extra variable) */
+  DDRE |= 1 << PE6;
 
   char digit;
   while (1) {
@@ -112,17 +134,6 @@ ISR(INT1_vect)
 @z
 
 @x
-@ No other requests except {\caps set control line state} come
-after connection is established (speed is not set in \.{tel}).
-
-@<Get |line_status|@>=
-UENUM = EP0;
-if (UEINTX & 1 << RXSTPI) {
-  (void) UEDATX; @+ (void) UEDATX;
-  @<Handle {\caps set control line state}@>@;
-}
-UENUM = EP1; /* restore */
-
 @ For on-line indication we send `\.{@@}' character to \.{tel}---to put
 it to initial state.
 For off-line indication we send `\.{\%}' character to \.{tel}---to disable
@@ -169,20 +180,6 @@ TODO: insert pullup.svg
 @<Set |PD2| to pullup mode@>=
 PORTD |= 1 << PD2;
 @y
-@ No other requests except {\caps set control line state} come
-after connection is established (speed is not set in application, because it is irrelevant here).
-Note, that skipping here {\caps set line coding} makes no sense,
-because for this device to work with any application (not just where speed is not set),
-such application must set DTR, which is never (?) the case.
-
-@<Get |line_status|@>=
-UENUM = EP0;
-if (UEINTX & 1 << RXSTPI) {
-  (void) UEDATX; @+ (void) UEDATX;
-  @<Handle {\caps set control line state}@>@;
-}
-UENUM = EP1; /* restore */
-
 @ @<Pullup input pins@>=
 PORTB |= 1 << PB4 | 1 << PB5;
 PORTE |= 1 << PE6;
@@ -258,6 +255,17 @@ while (!(UEINTX & 1 << TXINI)) ;
 UEINTX &= ~(1 << TXINI);
 UEDATX = btn;
 UEINTX &= ~(1 << FIFOCON);
+@z
+
+@x
+@ No other requests except {\caps set control line state} come
+after connection is established (speed is not set in \.{tel}).
+@y
+@ No other requests except {\caps set control line state} come
+after connection is established (speed is not set in application, because it is irrelevant here).
+Note, that skipping here {\caps set line coding} makes no sense,
+because for this device to work with any application (not just where speed is not set),
+such application must set DTR, which is never (?) the case.
 @z
 
 @x
