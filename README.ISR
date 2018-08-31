@@ -8,4 +8,4 @@ ISR(...)
   if (YYYE) { ...
 }
 
-clearing XXXI is done in order that interrupt handler for it will be called next time when XXXI occurs and to avoid misdetecting an interrupt if the interrupt handler is called for another event among items from this ISR
+clearing XXXI is done in order that interrupt handler for it will be called next time when XXXI occurs AND to avoid misdetecting an interrupt if the interrupt handler is called for another event among items from this ISR
