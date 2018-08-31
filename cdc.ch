@@ -1,44 +1,31 @@
 @x
 DTR is used by \.{tel} to switch the phone off (on timeout and for
 special commands) by switching off/on
-base station for one second.
+base station for one second (the phone looses connection to base
+station and automatically powers itself off).
 
-Base station is powered when MCU is not powered.
-When MCU is powered and connection to host is established,
-wait until DTR is set for the first time (which is zero)
-and set DTR to one if phone was off-hook, but this can
-create problems due to case in avrtel-poweron.ch,
-so to avoid need to determine hook state, just poweroff
-base station when TTY is opened in \.{tel} (for this add
-sleep 1 in two places in tel.w)
-
-host driver powers off base station (by disabling DTR --- due to the patch).
-When \.{tel} opens the TTY, DTR is used to switch on base station;
-and when \.{tel} closes the TTY, DTR is used to switch off base station.
-Note, that 1 second delay is used before enabling DTR in \.{tel} after
-opening the TTY in order to reset base station in order to guarantee that
-phone is switched off when \.{tel} starts, to make number of `\.{@@}'
-match number of `\.{\%}' in log output
-(otherwise just wait first RXSTPI after connection is establised and
-clear it immediately).
-
-TODO: when phone is off-hook, unplug arduino and ensure that it stays off-hook (and
-check that "terminal disappeared" is printed)
-TODO: when phone is off-hook, plug arduino and ensure that it stays off-hook
-and that "terminal appeared" or "terminal opened" is printed and digits appear
+\.{tel} uses DTR to switch on base station when it starts;
+and when TTY is closed, DTR switches off base station.
 
 The following phone model is used: Panasonic KX-TCD245.
-The main requirement is that power supply for base station must be DC (to
-be able to switch off power supply output via relay ---~because switching
-off on power supply input (which does not require output to be DC)
-could damage the power supply due to transition processes from 220v to
-voltage of the power supply output), and it
+The main requirement is that base station
 must have led indicator for on-hook / off-hook on base station (to be able
 to reset to initial state in state machine in \.{tel}; note, that
-measuring voltage drop in phone line does not work reliably, because it
+measuring voltage drop in phone line to determine hook state does not work
+reliably, because it
 falsely triggers when dtmf signal is produced ---~the dtmf signal is alternating
 below the trigger level and multiple on-hook/off-hook events occur in high
 succession).
+
+Note, that relay switches off output from base station's power supply, not input
+because transition processes from 220v could damage power supply because it
+is switched on/off multiple times.
+
+Also note that when device is not plugged in,
+base station must be powered off, and it must be powered on by \.{tel} (this
+is why non-inverted relay must be used (and from such kind of relay the
+only suitable I know of is mechanical relay; and such relay gives an advantage
+that power supply with AC and DC output may be used)).
 
 %Note, that we can not use simple cordless phone---a DECT phone is needed, because
 %resetting base station to put the phone on-hook will not work
@@ -62,21 +49,25 @@ ISR(INT1_vect)
   @<Set |PD2| to pullup mode@>@;
   EICRA |= 1 << ISC11 | 1 << ISC10; /* set INT1 to trigger on rising edge */
   EIMSK |= 1 << INT1; /* turn on INT1 */
-  PORTB |= 1 << PB0; /* led off (before enabling output, because this led is inverted) */
   DDRB |= 1 << PB0; /* DTR indicator; also |PORTB & 1 << PB0| is used to get current DTR state
                        to determine if transition happened (to save extra variable) */
   DDRE |= 1 << PE6;
 
+  if (line_status.DTR != 0) { /* are unions automatically zeroed? (may be removed if yes) */
+    PORTB &= ~(1 << PB0);
+    PORTD &= ~(1 << PD5);
+    return;
+  }
   char digit;
   while (1) {
     @<Get |line_status|@>@;
     if (line_status.DTR) {
-      PORTE &= ~(1 << PE6); /* base station on */
+      PORTE |= 1 << PE6; /* base station on */
       PORTB |= 1 << PB0; /* led off */
     }
     else {
       if (PORTB & 1 << PB0) { /* transition happened */
-        PORTE |= 1 << PE6; /* base station off */
+        PORTE &= ~(1 << PE6); /* base station off */
         keydetect = 0; /* in case key was detected right before base station was
                           switched off, which means that nothing must come from it */
       }
