@@ -1,7 +1,7 @@
 ISR(...)
 {
-  if (XXXE) { /* can XXX cause this interrupt handler to be called? (not necessary to check this if it is enabled and never disabled; if it is the only one that may be enabled among items from this ISR, this check is not necessary) */
-    if (XXXI) { /* was it XXX that caused this interrupt handler to be called? (not necessary if it is the only one for which XXXE may be enabled among items from this ISR) */
+  if (XXXE) { /* can XXXI cause this interrupt handler to be called? (not necessary to check this if it is enabled and never disabled; if it is the only one that may be enabled among items from this ISR, this check is not necessary) */
+    if (XXXI) { /* was it XXXI that caused this interrupt handler to be called? (not necessary if it is the only one for which XXXE may be enabled among items from this ISR) */
       ...
     }
   }
