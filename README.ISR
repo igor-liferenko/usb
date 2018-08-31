@@ -1,7 +1,7 @@
 ISR(...)
 {
-  if (XXXE) { /* can it trigger? (not necessary to check this if it is enabled and never disabled; if it is the only one that may be enabled among items from this ISR, this check is not necessary) */
-    if (XXXI) { /* did it trigger? (not necessary if it is the only one for which XXXE may be
+  if (XXXE) { /* can XXX be triggered? (not necessary to check this if it is enabled and never disabled; if it is the only one that may be enabled among items from this ISR, this check is not necessary) */
+    if (XXXI) { /* was XXX triggered? (not necessary if it is the only one for which XXXE may be
                    enabled among items from this ISR) */
       ...
     }
