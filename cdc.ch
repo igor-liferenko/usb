@@ -265,9 +265,9 @@ if (btn == 0x21) btn = '4';
 if (btn == 0x22) btn = '5';
 if (btn == 0x23) btn = '6';
 if (btn == 0x24) btn = '7';
-if (btn == 0x25) btn = '8';
+if (mod == 0 && btn == 0x25) btn = '8';
 if (btn == 0x26) btn = '9';
-if (btn == 0x25) btn = '*';
+if (mod == 0x02 && btn == 0x25) btn = '*';
 if (btn == 0x27) btn = '0';
 if (mod == 0x02 && btn == 0x20) btn = '#';
 
