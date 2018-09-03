@@ -14,14 +14,15 @@ each interface will not be loaded into a separate driver instance.
 void setup()
 {
   TXLED0;
-
   Serial.begin(9600);
+  Keyboard.begin();
+}
+
+void loop()
+{
   while (!Serial.available()) ;
-  Serial.end();
 
   delay(1000); /* adjust here */
-
-  Keyboard.begin();
 
   Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
@@ -32,12 +33,4 @@ void setup()
   Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
   Keyboard.releaseAll();
-
-  Keyboard.end();
 }
-
-void loop()
-{
-}
-
-after you do this, rm gsettings for Debian-gdm from post-install.sh
