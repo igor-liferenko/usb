@@ -1,4 +1,6 @@
-*.c
+kbd.c
+cdc.c
+test.c
 *.dvi
 *.idx
 *.log
