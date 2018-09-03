@@ -34,6 +34,12 @@ that power supply with AC and DC output may be used)).
 @z
 
 @x
+@<Global variables@>@;
+@y
+@<Global \null variables@>@;
+@z
+
+@x
 volatile int keydetect = 0;
 ISR(INT1_vect)
 {
@@ -185,9 +191,57 @@ such application must set DTR, which is never (?) the case.
 @z
 
 @x
+@ @<Global variables@>=
+@y
+@ @<Global \null variables@>=
+@z
+
+@x
+@ @<Global variables@>=
+@y
+@ @<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@ @<Global variables@>=
+@y
+@ @<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
 @y
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"CDC MATRIX");
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
 @z
 
 @x
