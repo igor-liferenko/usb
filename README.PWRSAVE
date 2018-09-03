@@ -1,0 +1,31 @@
+If |SUSPI| is set to one, disable all other interrupts.
+If |WAKEUPI| happens, enable all other interrupts.
+
+ISR(USB_GEN_vect)
+{
+  if (UDINT & 1 << EORSTI && UDIEN & 1 << EORSTE) {
+    UDINT &= ~(1 << EORSTI);
+    if (UENUM != EP0) { @+ while (!(UCSR1A & 1 << UDRE1)) ; @+ UDR1 = '&'; @+ } /* this
+      is needed to ensure that things don't go wrong during PC reboot, when USB reset is
+      done multiple times */
+    UECONX |= 1 << EPEN;
+    UECFG0X = (0 << EPTYPE1) + (0 << EPTYPE0) | (0 << EPDIR); /* control, OUT */
+    UECFG1X = (0 << EPBK0) | (1 << EPSIZE1) + (0 << EPSIZE0) | (1 << ALLOC); /* one bank, 32
+      bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+  }
+  if (UDINT & 1 << SUSPI && UDIEN & 1 << SUSPE) {
+    UDINT &= ~(1 << SUSPI); /* FIXME: clear it in wakeupi instead ? */
+    USBCON |= 1 << FRZCLK;
+    PLLCSR &= ~(1 << PLLE);
+    UDIEN |= 1 << WAKEUPE;
+  }
+  if (UDINT & 1 << WAKEUPI && UDIEN & 1 << WAKEUPE) {
+<enable all other interrupts>
+    PLLCSR |= 1 << PLLE;
+    while (!(PLLCSR & (1 << PLOCK))) ;
+    USBCON &= ~(1 << FRZCLK);
+    UDINT &= ~(1 << WAKEUPI);
+    UDIEN &= ~(1 << WAKEUPE);
+    UENUM = EP0;
+  }
+}
