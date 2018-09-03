@@ -13,21 +13,23 @@ each interface will not be loaded into a separate driver instance.
 ---------------------------
 void setup()
 {
+  TXLED0;
+
   Serial.begin(9600);
-  Serial.read();
-  TXLED1; // turn on led
-  delay(1000);
-  TXLED0; // tern off led
+  while (!Serial.available()) ;
+  Serial.end();
+
+  delay(1000); /* adjust here */
 
   Keyboard.begin();
 
-  Keyboard.press(KEY_RETURN);
+  Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
   Keyboard.releaseAll();
   delay(1000);
 
   Keyboard.print("password");
-  Keyboard.press(KEY_RETURN);
+  Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
   Keyboard.releaseAll();
 
