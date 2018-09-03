@@ -247,9 +247,17 @@ such application must set DTR, which is never (?) the case.
 @x
 @* Headers.
 @y
-@ The if's are needed to use matrix.w from kbd.ch
+@ @<Send button@>=
+while (!(UEINTX & 1 << TXINI)) ;
+UEINTX &= ~(1 << TXINI);
+UEDATX = btn;
+UEINTX &= ~(1 << FIFOCON);
 
-@<Send button@>=
+@i matrix.w
+
+@ This is to use matrix.w
+
+@<Get button@>=
 if (btn == 0x1e) btn = '1';
 if (btn == 0x1f) btn = '2';
 if (mod == 0 && btn == 0x20) btn = '3';
@@ -262,12 +270,6 @@ if (btn == 0x26) btn = '9';
 if (btn == 0x25) btn = '*';
 if (btn == 0x27) btn = '0';
 if (mod == 0x02 && btn == 0x20) btn = '#';
-while (!(UEINTX & 1 << TXINI)) ;
-UEINTX &= ~(1 << TXINI);
-UEDATX = btn;
-UEINTX &= ~(1 << FIFOCON);
-
-@i matrix.w
 
 @* Headers.
 @z
