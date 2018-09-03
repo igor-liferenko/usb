@@ -23,7 +23,7 @@ void loop()
   while (!Serial.available()) ;
 
   delay(1000); /* adjust here */
-
+/*
   Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
   Keyboard.releaseAll();
@@ -33,4 +33,5 @@ void loop()
   Keyboard.press(KEY_LEFT_CTRL);
   delay(50);
   Keyboard.releaseAll();
+*/
 }
