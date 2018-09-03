@@ -11,29 +11,31 @@ which is available on most OSes when creating Composite devices.
 Check if this is the case on Linux and don't do "Interface Association Descriptor" if
 each interface will not be loaded into a separate driver instance.
 ---------------------------
-Also, do combined device and pass data to AVR via CDC, and from AVR via HID (like in kbd.w).
-This is to login automatically. In rc.local put "echo >/dev/login"
-
-https://forum.arduino.cc/index.php?topic=262897.0
-do only keyboard and compare wireshark with arduino-combined.pcapng and what differs change in cdc.w to make cdc-kbd.w out of it
-
-use this sketch:
-int buttonPin = PORTD4;
-
 void setup()
 {
-  pinMode(buttonPin, INPUT);  // Set the button as an input
-  digitalWrite(buttonPin, HIGH);  // Pull the button high
-  TXLED0;
+  Serial.begin(9600);
+  Serial.read();
+  TXLED1; // turn on led
+  delay(1000);
+  TXLED0; // tern off led
+
+  Keyboard.begin();
+
+  Keyboard.press(KEY_RETURN);
+  delay(50);
+  Keyboard.releaseAll();
+  delay(1000);
+
+  Keyboard.print("password");
+  Keyboard.press(KEY_RETURN);
+  delay(50);
+  Keyboard.releaseAll();
+
+  Keyboard.end();
 }
 
 void loop()
 {
-  if (digitalRead(buttonPin) == 0)  // if the button goes low
-  {
-    Keyboard.press(KEY_ESC);
-    Keyboard.release(KEY_ESC);
-    delay(1000);  // delay so there aren't a kajillion z's
-  }
 }
-after you do this, rm gsettings for Debian-gdm from post-install.sh, trick with /tmp/installer*.zenity from post-install.sh and installer.tex
+
+after you do this, rm gsettings for Debian-gdm from post-install.sh
