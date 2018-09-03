@@ -29,3 +29,51 @@ ISR(USB_GEN_vect)
     UENUM = EP0;
   }
 }
+
+--------------- this is hell from atmel's demo --------------------
+ISR(USB_GEN_vect)
+{
+  if (UDINT & 1 << SUSPI) { /* NOTE: (for latest revisions) To work around atmega32u4 bug of
+      high current consumption in sleep mode, before entering sleep, interrupts not used to wake
+      up the part from the sleep mode should be disabled. */
+    usb_suspended = 1;
+    UDINT &= ~(1 << WAKEUPI);
+    UDINT &= ~(1 << SUSPI);
+    UDIEN |= 1 << WAKEUPE;
+    UDIEN &= ~(1 << EORSME);
+    USBCON |= 1 << FRZCLK;
+    PLLCSR &= ~(1 << PLLE);
+    PLLCSR = 0; /* FIXME: why it is used? */
+@^FIXME@>
+  }
+  if (UDINT & 1 << WAKEUPI && UDIEN & 1 << WAKEUPE) {
+    if (!(PLLCSR & 1 << PLOCK)) { /* FIXME: check with led if it can be non-zero here */
+@^FIXME@>
+      PLLCSR = 1 << PINDIV; /* FIXME: if we do not use `|PLLCSR = 0;|' is it possible to
+                               skip this? */
+@^FIXME@>
+      PLLCSR |= 1 << PLLE;
+      while (!(PLLCSR & (1 << PLOCK))) ;
+    }
+    USBCON &= ~(1 << FRZCLK);
+    UDINT &= ~(1 << WAKEUPI);
+    if (usb_suspended) {
+      UDIEN |= 1 << EORSME; /* detect ``End Of Resume'' signal from host (issued by host
+        to terminate remote wakeup issued by MCU) */
+      UDIEN |= 1 << EORSTE; /* FIXME: is EORSTE disabled after wakeup? */
+@^FIXME@>
+      UDINT &= ~(1 << WAKEUPI);
+      UDIEN &= ~(1 << WAKEUPE);
+      UDIEN |= 1 << SUSPE;
+    }
+  }
+  if (UDINT & 1 << EORSMI && UDIEN & 1 << EORSME) {
+    usb_suspended = 0;
+    UDIEN &= ~(1 << WAKEUPE);
+    UDINT &= ~(1 << EORSMI); /* for the interrupt handler to be called when
+                                next USB ``End Of Resume'' signal will be detected
+                                and avoid misdetecting an event
+                                that will cause this interrupt handler to be called */
+    UDIEN &= ~(1 << EORSME); /* do not detect ``End Of Resume'' signal from host */
+  }
+}
