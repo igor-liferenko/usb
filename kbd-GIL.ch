@@ -7,11 +7,13 @@
 !   PORTD |= 1 << PD1;
     while (1) {
 !     if (!(PIND & 1 << PD0)) {
-!       @<Press button `a'@>@;
+        btn = 0x04; /* a */
+!       @<Send button@>@;
 !       _delay_ms(1000);
 !     }
 !     if (!(PIND & 1 << PD1)) {
-!       @<Press button `ESC'@>@;
+        btn = 0x29; /* ESC */
+!       @<Send button@>@;
 !       _delay_ms(1000);
       }
 --- 38,61 ----
@@ -56,109 +58,3 @@
 --- 145,147 ----
   UEINTX &= ~(1 << RXSTPI);
 ! send_descriptor(&dev_desc, wLength < sizeof dev_desc ? wLength : sizeof dev_desc);
-  
-***************
-*** 515,545 ****
-  
-! @ @<Press button `a'@>=
-        UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0x04;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEINTX &= ~(1 << TXINI);
-!       UEINTX &= ~(1 << FIFOCON);
-!       while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet will be sent, then prepare
-!         new packet to be sent when following IN request arrives (for key release) */
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEINTX &= ~(1 << TXINI);
-!       UEINTX &= ~(1 << FIFOCON);
-!       while (!(UEINTX & 1 << TXINI)) ; /* wait until previous packet will be sent */
-! 
-! @ @<Press button `ESC'@>=
-!       UEDATX = 0;
-!       UEDATX = 0;
-!       UEDATX = 0x29;
-        UEDATX = 0;
---- 522,527 ----
-  
-! @ @<Send button@>=
-!       UEDATX = mod;
-        UEDATX = 0;
-!       UEDATX = btn;
-        UEDATX = 0;
-***************
-*** 567,569 ****
-  
-! This is necessary to transmit serial number.
-  
---- 549,551 ----
-  
-! This is necessary to transmit manufacturer, product and serial number.
-  
-***************
-*** 658,659 ****
---- 641,693 ----
-  
-+ @* Matrix.
-+ 
-+ @ @<Global \null variables@>=
-+ uint8_t btn = 0, mod = 0;
-+ 
-+ @ @<Initialize input pins@>=
-+ PORTB |= 1 << PB4 | 1 << PB5 | 1 << PB6 | 1 << PB7;
-+ 
-+ @ @<Get button@>=
-+     for (int i = PD0, done = 0; i <= PD2 && !done; i++) {
-+       DDRD |= 1 << i;
-+       while (~PINB & 0xF0) ;
-+       switch (~PINB & 0xF0) {
-+       case 1 << PB4:
-+         switch (i) {
-+         case PD0: mod = 0; @+ btn = 0x1e; @+ break;
-+         case PD1: mod = 0; @+ btn = 0x1f; @+ break; 
-+         case PD2: mod = 0; @+ btn = 0x20; @+ break;         
-+         }
-+         done = 1;
-+         break;
-+       case 1 << PB5:
-+         switch (i) {
-+         case PD0: mod = 0; @+ btn = 0x21; @+ break;
-+         case PD1: mod = 0; @+ btn = 0x22; @+ break; 
-+         case PD2: mod = 0; @+ btn = 0x23; @+ break;         
-+         }
-+         done = 1;
-+         break;
-+       case 1 << PB6:
-+         switch (i) {
-+         case PD0: mod = 0; @+ btn = 0x24; @+ break;
-+         case PD1: mod = 0; @+ btn = 0x25; @+ break;
-+         case PD2: mod = 0; @+ btn = 0x26; @+ break; 
-+         }
-+         done = 1;
-+         break;
-+       case 1 << PB7:
-+         switch (i) {
-+         case PD0: mod = 0x02; @+ btn = 0x25; @+ break;
-+         case PD1: mod = 0x00; @+ btn = 0x27; @+ break; 
-+         case PD2: mod = 0x02; @+ btn = 0x20; @+ break;         
-+         }
-+         done = 1;
-+         break;
-+       default: @/
-+         btn = 0; @+ mod = 0;
-+       }
-+       DDRD &= ~(1 << i);
-+     }
-+ 
-  @* Headers.
