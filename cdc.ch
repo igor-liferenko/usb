@@ -171,81 +171,6 @@ TODO: insert pullup.svg
 @<Set |PD2| to pullup mode@>=
 PORTD |= 1 << PD2;
 @y
-@ @<Pullup input pins@>=
-PORTB |= 1 << PB4 | 1 << PB5;
-PORTE |= 1 << PE6;
-PORTD |= 1 << PD7;
-
-@ @<Global variables@>=
-U8 btn = 0;
-
-@ @<Get button@>=
-    for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
-      DDRF |= 1 << i;
-      @<Eliminate capacitance@>@;
-      switch (~PINB & (1 << PB4 | 1 << PB5) | ~PINE & 1 << PE6 | ~PIND & 1 << PD7) {
-      case 1 << PB4:
-        switch (i) {
-        case PF4: btn = '1'; @+ break;
-        case PF5: btn = '2'; @+ break;
-        case PF6: btn = '3'; @+ break;
-        }
-        done = 1;
-        break;
-      case 1 << PB5:
-        switch (i) {
-        case PF4: btn = '4'; @+ break;
-        case PF5: btn = '5'; @+ break;
-        case PF6: btn = '6'; @+ break;
-        }
-        done = 1;
-        break;
-      case 1 << PE6:
-        switch (i) {
-        case PF4: btn = '7'; @+ break;
-        case PF5: btn = '8'; @+ break;
-        case PF6: btn = '9'; @+ break;
-        }
-        done = 1;
-        break;
-      case 1 << PD7:
-        switch (i) {
-        case PF4: btn = '*'; @+ break;
-        case PF5: btn = '0'; @+ break;
-        case PF6: btn = '#'; @+ break;
-        }
-        done = 1;
-        break;
-      default: @/
-        btn = 0;
-      }
-      DDRF &= ~(1 << i);
-    }
-
-@ Delay to eliminate capacitance on the wire which may be open-ended on
-the side of input pin (i.e., when button is not pressed), and capacitance
-on the longer wire (i.e., when button is pressed).
-
-To adjust the number of no-ops, remove all no-ops from here,
-then do this: 1) If symbol(s) will appear by themselves,
-add one no-op. Repeat until this does not happen. 2) If
-symbol does not appear after pressing a key, add one no-op.
-Repeat until this does not happen.
-
-@d nop() __asm__ __volatile__ ("nop")
-
-@<Eliminate capacitance@>=
-nop();
-nop();
-nop();
-nop();
-nop();
-
-@ @<Send button@>=
-while (!(UEINTX & 1 << TXINI)) ;
-UEINTX &= ~(1 << TXINI);
-UEDATX = btn;
-UEINTX &= ~(1 << FIFOCON);
 @z
 
 @x
@@ -263,4 +188,32 @@ such application must set DTR, which is never (?) the case.
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
 @y
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"CDC MATRIX");
+@z
+
+@x
+@* Headers.
+@y
+@ The if's are needed to use matrix.w from kbd.ch
+
+@<Send button@>=
+if (btn == 0x1e) btn = '1';
+if (btn == 0x1f) btn = '2';
+if (mod == 0 && btn == 0x20) btn = '3';
+if (btn == 0x21) btn = '4';
+if (btn == 0x22) btn = '5';
+if (btn == 0x23) btn = '6';
+if (btn == 0x24) btn = '7';
+if (btn == 0x25) btn = '8';
+if (btn == 0x26) btn = '9';
+if (btn == 0x25) btn = '*';
+if (btn == 0x27) btn = '0';
+if (mod == 0x02 && btn == 0x20) btn = '#';
+while (!(UEINTX & 1 << TXINI)) ;
+UEINTX &= ~(1 << TXINI);
+UEDATX = btn;
+UEINTX &= ~(1 << FIFOCON);
+
+@i matrix.w
+
+@* Headers.
 @z
