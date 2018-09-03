@@ -36,6 +36,18 @@ that power supply with AC and DC output may be used)).
 @z
 
 @x
+@<Type \null definitions@>@;
+@y
+@<Type definitions@>@;
+@z
+
+@x
+@<Global variables@>@;
+@y
+@<Global \null variables@>@;
+@z
+
+@x
 volatile int keydetect = 0;
 ISR(INT1_vect)
 {
@@ -124,6 +136,84 @@ ISR(INT1_vect)
 @z
 
 @x
+@ For on-line indication we send `\.{@@}' character to \.{tel}---to put
+it to initial state.
+For off-line indication we send `\.{\%}' character to \.{tel}---to disable
+power reset on base station after timeout.
+
+TODO: insert PC817C.png
+
+@<Indicate phone line state and notify \.{tel} if state changed@>=
+if (PIND & 1 << PD2) { /* off-line */
+  if (!(PORTD & 1 << PD5)) { /* transition happened */
+    while (!(UEINTX & 1 << TXINI)) ;
+    UEINTX &= ~(1 << TXINI);
+    UEDATX = '%';
+    UEINTX &= ~(1 << FIFOCON);
+  }
+  PORTD |= 1 << PD5;
+}
+else { /* on-line */
+  if (PORTD & 1 << PD5) { /* transition happened */
+    while (!(UEINTX & 1 << TXINI)) ;
+    UEINTX &= ~(1 << TXINI);
+    UEDATX = '@@';
+    UEINTX &= ~(1 << FIFOCON);
+  }
+  PORTD &= ~(1 << PD5);
+}
+
+@ The pull-up resistor is connected to the high voltage (this is usually 3.3V or 5V and is
+often refereed to as VCC).
+
+Pull-ups are often used with buttons and switches.
+
+With a pull-up resistor, the input pin will read a high state when the photo-transistor
+is not opened. In other words, a small amount of current is flowing between VCC and the input
+pin (not to ground), thus the input pin reads close to VCC. When the photo-transistor is
+opened, it connects the input pin directly to ground. The current flows through the resistor
+to ground, thus the input pin reads a low state.
+
+Since pull-up resistors are so commonly needed, many MCUs, like the ATmega328 microcontroller
+on the Arduino platform, have internal pull-ups that can be enabled and disabled.
+
+TODO: insert pullup.svg
+
+@<Set |PD2| to pullup mode@>=
+PORTD |= 1 << PD2;
+
+@ No other requests except {\caps set control line state} come
+after connection is established (speed is not set in \.{tel}).
+
+@<Get |line_status|@>=
+UENUM = EP0;
+if (UEINTX & 1 << RXSTPI) {
+  (void) UEDATX; @+ (void) UEDATX;
+  @<Handle {\caps set control line state}@>@;
+}
+UENUM = EP1; /* restore */
+
+@ @<Type \null definitions@>=
+typedef union {
+  U16 all;
+  struct {
+    U16 DTR:1;
+    U16 RTS:1;
+    U16 unused:14;
+  };
+} S_line_status;
+
+@ @<Global variables@>=
+S_line_status line_status;
+
+@ @<Handle {\caps set control line state}@>=
+line_status.all = UEDATX | UEDATX << 8;
+UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
+@y
+@z
+
+@x
 case 0x2021: @/
   @<Handle {\caps set line coding}@>@;
 @y
@@ -207,9 +297,15 @@ connected = 1;
 @z
 
 @x
-@d SERIAL_NUMBER 0x03
+@ @<Global variables@>=
 @y
-@d SERIAL_NUMBER 0x00
+@ @<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
 @z
 
 @x
@@ -222,6 +318,12 @@ connected = 1;
   0x2018, /* PID (CDC ACM) */
 @y
   0x2015, /* PID (HID keyboard) */
+@z
+
+@x
+  SERIAL_NUMBER, /* (\.{SerialNumber} in \.{kern.log}) */
+@y
+  0, /* (\.{SerialNumber} in \.{kern.log}) */
 @z
 
 @x
@@ -698,9 +800,39 @@ const U8 hid_report_descriptor[]
 @z
 
 @x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Type \null definitions@>=
+@y
+@<Type definitions@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
 @y
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"HID MATRIX");
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
 @z
 
 @x
