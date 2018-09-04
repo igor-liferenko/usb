@@ -214,14 +214,43 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @z
 
 @x
+  case 0x03 << 8 | SERIAL_NUMBER: @/
+    @<Handle {\caps get descriptor string} (serial)@>@;
+    break;
+@y
+@z
+
+@x
+case 0x0900: @/
+  @<Handle {\caps set configuration}@>@;
+  break;
 case 0x2021: @/
   @<Handle {\caps set line coding}@>@;
 @y
 case 0x0681: @/
   @<Handle {\caps get descriptor hid report}@>@;
   break;
+case 0x0900: @/
+  @<Handle {\caps set configuration}@>@;
+  break;
 case 0x0a21: @/
   @<Handle {\caps set idle}@>@;
+@z
+
+@x
+@ Here we handle one case when data (serial number) needs to be transmitted from memory,
+not from program.
+
+@<Handle {\caps get descriptor string} (serial)@>=
+(void) UEDATX; @+ (void) UEDATX;
+wLength = UEDATX | UEDATX << 8;
+UEINTX &= ~(1 << RXSTPI);
+size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+@<Get serial number@>@;
+buf = &sn_desc;
+from_program = 0;
+@<Send descriptor@>@;
+@y
 @z
 
 @x
@@ -300,6 +329,17 @@ connected = 1;
 @ @<Global variables@>=
 @y
 @ @<Global \null variables@>=
+@z
+
+@x
+U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
+@y
+@z
+
+@x
+    UEDATX = from_program ? pgm_read_byte(buf++) : *(U8 *) buf++;
+@y
+    UEDATX = pgm_read_byte(buf++);
 @z
 
 @x
@@ -729,6 +769,36 @@ struct {
   0x0008, /* 8 bytes\footnote\ddag{Must correspond to |UECFG1X| of |EP1|.} */
 @t\2@> 0x0F /* 16 */
 }
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Type \null definitions@>=
+@y
+@<Type definitions@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@<Global variables@>=
+@y
+@<Global \null variables@>=
+@z
+
+@x
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
+@y
+@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"HID MATRIX");
 
 @*1 HID report descriptor.
 
@@ -800,39 +870,41 @@ const U8 hid_report_descriptor[]
 @z
 
 @x
+@*1 Serial number descriptor.
+
+This one is different in that its content cannot be prepared in compile time,
+only in execution time. So, it cannot be stored in program memory.
+Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it with
+arguments): we pass a null pointer if serial number is to be transmitted.
+In |send_descriptor| |sn_desc| is filled in.
+
+@d SN_LENGTH 20 /* length of device signature, multiplied by two (because each byte in hex) */
+
 @<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
+struct {
+  U8 bLength;
+  U8 bDescriptorType;
+  int16_t wString[SN_LENGTH];
+} sn_desc;
 
-@x
-@<Type \null definitions@>=
-@y
-@<Type definitions@>=
-@z
+@ @d SN_START_ADDRESS 0x0E
+@d hex(c) c<10 ? c+'0' : c-10+'A'
 
-@x
-@<Global variables@>=
+@<Get serial number@>=
+sn_desc.bLength = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+sn_desc.bDescriptorType = 0x03;
+U8 addr = SN_START_ADDRESS;
+for (U8 i = 0; i < SN_LENGTH; i++) {
+  U8 c = boot_signature_byte_get(addr);
+  if (i & 1) { /* we divide each byte of signature into halves, each of
+                  which is represented by a hex number */
+    c >>= 4;
+    addr++;
+  }
+  else c &= 0x0F;
+  sn_desc.wString[i] = hex(c);
+}
 @y
-@<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
-@y
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"HID MATRIX");
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
 @z
 
 @x
