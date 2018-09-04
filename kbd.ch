@@ -350,8 +350,10 @@ U8 from_program = 1; /* serial number is transmitted last, so this can be set on
 
 @x
   0x02, /* CDC (\S4.1 in CDC spec) */
+  0, /* no subclass */
 @y
-  0, /* no class */
+  0, /* not defined (HID\S5.1) */
+  0, /* not defined (HID\S5.1) */
 @z
 
 @x
@@ -717,7 +719,7 @@ standard protocol which the device supports (user-defined, keyboard or mouse).
   0, /* this corresponds to `0' in `if0' on picture */
   0, /* this corresponds to `0' in `alt0' on picture */
   1, /* one endpoint is used */
-  0x03, /* HID */
+  3, /* HID (HID\S4.1) */
   0, /* non-bootable */
   0, /* not used */
 @t\2@> 0 /* no string descriptor */
@@ -739,7 +741,7 @@ struct {
 @ @<Initialize element 3 in configuration descriptor@>= { @t\1@> @/
   9, /* size of this structure */
   0x21, /* HID */
-  0x0100, /* HID version 1.0 */
+  0x0111, /* HID 1.11 */
   0x00, /* no localization */
   0x01, /* one descriptor for this device */
   0x22, /* HID report (value for |bDescriptorType| in {\caps get descriptor hid}) */
