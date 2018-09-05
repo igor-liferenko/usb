@@ -10,30 +10,3 @@ should use the "Interface Association Descriptor" addendum to the USB 2.0 standa
 which is available on most OSes when creating Composite devices.
 Check if this is the case on Linux and don't do "Interface Association Descriptor" if
 each interface will not be loaded into a separate driver instance.
----------------------------
-void setup()
-{
-  TXLED0;
-  Serial.begin(9600);
-  Keyboard.begin();
-}
-
-void loop()
-{
-begin:
-  while (!Serial.available()) ;
-  if (Serial.read() != 'x') goto begin;
-
-  delay(1000); /* adjust here */
-/*
-  Keyboard.press(KEY_LEFT_CTRL);
-  delay(50);
-  Keyboard.releaseAll();
-  delay(1000);
-
-  Keyboard.print("password");
-  Keyboard.press(KEY_LEFT_CTRL);
-  delay(50);
-  Keyboard.releaseAll();
-*/
-}
