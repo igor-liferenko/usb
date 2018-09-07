@@ -206,11 +206,34 @@ typedef union {
 @ @<Global variables@>=
 S_line_status line_status;
 
-@ @<Handle {\caps set control line state}@>=
-line_status.all = UEDATX | UEDATX << 8;
+@ This request generates RS-232/V.24 style control signals.
+
+Only first two bits of the first byte are used. First bit indicates to DCE if DTE is
+present or not. This signal corresponds to V.24 signal 108/2 and RS-232 signal DTR.
+@^DTR@>
+Second bit activates or deactivates carrier. This signal corresponds to V.24 signal
+105 and RS-232 signal RTS\footnote*{For some reason on linux DTR and RTS signals
+are tied to each other.}. Carrier control is used for half duplex modems.
+The device ignores the value of this bit when operating in full duplex mode.
+
+\S6.2.14 in CDC spec.
+
+TODO: manage here hardware flow control (this TODO taken from original example, not
+sure what it means)
+@^TODO@>
+
+@<Handle {\caps set control line state}@>=
+wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+line_status.all = wValue;
 @y
+@z
+
+@x
+@ @<Global variables@>=
+@y
+@ @<Global \null variables@>=
 @z
 
 @x
@@ -386,7 +409,7 @@ channels over which to carry data.
 
 \S3.4 in CDC spec.
 
-$$\hbox to7.5cm{\vbox to7.88cm{\vfil\special{psfile=../demo/cdc-structure.eps
+$$\hbox to7.5cm{\vbox to7.88cm{\vfil\special{psfile=../avrtel/cdc-structure.eps
   clip llx=0 lly=0 urx=274 ury=288 rwi=2125}}\hfil}$$
 
 @<Type \null definitions@>=
@@ -942,4 +965,12 @@ UEINTX &= ~(1 << FIFOCON);
 @i matrix.w
 
 @* Headers.
+@z
+
+@x
+#include <avr/boot.h> /* |boot_signature_byte_get| */
+@y
+#include <avr/boot.h> /* |boot_signature_byte_get| */
+#define F_CPU 16000000UL
+#include <util/delay.h>
 @z
