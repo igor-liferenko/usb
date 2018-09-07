@@ -31,6 +31,11 @@ ISR(USB_GEN_vect)
 }
 
 --------------- this is hell from atmel's demo --------------------
+U8 usb_suspended = 0;
+...
+   UDIEN |= 1 << EORSTE;
++  UDIEN |= 1 << SUSPE;
+...
 ISR(USB_GEN_vect)
 {
   if (UDINT & 1 << SUSPI) { /* NOTE: (for latest revisions) To work around atmega32u4 bug of
