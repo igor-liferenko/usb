@@ -29,4 +29,3 @@ git diff objdump # must be empty - if not, fix
 for i in *.c; do cat -s $i | sponge $i; indent -kr -i2 -ci2 -lp -ss -bs --no-tabs -nce $i; done; git clean -f
 perl -i -ne 'print unless /^\s*;\s*$/' *.c
 18. beginning with main.c replace each function body one by one until only main.c is left - do not remove anything and check all values in datasheet as you go (do not change config.h before mcpp)
-1. rm demo-old/ if all is OK and remove this line
