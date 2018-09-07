@@ -968,9 +968,9 @@ UEINTX &= ~(1 << FIFOCON);
 @z
 
 @x
-#include <avr/boot.h> /* |boot_signature_byte_get| */
+@<Header files@>=
 @y
-#include <avr/boot.h> /* |boot_signature_byte_get| */
+@<Header files@>=
 #define F_CPU 16000000UL
 #include <util/delay.h>
 @z

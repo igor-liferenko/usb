@@ -203,6 +203,12 @@ such application must set DTR, which is never (?) the case.
 @z
 
 @x
+@ @<Global variables@>=
+@y
+@ @<Global \null variables@>=
+@z
+
+@x
 @<Global variables@>=
 @y
 @<Global \null variables@>=
@@ -272,4 +278,12 @@ if (btn == 0x27) btn = '0';
 if (mod == 0x02 && btn == 0x20) btn = '#';
 
 @* Headers.
+@z
+
+@x
+@<Header files@>=
+@y
+@<Header files@>=
+#define F_CPU 16000000UL
+#include <util/delay.h>
 @z
