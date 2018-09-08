@@ -23,7 +23,7 @@ Set with the following command:
 \centerline{\tt avrdude -q -c usbasp -p m32u4
   -U efuse:w:0xcb:m -U hfuse:w:0xd9:m -U lfuse:w:0xff:m}
 
-% NOTE: VBUSTI does not work - the device stops working if you do via VBUSTI - use commit 5c6abcb0b6d3254a93902ff88c0bc1e3dd80ca22 in demo/
+% NOTE: VBUSTI does not work - the device stops working if you do via VBUSTI - use commit 5c6abcb0b6d3254a93902ff88c0bc1e3dd80ca22 in demo/ (+see commit be8b869e58c4a3b40347f42d4a51187a495663f9 there)
 %
 
 @ In this test we determine how endpoint configuration reacts to reset.
