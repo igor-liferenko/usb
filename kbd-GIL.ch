@@ -1,3 +1,5 @@
+TODO: re-do this via arduino, because kbd.w is not used now
+
 *** 39,53 ****
     while (!connected)
 !     if (UEINTX & 1 << RXSTPI)
