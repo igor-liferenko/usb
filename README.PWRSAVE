@@ -82,3 +82,5 @@ ISR(USB_GEN_vect)
     UDIEN &= ~(1 << EORSME); /* do not detect ``End Of Resume'' signal from host */
   }
 }
+-------------------------------------------
+see usbttl/
