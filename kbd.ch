@@ -42,12 +42,6 @@ that power supply with AC and DC output may be used)).
 @z
 
 @x
-@<Global variables@>@;
-@y
-@<Global \null variables@>@;
-@z
-
-@x
 volatile int keydetect = 0;
 ISR(INT1_vect)
 {
@@ -231,12 +225,6 @@ line_status.all = wValue;
 @z
 
 @x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
   case 0x03 << 8 | SERIAL_NUMBER: @/
     @<Handle {\caps get descriptor string} (serial)@>@;
     break;
@@ -349,12 +337,6 @@ connected = 1;
 @z
 
 @x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
 U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
 @y
 @z
@@ -363,12 +345,6 @@ U8 from_program = 1; /* serial number is transmitted last, so this can be set on
     UEDATX = from_program ? pgm_read_byte(buf++) : *(U8 *) buf++;
 @y
     UEDATX = pgm_read_byte(buf++);
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
 @z
 
 @x
@@ -678,8 +654,8 @@ typedef struct {
    @<Endpoint descriptor@> @,@,@! el4;
 } S_configuration_descriptor;
 
-@ @<Global \null variables@>=
-@<Global variables used in configuration descriptor@>@;
+@ @<Global variables@>=
+@<Global \null variables used in configuration descriptor@>@;
 const S_configuration_descriptor conf_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   @<Initialize element 1 ...@>, @/
@@ -797,27 +773,9 @@ struct {
 @z
 
 @x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
 @<Type \null definitions@>=
 @y
 @<Type definitions@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
 @z
 
 @x
@@ -866,7 +824,7 @@ in \.{wine}; start the executable from the same folder to which it was unpacked)
 Note, that sum of \.{REPORT\_SIZE} multiplied by corresponding \.{REPORT\_COUNT}
 must be not greater than endpoint size of EP1 (specified by |UECFG1X|), multiplied by 8.
 
-@<Global variables ...@>=
+@<Global \null variables ...@>=
 const U8 hid_report_descriptor[]
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x05, 0x01, @t\hskip10pt@> // \.{USAGE\_PAGE (Generic Desktop)}
@@ -963,6 +921,23 @@ UEDATX = 0;
 UEINTX &= ~(1 << FIFOCON);
 
 @i matrix.w
+
+@ This is to use matrix.w
+
+@<Get button@>=
+if (btn == '1') mod = 0, btn = 0x1e;
+if (btn == '2') mod = 0, btn = 0x1f;
+if (mod == '3') mod = 0, btn = 0x20;
+if (btn == '4') mod = 0, btn = 0x21;
+if (btn == '5') mod = 0, btn = 0x22;
+if (btn == '6') mod = 0, btn = 0x23;
+if (btn == '7') mod = 0, btn = 0x24;
+if (btn == '8') mod = 0, btn = 0x25;
+if (btn == '9') mod = 0, btn = 0x26;
+if (btn == '*') mod = 0x02, btn = 0x25;
+if (btn == '0') mod = 0x00, btn = 0x27;;
+if (btn == '#') mod = 0x02, btn = 0x20;
+if (btn == 0) mod = 0;
 
 @* Headers.
 @z

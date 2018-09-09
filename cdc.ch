@@ -34,12 +34,6 @@ that power supply with AC and DC output may be used)).
 @z
 
 @x
-@<Global variables@>@;
-@y
-@<Global \null variables@>@;
-@z
-
-@x
 volatile int keydetect = 0;
 ISR(INT1_vect)
 {
@@ -191,63 +185,9 @@ such application must set DTR, which is never (?) the case.
 @z
 
 @x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
-@ @<Global variables@>=
-@y
-@ @<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
-@z
-
-@x
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
 @y
 @t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"CDC MATRIX");
-@z
-
-@x
-@<Global variables@>=
-@y
-@<Global \null variables@>=
 @z
 
 @x
@@ -260,22 +200,6 @@ UEDATX = btn;
 UEINTX &= ~(1 << FIFOCON);
 
 @i matrix.w
-
-@ This is to use matrix.w
-
-@<Get button@>=
-if (btn == 0x1e) btn = '1';
-if (btn == 0x1f) btn = '2';
-if (mod == 0 && btn == 0x20) btn = '3';
-if (btn == 0x21) btn = '4';
-if (btn == 0x22) btn = '5';
-if (btn == 0x23) btn = '6';
-if (btn == 0x24) btn = '7';
-if (mod == 0 && btn == 0x25) btn = '8';
-if (btn == 0x26) btn = '9';
-if (mod == 0x02 && btn == 0x25) btn = '*';
-if (btn == 0x27) btn = '0';
-if (mod == 0x02 && btn == 0x20) btn = '#';
 
 @* Headers.
 @z

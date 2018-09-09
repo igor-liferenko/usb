@@ -49,7 +49,7 @@ PORTB |= 1 << PB4 | 1 << PB5;
 PORTE |= 1 << PE6;
 PORTD |= 1 << PD7;
 
-@ @<Global \null variables@>=
+@ @<Global variables@>=
 U8 btn = 0, mod = 0;
 
 @
