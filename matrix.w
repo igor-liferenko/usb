@@ -63,7 +63,7 @@ U8 btn = 0, mod = 0;
 % (here # in woven output will represent P)
 
 @<Get button@>=
-    for (int i = PF4, done = 0; i <= PF6 && !done; i++) {
+    for (int i = PF4, done = 0; i <= PF7 && !done; i++) {
       DDRF |= 1 << i;
       @<Eliminate capacitance@>@;
       switch (~PINB & (1 << PB4 | 1 << PB5) | ~PINE & 1 << PE6 | ~PIND & 1 << PD7) {
@@ -72,6 +72,7 @@ U8 btn = 0, mod = 0;
         case PF4: btn = '1'; @+ break;
         case PF5: btn = '2'; @+ break;
         case PF6: btn = '3'; @+ break;
+        case PF7: btn = 'A'; @+ break;
         }
         done = 1;
         break;
@@ -80,6 +81,7 @@ U8 btn = 0, mod = 0;
         case PF4: btn = '4'; @+ break;
         case PF5: btn = '5'; @+ break;
         case PF6: btn = '6'; @+ break;
+        case PF7: btn = 'B'; @+ break;
         }
         done = 1;
         break;
@@ -88,6 +90,7 @@ U8 btn = 0, mod = 0;
         case PF4: btn = '7'; @+ break;
         case PF5: btn = '8'; @+ break;
         case PF6: btn = '9'; @+ break;
+        case PF7: btn = 'C'; @+ break;
         }
         done = 1;
         break;
@@ -96,6 +99,7 @@ U8 btn = 0, mod = 0;
         case PF4: btn = '*'; @+ break;
         case PF5: btn = '0'; @+ break;
         case PF6: btn = '#'; @+ break;
+        case PF7: btn = 'D'; @+ break;
         }
         done = 1;
         break;
