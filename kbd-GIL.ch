@@ -1,4 +1,4 @@
-TODO: do this via arduino IDE, because kbd.w is not used now (disable CDC)
+TODO: do this via arduino libraries, because kbd.w is not used now (CDC must be disabled)
 
 *** 39,53 ****
     while (!connected)
