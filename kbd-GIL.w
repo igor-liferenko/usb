@@ -1,10 +1,3 @@
-\secpagedepth=2 % begin new page only on * % TODO: check via dvidiff if it is used here or after
-                                           % \datethis in test.w (with and without kbd.ch)
-
-\font\caps=cmcsc10 at 9pt
-
-@i test.w % \datethis is here (and \let\lheader...)
-
 @* Program. This embedded application source code illustrates how to implement a
 keyboard.
 
@@ -252,9 +245,6 @@ void send_descriptor(const void *buf, int size)
   }
 #endif
 }
-
-
-@i IN-endpoint-management.w
 
 @* USB stack.
 
