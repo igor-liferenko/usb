@@ -1,3 +1,8 @@
+\let\lheader\rheader
+%\datethis
+\secpagedepth=2 % begin new page only on *
+\font\caps=cmcsc10 at 9pt
+
 @* Program. This embedded application source code illustrates how to implement a
 keyboard.
 
@@ -26,7 +31,7 @@ void main(void)
   UDIEN = 1 << EORSTE;
   sei();
   UDCON &= ~(1 << DETACH);
-  UDCON &= ~(1 << RSTCPU); /* see \S\cpuresetonlyonhostreboot\ */
+  UDCON &= ~(1 << RSTCPU);
 
   uint16_t wLength;
   while (!connected)
@@ -56,7 +61,7 @@ ISR(USB_GEN_vect)
     UECFG1X = 1 << EPSIZE1 | 1 << ALLOC; /* one bank, 32
       bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
   }
-  else UDCON |= 1 << RSTCPU; /* see \S\cpuresetonlyonhostreboot\ */
+  else UDCON |= 1 << RSTCPU;
 }
 
 @ The following big switch just dispatch SETUP request.
