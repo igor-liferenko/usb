@@ -1,32 +1,6 @@
-This is how it must be used: in kbd.ch temporarily change this
+This is how it must be used: in kbd.ch temporarily change @y-@z part
+with "@<Pullup input pins@>@;" into this:
 
----------------------------------
-  @<Initialize input pins@>@;
-
-  while (1) {
-    @<Get button@>@;
-    if (btn != 0) {
-      @<Send button@>@;
-      uint16_t prev_button = btn|mod<<8;
-      int timeout = 2000;
-      while (--timeout) {
-        @<Get button@>@;
-        if ((btn|mod<<8) != prev_button) break;
-        _delay_ms(1);
-      }
-      while (1) {
-        @<Get button@>@;
-        if ((btn|mod<<8) != prev_button) break;
-        @<Send button@>@;
-        _delay_ms(50);
-      }
-    }
-  }
------------------------------------
-
-into this
-
------------------------------------
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
   while (1) {
@@ -41,7 +15,6 @@ into this
       _delay_ms(1000);
     }
   }
-------------------------------------
 
 and then run
 
