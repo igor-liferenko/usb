@@ -114,7 +114,8 @@ the side of input pin (i.e., when button is not pressed), and capacitance
 on the longer wire (i.e., when button is pressed).
 
 To adjust the number of no-ops, remove all no-ops from here,
-then do this: 1) If symbol(s) will appear by themselves,
+then do this: 1)\footnote*{See \.{https://arduino.stackexchange.com/questions/54919/}.}
+If symbol(s) will appear by themselves,
 add one no-op. Repeat until this does not happen. 2) If
 symbol does not appear after pressing a key, add one no-op.
 Repeat until this does not happen.
