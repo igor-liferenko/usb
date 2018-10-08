@@ -1,3 +1,5 @@
+Apply as "ctangle ../avrtel/avrtel cdc cdc", "cweave ../avrtel/avrtel cdc cdc".
+
 @x
 DTR is used by \.{tel} to switch the phone off (on timeout and for
 special commands) by switching off/on

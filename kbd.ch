@@ -1,3 +1,5 @@
+Apply as "ctangle ../avrtel/avrtel kbd kbd", "cweave ../avrtel/avrtel kbd kbd".
+
 @x
 @* Program.
 DTR is used by \.{tel} to switch the phone off (on timeout and for
