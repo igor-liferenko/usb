@@ -16,8 +16,6 @@ with "@<Pullup input pins@>@;" into this:
     }
   }
 
-(also, MANUFACTURER and PRODUCT must be zero, otherwise it does not work in Windows 7)
-
 and then run
 
     ctangle ../avrtel/avrtel kbd kbd
