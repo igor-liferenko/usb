@@ -3,6 +3,8 @@ with "@<Pullup input pins@>@;" into this:
 
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
+  _delay_ms(1); /* eliminate capacitance\footnote\dag{This corresponds to ``1)'' in
+        |@<Eliminate capacitance@>|.} */
   while (1) {
     if (!(PIND & 1 << PD0)) {
       btn = 0x04; /* a */
@@ -12,7 +14,7 @@ with "@<Pullup input pins@>@;" into this:
     if (!(PIND & 1 << PD1)) {
       btn = 0x29; /* ESC */
       @<Send button@>@;
-      _delay_ms(1000);
+      return;
     }
   }
 
