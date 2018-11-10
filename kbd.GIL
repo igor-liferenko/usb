@@ -18,7 +18,8 @@ with "@<Pullup input pins@>@;" into this:
     }
   }
 
-And add this to kbd.ch (otherwise it does not work in Windows 7):
+And add this change before change with "SERIAL_NUMBER,", i.e., make iManufacturer and iProduct
+fields zero (otherwise it does not work in Windows 7):
 @x
   MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
   PRODUCT, /* (\.{Product} in \.{kern.log}) */
