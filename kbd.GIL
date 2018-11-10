@@ -18,6 +18,15 @@ with "@<Pullup input pins@>@;" into this:
     }
   }
 
+And add this to kbd.ch (otherwise it does not work in Windows 7):
+@x
+  MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
+  PRODUCT, /* (\.{Product} in \.{kern.log}) */
+@y
+  0, /* (\.{Mfr} in \.{kern.log}) */
+  0, /* (\.{Product} in \.{kern.log}) */
+@z
+
 and then run
 
     ctangle ../avrtel/avrtel kbd kbd
