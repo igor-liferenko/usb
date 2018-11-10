@@ -18,6 +18,16 @@ with "@<Pullup input pins@>@;" into this:
     }
   }
 
+and then run
+
+    ctie -c /tmp/kbd.ch ../avrtel/avrtel kbd.ch kbd.GIL
+    ctangle ../avrtel/avrtel /tmp/kbd kbd
+    make kbd
+
+(temporarily reset avrtel/ to commit with comment "out of sync" if you have not yet synced kbd.ch with avrtel.w)
+
+------------------------------------------------------------------
+
 Make iManufacturer and iProduct fields zero, i.e., make host not to request these values
 (otherwise it does not work in Windows 7):
 @x
@@ -41,11 +51,3 @@ Make iManufacturer and iProduct fields zero, i.e., make host not to request thes
   0, /* (\.{Mfr} in \.{kern.log}) */
   0, /* (\.{Product} in \.{kern.log}) */
 @z
-
-and then run
-
-    ctie -c /tmp/kbd.ch ../avrtel/avrtel kbd.ch kbd.GIL
-    ctangle ../avrtel/avrtel /tmp/kbd kbd
-    make kbd
-
-(temporarily reset avrtel/ to commit with comment "out of sync" if you have not yet synced kbd.ch with avrtel.w)
