@@ -31,20 +31,6 @@ and then run
 Make iManufacturer and iProduct fields zero, i.e., make host not to request these values
 (otherwise it does not work in Windows 7):
 @x
-  case 0x03 << 8 | MANUFACTURER: @/
-    @<Handle {\caps get descriptor string} (manufacturer)@>@;
-    break;
-  case 0x03 << 8 | PRODUCT: @/
-    @<Handle {\caps get descriptor string} (product)@>@;
-    break;
-@y
-@z
-@x
-@d MANUFACTURER 1
-@d PRODUCT 2
-@y
-@z
-@x
   MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
   PRODUCT, /* (\.{Product} in \.{kern.log}) */
 @y
