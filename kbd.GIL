@@ -4,7 +4,9 @@ with "@<Pullup input pins@>@;" into this:
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
   _delay_ms(1); /* eliminate capacitance\footnote\dag{This corresponds to ``1)'' in
-        |@<Eliminate capacitance@>|.} (FIXME: verify this comment - print and read matrix.w) */
+        |@<Eliminate capacitance@>|.} (FIXME: verify this comment - print and read matrix.w)
+        NOTE: |_delay_ms| is used instead of |noop| because 1 ms does not make any difference
+        when done once */
   while (1) {
     if (!(PIND & 1 << PD0)) {
       btn = 0x04; /* a */
