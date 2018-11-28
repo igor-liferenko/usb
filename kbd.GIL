@@ -3,9 +3,7 @@ with "@<Pullup input pins@>@;" into this:
 
   PORTD |= 1 << PD0;
   PORTD |= 1 << PD1;
-  _delay_us(1); /* eliminate capacitance\footnote\dag{This corresponds to ``1)'' in
-        |@<Eliminate capacitance@>|; |_delay_us| is used here instead of |noop| because 1 us
-        does not make any difference when done once.} */
+  _delay_us(1); /* after enabling pullup, wait for the pins to settle before reading them */
   while (1) {
     if (!(PIND & 1 << PD0)) {
       btn = 0x04; /* a */
