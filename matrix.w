@@ -116,10 +116,13 @@ on the longer wire (i.e., when button is pressed).
 To adjust the number of no-ops, remove all no-ops from here,
 then do this: 1)\footnote*{In contrast with usual \\{\_delay\_us(1)}, here we need
 to use minimum possible delay because it is done repeatedly.}
-If symbol(s) will appear by themselves,
+If symbol(s) will appear by themselves (FIXME: under which conditions?),
 add one no-op. Repeat until this does not happen. 2) If
 symbol does not appear after pressing a key, add one no-op.
 Repeat until this does not happen.
+
+FIXME: maybe do |_delay_us(1);| in |@<Pullup input pins@>| and use only 2) here?
+(and then change references to this section from everywhere)
 
 @d nop() __asm__ __volatile__ ("nop")
 
