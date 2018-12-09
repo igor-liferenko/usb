@@ -13,7 +13,7 @@ with "@<Pullup input pins@>@;" into this:
     if (!(PIND & 1 << PD1)) {
       btn = 0x29; /* ESC */
       @<Send button@>@;
-      return;
+      _delay_ms(1000);
     }
   }
 
