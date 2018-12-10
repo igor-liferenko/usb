@@ -1,6 +1,11 @@
-It is most probable that this must be somewhere in sources of hid-driver.
+After the following mapping is looked, the chain of mapping goes as this:
+
+/usr/share/X11/xkb/keycodes/evdev
+/usr/share/X11/xkb/symbols/us
+
+It is most probable that the following mapping must be somewhere in sources of hid-driver.
 HID Keyboard and Keypad Page (0x07)
-HIDcode	evdev code
+HIDcode	evdevcode
 0x0004	38
 0x0005	56
 0x0006	54
