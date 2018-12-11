@@ -3,6 +3,9 @@ After the following mapping is looked, the chain of mapping goes as this:
 /usr/share/X11/xkb/keycodes/evdev
 /usr/share/X11/xkb/symbols/us
 
+The following mapping is for ...
+The fact that one more mapping layer is used allows to change layout inside USB device, leaving default settings in OS.
+
 It is most probable that the following mapping must be somewhere in sources of hid-driver.
 HID Keyboard and Keypad Page (0x07)
 HIDcode	evdevcode
