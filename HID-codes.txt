@@ -3,12 +3,13 @@ After the following mapping is looked, the chain of mapping goes as this:
 /usr/share/X11/xkb/keycodes/evdev
 /usr/share/X11/xkb/symbols/us
 
-The following mapping is for ...
+Motivation to convert from hid to evdev instead of from hid to layout is to support compatibility
+with ps/2 keyboards, which produce evdev codes (codes below are real codes + 8 - to agree with /usr/share/X11/xkb/keycodes/evdev).
 The fact that one more mapping layer is used allows to change layout inside USB device, leaving default settings in OS.
 
 It is most probable that the following mapping must be somewhere in sources of hid-driver.
 HID Keyboard and Keypad Page (0x07)
-HIDcode	evdevcode
+HIDcode	evdevcode+8
 0x0004	38
 0x0005	56
 0x0006	54
