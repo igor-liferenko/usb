@@ -3,7 +3,9 @@ After the following mapping is looked, the chain of mapping goes through the fol
 1. /usr/share/X11/xkb/keycodes/evdev
 2. /usr/share/X11/xkb/symbols/us
 
-It is most probable that the following mapping must be somewhere in sources of hid-driver.
+I found this table on an internet page.
+FIXME: where is the source of this mapping? (most probably it is in sources of HID driver)
+
 HID Keyboard and Keypad Page (0x07)
 HIDcode	evdevcode+8
 0x0004	38
