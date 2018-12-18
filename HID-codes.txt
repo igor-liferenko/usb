@@ -3,7 +3,7 @@ After the following mapping is looked, the chain of mapping goes through the fol
 1. /usr/share/X11/xkb/keycodes/evdev
 2. /usr/share/X11/xkb/symbols/us
 
-I found this table on an internet page.
+I found this mapping on the web.
 FIXME: where is the source of this mapping? (most probably it is in sources of HID driver)
 
 HID Keyboard and Keypad Page (0x07)
