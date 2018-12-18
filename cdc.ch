@@ -207,9 +207,7 @@ UEINTX &= ~(1 << FIFOCON);
 @z
 
 @x
-@<Header files@>=
+#include <util/delay.h> /* |_delay_us| */
 @y
-@<Header files@>=
-#define F_CPU 16000000UL
-#include <util/delay.h>
+#include <util/delay.h> /* |_delay_us|, |_delay_ms| */
 @z
