@@ -3,8 +3,6 @@ After the following mapping is looked, the chain of mapping goes through the fol
 1. /usr/share/X11/xkb/keycodes/evdev
 2. /usr/share/X11/xkb/symbols/us
 
-By changing this mapping you can change layout inside USB device, leaving default settings in OS.
-
 It is most probable that the following mapping must be somewhere in sources of hid-driver.
 HID Keyboard and Keypad Page (0x07)
 HIDcode	evdevcode+8
