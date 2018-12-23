@@ -1,7 +1,5 @@
-After the following mapping is looked, the chain of mapping goes through the following files:
-
-1. /usr/share/X11/xkb/keycodes/evdev
-2. /usr/share/X11/xkb/symbols/us
+NOTE: evdevcode+8 from the following mapping is in /usr/share/X11/xkb/keycodes/evdev,
+      and the resulting key is in /usr/share/X11/xkb/symbols/us
 
 FIXME: in which source file is this mapping implemented?
        (most probably it is in sources of HID driver)
