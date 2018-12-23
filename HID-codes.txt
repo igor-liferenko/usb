@@ -3,8 +3,9 @@ After the following mapping is looked, the chain of mapping goes through the fol
 1. /usr/share/X11/xkb/keycodes/evdev
 2. /usr/share/X11/xkb/symbols/us
 
-I found this mapping on the web.
-FIXME: where is the source of this mapping? (most probably it is in sources of HID driver)
+FIXME: in which source file is this mapping implemented?
+       (most probably it is in sources of HID driver)
+       (I found this mapping on the web)
 
 HID Keyboard and Keypad Page (0x07)
 HIDcode	evdevcode+8
