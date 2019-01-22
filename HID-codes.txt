@@ -1,5 +1,6 @@
 TODO: try to map different evdev codes to one key in /usr/share/X11/xkb/keycodes/evdev
       and check if it will work (to use numpad Enter the same way as ordinary Enter)
+      Or maybe remap keypad enter to normal enter in HID driver (to generate the same evdev code).
 
 NOTE: evdevcode+8 from the following mapping is in /usr/share/X11/xkb/keycodes/evdev,
       and the resulting key is in /usr/share/X11/xkb/symbols/us
