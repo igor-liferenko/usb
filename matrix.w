@@ -124,6 +124,11 @@ Repeat until this does not happen.
 FIXME: maybe do |_delay_us(1);| in |@<Pullup input pins@>| and use only 2) here?
 (and then change references to this section from everywhere)
 
+one more way to test: use |@<Get button@>| in a `|while (1) ... _delay_us(1);|' loop
+and when you detect a certain button, after a debounce delay (via |i++; ... if (i<delay) ...|),
+check if btn==0 in the cycle and if yes, turn on led - while you are holding the button,
+led must not turn on - if it does, add nop's
+
 @d nop() __asm__ __volatile__ ("nop")
 
 @<Eliminate capacitance@>=
