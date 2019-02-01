@@ -75,9 +75,11 @@ IN.eps: IN.png
 OUT.eps: OUT.png
 	@convert $< $@
 	@imgsize $@ 16 -
+
 keypad.eps: keypad.png
 	@convert $< $@
 	@imgsize $@ 7 -
+
 keymap.eps: keymap.gif
 	@convert $< $@
 	@imgsize $@ 6 -
