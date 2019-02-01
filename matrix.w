@@ -1,10 +1,10 @@
 @* Matrix.
 
-$$\hbox to6cm{\vbox to6.59cm{\vfil\special{psfile=keymap.eps
+$$\hbox to6cm{\vbox to6.59cm{\vfil\special{psfile=../usb/keymap.eps
   clip llx=0 lly=0 urx=321 ury=353 rwi=1700}}\hfil}$$
 
 This is the working principle:
-$$\hbox to7cm{\vbox to4.2cm{\vfil\special{psfile=keypad.eps
+$$\hbox to7cm{\vbox to4.2cm{\vfil\special{psfile=../usb/keypad.eps
   clip llx=0 lly=0 urx=240 ury=144 rwi=1984}}\hfil}$$
 
 A is input and  C1 ... Cn are outputs.
