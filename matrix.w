@@ -129,6 +129,8 @@ and when you detect a certain button, after a debounce delay (via |i++; ... if (
 check if btn==0 in the cycle and if yes, turn on led - while you are holding the button,
 led must not turn on - if it does, add nop's
 
+NOTE: in above methods add some more nops after testing to depass border state
+
 @d nop() __asm__ __volatile__ ("nop")
 
 @<Eliminate capacitance@>=
