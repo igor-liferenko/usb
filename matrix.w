@@ -50,7 +50,7 @@ PORTE |= 1 << PE6;
 PORTD |= 1 << PD7;
 
 @ @<Global variables@>=
-U8 btn = 0, mod = 0;
+U8 btn = 0;
 
 @
 % NOTE: use index into an array of Pxn if pins in "for" are not consequtive:
