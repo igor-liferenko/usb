@@ -6,5 +6,7 @@ in application - DTR is set to '1' in application after that.
 See cdc-acm patch in post-install.sh
 
 In general, DTR handling is necessary in any firmware, no matter if it works with
-patched or non-patched cdc-acm driver, because DTR is set automatically on open()
-by device driver (to '0' in patched, to '1' in non-patched).
+patched or non-patched cdc-acm driver, because DTR is sent automatically on open()
+by device driver ('0' in patched, '1' in non-patched), and it is automatically
+sent on close() by device driver ('0'), no matter if close() is done manually or
+automatically on program termination.
