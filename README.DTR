@@ -1,13 +1,18 @@
 Checking in firmware that DTR is set to '1' (considering that firmware is supposed to send
-_and_ receive data) before sending data to host is necessary
+data [even if it is not supposed to receive data, because it may fill the serial port buffer])
+before sending data to host is necessary
 in order that data will not be transmitted to host until echoing is disabled in tty settings
-in application - DTR is set to '1' in application after that.
+in application - DTR must be manually set to '1' in application after that.
+In this scenario patched cdc-acm driver is necessary - see cdc-acm patch in post-install.sh
+As DTR handling is used, it will be employed when DTR is sent on close().
 
-See cdc-acm patch in post-install.sh
+DTR handling is also necessary in firmware which is only going to receive data,
+because DTR is sent automatically on open() by device driver, and it is automatically
+sent on close() by device driver, no matter if close() is done manually or
+automatically on program termination. In this scenario both patched and non-patched
+cdc-acm driver may be used (the difference is that '1' is sent on open() in non-patched driver,
+'0' in patched driver).
+In this scenario there is no need to manually set DTR in application.
 
-In general, DTR handling is necessary in any firmware, no matter if it works with
-patched or non-patched cdc-acm driver, because DTR is sent automatically on open()
-by device driver ('0' in patched, '1' in non-patched), and it is automatically
-sent on close() by device driver ('0'), no matter if close() is done manually or
-automatically on program termination.
-TODO: put here about 5 sec. timeout on open() and move here comments from avrterm.w
+TODO: put here note about 5 sec. timeout on open() from avrterm.w and move here rest
+comments from avrterm.w
