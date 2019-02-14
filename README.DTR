@@ -1,6 +1,10 @@
-Checking DTR in firmware before sending data to host is necessary in order that
-data will not be transmitted to host until
-DTR is enabled, which is done in application after applying tty settings, which is
-useful when MCU reads data from host - to avoid echoing back sent data if MCU starts to
-transmit until echo was disabled by tty settings.
-See also cdc-acm patch in post-install.sh
+Checking in firmware that DTR is set to '1' (considering that firmware is supposed to send
+_and_ receive data) before sending data to host is necessary
+in order that data will not be transmitted to host until echoing is disabled in tty settings
+in application - DTR is set to '1' in application after that.
+
+See cdc-acm patch in post-install.sh
+
+In general, DTR handling is necessary in any firmware, no matter if it works with
+patched or non-patched cdc-acm driver, because DTR is set automatically on open()
+by device driver (to '0' in patched, to '1' in non-patched).
