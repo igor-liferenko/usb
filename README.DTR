@@ -10,3 +10,4 @@ patched or non-patched cdc-acm driver, because DTR is sent automatically on open
 by device driver ('0' in patched, '1' in non-patched), and it is automatically
 sent on close() by device driver ('0'), no matter if close() is done manually or
 automatically on program termination.
+TODO: put here about 5 sec. timeout on open() and move here comments from avrterm.w
