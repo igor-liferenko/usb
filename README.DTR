@@ -16,3 +16,12 @@ In this scenario there is no need to manually set DTR in application.
 
 TODO: put here note about 5 sec. timeout on open() from avrterm.w and move here rest
 comments from avrterm.w
+
+TODO: patch cdc-acm driver that it will not automatically send DTR on open() at all,
+and use HUPCL in application to disable sending DTR automatically on close() - this
+way you will be able not to use DTR handling in firmware which only reads from usb host
+and you will be able to use one device for reading-only and for writing-only from
+different host programs - otherwise we never know which process sent the DTR
+But for this you will have to learn how to recompile kernel module in openwrt - last
+time when I looked into it, it did not allow to use image builder and/or SDK - periodically
+check if situation changed
