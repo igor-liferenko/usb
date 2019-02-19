@@ -3,25 +3,10 @@ data [even if it is not supposed to receive data, because it may fill the serial
 before sending data to host is necessary
 in order that data will not be transmitted to host until echoing is disabled in tty settings
 in application - DTR must be manually set to '1' in application after that.
-In this scenario patched cdc-acm driver is necessary - see cdc-acm patch in post-install.sh
-As DTR handling is used, it will be employed when DTR is sent on close().
-
-DTR handling is also necessary in firmware which is only going to receive data,
-because DTR is sent automatically on open() by device driver, and it is automatically
-sent on close() by device driver, no matter if close() is done manually or
-automatically on program termination. In this scenario both patched and non-patched
-cdc-acm driver may be used (the difference is that '1' is sent on open() in non-patched driver,
-'0' in patched driver).
-In this scenario there is no need to manually set DTR in application.
 
 TODO: put here note about 5 sec. timeout on open() from avrterm.w and move here rest
 comments from avrterm.w
 
-TODO: patch cdc-acm driver that it will not automatically send DTR on open() at all,
-and use HUPCL in application to disable sending DTR automatically on close() - this
-way you will be able not to use DTR handling in firmware which only reads from usb host
-and you will be able to use one device for reading-only and for writing-only from
-different host programs - otherwise we never know which process sent the DTR
-But for this you will have to learn how to recompile kernel module in openwrt - last
+TODO: learn how to recompile kernel module in openwrt - last
 time when I looked into it, it did not allow to use image builder and/or SDK - periodically
 check if situation changed
