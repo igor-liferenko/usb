@@ -1,4 +1,18 @@
-Rewrite cdc-acm driver:
+In case you ever encounter strange behavior of com-port, consider the following:
+
+make so that when device is closed, all buffers in driver are emptied (if it is not already
+ so), so that on open, application does not get any spurious data.
+(data may also be buffered in cdc-acm driver's buffer from previous session
+if it was closed until all data was read?)
+Especially this concerns the following scenario:
+  In general, USB uses a less-than-max-length packet to demarcate an end-of-transfer. So in the case
+
+  of a transfer which is an integer multiple of max-packet-length, a ZLP is used for demarcation.
+  You see this in bulk pipes a lot. For example, if you have a 4096 byte transfer, that will be
+  broken down into an integer number of max-length packets plus one zero-length-packet. If the SW
+  driver has a big enough receive buffer set up, higher-level SW receives the entire transfer at
+  once, when the ZLP occurs.
+
 https://lwn.net/Kernel/LDD3/
 https://www.linuxjournal.com/article/5896
 https://www.linuxjournal.com/article/6331
