@@ -8,4 +8,4 @@ TODO: put here note about 5 sec. timeout on open() from avrterm.w and move here 
 comments from avrterm.w
 
 For some reason DTR and RTS signals are combined in linux, so use them as one unit:
-int DTR_RTS = TIOCM_DTR | TIOCM_RTS;
+int dtr_rts = TIOCM_DTR | TIOCM_RTS;
