@@ -7,6 +7,5 @@ in application - DTR must be manually set to '1' in application after that.
 TODO: put here note about 5 sec. timeout on open() from avrterm.w and move here rest
 comments from avrterm.w
 
-TODO: learn how to recompile kernel module in openwrt - last
-time when I looked into it, it did not allow to use image builder and/or SDK - periodically
-check if situation changed
+For some reason DTR and RTS signals are combined in linux, so use them as one unit:
+int DTR_RTS = TIOCM_DTR | TIOCM_RTS;
