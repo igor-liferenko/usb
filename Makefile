@@ -64,10 +64,6 @@ transaction-SETUP.eps: transaction-SETUP.gif
 	@convert $< $@
 	@imgsize $@
 
-kbd-structure.eps: kbd-structure.png
-	@convert $< $@
-	@imgsize $@ 5 -
-
 IN.eps: IN.png
 	@convert $< $@
 	@imgsize $@ 14 -
