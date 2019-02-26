@@ -131,6 +131,8 @@ led must not turn on - if it does, add nop's
 
 NOTE: in above methods add some more nops after testing to depass border state
 
+FIXME: maybe just use |_delay_us(1);| instead of adjustments with nop's
+
 @d nop() __asm__ __volatile__ ("nop")
 
 @<Eliminate capacitance@>=
