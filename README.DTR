@@ -9,4 +9,5 @@ int dtr_rts = TIOCM_DTR | TIOCM_RTS;
 
 Two programs cannot use one tty, because we never know who set DTR (and using HUPCL is wrong,
 as it works on the tty globally - so DTR disabling will be disabled for other program as well).
-So, in driver it may be just set to 0, instead of not sending it at all.
+So, in driver it may be just set to 0, instead of not sending it at all. - use different
+devices + usb hub
