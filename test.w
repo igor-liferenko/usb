@@ -20,7 +20,7 @@ We do not use bootloader, so the following may also be unprogrammed: \.{BOOTRST}
 In short, fuses must be these: \.{E:CB}, \.{H:D9}, \.{L:FF}.
 Set with the following command:
 
-\centerline{\tt avrdude -q -c usbasp -p m32u4
+\centerline{\tt avrdude -c usbasp -p m32u4
   -U efuse:w:0xcb:m -U hfuse:w:0xd9:m -U lfuse:w:0xff:m}
 
 % NOTE: VBUSTI does not work - the device stops working if you do via VBUSTI - use commit
