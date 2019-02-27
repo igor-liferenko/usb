@@ -6,3 +6,7 @@ in application - DTR must be manually set to '1' in application after that.
 
 NOTE: in programs, we use both DTR and RTS signals simultaneously, because they are combined in linux:
 int dtr_rts = TIOCM_DTR | TIOCM_RTS;
+
+Two programs cannot use one tty, because we never know who set DTR (and using HUPCL is wrong,
+as it works on the tty globally - so DTR disabling will be disabled for other program as well).
+So, in driver it may be just set to 0, instead of not sending it at all.
