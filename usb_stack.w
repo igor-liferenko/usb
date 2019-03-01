@@ -412,5 +412,3 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
   else c &= 0x0F;
   sn_desc.wString[i] = hex(c);
 }
-
-@* Headers.
