@@ -15,6 +15,7 @@ clean:
 	@git clean -X -d -f
 
 imgs:
+	@mp usb
 	@perl -ne 'if (/^(.*\.eps): (.*)/) { system "convert $$2 $$1" }' Makefile
 
 .PHONY: test
