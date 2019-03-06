@@ -12,3 +12,6 @@ test.c
 fw.hex
 test
 *.eps
+*.[0-9]
+*.mpx
+mpxerr.tex
