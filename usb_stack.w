@@ -153,8 +153,7 @@ buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ Interrupt IN endpoint is used when device needs to interrupt host.
-Host sends IN tokens to device at a rate specified in |@<Initialize element 6 ...@>|.
+@ Interrupt IN endpoint is not used, but it must be present according to CDC spec.
 
 @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
@@ -380,7 +379,11 @@ typedef struct {
   U8 bInterval; /* interval for polling EP by host to determine if data is available (ms-1) */
 } S_endpoint_descriptor;
 
-@ @d IN (1 << 7)
+@ Interrupt IN endpoint serves when device needs to interrupt host.
+Host sends IN tokens to device at a rate specified here (this endpoint is not used,
+so rate is maximum possible). 
+
+@d IN (1 << 7)
 
 @<Initialize element 6 in configuration descriptor@>= { @t\1@> @/
   7, /* size of this structure */
@@ -390,7 +393,7 @@ typedef struct {
     |UECFG0X| of |EP3|.} */
   0x0020, /* 32 bytes\footnote\ddag{Must correspond to
     |UECFG1X| of |EP3|.} */
-@t\2@> 0xFF /* 256 */
+@t\2@> 0xFF /* 256 (FIXME: is it `ms'?) */
 }
 
 @ @<Initialize element 8 in configuration descriptor@>= { @t\1@> @/
