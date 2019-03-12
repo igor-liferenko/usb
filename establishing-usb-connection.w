@@ -3,7 +3,25 @@
 @<Global variables@>=
 volatile int connected = 0;
 
-@ @<Connect to USB host@>=
+@ @d EP0 0 /* selected by default */
+@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
+                  (max for atmega32u4) */
+
+@<Create ISR for connecting to USB host@>=
+ISR(USB_GEN_vect)
+{
+  UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
+  if (!connected) {
+    UECONX |= 1 << EPEN;
+    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+    UECFG1X |= 1 << ALLOC;
+  }
+  else {
+    @<Reset MCU@>@;
+  }
+}
+
+@ @<Connect to USB host (by calling |sei|)@>=
   UHWCON |= 1 << UVREGE;
   USBCON |= 1 << USBE;
   PLLCSR = 1 << PINDIV;
