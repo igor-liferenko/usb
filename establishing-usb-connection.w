@@ -1,5 +1,8 @@
 @* Establishing USB connection.
 
+@<Global variables@>=
+volatile int connected = 0;
+
 @ @<Global variables@>=
 U16 wValue;
 U16 wIndex;
