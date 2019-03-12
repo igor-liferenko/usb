@@ -153,8 +153,8 @@ buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ Interrupt IN endpoint is not used, but it must be present (see ``Configuration descriptor''
-chapter).
+@ Interrupt IN endpoint is not used, but it must be present (see first section of
+``Configuration descriptor'' chapter).
 
 FIXME: move EP3 below EP1 and EP2?
 
