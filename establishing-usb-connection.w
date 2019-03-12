@@ -245,4 +245,3 @@ if (empty_packet) {
 }
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
-
