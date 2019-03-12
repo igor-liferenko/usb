@@ -153,7 +153,10 @@ buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ Interrupt IN endpoint is not used, but it must be present according to CDC spec.
+@ Interrupt IN endpoint is not used, but it must be present according to CDC spec
+(FIXME: specify here exact paragraph of CDC spec).
+FIXME: try to remove it and check if device will work, and if you leave EP3,
+move it below EP1 and EP2
 
 @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
