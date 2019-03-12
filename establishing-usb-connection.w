@@ -158,7 +158,6 @@ from_program = 0;
 
 FIXME: move EP3 below EP1 and EP2?
 
-@d EP0 0
 @d EP1 1
 @d EP2 2
 @d EP3 3
