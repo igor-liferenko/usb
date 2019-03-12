@@ -1,5 +1,9 @@
 @* USB stack.
 
+@<Type \null definitions@>=
+typedef unsigned char U8;
+typedef unsigned short U16;
+
 @*1 Device descriptor.
 
 Placeholder prefixes such as `b', `bcd', and `w' are used to denote placeholder type:
