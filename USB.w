@@ -504,8 +504,7 @@ $$\hbox to7.5cm{\vbox to7.88cm{\vfil\special{psfile=../usb/usb.1
   clip llx=0 lly=0 urx=274 ury=288 rwi=2125}}\hfil}$$
 
 @<Type definitions@>=
-@<\9{Type definitions used in configuration descriptor}\ignorespaces
-    {Type definitions used in configuration descriptor}@>@;
+@<Type definition{s} used in configuration descriptor@>@;
 typedef struct {
   @<Configuration header descriptor@> @,@,@! el1;
   S_interface_descriptor el2;
@@ -563,7 +562,7 @@ struct {
 
 @s S_interface_descriptor int
 
-@<\9{Type definitions ...@>=
+@<Type definition{s} ...@>=
 typedef struct {
    U8 bLength;
    U8 bDescriptorType;
@@ -605,7 +604,7 @@ typedef struct {
 
 @s S_endpoint_descriptor int
 
-@<\9{Type definitions ...@>=
+@<Type definition{s} ...@>=
 typedef struct {
   U8 bLength;
   U8 bDescriptorType;
