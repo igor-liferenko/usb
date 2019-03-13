@@ -86,10 +86,10 @@ if (WDTCSR & 1 << WDE) { /* takes 2 instructions: \.{in} (1 cycle),
     (1 cycle), \.{sts} (2 cycles)), which is 62.5*5 = 312.5 ns more, but
     still within 16ms) */
   WDTCSR = 0x00; /* disable WDT (\.{sts} (2 cycles), which is 62.5*2 = 125 ns more,
-    but still within 16ms)\footnote*{`\&=' must not be used here, because
+    but still within 16ms)\footnote*{`|&=|' must not be used here, because
     the following instructions will be used: \.{lds} (2 cycles),
     \.{andi} (1 cycle), \.{sts} (2 cycles), but according to datasheet \S8.2
-    this must not exceed 4 cycles, whereas with `=' at most the
+    this must not exceed 4 cycles, whereas with `|=|' at most the
     following instructions are used: \.{ldi} (1 cycle) and \.{sts} (2 cycles),
     which is within 4 cycles.} */
 }
