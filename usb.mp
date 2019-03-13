@@ -1,4 +1,4 @@
-%outputtemplate:="%j.eps"; prologues:=3;
+outputtemplate:="%j.eps"; prologues:=3;
 
 input rboxes;
 
@@ -29,15 +29,15 @@ z7=(2.4cm,.9cm);
 z8=(5.6cm,.9cm);
 z9=(7.8cm,.9cm);
 %%%%%% TODO: do like this and maybe instead of cutl use explicit code
-circleit.circ1(btex \big ep0 etex);
-circ1.n-circ1.c=up*r; circ1.e-circ1.c=right*r;
-circ1.c=(0,0);
-drawboxed(circ1);
-circleit.circ2(btex \big ep8 etex);
-circ2.n-circ2.c=up*r; circ2.e-circ2.c=right*r;
-circ2.c=(.5cm,3cm);
-drawboxed(circ2);
-cutl(circ1,circ2);
+%circleit.circ1(btex \big ep0 etex);
+%circ1.n-circ1.c=up*r; circ1.e-circ1.c=right*r;
+%circ1.c=(0,0);
+%drawboxed(circ1);
+%circleit.circ2(btex \big ep8 etex);
+%circ2.n-circ2.c=up*r; circ2.e-circ2.c=right*r;
+%circ2.c=(.5cm,3cm);
+%drawboxed(circ2);
+%cutl(circ1,circ2);
 %%%%%%%%%%%%
 label(btex \big DEVICE etex, z0);
 draw unitsquare shifted (-.5,-.5) xscaled 5.1cm yscaled 1.1cm shifted z0;
