@@ -488,7 +488,9 @@ and Communication Class interface.
 
 The Communication Class interface uses two endpoints\footnote*{Although
 CDC spec says that notification endpoint is optional, in Linux host
-driver refuses to work without it.}, one to implement
+driver refuses to work without it. TODO: remove EP3 and see errors in kern.log
+and search the error messages in cdc-acm.c and change it to work without it},
+one to implement
 a notification element and the other to implement
 a management element. The management element uses the default endpoint
 for all standard and Communication Class-specific requests.
