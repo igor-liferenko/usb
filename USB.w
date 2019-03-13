@@ -428,7 +428,7 @@ while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
 @* USB stack.
 
-@<Type \null definitions@>=
+@<Type definitions@>=
 typedef unsigned char U8;
 typedef unsigned short U16;
 
@@ -503,8 +503,9 @@ channels over which to carry data.
 $$\hbox to7.5cm{\vbox to7.88cm{\vfil\special{psfile=../usb/usb.1
   clip llx=0 lly=0 urx=274 ury=288 rwi=2125}}\hfil}$$
 
-@<Type \null definitions@>=
-@<Type definitions used in configuration descriptor@>@;
+@<Type definitions@>=
+@<\9{Type definitions used in configuration descriptor}\ignorespaces
+    {Type definitions used in configuration descriptor}@>@;
 typedef struct {
   @<Configuration header descriptor@> @,@,@! el1;
   S_interface_descriptor el2;
@@ -562,7 +563,7 @@ struct {
 
 @s S_interface_descriptor int
 
-@<Type definitions ...@>=
+@<\9{Type definitions ...@>=
 typedef struct {
    U8 bLength;
    U8 bDescriptorType;
@@ -604,7 +605,7 @@ typedef struct {
 
 @s S_endpoint_descriptor int
 
-@<Type definitions ...@>=
+@<\9{Type definitions ...@>=
 typedef struct {
   U8 bLength;
   U8 bDescriptorType;
@@ -792,7 +793,7 @@ because by `\&{wchar\_t}' I always mean 4 bytes (to avoid using `\&{wint\_t}').
 
 @s S_string_descriptor int
 
-@<Type \null definitions@>=
+@<Type definitions@>=
 typedef struct {
   U8 bLength;
   U8 bDescriptorType;
