@@ -337,10 +337,11 @@ buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ Interrupt IN endpoint is not used, but it must be present (see first section of
-``Configuration descriptor'' chapter).
-
-FIXME: move EP3 below EP1 and EP2?
+@ Interrupt IN endpoint is not used, but it must be present (the relevant
+section is marked with
+``remove EP3''
+@^remove EP3@>
+in index).
 
 @d EP1 1
 @d EP2 2
@@ -490,8 +491,8 @@ The Communication Class interface uses two endpoints\footnote*{Although
 CDC spec says that notification endpoint is optional, in Linux host
 driver refuses to work without it. TODO: remove EP3 and see errors in kern.log
 and search the error messages in cdc-acm.c and change it to work without it},
-one to implement
-a notification element and the other to implement
+@^remove EP3@>
+one to implement a notification element and the other to implement
 a management element. The management element uses the default endpoint
 for all standard and Communication Class-specific requests.
 
