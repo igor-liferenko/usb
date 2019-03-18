@@ -1,6 +1,12 @@
 @* Establishing USB connection.
 
-@<Global variables@>=
+@<Header files@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <avr/boot.h> /* |boot_signature_byte_get| */
+
+@ @<Global variables@>=
 volatile int connected = 0;
 
 @ @d EP0 0 /* selected by default */
