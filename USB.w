@@ -1,12 +1,6 @@
 @* Establishing USB connection.
 
-@ @<Header files@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <avr/boot.h> /* |boot_signature_byte_get| */
-
-@ @<Global variables@>=
+@<Global variables@>=
 volatile int connected = 0;
 
 @ @d EP0 0 /* selected by default */
@@ -854,3 +848,9 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
   else c &= 0x0F;
   sn_desc.wString[i] = hex(c);
 }
+
+@ @<Header files@>=
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <avr/boot.h> /* |boot_signature_byte_get| */
