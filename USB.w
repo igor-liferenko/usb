@@ -849,7 +849,10 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
   sn_desc.wString[i] = hex(c);
 }
 
-@ @<Header files@>=
+@* Headers.
+\secpagedepth=1 % index on current page
+
+@<Header files@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
