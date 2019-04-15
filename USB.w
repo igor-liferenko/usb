@@ -429,6 +429,8 @@ while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
 UEINTX &= ~(1 << RXOUTI);
 @* USB stack.
 
+@s U8 int
+
 @<Type definitions@>=
 typedef unsigned char U8;
 typedef unsigned short U16;
