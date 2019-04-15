@@ -430,6 +430,7 @@ UEINTX &= ~(1 << RXOUTI);
 @* USB stack.
 
 @s U8 int
+@s U16 int
 
 @<Type definitions@>=
 typedef unsigned char U8;
