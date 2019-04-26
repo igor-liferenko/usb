@@ -2,13 +2,13 @@
 % (i.e., usbasp and UART), but most important is to unplug
 % usbasp - replug manually, not via usbasp's reset.
 
-% To compile certain section, change "/dev/null" to "test", then do
+% To compile certain section, change "@@(/dev/null@@>=" to "@@c", then do
 % as usual "ctangle test && make test".
 
 \let\lheader\rheader
 %\datethis
 
-% NOTE: this file is included from other files - do not commit here \noinx, \nosec, \notoc
+\noinx
 
 @* Testing.
 The microcontroller is ATmega32U4.

@@ -18,11 +18,9 @@ imgs:
 	@mp usb
 	@perl -ne 'if (/^(.*\.eps): (.*)/) { system "convert $$2 $$1" }' Makefile
 
-.PHONY: test
 test:
-	@grep -q '^@(test@>=$$' test.w || ( echo 'NO SECTION ENABLED'; false )
-	@grep '^@(test@>=$$' test.w | wc -l | grep -q '^1$$' || ( echo 'MORE THAN ONE SECTION ENABLED'; false )
-	@mv test test.c
+	@grep -q '^@c$$' test.w || ( echo 'NO SECTION ENABLED'; false )
+	@grep '^@c$$' test.w | wc -l | grep -q '^1$$' || ( echo 'MORE THAN ONE SECTION ENABLED'; false )
 	@avr-gcc -mmcu=atmega32u4 -g -Os -o fw.elf test.c
 	@avr-objcopy -O ihex fw.elf fw.hex
 
