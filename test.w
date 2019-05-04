@@ -2,7 +2,7 @@
 % (i.e., usbasp and UART), but most important is to unplug
 % usbasp - replug manually, not via usbasp's reset.
 
-% To compile certain section, change "@@(/dev/null@@>=" to "@@c", then do
+% To compile certain section, change "@@(null@@>=" to "@@c", then do
 % as usual "ctangle test && make test".
 
 \let\lheader\rheader
@@ -36,7 +36,7 @@ There is no sense to configure EP0 before main loop because host always does
 
 \xdef\epconf{\secno}
 
-@(/dev/null@>=
+@(null@>=
 #include <avr/io.h>
 
 void main(void)
@@ -101,7 +101,7 @@ uvrdADgGSDgGGRuvrrrDrADQQQgGSIR
 
 \xdef\resetmcuonhostreboot{\secno}
 
-@(/dev/null@>=
+@(null@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
