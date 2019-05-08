@@ -194,38 +194,38 @@ U16 wLength;
 @<Process SETUP request@>=
 switch (UEDATX | UEDATX << 8) {
 case 0x0500: @/
-  @<Handle {\caps set address}@>@;
+  @<Handle {\font\caps=cmcsc10 at 9pt \caps set address}@>@;
   break;
 case 0x0680: @/
   switch (UEDATX | UEDATX << 8) {
   case 0x0100: @/
-    @<Handle {\caps get descriptor device}\null@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor device}\null@>@;
     break;
   case 0x0200: @/
-    @<Handle {\caps get descriptor configuration}@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor configuration}@>@;
     break;
   case 0x0300: @/
-    @<Handle {\caps get descriptor string} (language)@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (language)@>@;
     break;
   case 0x03 << 8 | MANUFACTURER: @/
-    @<Handle {\caps get descriptor string} (manufacturer)@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (manufacturer)@>@;
     break;
   case 0x03 << 8 | PRODUCT: @/
-    @<Handle {\caps get descriptor string} (product)@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (product)@>@;
     break;
   case 0x03 << 8 | SERIAL_NUMBER: @/
-    @<Handle {\caps get descriptor string} (serial)@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (serial)@>@;
     break;
   case 0x0600: @/
-    @<Handle {\caps get descriptor device qualifier}@>@;
+    @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor device qualifier}@>@;
     break;
   }
   break;
 case 0x0900: @/
-  @<Handle {\caps set configuration}@>@;
+  @<Handle {\font\caps=cmcsc10 at 9pt \caps set configuration}@>@;
   break;
 case 0x2021: @/
-  @<Handle {\caps set line coding}@>@;
+  @<Handle {\font\caps=cmcsc10 at 9pt \caps set line coding}@>@;
   break;
 }
 
@@ -233,7 +233,7 @@ case 0x2021: @/
 in this request. IN packet arrives after SETUP packet, and we get ready to
 send a ZLP in advance.
 
-@<Handle {\caps set address}@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
@@ -255,7 +255,7 @@ sufficient for first request of device descriptor). If host is operational,
 It is OK if we transfer less than the requested amount. But if we try to
 transfer more, host does not send OUT packet to initiate STATUS stage.
 
-@<Handle {\caps get descriptor device}\null@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -285,14 +285,14 @@ next SETUP token.
 
 USB\S8.5.3.4, datasheet\S22.11.
 
-@<Handle {\caps get descriptor device qualifier}@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor device qualifier}@>=
 UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN token of the DATA
   stage */
 UEINTX &= ~(1 << RXSTPI);
 
 @ First request is 9 bytes, second is according to length given in response to first request.
 
-@<Handle {\caps get descriptor configuration}@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -300,7 +300,7 @@ size = sizeof conf_desc;
 buf = &conf_desc;
 @<Send descriptor@>@;
 
-@ @<Handle {\caps get descriptor string} (language)@>=
+@ @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (language)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -308,7 +308,7 @@ size = sizeof lang_desc;
 buf = lang_desc;
 @<Send descriptor@>@;
 
-@ @<Handle {\caps get descriptor string} (manufacturer)@>=
+@ @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (manufacturer)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -316,7 +316,7 @@ size = pgm_read_byte(&mfr_desc.bLength);
 buf = &mfr_desc;
 @<Send descriptor@>@;
 
-@ @<Handle {\caps get descriptor string} (product)@>=
+@ @<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (product)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -327,7 +327,7 @@ buf = &prod_desc;
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
 
-@<Handle {\caps get descriptor string} (serial)@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
@@ -350,7 +350,7 @@ in index).
 @d EP2_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP2|.} */
 @d EP3_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP3|.} */
 
-@<Handle {\caps set configuration}@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 
 UENUM = EP3;
@@ -380,7 +380,7 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @ Just discard the data.
 This is the last request after attachment to host.
 
-@<Handle {\caps set line coding}@>=
+@<Handle {\font\caps=cmcsc10 at 9pt \caps set line coding}@>=
 UEINTX &= ~(1 << RXSTPI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
@@ -781,8 +781,10 @@ The C standard says that a flexible array member in a struct does not increase t
 struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
 |sizeof| on the variable counts only first two elements.
 So, we read the size of the variable at
-execution time in |@<Handle {\caps get descriptor string} (manufacturer)@>|
-and |@<Handle {\caps get descriptor string} (product)@>| by using |pgm_read_byte|.
+execution time in
+|@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (manufacturer)@>|
+and |@<Handle {\font\caps=cmcsc10 at 9pt \caps get descriptor string} (product)@>|
+by using |pgm_read_byte|.
 
 TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/}
 @^TODO@>
