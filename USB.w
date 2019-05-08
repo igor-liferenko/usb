@@ -855,8 +855,6 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 @* Headers.
 \secpagedepth=1 % index on current page
 
-\font\caps=cmcsc10 at 9pt
-
 @<Header files@>=
 #include <avr/io.h>
 #include <avr/interrupt.h>
