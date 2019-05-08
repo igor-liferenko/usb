@@ -856,7 +856,7 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 \secpagedepth=1 % index on current page
 
 {\global\font\caps=cmcsc10 at 9pt} % to avoid specifying it in the limbo of each file
-                                   % which includes this file
+                                   % which includes USB.w
 
 @<Header files@>=
 #include <avr/io.h>
