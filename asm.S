@@ -1,3 +1,5 @@
+; this is from http://microsin.net/programming/avr-working-with-usb/usb-device-on-assembler.html
+
 #include <avr/io.h>
 
 .set EP0, 0 ;конечная точка управления
