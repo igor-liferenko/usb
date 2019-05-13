@@ -1,4 +1,5 @@
 @* Establishing USB connection.
+\secpagedepth=2
 
 @<Global variables@>=
 volatile int connected = 0;
