@@ -1,4 +1,5 @@
-% For testing open separate (from where you edit this file) terminal with ttyUSB0.
+% For testing open separate (from where you edit this file) terminal with
+% `cu -l /dev/ttyUSB0 -s 57600'; it must be opened before flashing.
 
 % IMPORTANT: while testing disconnect as much as possible from MCU
 % (i.e., usbasp and UART), but most important is to unplug
