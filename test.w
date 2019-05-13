@@ -1,4 +1,4 @@
-% For testing open separate (frow which where you edit this file) terminal with ttyUSB0.
+% For testing open separate (from where you edit this file) terminal with ttyUSB0.
 
 % IMPORTANT: while testing disconnect as much as possible from MCU
 % (i.e., usbasp and UART), but most important is to unplug
