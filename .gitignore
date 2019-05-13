@@ -1,6 +1,6 @@
 null
 *.elf
-fw.hex
+*.hex
 *.c
 *.dvi
 *.idx
@@ -12,4 +12,3 @@ fw.hex
 *.eps
 *.[0-9]
 *.mpx
-mpxerr.tex
