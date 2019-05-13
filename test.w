@@ -1,3 +1,5 @@
+% For testing open separate terminal with ttyUSB0.
+
 % IMPORTANT: while testing disconnect as much as possible from MCU
 % (i.e., usbasp and UART), but most important is to unplug
 % usbasp - replug manually, not via usbasp's reset.
