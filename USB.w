@@ -1,5 +1,6 @@
 @* Establishing USB connection.
-\secpagedepth=2
+
+\secpagedepth=2 % from now on *1 will not cause page break
 
 @<Global variables@>=
 volatile int connected = 0;
