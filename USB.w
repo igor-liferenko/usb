@@ -1,6 +1,6 @@
 @* Establishing USB connection.
 
-\secpagedepth=2 % from now on *1 will not cause page break
+\secpagedepth=2 % no page break on @@*1
 
 @<Global variables@>=
 volatile int connected = 0;
@@ -855,6 +855,7 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 }
 
 @* Headers.
+
 \secpagedepth=1 % index on current page
 
 @<Header files@>=
