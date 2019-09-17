@@ -18,3 +18,7 @@ in cdc_task wdt_reset() is necessary - see Note to "function for changing the ti
 value of the Watchdog Timer" in datasheet
 
 #include <avr/wdt.h> /* |wdt_reset| */
+
+--------------------------------------------------
+
+TODO: google what is "brown-out"
