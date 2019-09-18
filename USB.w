@@ -491,7 +491,8 @@ and Communication Class interface.
 
 The Communication Class interface uses two endpoints\footnote*{Although
 CDC spec says that notification endpoint is optional, in Linux host
-driver refuses to work without it.},
+driver refuses to work without it. Besides, notifocation endpoint (EP3) can
+be used for DSR signal.},
 @^Communication Class notification endpoint notice@>
 one to implement a notification element and the other to implement
 a management element. The management element uses the default endpoint
