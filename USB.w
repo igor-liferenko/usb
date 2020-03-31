@@ -859,4 +859,4 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <avr/boot.h> /* |boot_signature_byte_get| */
+#include <avr/boot.h> /* |@!boot_signature_byte_get| */
