@@ -10,7 +10,6 @@
 % To compile certain section, change "@@(null@@>=" to "@@c", then do
 % as usual "ctangle test && make test".
 
-\let\lheader\rheader
 %\datethis
 
 \noinx
