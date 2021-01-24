@@ -1,2 +1,2 @@
-use this as a library
-do connection via interrupts (read about interrupt queue in datasheet)
+use this as a library (.so or .a to be linked with gcc)
+do connection via interrupts (see first paragraph in avr/TIPS)
