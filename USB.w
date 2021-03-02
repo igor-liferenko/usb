@@ -10,7 +10,7 @@ volatile int connected = 0;
                   (max for atmega32u4) */
 
 @<Create ISR for connecting to USB host@>=
-ISR(USB_GEN_vect)
+@.ISR@>@t\.{ISR}@>(@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>)
 {
   UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
   if (!connected) {
@@ -856,7 +856,6 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 \secpagedepth=1 % index on current page
 
 @<Header files@>=
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
 #include <avr/boot.h> /* |@!boot_signature_byte_get| */
+#include <avr/interrupt.h> /* |@!@.ISR@>@t\.{ISR}@>|,
+  |@!@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>| */
