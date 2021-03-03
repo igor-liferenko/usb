@@ -802,7 +802,7 @@ typedef struct {
   int wString[];
 } S_string_descriptor;
 
-#define STR_DESC(str) @,@,@,@, {@, 1 + 1 + sizeof str - 2, 0x03, str @t\hskip1pt@>}
+#define STR_DESC(@!str) @,@,@,@, {@, 1 + 1 + sizeof str - 2, 0x03, str @t\hskip1pt@>}
 
 @*2 Manufacturer descriptor.
 
@@ -855,7 +855,7 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 @<Header files@>=
 #include <avr/boot.h> /* |@!boot_signature_byte_get| */
 #include <avr/interrupt.h> /* |@!@.ISR@>@t\.{ISR}@>|,
-  |@!@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>| */
+  |@!@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>|, |@!sei| */
 #include <avr/io.h> /* |@!ADDEN|, |@!ALLOC|, |@!DETACH|, |@!EORSTE|, |@!EORSTI|, |@!EPDIR|,
   |@!EPEN|, |@!EPSIZE1|, |@!EPTYPE0|, |@!EPTYPE1|, |@!FRZCLK|, |@!MCUSR|, |@!OTGPADE|, |@!PINDIV|,
   |@!PLLCSR|, |@!PLLE|, |@!PLOCK|, |@!STALLRQ|, |@!UDADDR|, |@!UDCON|, |@!UDIEN|, |@!UDINT|,
