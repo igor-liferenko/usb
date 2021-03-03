@@ -334,7 +334,7 @@ not from program.
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
-@<Get serial number@>@;
+@<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
@@ -820,9 +820,6 @@ const S_string_descriptor prod_desc
 
 This one is different in that its content cannot be prepared in compile time,
 only in execution time. So, it cannot be stored in program memory.
-Therefore, a special trick is used in |send_descriptor| (to avoid cluttering it with
-arguments): we pass a null pointer if serial number is to be transmitted.
-In |send_descriptor| |sn_desc| is filled in.
 
 @d SN_LENGTH 20 /* length of device signature, multiplied by two (because each byte in hex) */
 
@@ -836,7 +833,7 @@ struct {
 @ @d SN_START_ADDRESS 0x0E
 @d hex(c) c<10 ? c+'0' : c-10+'A'
 
-@<Get serial number@>=
+@<Fill in |sn_desc| with serial number@>=
 sn_desc.bLength = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
 sn_desc.bDescriptorType = 0x03;
 U8 addr = SN_START_ADDRESS;
@@ -859,3 +856,8 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
 #include <avr/boot.h> /* |@!boot_signature_byte_get| */
 #include <avr/interrupt.h> /* |@!@.ISR@>@t\.{ISR}@>|,
   |@!@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>| */
+#include <avr/io.h> /* |@!ADDEN|, |@!ALLOC|, |@!DETACH|, |@!EORSTE|, |@!EORSTI|, |@!EPDIR|,
+  |@!EPEN|, |@!EPSIZE1|, |@!EPTYPE0|, |@!EPTYPE1|, |@!FRZCLK|, |@!MCUSR|, |@!OTGPADE|, |@!PINDIV|,
+  |@!PLLCSR|, |@!PLLE|, |@!PLOCK|, |@!STALLRQ|, |@!UDADDR|, |@!UDCON|, |@!UDIEN|, |@!UDINT|,
+  |@!UECFG0X|, |@!UECFG1X|, |@!UECONX|, |@!UHWCON|, |@!USBCON|, |@!USBE|, |@!UVREGE|, |@!WDCE|,
+  |@!WDE|, |@!WDRF|, |@!WDTCSR| */
