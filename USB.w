@@ -10,7 +10,9 @@ volatile int connected = 0;
                   (max for atmega32u4) */
 
 @<Create ISR for connecting to USB host@>=
-@.ISR@>@t\.{ISR}@>(@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>)
+@.ISR@>@t}\begingroup\def\vb#1{\let\ =\relax\.{#1}\endgroup@>@=ISR@>
+  (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\let\ =\relax\.{#1}\endgroup@>
+  @=USB_GEN_vect@>)
 {
   UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
   if (!connected) {
