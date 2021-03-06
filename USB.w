@@ -862,3 +862,4 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
   |@!PLLCSR|, |@!PLLE|, |@!PLOCK|, |@!STALLRQ|, |@!UDADDR|, |@!UDCON|, |@!UDIEN|, |@!UDINT|,
   |@!UECFG0X|, |@!UECFG1X|, |@!UECONX|, |@!UHWCON|, |@!USBCON|, |@!USBE|, |@!UVREGE|, |@!WDCE|,
   |@!WDE|, |@!WDRF|, |@!WDTCSR| */
+#include <avr/pgmspace.h> /* |@!pgm_read_byte| */
