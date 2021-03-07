@@ -848,18 +848,3 @@ for (U8 i = 0; i < SN_LENGTH; i++) {
   else c &= 0x0F;
   sn_desc.wString[i] = hex(c);
 }
-
-@* Headers.
-
-\secpagedepth=1 % index on current page
-
-@<Header files@>=
-#include <avr/boot.h> /* |@!boot_signature_byte_get| */
-#include <avr/interrupt.h> /* |@!@.ISR@>@t\.{ISR}@>|,
-  |@!@.USB\_GEN\_vect@>@t\.{USB\_GEN\_vect}@>|, |@!sei| */
-#include <avr/io.h> /* |@!ADDEN|, |@!ALLOC|, |@!DETACH|, |@!EORSTE|, |@!EORSTI|, |@!EPDIR|,
-  |@!EPEN|, |@!EPSIZE1|, |@!EPTYPE0|, |@!EPTYPE1|, |@!FRZCLK|, |@!MCUSR|, |@!OTGPADE|, |@!PINDIV|,
-  |@!PLLCSR|, |@!PLLE|, |@!PLOCK|, |@!STALLRQ|, |@!UDADDR|, |@!UDCON|, |@!UDIEN|, |@!UDINT|,
-  |@!UECFG0X|, |@!UECFG1X|, |@!UECONX|, |@!UHWCON|, |@!USBCON|, |@!USBE|, |@!UVREGE|, |@!WDCE|,
-  |@!WDE|, |@!WDRF|, |@!WDTCSR| */
-#include <avr/pgmspace.h> /* |@!pgm_read_byte| */
