@@ -1,3 +1,0 @@
-Do USB connection not in the beginning of program, but via interrupts.
-For this we need to implement handling several
-interrupts which happen at the same time (because firmware may use other interrupt handlers except those needed for usb connection) - read chapter 4.8 in datasheet, look up "nested interrupts"

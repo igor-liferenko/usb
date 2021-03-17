@@ -1,11 +1,38 @@
 @* Establishing USB connection.
 
+On start of the firmware the variable |connected| is `0'. It is set to `1'
+after negotiation with USB host has been completed.
+The main firmware does not start executing until the USB connection has been
+established. The device which uses this USB stack implementation
+must be powered only from USB --- this guarantees that when device is powered
+the first thing we can do is to begin establishing USB connection (in a blocking
+mode\footnote*{To use non-blocking mode we must use interrupts, but firmware
+may have its own interrupt handlers and thus we would need to implement handling several
+interrupts which can happen at the same time --- for this see chapter 4.8 in datasheet,
+look up ``nested interrupts''.}). Also, \.{USB\_RESET} signal resets
+the device for this reason.
+
+This variable is used in the following two cases:
+
+1) To determine if subsequent connection negotiation packet from USB host must be read.
+
+2) To determine if \.{USB\_RESET} signal should reset the firmware or to initialize endpoint.
+
+NOTE: \.{USB\_RESET} signal is sent when device is plugged in USB port and when USB host reboots.
+
 \secpagedepth=2 % no page break on @@*1
 
 @<Global variables@>=
 volatile int connected = 0;
 
-@ @d EP0 0 /* selected by default */
+@ The pecularity of this interrupt is that we do not need to learn how to do
+``nested interrupts'', because if firmware's interrupt handler is being executed
+while \.{USB\_RESET} handler arrives, it cannot be missed because this signal is initiated several
+times by USB host and one of them will hit. And if firmware's interrupt handler
+arrives while \.{USB\_RESET} interrupt handler is being executed then it does not
+matter because device is reset.
+
+@d EP0 0 /* selected by default */
 @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
                   (max for atmega32u4) */
 
