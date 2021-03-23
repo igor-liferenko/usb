@@ -30,7 +30,7 @@ times by USB host and one of them will hit. And if firmware's interrupt handler
 arrives while \.{USB\_RESET} interrupt handler is being executed then it does not
 matter because device is reset.
 
-\.{USB\_RESET} signal is sent when device is plugged in USB port and when USB host reboots.
+\.{USB\_RESET} signal is sent when device is attached and when USB host reboots.
 
 @d EP0 0 /* selected by default */
 @d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
