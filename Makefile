@@ -16,7 +16,7 @@ clean:
 
 imgs:
 	@mpost usb
-	@perl -ne 'if (/^(.*\.eps): (.*)/) { system "convert $$2 $$1" }' Makefile
+	@perl -ne 'if (/^(.*\.eps): (.*)/) { system "convert $$2 eps2:$$1" }' Makefile
 
 test:
 	@grep -q '^@c$$' test.w || ( echo 'NO SECTION ENABLED'; false )
@@ -32,45 +32,45 @@ asm:
 .PHONY: $(wildcard *.eps)
 
 control-IN.eps: control-IN.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@ 12.5 -
 
 control-OUT.eps: control-OUT.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@ 16 -
 
 direction.eps: direction.gif
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 control-read-stages.eps: control-read-stages.gif
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 control-write-stages.eps: control-write-stages.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 transaction-IN.eps: transaction-IN.gif
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 transaction-OUT.eps: transaction-OUT.gif
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 transaction-SETUP.eps: transaction-SETUP.gif
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
 
 IN.eps: IN.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@ 14 -
 
 OUT.eps: OUT.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@ 16 -
 
 stall-control-read-with-data-stage.eps: stall-control-read-with-data-stage.png
-	@convert $< $@
+	@convert $< eps2:$@
 	@imgsize $@
