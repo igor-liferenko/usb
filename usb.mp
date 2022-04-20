@@ -1,4 +1,4 @@
-%outputtemplate:="%j.eps"; prologues:=3;
+prologues:=3;
 
 input rboxes;
 
