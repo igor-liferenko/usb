@@ -14,9 +14,9 @@ flash:
 clean:
 	@git clean -X -d -f
 
-imgs:
-	@mpost usb
-	@perl -ne 'if (/^(.*\.eps): (.*)/) { system "convert $$2 eps2:$$1" }' Makefile
+eps:
+	@mpost -interaction batchmode usb >/dev/null
+	@make --no-print-directory `grep -o '^\S*\.eps' Makefile`
 
 test:
 	@grep -q '^@c$$' test.w || ( echo 'NO SECTION ENABLED'; false )
@@ -31,46 +31,35 @@ asm:
 
 .PHONY: $(wildcard *.eps)
 
-control-IN.eps: control-IN.png
-	@convert $< eps2:$@
-	@imgsize $@ 12.5 -
+control-IN.eps:
+	@convert control-IN.png eps2:$@
 
-control-OUT.eps: control-OUT.png
-	@convert $< eps2:$@
-	@imgsize $@ 16 -
+control-OUT.eps:
+	@convert control-OUT.png eps2:$@
 
-direction.eps: direction.gif
-	@convert $< eps2:$@
-	@imgsize $@
+direction.eps:
+	@convert direction.gif eps2:$@
 
-control-read-stages.eps: control-read-stages.gif
-	@convert $< eps2:$@
-	@imgsize $@
+control-read-stages.eps:
+	@convert control-read-stages.gif eps2:$@
 
-control-write-stages.eps: control-write-stages.png
-	@convert $< eps2:$@
-	@imgsize $@
+control-write-stages.eps:
+	@convert control-write-stages.png eps2:$@
 
-transaction-IN.eps: transaction-IN.gif
-	@convert $< eps2:$@
-	@imgsize $@
+transaction-IN.eps:
+	@convert transaction-IN.gif eps2:$@
 
-transaction-OUT.eps: transaction-OUT.gif
-	@convert $< eps2:$@
-	@imgsize $@
+transaction-OUT.eps:
+	@convert transaction-OUT.gif eps2:$@
 
-transaction-SETUP.eps: transaction-SETUP.gif
-	@convert $< eps2:$@
-	@imgsize $@
+transaction-SETUP.eps:
+	@convert transaction-SETUP.gif eps2:$@
 
-IN.eps: IN.png
-	@convert $< eps2:$@
-	@imgsize $@ 14 -
+IN.eps:
+	@convert IN.png eps2:$@
 
-OUT.eps: OUT.png
-	@convert $< eps2:$@
-	@imgsize $@ 16 -
+OUT.eps:
+	@convert OUT.png eps2:$@
 
-stall-control-read-with-data-stage.eps: stall-control-read-with-data-stage.png
-	@convert $< eps2:$@
-	@imgsize $@
+stall-control-read-with-data-stage.eps:
+	@convert stall-control-read-with-data-stage.png eps2:$@
