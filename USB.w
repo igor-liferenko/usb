@@ -517,7 +517,7 @@ channels over which to carry data.
 
 \S3.4 in CDC spec.
 
-$$\epsfbox{../usb/usb.1}$$
+$$\epsfxsize 7cm \epsfbox{../usb/usb.1}$$
 
 @<Type definitions@>=
 @<Type definition{s} used in configuration descriptor@>@;
