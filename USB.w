@@ -164,37 +164,28 @@ endpoint to read {\it and\/} write control data.)}
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=../usb/direction.eps
-  clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
+$$\epsfbox{../usb/direction.eps}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=../usb/control-read-stages.eps
-  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/control-read-stages.eps}$$
 
-$$\hbox to12.5cm{\vbox to4.22cm{\vfil\special{psfile=../usb/control-IN.eps
-  clip llx=0 lly=0 urx=1206 ury=408 rwi=3543}}\hfil}$$
+$$\epsfbox{../usb/control-IN.eps}$$
 
 @ This corresponds to the following transactions:
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-SETUP.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-SETUP.eps}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-IN.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-IN.eps}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-OUT.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-OUT.eps}$$
 
 @*1 Control write (by host). There are the following
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\hbox to7.83cm{\vbox to1.23472222222222cm{\vfil\special{psfile=../usb/direction.eps
-  clip llx=0 lly=0 urx=222 ury=35 rwi=2220}}\hfil}$$
+$$\epsfbox{../usb/direction.eps}$$
 
-$$\hbox to11.28cm{\vbox to13.4055555555556cm{\vfil\special{psfile=../usb/control-write-stages.eps
-  clip llx=0 lly=0 urx=320 ury=380 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/control-write-stages.eps}$$
 
-$$\hbox to16cm{\vbox to4.39cm{\vfil\special{psfile=../usb/control-OUT.eps
-  clip llx=0 lly=0 urx=1474 ury=405 rwi=4535}}\hfil}$$
+$$\epsfbox{../usb/control-OUT.eps}$$
 
 Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
 (see \S22.12.1 in datasheet): If TXINI is already cleared when IN packet arrives, NAKINI is not
@@ -203,14 +194,11 @@ is set. This corresponds to case 2.
 
 @ This corresponds to the following transactions:
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-SETUP.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-SETUP.eps}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-OUT.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-OUT.eps}$$
 
-$$\hbox to11.28cm{\vbox to5.29166666666667cm{\vfil\special{psfile=../usb/transaction-IN.eps
-  clip llx=0 lly=0 urx=320 ury=150 rwi=3200}}\hfil}$$
+$$\epsfbox{../usb/transaction-IN.eps}$$
 
 @* Connection protocol.
 
@@ -303,9 +291,7 @@ extending USB requests).
 
 The host sends an IN token to the control pipe to initiate the DATA stage.
 
-$$\hbox to10.93cm{\vbox to5.15055555555556cm{\vfil\special{%
-  psfile=../usb/stall-control-read-with-data-stage.eps
-  clip llx=0 lly=0 urx=310 ury=146 rwi=3100}}\hfil}$$
+$$\epsfbox{../usb/stall-control-read-with-data-stage.eps}$$
 
 Note, that next token comes after \.{RXSTPI} is cleared, so we set \.{STALLRQ} before
 clearing \.{RXSTPI}, to make sure that \.{STALLRQ} is already set when next token arrives.
@@ -531,8 +517,7 @@ channels over which to carry data.
 
 \S3.4 in CDC spec.
 
-$$\hbox to7.5cm{\vbox to7.88cm{\vfil\special{psfile=../usb/usb.1
-  clip llx=0 lly=0 urx=274 ury=288 rwi=2125}}\hfil}$$
+$$\epsfbox{../usb/usb.1}$$
 
 @<Type definitions@>=
 @<Type definition{s} used in configuration descriptor@>@;
