@@ -168,7 +168,7 @@ $$\epsfbox{../usb/direction.eps}$$
 
 $$\epsfbox{../usb/control-read-stages.eps}$$
 
-$$\epsfbox{../usb/control-IN.eps}$$
+$$\epsfxsize 12.5cm \epsfbox{../usb/control-IN.eps}$$
 
 @ This corresponds to the following transactions:
 
@@ -185,7 +185,7 @@ $$\epsfbox{../usb/direction.eps}$$
 
 $$\epsfbox{../usb/control-write-stages.eps}$$
 
-$$\epsfbox{../usb/control-OUT.eps}$$
+$$\epsfxsize 16cm \epsfbox{../usb/control-OUT.eps}$$
 
 Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
 (see \S22.12.1 in datasheet): If TXINI is already cleared when IN packet arrives, NAKINI is not
