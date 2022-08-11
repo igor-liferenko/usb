@@ -15,7 +15,7 @@ clean:
 	@git clean -X -d -f
 
 eps:
-	@mpost -interaction batchmode usb >/dev/null
+	@inkscape --export-type=eps --export-ps-level=2 --export-filename=usb.eps --export-text-to-path usb.svg
 	@make --no-print-directory `grep -o '^\S*\.eps' Makefile`
 
 test:
