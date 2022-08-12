@@ -32,34 +32,34 @@ asm:
 .PHONY: $(wildcard *.eps)
 
 control-IN.eps:
-	@convert control-IN.png eps2:$@
+	@convert control-IN.png $@
 
 control-OUT.eps:
-	@convert control-OUT.png eps2:$@
+	@convert control-OUT.png $@
 
 direction.eps:
-	@convert direction.gif eps2:$@
+	@convert direction.gif $@
 
 control-read-stages.eps:
-	@convert control-read-stages.gif eps2:$@
+	@convert control-read-stages.gif $@
 
 control-write-stages.eps:
-	@convert control-write-stages.png eps2:$@
+	@convert control-write-stages.png $@
 
 transaction-IN.eps:
-	@convert transaction-IN.gif eps2:$@
+	@convert transaction-IN.gif $@
 
 transaction-OUT.eps:
-	@convert transaction-OUT.gif eps2:$@
+	@convert transaction-OUT.gif $@
 
 transaction-SETUP.eps:
-	@convert transaction-SETUP.gif eps2:$@
+	@convert transaction-SETUP.gif $@
 
 IN.eps:
-	@convert IN.png eps2:$@
+	@convert IN.png $@
 
 OUT.eps:
-	@convert OUT.png eps2:$@
+	@convert OUT.png $@
 
 stall-control-read-with-data-stage.eps:
-	@convert stall-control-read-with-data-stage.png eps2:$@
+	@convert stall-control-read-with-data-stage.png $@
