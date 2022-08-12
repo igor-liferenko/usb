@@ -6,4 +6,4 @@ There is only one stage (data). It corresponds to the following transaction(s):
 \bigskip
 $$\epsfbox{../usb/direction.eps}$$
 $$\epsfbox{../usb/transaction-IN.eps}$$
-$$\epsfbox{../usb/IN.eps}$$
+$$\epsfxsize 16cm \epsfbox{../usb/IN.eps}$$
