@@ -5,10 +5,9 @@ null
 *.dvi
 *.idx
 *.log
+*.pdf
 *.ps
 *.scn
 *.tex
 *.toc
 *.eps
-*.[0-9]
-*.mpx
