@@ -12,8 +12,6 @@
 
 %\datethis
 
-\noinx
-
 @* Testing.
 The microcontroller is ATmega32U4.
 
