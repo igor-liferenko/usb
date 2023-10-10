@@ -31,35 +31,7 @@ asm:
 
 .PHONY: $(wildcard *.eps)
 
-control-IN.eps:
-	@convert control-IN.png $@
+INKSCAPE=inkscape --export-type=eps --export-ps-level=2 -T -o $@ 2>/dev/null
 
-control-OUT.eps:
-	@convert control-OUT.png $@
-
-direction.eps:
-	@convert direction.gif $@
-
-control-read-stages.eps:
-	@convert control-read-stages.gif $@
-
-control-write-stages.eps:
-	@convert control-write-stages.png $@
-
-transaction-IN.eps:
-	@convert transaction-IN.gif $@
-
-transaction-OUT.eps:
-	@convert transaction-OUT.gif $@
-
-transaction-SETUP.eps:
-	@convert transaction-SETUP.gif $@
-
-IN.eps:
-	@convert IN.png $@
-
-OUT.eps:
-	@convert OUT.png $@
-
-stall-control-read-with-data-stage.eps:
-	@convert stall-control-read-with-data-stage.png $@
+usb.eps:
+	@$(INKSCAPE) usb.svg
