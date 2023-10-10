@@ -15,7 +15,6 @@ clean:
 	@git clean -X -d -f
 
 eps:
-	@inkscape --export-type=eps --export-ps-level=2 --export-filename=usb.eps --export-text-to-path usb.svg 2>/dev/null || inkscape -E usb.eps --export-ps-level=2 --export-text-to-path usb.svg 2>/dev/null || inkscape -E usb.eps --export-text-to-path usb.svg
 	@make --no-print-directory `grep -o '^\S*\.eps' Makefile`
 
 test:
