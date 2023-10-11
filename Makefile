@@ -30,7 +30,7 @@ asm:
 
 .PHONY: $(wildcard *.eps)
 
-INKSCAPE=inkscape --export-type=eps --export-ps-level=2 -T -o $@ 2>/dev/null
-
 usb.eps:
-	@$(INKSCAPE) usb.svg
+	@$(inkscape) usb.svg
+
+inkscape=inkscape --export-type=eps --export-ps-level=2 -T -o $@ 2>/dev/null
