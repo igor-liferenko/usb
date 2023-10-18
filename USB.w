@@ -124,7 +124,7 @@ if (WDTCSR & 1 << WDE) { /* takes 2 instructions: \.{in} (1 cycle),
     which is within 4 cycles.} */
 }
 
-@ @<Connect to USB host (must be called first; |sei| is called here)@>=
+@ @<Connect to USB host@>=
   @<Disable WDT@>@;
   UHWCON |= 1 << UVREGE;
   USBCON |= 1 << USBE;
