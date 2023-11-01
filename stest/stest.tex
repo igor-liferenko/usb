@@ -1,0 +1,102 @@
+\catcode`\"=13 \def"{\leavevmode\hbox\bgroup\let"=\egroup\def\do##1{\catcode`##1=12}\dospecials\tt}
+\nopagenumbers
+
+\newcount\lineno
+\def\setupverbatim{\tt
+  \obeylines
+  \def\do##1{\catcode`##1=12 } \dospecials
+  \obeyspaces}
+{\obeyspaces\global\let =\ }
+\def\listing#1{\par\begingroup\setupverbatim\input#1 \endgroup}
+{
+  \everypar={\advance\lineno by 1 \ifnum\lineno<60 \llap{\sevenrm \the\lineno\quad}\fi}
+  \listing{stest.txt}
+}
+\bigskip
+\noindent{\bf Overview:}\par
+\item{0.} An implicit space can be an active character (which is called ``active'' here; we must
+separate ``active space'' from ``active space-token'') or
+a control sequence.
+\item{1.} In "\ss" we branch catcode 10 or not.
+\item{2.} In "\testactive" we branch active or implicit.
+\item{3.} Parameter text for "\sss" is "#1 #2" because: if first token in token list is explicit
+space, it is matched to the space in parameter text and hence "#1" will be empty. On the other
+hand,
+if the first token
+in token list is implicit space or active space, an explicit space in the token list (if there is one --- not in the first position) or the space after the "!" (if there is no explicit space in token list) is matched to the space in parameter text, and "#1" will include all tokens in the stream before the explicit space.
+\item{4.} Each space token (if it is the first in token list) is handled via two separate routes.
+In the first route
+(via "\futurelet", which makes "\next" an implicit space token, regardless whether the space token is explicit/implicit/active) we detect catcode 10 in line 10.
+In the second route (via argument "#1" to macros "\sss" and "\ssss", which leaves each
+space token intact) we detect
+explicit/implicit/active.
+\item{5.} In line 37 we branch between active and explicit. There is a subtlety: we use "\uppercase" to turn the active character from implicit space into a macro, to prevent substituting the active character with what is inside of it, during the "\ifcat" test ("~" is a macro by default).
+\item{6.} For "ACTIVE" there are two cases:
+\itemitem{[a]} "+" $\rightarrow$ normal
+\itemitem{[b]} "+" $\rightarrow$ funny
+\item{} There are two more special cases:
+\itemitem{[c]} charcode of active character is 32 (this case may be split into two sub-cases: when
+the space, that is inside the active character, has charcode 32; and when charcode is not 32).
+\itemitem{[d]} charcode of active character and charcode, which is inside of the active character, are the same (they must not be equal to 32 --- this is a sub-case of [c]; and they must not be equal to 126 --- it is used in line 37).
+\bigskip
+\noindent\hrulefill\quad 0. Output is empty.\quad \hrulefill\null
+\smallskip
+\listing{stest0.tex}
+\medskip
+In line 8 "\next" becomes equivalent to "!". In line 10 "\ifcat" is false.
+In line 46 "#1" is "! ".
+\bigskip
+\noindent\hrulefill\quad 1. Output is {\tt SPACE EXPLICIT}\quad \hrulefill\null
+\smallskip
+\listing{stest1.tex}
+\medskip
+...
+\bigskip
+\noindent\hrulefill\quad 2. Output is {\tt SPACE FUNNY EXPLICIT}\quad \hrulefill\null
+\smallskip
+\listing{stest2.tex}
+\medskip
+...
+\bigskip
+\noindent\hrulefill\quad 3. Output is {\tt SPACE}\quad \hrulefill\null
+\smallskip
+\listing{stest3.tex}
+\medskip
+...
+\bigskip
+\noindent\hrulefill\quad 4. Output is {\tt SPACE FUNNY}\quad \hrulefill\null
+\smallskip
+\listing{stest4.tex}
+\medskip
+...
+\bigskip
+\noindent\hrulefill\quad 5. Output is {\tt SPACE ACTIVE}\quad \hrulefill\null
+\smallskip
+\listing{stest5.tex}
+\medskip
+"\testactive"${}_1$ empty
+\bigskip
+\noindent\hrulefill\quad 6. Output is {\tt SPACE ACTIVE}\quad \hrulefill\null
+\smallskip
+\listing{stest6.tex}
+\medskip
+"\testactive"${}_2$ empty
+\bigskip
+\noindent\hrulefill\quad 7. Output is {\tt SPACE ACTIVE}\quad \hrulefill\null
+\smallskip
+\listing{stest7.tex}
+\medskip
+"\testactive"${}_1$ non-empty
+\bigskip
+\noindent\hrulefill\quad 8. Output is {\tt SPACE FUNNY ACTIVE}\quad \hrulefill\null
+\smallskip
+\listing{stest8.tex}
+\medskip
+"\testactive"${}_2$ non-empty
+\bigskip
+\noindent\hrulefill\quad 9. Output is {\tt SPACE FUNNY ACTIVE}\quad \hrulefill\null
+\smallskip
+\listing{stest9.tex}
+\medskip
+"\uppercase"
+\bye

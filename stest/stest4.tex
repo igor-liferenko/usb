@@ -1,0 +1,5 @@
+\input stest.txt
+{\def\\{\global\let\ftoken= } \uccode` =`*\uppercase{\\ }}
+\newtoks\t
+\t={\ftoken}
+\stest\t \report \bye

@@ -1,0 +1,5 @@
+\input stest.txt
+{\catcode`+=\active \def\\{\global\let+= } \\ }
+\newtoks\t
+{\catcode`+=\active \global\t={+\par}}
+\stest\t \report \bye

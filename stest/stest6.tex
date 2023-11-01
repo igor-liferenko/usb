@@ -1,0 +1,5 @@
+\input stest.txt
+{\uccode`~=` \uppercase{\def\\{\global\let~= }} \uccode` =`*\uppercase{\\ }}
+\newtoks\t
+{\catcode` =\active \global\t={ \par}}
+\stest\t \report \bye

@@ -1,0 +1,5 @@
+\input stest.txt
+{\uccode` =`*\uppercase{\gdef\fspace{ }}}
+\newtoks\t
+\t=\expandafter{\fspace}
+\stest\t \report \bye
