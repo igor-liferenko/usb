@@ -1,5 +1,5 @@
 \newif\ifspace \newif\iffunny \newif\ifexplicit \newif\ifactive
-\def\stest#1{%\tracingmacros=2 \tracingonline=1
+\def\stest#1{
   \funnyfalse
   \expandafter\s\the#1! \stest}
 \def\s{
