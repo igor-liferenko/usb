@@ -1,131 +1,22 @@
 @* Establishing USB connection.
 
-On start of the firmware the variable |connected| is `0'. It is set to `1'
-after negotiation with USB host has been completed.
-The main firmware does not start executing until the USB connection has been
-established. The device which uses this USB stack implementation
-must be powered only from USB --- this guarantees that when device is powered on
-the first thing we can do is to begin establishing USB connection (in a blocking
-mode\footnote*{To use non-blocking mode we must use interrupts, but firmware
-may have its own interrupt handlers and thus we would need to implement handling several
-interrupts which can happen at the same time --- for this see chapter 4.8 in datasheet,
-look up ``nested interrupts''.}). Also, \.{USB\_RESET} signal resets
-the device for this reason.
-
-This variable is used in the following two cases:
-
-1) To determine if subsequent connection negotiation packet from USB host must be read.
-
-2) To determine if \.{USB\_RESET} signal should reset the firmware or to initialize endpoint.
-
-\secpagedepth=2 % no page break on @@*1
-
-@<Global variables@>=
-volatile int connected = 0;
-
-@ The pecularity of this interrupt is that we do not need to learn how to do
-``nested interrupts'', because if firmware's interrupt handler is being executed
-while \.{USB\_RESET} handler arrives, it cannot be missed because this signal is initiated several
-times by USB host and one of them will hit. And if firmware's interrupt handler
-arrives while \.{USB\_RESET} interrupt handler is being executed then it does not
-matter because device is reset.
-
-\.{USB\_RESET} signal is sent when device is attached and when USB host reboots.
+@ \.{USB\_RESET} signal is sent when device is attached and when USB host reboots.
 
 @d EP0 0 /* selected by default */
-@d EP0_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP0|.}
-                  (max for atmega32u4) */
+@d EP0_SIZE 32 /* 32 bytes */
 
 @<Create ISR for connecting to USB host@>=
 @.ISR@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=ISR@>
   (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=USB_GEN_vect@>)
 {
   UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
-  if (!connected) {
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     UECFG1X |= 1 << ALLOC;
-  }
-  else {
-    @<Reset MCU@>@;
-  }
-}
-
-@ Used in USB\_RESET interrupt handler.
-Reset is used to go to beginning of connection loop (because we cannot
-use \&{goto} from within interrupt handler). Watchdog reset is used because
-in atmega32u4 there is no simpler way to reset MCU.
-
-@<Reset MCU@>=
-WDTCSR |= 1 << WDCE | 1 << WDE; /* allow to enable WDT */
-WDTCSR = 1 << WDE; /* enable WDT */
-while (1) ;
-
-@ When reset is done via watchdog, WDRF (WatchDog Reset Flag) is set in MCUSR register.
-WDE (WatchDog system reset Enable) is always set in WDTCSR when WDRF is set. It
-is necessary to clear WDE to stop MCU from eternal resetting:
-on MCU start we always clear |WDRF| and WDE
-(nothing will change if they are not set).
-To avoid unintentional changes of WDE, a special write procedure must be followed
-to change the WDE bit. To clear WDE, WDRF must be cleared first.
-
-Datasheet says that |WDE| is always set to one when |WDRF| is set to one,
-but it does not say if |WDE| is always set to zero when |WDRF| is not set
-(by default it is zero).
-So we must always clear |WDE| independent of |WDRF|.
-
-This should be done right at the beginning of |main|, in order to be in
-time before WDT is triggered.
-We don't call \\{wdt\_reset} because initialization code,
-that \.{avr-gcc} adds, has enough time to execute before watchdog
-timer (16ms in this program) expires:
-
-$$\vbox{\halign{\tt#\cr
-  eor r1, r1 (1 cycle)\cr
-  out 0x3f, r1 (1 cycle)\cr
-  ldi r28, 0xFF (1 cycle)\cr
-  ldi r29, 0x0A (1 cycle)\cr
-  out 0x3e, r29 (1 cycle)\cr
-  out 0x3d, r28 (1 cycle)\cr
-  call <main> (4 cycles)\cr
-}}$$
-
-At 16MHz each cycle is 62.5 nanoseconds, so it is 7 instructions,
-taking 10 cycles, multiplied by 62.5 is 625 nanoseconds.
-
-What the above code does: zero r1 register, clear SREG, initialize program stack
-(to the stack processor writes addresses for returning from subroutines and interrupt
-handlers). To the stack pointer is written address of last cell of RAM.
-
-Note, that ns is $10^{-9}$, \kern1pt{\greek u}s is $10^{-6}$ and ms is $10^{-3}$.
-
-@<Disable WDT@>=
-if (MCUSR & 1 << WDRF) /* takes 2 instructions if |WDRF| is set to one:
-    \.{in} (1 cycle),
-    \.{sbrs} (2 cycles), which is 62.5*3 = 187.5 nanoseconds
-    more, but still within 16ms; and it takes 5 instructions if |WDRF|
-    is not set: \.{in} (1 cycle), \.{sbrs} (2 cycles), \.{rjmp} (2 cycles),
-    which is 62.5*5 = 312.5 ns more, but still within 16ms */
-  MCUSR &= ~(1 << WDRF); /* takes 3 instructions: \.{in} (1 cycle),
-    \.{andi} (1 cycle), \.{out} (1 cycle), which is 62.5*3 = 187.5 nanoseconds
-    more, but still within 16ms */
-if (WDTCSR & 1 << WDE) { /* takes 2 instructions: \.{in} (1 cycle),
-    \.{sbrs} (2 cycles), which is 62.5*3 = 187.5 nanoseconds
-    more, but still within 16ms */
-  WDTCSR |= 1 << WDCE; /* allow to disable WDT (\.{lds} (2 cycles), \.{ori}
-    (1 cycle), \.{sts} (2 cycles)), which is 62.5*5 = 312.5 ns more, but
-    still within 16ms) */
-  WDTCSR = 0x00; /* disable WDT (\.{sts} (2 cycles), which is 62.5*2 = 125 ns more,
-    but still within 16ms)\footnote*{`|&=|' must not be used here, because
-    the following instructions will be used: \.{lds} (2 cycles),
-    \.{andi} (1 cycle), \.{sts} (2 cycles), but according to datasheet \S8.2
-    this must not exceed 4 cycles, whereas with `|=|' at most the
-    following instructions are used: \.{ldi} (1 cycle) and \.{sts} (2 cycles),
-    which is within 4 cycles.} */
+/* TODO: clear endpoint here */
 }
 
 @ @<Connect to USB host@>=
-  @<Disable WDT@>@;
   UHWCON |= 1 << UVREGE;
   USBCON |= 1 << USBE;
   PLLCSR = 1 << PINDIV;
@@ -140,10 +31,6 @@ if (WDTCSR & 1 << WDE) { /* takes 2 instructions: \.{in} (1 cycle),
     must be already set up; also, there is no need to detect when VBUS becomes
     high ---~USB\_RESET can arrive only after VBUS is operational anyway, and
     USB\_RESET is detected via interrupt */
-
-  while (!connected)
-    if (UEINTX & 1 << RXSTPI)
-      @<Process SETUP request@>@;
 
 @* Control endpoint management.
 (WARNING: these images are incomplete --- they do not show possible handshake
@@ -244,6 +131,9 @@ case 0x0900: @/
   break;
 case 0x2021: @/
   @<Handle {\caps set line coding}@>@;
+  break;
+case 0x2221: @/
+  @<Handle {\caps set control line state}@>@;
   break;
 }
 
