@@ -10,10 +10,13 @@
   (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=USB_GEN_vect@>)
 {
   UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
+    UENUM = EP0;
+    UECONX &= ~(1 << EPEN);
+    UECFG1X &= ~(1 << ALLOC);
     UECONX |= 1 << EPEN;
+    UECFG0X = 0;
     UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
     UECFG1X |= 1 << ALLOC;
-/* TODO: clear endpoint here */
 }
 
 @ @<Connect to USB host@>=
@@ -257,6 +260,8 @@ see ``Communication Class notification endpoint notice'' in index).
 UEINTX &= ~(1 << RXSTPI);
 
 UENUM = EP3;
+UECONX &= ~(1 << EPEN);
+UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag{Must
   correspond to |@<Initialize element 6 ...@>|.}, IN */
@@ -264,6 +269,8 @@ UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.
 UECFG1X |= 1 << ALLOC;
 
 UENUM = EP1;
+UECONX &= ~(1 << EPEN);
+UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1 | 1 << EPDIR; /* bulk\footnote\dag{Must
   correspond to |@<Initialize element 8 ...@>|.}, IN */
@@ -271,6 +278,8 @@ UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP1_SIZE|.
 UECFG1X |= 1 << ALLOC;
 
 UENUM = EP2;
+UECONX &= ~(1 << EPEN);
+UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1; /* bulk\footnote\dag{Must
   correspond to |@<Initialize element 9 ...@>|.}, OUT */
@@ -288,7 +297,22 @@ UEINTX &= ~(1 << RXSTPI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
-connected = 1;
+
+@ {\caps set control line state} requests are sent automatically by the driver when
+TTY is opened and closed.
+
+See \S6.2.14 in CDC spec.
+
+@<Handle {\caps set control line state}@>=
+  int dtr_rts = UEDATX | UEDATX << 8;
+  UEINTX &= ~(1 << RXSTPI);
+  UEINTX &= ~(1 << TXINI); /* STATUS stage */
+  if (dtr_rts == 0) { /* blank the display when TTY is closed */
+    for (uint8_t row = 0; row < 8; row++)
+      for (uint8_t col = 0; col < NUM_DEVICES*8; col++)
+        buffer[row][col] = 0x00;
+    @<Display buffer@>@;
+  }
 
 @ @<Global variables@>=
 U16 size;
