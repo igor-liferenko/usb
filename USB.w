@@ -292,14 +292,14 @@ while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
-@ @<Global...@>=@+int dtr_rts;
 @ {\caps set control line state} requests are sent automatically by the driver when
 TTY is opened and closed.
 
 See \S6.2.14 in CDC spec.
 
 @<Handle {\caps set control line state}@>=
-  dtr_rts = UEDATX | UEDATX << 8;
+  ; /* error: a label can only be part of a statement and a declaration is not a statement */
+  int dtr_rts = UEDATX | UEDATX << 8;
   UEINTX &= ~(1 << RXSTPI);
   UEINTX &= ~(1 << TXINI); /* STATUS stage */
   if (dtr_rts == 0) { /* blank the display when TTY is closed */
