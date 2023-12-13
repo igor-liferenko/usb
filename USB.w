@@ -19,7 +19,7 @@
     UECFG1X |= 1 << ALLOC;
 }
 
-@ @<Setup USB@>=
+@ @<Setup USB Controller@>=
   UHWCON |= 1 << UVREGE;
   USBCON |= 1 << USBE;
   PLLCSR = 1 << PINDIV;
@@ -253,15 +253,6 @@ see ``Communication Class notification endpoint notice'' in index).
 @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 
-UENUM = EP3;
-UECONX &= ~(1 << EPEN);
-UECFG1X &= ~(1 << ALLOC);
-UECONX |= 1 << EPEN;
-UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag{Must
-  correspond to |@<Initialize element 6 ...@>|.}, IN */
-UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.} */
-UECFG1X |= 1 << ALLOC;
-
 UENUM = EP1;
 UECONX &= ~(1 << EPEN);
 UECFG1X &= ~(1 << ALLOC);
@@ -278,6 +269,15 @@ UECONX |= 1 << EPEN;
 UECFG0X = 1 << EPTYPE1; /* bulk\footnote\dag{Must
   correspond to |@<Initialize element 9 ...@>|.}, OUT */
 UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP2_SIZE|.} */
+UECFG1X |= 1 << ALLOC;
+
+UENUM = EP3;
+UECONX &= ~(1 << EPEN);
+UECFG1X &= ~(1 << ALLOC);
+UECONX |= 1 << EPEN;
+UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag{Must
+  correspond to |@<Initialize element 6 ...@>|.}, IN */
+UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.} */
 UECFG1X |= 1 << ALLOC;
 
 UENUM = EP0; /* restore for further setup requests */
