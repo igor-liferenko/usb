@@ -240,7 +240,7 @@ buf = &sn_desc;
 from_program = 0;
 @<Send descriptor@>@;
 
-@ Interrupt IN endpoint is not used, but it must be present (for more info
+@ Endpoint 3 (interrupt IN) is not used, but it must be present (for more info
 see ``Communication Class notification endpoint notice'' in index).
 
 @d EP1 1
@@ -280,7 +280,7 @@ UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag{Mu
 UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.} */
 UECFG1X |= 1 << ALLOC;
 
-UENUM = EP0; /* restore for further setup requests */
+UENUM = EP0;
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ Just discard the data.
