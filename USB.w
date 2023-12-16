@@ -10,6 +10,8 @@
   (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=USB_GEN_vect@>)
 {
   UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
+    UERST = 0x0f;
+    UERST = 0;
     UENUM = EP0;
     UECONX &= ~(1 << EPEN);
     UECFG1X &= ~(1 << ALLOC);
