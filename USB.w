@@ -140,9 +140,8 @@ send a ZLP in advance.
 
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
-UDADDR = wValue & 0x7F;
 UEINTX &= ~(1 << RXSTPI);
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UDADDR = wValue;
 while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command, is
   sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
   firmware must send ZLP in the STATUS stage before enabling the new address.
@@ -153,6 +152,7 @@ while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command
   See ``Control write (by host)'' in table of contents for the picture (note that DATA
   stage is absent).} */
 UDADDR |= 1 << ADDEN;
+UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ When host is booting, BIOS asks 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
@@ -164,9 +164,14 @@ transfer more, host does not send OUT packet to initiate STATUS stage.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = sizeof dev_desc;
+if (wLength > sizeof dev_desc) size = sizeof dev_desc; // 18 bytes
+else size = wLength;
 buf = &dev_desc;
-@<Send descriptor@>@;
+while (!(UEINTX & _BV(TXINI))) { }
+while (size--) UEDATX = pgm_read_byte(buf++);
+UEINTX &= ~_BV(TXINI);
+while (!(UEINTX & _BV(RXOUTI))) { } 
+UEINTX &= ~_BV(RXOUTI);                  
 
 @ A high-speed capable device that has different device information for full-speed and high-speed
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
@@ -199,33 +204,56 @@ UEINTX &= ~(1 << RXSTPI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = sizeof conf_desc;
+if (wLength > sizeof conf_desc) size = sizeof conf_desc; // 62 bytes
+else size = wLength;
 buf = &conf_desc;
-@<Send descriptor@>@;
+while (size) {
+  U8 nb_byte = 0;
+  while (!(UEINTX & _BV(TXINI))) { }
+  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++);
+  UEINTX &= ~_BV(TXINI);
+}
+while (!(UEINTX & _BV(RXOUTI))) { } 
+UEINTX &= ~_BV(RXOUTI);                  
 
 @ @<Handle {\caps get descriptor string} (language)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = sizeof lang_desc;
+if (wLength > sizeof lang_desc) size = sizeof lang_desc; // 4 bytes
+else size = wLength;
 buf = lang_desc;
-@<Send descriptor@>@;
+while (!(UEINTX & _BV(TXINI))) { }
+while (size--) UEDATX = pgm_read_byte(buf++);
+UEINTX &= ~_BV(TXINI);
+while (!(UEINTX & _BV(RXOUTI))) { }
+UEINTX &= ~_BV(RXOUTI);
 
 @ @<Handle {\caps get descriptor string} (manufacturer)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = pgm_read_byte(&mfr_desc.bLength);
+if (wLength > pgm_read_byte(&mfr_desc.bLength)) size = pgm_read_byte(&mfr_desc.bLength); // 12
+else size = wLength;
 buf = &mfr_desc;
-@<Send descriptor@>@;
+while (!(UEINTX & _BV(TXINI))) { }
+while (size--) UEDATX = pgm_read_byte(buf++);
+UEINTX &= ~_BV(TXINI);
+while (!(UEINTX & _BV(RXOUTI))) { }
+UEINTX &= ~_BV(RXOUTI);
 
 @ @<Handle {\caps get descriptor string} (product)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = pgm_read_byte(&prod_desc.bLength);
+if (wLength > pgm_read_byte(&prod_desc.bLength)) size = pgm_read_byte(&prod_desc.bLength); // 8
+else size = wLength;
 buf = &prod_desc;
-@<Send descriptor@>@;
+while (!(UEINTX & _BV(TXINI))) { }
+while (size--) UEDATX = pgm_read_byte(buf++);
+UEINTX &= ~_BV(TXINI);
+while (!(UEINTX & _BV(RXOUTI))) { }
+UEINTX &= ~_BV(RXOUTI);
 
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
@@ -234,11 +262,18 @@ not from program.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+if (wLength > (1 + 1 + SN_LENGTH * 2)) size = 1 + 1 + SN_LENGTH * 2; // 42
+else size = wLength;
 @<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
-from_program = 0;
-@<Send descriptor@>@;
+while (size) {
+  U8 nb_byte = 0;
+  while (!(UEINTX & _BV(TXINI))) { }
+  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++;
+  UEINTX &= ~_BV(TXINI);
+}
+while (!(UEINTX & _BV(RXOUTI))) { }
+UEINTX &= ~_BV(RXOUTI);
 
 @ Endpoint 3 (interrupt IN) is not used, but it must be present (for more info
 see ``Communication Class notification endpoint notice'' in index).
@@ -281,15 +316,20 @@ UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.
 UECFG1X |= 1 << ALLOC;
 
 UENUM = EP0;
+while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ Just discard the data.
 This is the last request after attachment to host.
 
 @<Handle {\caps set line coding}@>=
+wValue = UEDATX | UEDATX << 8; /* Zero */
+wIndex = UEDATX | UEDATX << 8; /* Interface */
+wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
 UEINTX &= ~(1 << RXOUTI);
+while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
 
 @ {\caps set control line state} requests are sent automatically by the driver when
@@ -298,11 +338,11 @@ TTY is opened and closed.
 See \S6.2.14 in CDC spec.
 
 @<Handle {\caps set control line state}@>=
-  ; /* error: a label can only be part of a statement and a declaration is not a statement */
-  int dtr_rts = UEDATX | UEDATX << 8;
+wValue = UEDATX | UEDATX << 8;
   UEINTX &= ~(1 << RXSTPI);
+while (!(UEINTX & _BV(TXINI))) { }
   UEINTX &= ~(1 << TXINI); /* STATUS stage */
-  if (dtr_rts == 0) { /* blank the display when TTY is closed */
+  if (wValue == 0) { /* blank the display when TTY is closed */
     for (uint8_t row = 0; row < 8; row++)
       for (uint8_t col = 0; col < NUM_DEVICES*8; col++)
         buffer[row][col] = 0x00;
