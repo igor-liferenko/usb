@@ -216,12 +216,12 @@ while (size) {
 while (!(UEINTX & _BV(RXOUTI))) { } 
 UEINTX &= ~_BV(RXOUTI);                  
 
-@ |wLength| is 255.
-@<Handle {\caps get descriptor string} (language)@>=
+@ @<Handle {\caps get descriptor string} (language)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = sizeof lang_desc;
+if (wLength > sizeof lang_desc) size = sizeof lang_desc;
+else size = wLength;
 buf = lang_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -229,12 +229,13 @@ UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ |wLength| is 255.
-@<Handle {\caps get descriptor string} (manufacturer)@>=
+@ @<Handle {\caps get descriptor string} (manufacturer)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = pgm_read_byte(&mfr_desc.bLength); // TODO: change struct and replace with sizeof
+if (wLength > pgm_read_byte(&mfr_desc.bLength)) size = pgm_read_byte(&mfr_desc.bLength);
+  // TODO: change struct and replace with sizeof
+else size = wLength;
 buf = &mfr_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -242,12 +243,13 @@ UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ |wLength| is 255.
-@<Handle {\caps get descriptor string} (product)@>=
+@ @<Handle {\caps get descriptor string} (product)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = pgm_read_byte(&prod_desc.bLength); // TODO: change struct and replace with sizeof
+if (wLength > pgm_read_byte(&prod_desc.bLength)) size = pgm_read_byte(&prod_desc.bLength);
+  // TODO: change struct and replace with sizeof
+else size = wLength;
 buf = &prod_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -257,12 +259,13 @@ UEINTX &= ~_BV(RXOUTI);
 
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
-|wLength| is 255.
+
 @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = 1 + 1 + SN_LENGTH * 2;
+if (wLength > (1 + 1 + SN_LENGTH * 2)) size = 1 + 1 + SN_LENGTH * 2;
+else size = wLength;
 @<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
 while (size) {
