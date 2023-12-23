@@ -141,7 +141,7 @@ send a ZLP in advance.
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-UDADDR = wValue;
+UDADDR = wValue & 0x7f;
 while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command, is
   sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
   firmware must send ZLP in the STATUS stage before enabling the new address.
@@ -151,8 +151,8 @@ while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command
   succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
   See ``Control write (by host)'' in table of contents for the picture (note that DATA
   stage is absent).} */
-UDADDR |= 1 << ADDEN;
 UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UDADDR |= 1 << ADDEN;
 
 @ When host is booting, BIOS asks 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
