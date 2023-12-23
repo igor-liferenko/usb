@@ -323,6 +323,8 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 @ Just discard the data.
 This is the last request after attachment to host.
 
+This is data (7 bytes): 80 25 00 00 00 00 08
+
 @<Handle {\caps set line coding}@>=
 wValue = UEDATX | UEDATX << 8; /* Zero */
 wIndex = UEDATX | UEDATX << 8; /* Interface */
