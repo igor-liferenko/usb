@@ -270,7 +270,7 @@ buf = &sn_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++;
+  while (size && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++, size--;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { }
