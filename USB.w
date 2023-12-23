@@ -149,6 +149,7 @@ send a ZLP in advance.
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
+UEINTX &= ~_BV(TXINI); /* magic packet? */
 UDADDR = wValue & 0x7f;
 while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
@@ -209,13 +210,14 @@ buf = &conf_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++);
+  while (size && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++), size--;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { } 
 UEINTX &= ~_BV(RXOUTI);                  
 
-@ @<Handle {\caps get descriptor string} (language)@>=
+@ |wLength| is 255.
+@<Handle {\caps get descriptor string} (language)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
@@ -227,7 +229,8 @@ UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ @<Handle {\caps get descriptor string} (manufacturer)@>=
+@ |wLength| is 255.
+@<Handle {\caps get descriptor string} (manufacturer)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
@@ -239,7 +242,8 @@ UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ @<Handle {\caps get descriptor string} (product)@>=
+@ |wLength| is 255.
+@<Handle {\caps get descriptor string} (product)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
@@ -253,7 +257,7 @@ UEINTX &= ~_BV(RXOUTI);
 
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
-
+|wLength| is 255.
 @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
@@ -314,7 +318,8 @@ UENUM = 0;
 while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 
-@ Just discard the data.
+@ This is data (7 bytes): 80 25 00 00 00 00 08
+Just discard the data.
 This is the last request after attachment to host.
 
 @<Handle {\caps set line coding}@>=
