@@ -277,12 +277,9 @@ UEINTX &= ~_BV(RXOUTI);
 @ Endpoint 3 (interrupt IN) is not used, but it must be present (for more info
 see ``Communication Class notification endpoint notice'' in index).
 
-@d EP1 1
-@d EP2 2
-@d EP3 3
-@d EP1_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP1|.} */
-@d EP2_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP2|.} */
-@d EP3_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of |EP3|.} */
+@d EP1_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of EP1.} */
+@d EP2_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of EP2.} */
+@d EP3_SIZE 32 /* 32 bytes\footnote\dag{Must correspond to |UECFG1X| of EP3.} */
 
 @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
@@ -547,7 +544,7 @@ so rate is maximum possible).
   0x05, /* endpoint */
   IN | 3, /* this corresponds to `3' in `ep3' on picture */
   0x03, /* transfers via interrupts\footnote\dag{Must correspond to
-    |UECFG0X| of |EP3|.} */
+    |UECFG0X| of EP3.} */
   EP3_SIZE, @/
 @t\2@> 0xFF /* 256 (FIXME: is it `ms'?) */
 }
@@ -557,7 +554,7 @@ so rate is maximum possible).
   0x05, /* endpoint */
   IN | 1, /* this corresponds to `1' in `ep1' on picture */
   0x02, /* bulk transfers\footnote\dag{Must correspond to
-    |UECFG0X| of |EP1|.} */
+    |UECFG0X| of EP1.} */
   EP1_SIZE, @/
 @t\2@> 0x00 /* not applicable */
 }
@@ -569,7 +566,7 @@ so rate is maximum possible).
   0x05, /* endpoint */
   OUT | 2, /* this corresponds to `2' in `ep2' on picture */
   0x02, /* bulk transfers\footnote\dag{Must correspond to
-    |UECFG0X| of |EP2|.} */
+    |UECFG0X| of EP2.} */
   EP2_SIZE, @/
 @t\2@> 0x00 /* not applicable */
 }
