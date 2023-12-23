@@ -141,6 +141,7 @@ send a ZLP in advance.
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~_BV(TXINI); /* magic packet? */
 UDADDR = wValue & 0x7f;
 while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command, is
   sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
