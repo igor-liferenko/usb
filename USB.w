@@ -169,7 +169,7 @@ if (wLength > sizeof dev_desc) size = sizeof dev_desc;
 else size = wLength;
 buf = &dev_desc;
 while (!(UEINTX & _BV(TXINI))) { }
-while (size) UEDATX = pgm_read_byte(buf++), size--;
+while (size--) UEDATX = pgm_read_byte(buf++);
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { } 
 UEINTX &= ~_BV(RXOUTI);                  
