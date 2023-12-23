@@ -168,7 +168,7 @@ if (wLength > sizeof dev_desc) size = sizeof dev_desc;
 else size = wLength;
 buf = &dev_desc;
 while (!(UEINTX & _BV(TXINI))) { }
-while (size--) UEDATX = pgm_read_byte(buf++);
+while (size) UEDATX = pgm_read_byte(buf++), size--;
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { } 
 UEINTX &= ~_BV(RXOUTI);                  
@@ -219,7 +219,7 @@ UEINTX &= ~_BV(RXOUTI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = wLength;
+size = sizeof lang_desc;
 buf = lang_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -231,7 +231,7 @@ UEINTX &= ~_BV(RXOUTI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = wLength;
+size = pgm_read_byte(&mfr_desc.bLength); // TODO: change struct and replace with sizeof
 buf = &mfr_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -243,7 +243,7 @@ UEINTX &= ~_BV(RXOUTI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = wLength;
+size = pgm_read_byte(&prod_desc.bLength); // TODO: change struct and replace with sizeof
 buf = &prod_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -258,13 +258,13 @@ not from program.
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-size = wLength;
+size = 1 + 1 + SN_LENGTH * 2;
 @<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++;
+  while (size && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++, size--;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { }
