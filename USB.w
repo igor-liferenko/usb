@@ -2,32 +2,31 @@
 
 @ \.{USB\_RESET} signal is sent when device is attached and when USB host reboots.
 
-@d EP0 0 /* selected by default */
 @d EP0_SIZE 32 /* 32 bytes */
 
 @<Create ISR for connecting to USB host@>=
 @.ISR@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=ISR@>
   (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=USB_GEN_vect@>)
 {
-  UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
-    UENUM = EP0;
-    UECONX &= ~(1 << EPEN);
-    UECFG1X &= ~(1 << ALLOC);
-    UECONX |= 1 << EPEN;
-    UECFG0X = 0;
-    UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
-    UECFG1X |= 1 << ALLOC;
+  UDINT &= ~_BV(EORSTI);
+  UENUM = 0;
+  UECONX &= ~_BV(EPEN);
+  UECFG1X &= ~_BV(ALLOC);
+  UECONX |= _BV(EPEN);
+  UECFG0X = 0;
+  UECFG1X = _BV(EPSIZE1); /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
+  UECFG1X |= _BV(ALLOC);
 }
 
 @ @<Setup USB Controller@>=
-  UHWCON |= 1 << UVREGE;
-  USBCON |= 1 << USBE;
-  PLLCSR = 1 << PINDIV;
-  PLLCSR |= 1 << PLLE;
-  while (!(PLLCSR & 1 << PLOCK)) ;
-  USBCON &= ~(1 << FRZCLK);
-  USBCON |= 1 << OTGPADE;
-  UDIEN |= 1 << EORSTE;
+  UHWCON |= _BV(UVREGE);
+  USBCON |= _BV(USBE);
+  PLLCSR = _BV(PINDIV);
+  PLLCSR |= _BV(PLLE);
+  while (!(PLLCSR & _BV(PLOCK))) { }
+  USBCON &= ~_BV(FRZCLK);
+  USBCON |= _BV(OTGPADE);
+  UDIEN |= _BV(EORSTE);
 
 @* Control endpoint management.
 (WARNING: these images are incomplete --- they do not show possible handshake
@@ -90,16 +89,25 @@ $$\epsfbox{../usb/transaction-IN.eps}$$
 U16 wValue;
 U16 wIndex;
 U16 wLength;
+U16 size;
+const void *buf;
 
 @ The following big switch just dispatches SETUP request.
+If the name of request begins with {\caps set} - it is host to device.
+Data is sent via OUT in data stage.
+Confirmation is done via IN with no data.
+If the name of request begins with {\caps get} - it is device to host.
+Data is sent via IN in data stage.
+Confirmation is done via OUT with no data.
+If |wLength| is not read, it is zero (no data stage).
 
 @<Process CONTROL packet@>=
-switch (UEDATX | UEDATX << 8) {
+switch (UEDATX | UEDATX << 8) { /* Request and Request Type */
 case 0x0500: @/
   @<Handle {\caps set address}@>@;
   break;
 case 0x0680: @/
-  switch (UEDATX | UEDATX << 8) {
+  switch (UEDATX | UEDATX << 8) { /* Descriptor Type and Descriptor Index */
   case 0x0100: @/
     @<Handle {\caps get descriptor device}\null@>@;
     break;
@@ -109,13 +117,13 @@ case 0x0680: @/
   case 0x0300: @/
     @<Handle {\caps get descriptor string} (language)@>@;
     break;
-  case 0x03 << 8 | MANUFACTURER: @/
+  case 0x0300 | MANUFACTURER: @/
     @<Handle {\caps get descriptor string} (manufacturer)@>@;
     break;
-  case 0x03 << 8 | PRODUCT: @/
+  case 0x0300 | PRODUCT: @/
     @<Handle {\caps get descriptor string} (product)@>@;
     break;
-  case 0x03 << 8 | SERIAL_NUMBER: @/
+  case 0x0300 | SERIAL_NUMBER: @/
     @<Handle {\caps get descriptor string} (serial)@>@;
     break;
   case 0x0600: @/
@@ -140,20 +148,11 @@ send a ZLP in advance.
 
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-UEINTX &= ~_BV(TXINI); /* magic packet? */
+UEINTX &= ~_BV(RXSTPI);
 UDADDR = wValue & 0x7f;
-while (!(UEINTX & 1 << TXINI)) ; /* wait until ZLP, prepared by previous command, is
-  sent to host\footnote{$\sharp$}{According to \S22.7 of the datasheet,
-  firmware must send ZLP in the STATUS stage before enabling the new address.
-  The reason is that the request started by using zero address, and all the stages of the
-  request must use the same address.
-  Otherwise STATUS stage will not complete, and thus set address request will not
-  succeed. We can determine when ZLP is sent by receiving the ACK, which sets TXINI to 1.
-  See ``Control write (by host)'' in table of contents for the picture (note that DATA
-  stage is absent).} */
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
-UDADDR |= 1 << ADDEN;
+while (!(UEINTX & 1 << TXINI)) { }
+UEINTX &= ~_BV(TXINI);
+UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 
 @ When host is booting, BIOS asks 8 bytes in first request of device descriptor (8 bytes is
 sufficient for first request of device descriptor). If host is operational,
@@ -164,8 +163,8 @@ transfer more, host does not send OUT packet to initiate STATUS stage.
 @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-if (wLength > sizeof dev_desc) size = sizeof dev_desc; // 18 bytes
+UEINTX &= ~_BV(RXSTPI);
+if (wLength > sizeof dev_desc) size = sizeof dev_desc;
 else size = wLength;
 buf = &dev_desc;
 while (!(UEINTX & _BV(TXINI))) { }
@@ -205,13 +204,12 @@ UEINTX &= ~(1 << RXSTPI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-if (wLength > sizeof conf_desc) size = sizeof conf_desc; // 62 bytes
-else size = wLength;
+size = wLength;
 buf = &conf_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++), size--;
+  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++);
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { } 
@@ -220,9 +218,8 @@ UEINTX &= ~_BV(RXOUTI);
 @ @<Handle {\caps get descriptor string} (language)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-if (wLength > sizeof lang_desc) size = sizeof lang_desc; // 4 bytes
-else size = wLength;
+UEINTX &= ~_BV(RXSTPI);
+size = wLength;
 buf = lang_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -233,9 +230,8 @@ UEINTX &= ~_BV(RXOUTI);
 @ @<Handle {\caps get descriptor string} (manufacturer)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-if (wLength > pgm_read_byte(&mfr_desc.bLength)) size = pgm_read_byte(&mfr_desc.bLength); // 12
-else size = wLength;
+UEINTX &= ~_BV(RXSTPI);
+size = wLength;
 buf = &mfr_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -246,9 +242,8 @@ UEINTX &= ~_BV(RXOUTI);
 @ @<Handle {\caps get descriptor string} (product)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-if (wLength > pgm_read_byte(&prod_desc.bLength)) size = pgm_read_byte(&prod_desc.bLength); // 8
-else size = wLength;
+UEINTX &= ~_BV(RXSTPI);
+size = wLength;
 buf = &prod_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
@@ -262,15 +257,14 @@ not from program.
 @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-if (wLength > (1 + 1 + SN_LENGTH * 2)) size = 1 + 1 + SN_LENGTH * 2; // 42
-else size = wLength;
+UEINTX &= ~_BV(RXSTPI);
+size = wLength;
 @<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++, size--;
+  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { }
@@ -289,7 +283,7 @@ see ``Communication Class notification endpoint notice'' in index).
 @<Handle {\caps set configuration}@>=
 UEINTX &= ~(1 << RXSTPI);
 
-UENUM = EP1;
+UENUM = 1;
 UECONX &= ~(1 << EPEN);
 UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
@@ -298,7 +292,7 @@ UECFG0X = 1 << EPTYPE1 | 1 << EPDIR; /* bulk\footnote\dag{Must
 UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP1_SIZE|.} */
 UECFG1X |= 1 << ALLOC;
 
-UENUM = EP2;
+UENUM = 2;
 UECONX &= ~(1 << EPEN);
 UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
@@ -307,7 +301,7 @@ UECFG0X = 1 << EPTYPE1; /* bulk\footnote\dag{Must
 UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP2_SIZE|.} */
 UECFG1X |= 1 << ALLOC;
 
-UENUM = EP3;
+UENUM = 3;
 UECONX &= ~(1 << EPEN);
 UECFG1X &= ~(1 << ALLOC);
 UECONX |= 1 << EPEN;
@@ -316,24 +310,19 @@ UECFG0X = 1 << EPTYPE1 | 1 << EPTYPE0 | 1 << EPDIR; /* interrupt\footnote\dag{Mu
 UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.} */
 UECFG1X |= 1 << ALLOC;
 
-UENUM = EP0;
+UENUM = 0;
 while (!(UEINTX & _BV(TXINI))) { }
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UEINTX &= ~_BV(TXINI);
 
 @ Just discard the data.
 This is the last request after attachment to host.
 
-This is data (7 bytes): 80 25 00 00 00 00 08
-
 @<Handle {\caps set line coding}@>=
-wValue = UEDATX | UEDATX << 8; /* Zero */
-wIndex = UEDATX | UEDATX << 8; /* Interface */
-wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXSTPI);
-while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
-UEINTX &= ~(1 << RXOUTI);
+UEINTX &= ~_BV(RXSTPI);
+while (!(UEINTX & _BV(RXOUTI))) { }
+UEINTX &= ~_BV(RXOUTI);
 while (!(UEINTX & _BV(TXINI))) { }
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UEINTX &= ~_BV(TXINI);
 
 @ {\caps set control line state} requests are sent automatically by the driver when
 TTY is opened and closed.
@@ -342,56 +331,16 @@ See \S6.2.14 in CDC spec.
 
 @<Handle {\caps set control line state}@>=
 wValue = UEDATX | UEDATX << 8;
-  UEINTX &= ~(1 << RXSTPI);
+UEINTX &= ~_BV(RXSTPI);
 while (!(UEINTX & _BV(TXINI))) { }
-  UEINTX &= ~(1 << TXINI); /* STATUS stage */
-  if (wValue == 0) { /* blank the display when TTY is closed */
-    for (uint8_t row = 0; row < 8; row++)
-      for (uint8_t col = 0; col < NUM_DEVICES*8; col++)
-        buffer[row][col] = 0x00;
-    @<Display buffer@>@;
-  }
-
-@ @<Global variables@>=
-U16 size;
-const void *buf;
-U8 from_program = 1; /* serial number is transmitted last, so this can be set only once */
-U8 empty_packet;
-
-@ Transmit data and empty packet (if necessary) and wait for STATUS stage.
-
-On control endpoint by clearing TXINI (in addition to making it possible to
-know when bank will be free again) we say that when next IN token arrives,
-data must be sent and endpoint bank cleared. When data was sent, TXINI becomes `1'.
-After TXINI becomes `1', new data may be written to UEDATX.\footnote*{The
-difference of clearing TXINI for control and non-control endpoint is that
-on control endpoint clearing TXINI also sends the packet and clears the endpoint bank.
-On non-control endpoints there is a possibility to have double bank, so another
-mechanism is used.}
-
-@<Send descriptor@>=
-empty_packet = 0;
-if (size < wLength && size % EP0_SIZE == 0)
-  empty_packet = 1; /* indicate to the host that no more data will follow (USB\S5.5.3) */
-if (size > wLength)
-  size = wLength; /* never send more than requested */
-while (size != 0) {
-  while (!(UEINTX & 1 << TXINI)) ;
-  U8 nb_byte = 0;
-  while (size != 0) {
-    if (nb_byte++ == EP0_SIZE)
-      break;
-    UEDATX = from_program ? pgm_read_byte(buf++) : *(U8 *) buf++;
-    size--;
-  }
-  UEINTX &= ~(1 << TXINI);
+UEINTX &= ~_BV(TXINI);
+if (wValue == 0) { /* blank the display when TTY is closed */
+  for (uint8_t row = 0; row < 8; row++)
+    for (uint8_t col = 0; col < NUM_DEVICES*8; col++)
+      buffer[row][col] = 0x00;
+  @<Display buffer@>@;
 }
-if (empty_packet) {
-  while (!(UEINTX & 1 << TXINI)) ;
-  UEINTX &= ~(1 << TXINI);
-}
-while (!(UEINTX & 1 << RXOUTI)) ; /* wait for STATUS stage */
-UEINTX &= ~(1 << RXOUTI);
+
 @* USB stack.
 
 @s U8 int
