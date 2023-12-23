@@ -211,7 +211,7 @@ buf = &conf_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size-- && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++);
+  while (size && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++), size--;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { } 
