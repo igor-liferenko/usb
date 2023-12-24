@@ -164,15 +164,17 @@ transfer more, host does not send OUT packet to initiate STATUS stage.
 @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
+if (!(UDADDR & _BV(ADDEN))) UECONX |= 1 << STALLRQ;
 UEINTX &= ~_BV(RXSTPI);
-if (wLength > sizeof dev_desc) size = sizeof dev_desc;
-else size = wLength;
-buf = &dev_desc;
-while (!(UEINTX & _BV(TXINI))) { }
-while (size--) UEDATX = pgm_read_byte(buf++);
-UEINTX &= ~_BV(TXINI);
-while (!(UEINTX & _BV(RXOUTI))) { } 
-UEINTX &= ~_BV(RXOUTI);                  
+if (UDADDR & _BV(ADDEN)) {
+  size = wLength;
+  buf = &dev_desc;
+  while (!(UEINTX & _BV(TXINI))) { }
+  while (size--) UEDATX = pgm_read_byte(buf++);
+  UEINTX &= ~_BV(TXINI);
+  while (!(UEINTX & _BV(RXOUTI))) { } 
+  UEINTX &= ~_BV(RXOUTI);                  
+}
 
 @ A high-speed capable device that has different device information for full-speed and high-speed
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
