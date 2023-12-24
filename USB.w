@@ -149,11 +149,7 @@ while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
 UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 
-@ When host is booting, BIOS asks 8 bytes in first request of device descriptor (8 bytes is
-sufficient for first request of device descriptor). If host is operational,
-|wLength| is 64 bytes in first request of device descriptor.
-It is OK if we transfer less than the requested amount. But if we try to
-transfer more, host does not send OUT packet to initiate STATUS stage.
+@ Do not send until address has been assigned.
 
 @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
@@ -195,9 +191,7 @@ UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN tok
   stage */
 UEINTX &= ~(1 << RXSTPI);
 
-@ First request is 9 bytes, second is according to length given in response to first request.
-
-@<Handle {\caps get descriptor configuration}@>=
+@ @<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
