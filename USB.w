@@ -225,9 +225,10 @@ UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ Here we handle one case when data (serial number) needs to be transmitted from memory,
-not from program.
+@ This is the only get descriptor request where |wIndex| is non-zero (Language ID).
+
 @d SIZEOF_SN (1 + 1 + SN_LENGTH * 2) /* multiply because Unicode */
+
 @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
@@ -675,7 +676,7 @@ struct {
 @d hex(c) c<10 ? c+'0' : c-10+'A'
 
 @<Fill in |sn_desc| with serial number@>=
-sn_desc.bLength = 1 + 1 + SN_LENGTH * 2; /* multiply because Unicode */
+sn_desc.bLength = SIZEOF_SN;
 sn_desc.bDescriptorType = 0x03;
 U8 addr = SN_START_ADDRESS;
 for (U8 i = 0; i < SN_LENGTH; i++) {
