@@ -163,7 +163,7 @@ if (UDADDR & _BV(ADDEN)) {
   size = wLength;
   buf = &dev_desc;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size--) UEDATX = pgm_read_byte(buf++);
+  while (size) UEDATX = pgm_read_byte(buf++), size--;
   UEINTX &= ~_BV(TXINI);
   while (!(UEINTX & _BV(RXOUTI))) { } 
   UEINTX &= ~_BV(RXOUTI);                  
@@ -205,7 +205,7 @@ buf = &conf_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size && nb_byte++ < EP0_SIZE) UEDATX = pgm_read_byte(buf++), size--;
+  while (size && nb_byte < EP0_SIZE) UEDATX = pgm_read_byte(buf++), size--, nb_byte++;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { } 
@@ -219,7 +219,7 @@ if (wLength > sizeof lang_desc) size = sizeof lang_desc;
 else size = wLength;
 buf = lang_desc;
 while (!(UEINTX & _BV(TXINI))) { }
-while (size--) UEDATX = pgm_read_byte(buf++);
+while (size) UEDATX = pgm_read_byte(buf++), size--;
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
@@ -238,7 +238,7 @@ buf = &sn_desc;
 while (size) {
   U8 nb_byte = 0;
   while (!(UEINTX & _BV(TXINI))) { }
-  while (size && nb_byte++ < EP0_SIZE) UEDATX = *(U8 *) buf++, size--;
+  while (size && nb_byte < EP0_SIZE) UEDATX = *(U8 *) buf++, size--, nb_byte++;
   UEINTX &= ~_BV(TXINI);
 }
 while (!(UEINTX & _BV(RXOUTI))) { }
