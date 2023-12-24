@@ -154,17 +154,15 @@ UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-if (!(UDADDR & _BV(ADDEN))) UECONX |= 1 << STALLRQ;
 UEINTX &= ~_BV(RXSTPI);
-if (UDADDR & _BV(ADDEN)) {
-  size = wLength;
-  buf = &dev_desc;
-  while (!(UEINTX & _BV(TXINI))) { }
-  while (size) UEDATX = pgm_read_byte(buf++), size--;
-  UEINTX &= ~_BV(TXINI);
-  while (!(UEINTX & _BV(RXOUTI))) { } 
-  UEINTX &= ~_BV(RXOUTI);                  
-}
+if (wLength > sizeof dev_desc) size = sizeof dev_desc;
+else size = wLength;
+buf = &dev_desc;
+while (!(UEINTX & _BV(TXINI))) { }
+while (size) UEDATX = pgm_read_byte(buf++), size--;
+UEINTX &= ~_BV(TXINI);
+while (!(UEINTX & _BV(RXOUTI))) { } 
+UEINTX &= ~_BV(RXOUTI);                  
 
 @ A high-speed capable device that has different device information for full-speed and high-speed
 must have a Device Qualifier Descriptor. For example, if the device is currently operating at
@@ -195,7 +193,8 @@ UEINTX &= ~(1 << RXSTPI);
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
-size = wLength;
+if (wLength > sizeof conf_desc) size = sizeof conf_desc;
+else size = wLength;
 buf = &conf_desc;
 while (size) {
   U8 nb_byte = 0;
