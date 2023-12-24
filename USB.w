@@ -226,12 +226,12 @@ UEINTX &= ~_BV(RXOUTI);
 
 @ Here we handle one case when data (serial number) needs to be transmitted from memory,
 not from program.
-
+@d SIZEOF_SN (1 + 1 + SN_LENGTH * 2) /* multiply because Unicode */
 @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-if (wLength > (1 + 1 + SN_LENGTH * 2)) size = 1 + 1 + SN_LENGTH * 2;
+if (wLength > SIZEOF_SN) size = SIZEOF_SN;
 else size = wLength;
 @<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
