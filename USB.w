@@ -363,9 +363,9 @@ struct {
   0x03EB, /* VID (Atmel) */
   0x2018, /* PID (CDC ACM) */
   0x1000, /* device revision */
-  MANUFACTURER, /* (\.{Mfr} in \.{kern.log}) */
-  PRODUCT, /* (\.{Product} in \.{kern.log}) */
-  SERIAL_NUMBER, /* (\.{SerialNumber} in \.{kern.log}) */
+  0, /* no manufacturer */
+  0, /* no product */
+  SERIAL_NUMBER,
 @t\2@> 1 /* one configuration for this device */
 };
 
