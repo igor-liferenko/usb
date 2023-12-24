@@ -143,7 +143,9 @@ send a ZLP in advance.
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
+UEINTX &= ~_BV(TXINI); /* magic packet? */
 UDADDR = wValue & 0x7f;
+while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
 UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 
@@ -152,11 +154,12 @@ UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
-if (!(UDADDR & _BV(ADDEN))) UEINTX &= ~_BV(TXINI), UECONX |= _BV(STALLRQ);
+if (!(UDADDR & _BV(ADDEN))) UECONX |= 1 << STALLRQ;
 UEINTX &= ~_BV(RXSTPI);
 if (UDADDR & _BV(ADDEN)) {
   size = wLength;
   buf = &dev_desc;
+  while (!(UEINTX & _BV(TXINI))) { }
   while (size) UEDATX = pgm_read_byte(buf++), size--;
   UEINTX &= ~_BV(TXINI);
   while (!(UEINTX & _BV(RXOUTI))) { } 
@@ -184,7 +187,6 @@ next SETUP token.
 USB\S8.5.3.4, datasheet\S22.11.
 
 @<Handle {\caps get descriptor device qualifier}@>=
-UEINTX &= ~_BV(TXINI);
 UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN token of the DATA
   stage */
 UEINTX &= ~(1 << RXSTPI);
@@ -211,6 +213,7 @@ UEINTX &= ~_BV(RXSTPI);
 if (wLength > sizeof lang_desc) size = sizeof lang_desc;
 else size = wLength;
 buf = lang_desc;
+while (!(UEINTX & _BV(TXINI))) { }
 while (size) UEDATX = pgm_read_byte(buf++), size--;
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
@@ -275,6 +278,7 @@ UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.
 UECFG1X |= 1 << ALLOC;
 
 UENUM = 0;
+while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 
 @ This is data (7 bytes): 80 25 00 00 00 00 08
@@ -285,6 +289,7 @@ This is the last request after attachment to host.
 UEINTX &= ~_BV(RXSTPI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
+while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 
 @ {\caps set control line state} requests are sent automatically by the driver when
@@ -295,6 +300,7 @@ See \S6.2.14 in CDC spec.
 @<Handle {\caps set control line state}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
+while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 if (wValue == 0) { /* blank the display when TTY is closed */
   for (uint8_t row = 0; row < 8; row++)
