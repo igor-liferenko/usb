@@ -149,9 +149,7 @@ while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
 UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
 
-@ Do not send until address has been assigned.
-
-@<Handle {\caps get descriptor device}\null@>=
+@ @<Handle {\caps get descriptor device}\null@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
