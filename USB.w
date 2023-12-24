@@ -647,7 +647,7 @@ struct {
 
 @*1 Language descriptor.
 
-FIXME: is this necessary to transmit serial number?
+It is necessary to transmit serial number.
 
 @<Global variables@>=
 const U8 lang_desc[]
