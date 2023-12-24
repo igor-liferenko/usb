@@ -143,6 +143,7 @@ send a ZLP in advance.
 @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
+UEINTX &= ~_BV(TXINI); /* magic packet? */
 UDADDR = wValue & 0x7f;
 while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
