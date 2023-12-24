@@ -117,12 +117,6 @@ case 0x0680: @/
   case 0x0300: @/
     @<Handle {\caps get descriptor string} (language)@>@;
     break;
-  case 0x0300 | MANUFACTURER: @/
-    @<Handle {\caps get descriptor string} (manufacturer)@>@;
-    break;
-  case 0x0300 | PRODUCT: @/
-    @<Handle {\caps get descriptor string} (product)@>@;
-    break;
   case 0x0300 | SERIAL_NUMBER: @/
     @<Handle {\caps get descriptor string} (serial)@>@;
     break;
@@ -224,34 +218,6 @@ UEINTX &= ~_BV(RXSTPI);
 if (wLength > sizeof lang_desc) size = sizeof lang_desc;
 else size = wLength;
 buf = lang_desc;
-while (!(UEINTX & _BV(TXINI))) { }
-while (size--) UEDATX = pgm_read_byte(buf++);
-UEINTX &= ~_BV(TXINI);
-while (!(UEINTX & _BV(RXOUTI))) { }
-UEINTX &= ~_BV(RXOUTI);
-
-@ @<Handle {\caps get descriptor string} (manufacturer)@>=
-(void) UEDATX; @+ (void) UEDATX;
-wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~_BV(RXSTPI);
-if (wLength > pgm_read_byte(&mfr_desc.bLength)) size = pgm_read_byte(&mfr_desc.bLength);
-  // TODO: change struct and replace with sizeof
-else size = wLength;
-buf = &mfr_desc;
-while (!(UEINTX & _BV(TXINI))) { }
-while (size--) UEDATX = pgm_read_byte(buf++);
-UEINTX &= ~_BV(TXINI);
-while (!(UEINTX & _BV(RXOUTI))) { }
-UEINTX &= ~_BV(RXOUTI);
-
-@ @<Handle {\caps get descriptor string} (product)@>=
-(void) UEDATX; @+ (void) UEDATX;
-wLength = UEDATX | UEDATX << 8;
-UEINTX &= ~_BV(RXSTPI);
-if (wLength > pgm_read_byte(&prod_desc.bLength)) size = pgm_read_byte(&prod_desc.bLength);
-  // TODO: change struct and replace with sizeof
-else size = wLength;
-buf = &prod_desc;
 while (!(UEINTX & _BV(TXINI))) { }
 while (size--) UEDATX = pgm_read_byte(buf++);
 UEINTX &= ~_BV(TXINI);
@@ -367,9 +333,7 @@ Placeholder prefixes such as `b', `bcd', and `w' are used to denote placeholder 
 \noindent\hskip40pt\hbox to0pt{\hskip-20pt\it i\hfil} index \par
 \noindent\hskip40pt\hbox to0pt{\hskip-20pt\it w\hfil} word \par
 
-@d MANUFACTURER 1
-@d PRODUCT 2
-@d SERIAL_NUMBER 3
+@d SERIAL_NUMBER 1
 
 @<Global variables@>=
 struct {
@@ -682,7 +646,7 @@ struct {
 
 @*1 Language descriptor.
 
-This is necessary to transmit manufacturer, product and serial number.
+FIXME: is this necessary to transmit serial number?
 
 @<Global variables@>=
 const U8 lang_desc[]
@@ -691,50 +655,6 @@ const U8 lang_desc[]
   0x03, /* type (string) */
 @t\2@> 0x09,0x04 /* id (English) */
 };
-
-@*1 String descriptors.
-
-The trick here is that when defining a variable of type |S_string_descriptor|,
-the string content follows the first two elements in program memory.
-The C standard says that a flexible array member in a struct does not increase the size of the
-struct (aside from possibly adding some padding at the end) but gcc lets you initialize it anyway.
-|sizeof| on the variable counts only first two elements.
-So, we read the size of the variable at
-execution time in |@<Handle {\caps get descriptor string} (manufacturer)@>|
-and |@<Handle {\caps get descriptor string} (product)@>| by using |pgm_read_byte|.
-
-TODO: put here explanation from \.{https://stackoverflow.com/questions/51470592/}
-@^TODO@>
-
-Is USB each character is 2 bytes. Wide-character string can be used here,
-because on GCC for atmega32u4 wide character is 2 bytes.
-Note, that for wide-character string I use type `\&{int}', not `\&{wchar\_t}',
-because by `\&{wchar\_t}' I always mean 4 bytes (to avoid using `\&{wint\_t}').
-
-@^GCC-specific@>
-
-@s S_string_descriptor int
-
-@<Type definitions@>=
-typedef struct {
-  U8 bLength;
-  U8 bDescriptorType;
-  int wString[];
-} S_string_descriptor;
-
-#define STR_DESC(@!str) @,@,@,@, {@, 1 + 1 + sizeof str - 2, 0x03, str @t\hskip1pt@>}
-
-@*2 Manufacturer descriptor.
-
-@<Global variables@>=
-const S_string_descriptor mfr_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"ATMEL");
-
-@*2 Product descriptor.
-
-@<Global variables@>=
-const S_string_descriptor prod_desc
-@t\hskip2.5pt@> @=PROGMEM@> = STR_DESC(L"TEL");
 
 @*1 Serial number descriptor.
 
