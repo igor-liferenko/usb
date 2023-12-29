@@ -2,7 +2,7 @@
 
 @ \.{USB\_RESET} signal is sent when device is attached and when USB host reboots.
 
-@d EP0_SIZE 32 /* 32 bytes */
+@d EP0_SIZE 32 /* 32 bytes (max for atmega32u4) */
 
 @<Create ISR for connecting to USB host@>=
 @.ISR@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=ISR@>
@@ -27,61 +27,6 @@
   USBCON &= ~_BV(FRZCLK);
   USBCON |= _BV(OTGPADE);
   UDIEN |= _BV(EORSTE);
-
-@* Control endpoint management.
-(WARNING: these images are incomplete --- they do not show possible handshake
-phases)
-
-Device driver sends a
-packet to device's EP0. As the data is flowing out from the host, it will end
-up in the EP0 buffer. Firmware will then at its leisure read this data. If it
-wants to return data, the device cannot simply
-write to the bus as the bus is controlled by the host.
-Therefore it writes data to EP0 which sits in the buffer
-until such time when the host sends a IN packet requesting the
-data.\footnote*{This is where the prase ``USB controller has
-to manage simultaneous write requests from firmware and host'' from \S22.12.2 of
-datasheet becomes clear. (Remember, we use one and the same
-endpoint to read {\it and\/} write control data.)}
-
-@*1 Control read (by host). There are the folowing
-stages\footnote*{Setup transaction $\equiv$ Setup stage}:
-
-$$\epsfbox{../usb/direction.eps}$$
-
-$$\epsfbox{../usb/control-read-stages.eps}$$
-
-$$\epsfxsize 12.5cm \epsfbox{../usb/control-IN.eps}$$
-
-@ This corresponds to the following transactions:
-
-$$\epsfbox{../usb/transaction-SETUP.eps}$$
-
-$$\epsfbox{../usb/transaction-IN.eps}$$
-
-$$\epsfbox{../usb/transaction-OUT.eps}$$
-
-@*1 Control write (by host). There are the following
-stages\footnote*{Setup transaction $\equiv$ Setup stage}:
-
-$$\epsfbox{../usb/direction.eps}$$
-
-$$\epsfbox{../usb/control-write-stages.eps}$$
-
-$$\epsfxsize 16cm \epsfbox{../usb/control-OUT.eps}$$
-
-Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
-(see \S22.12.1 in datasheet): If TXINI is already cleared when IN packet arrives, NAKINI is not
-set. This corresponds to case 1. If TXINI is not yet cleared when IN packet arrives, NAKINI
-is set. This corresponds to case 2.
-
-@ This corresponds to the following transactions:
-
-$$\epsfbox{../usb/transaction-SETUP.eps}$$
-
-$$\epsfbox{../usb/transaction-OUT.eps}$$
-
-$$\epsfbox{../usb/transaction-IN.eps}$$
 
 @* Connection protocol.
 
@@ -109,7 +54,7 @@ case 0x0500: @/
 case 0x0680: @/
   switch (UEDATX | UEDATX << 8) { /* Descriptor Type and Descriptor Index */
   case 0x0100: @/
-    @<Handle {\caps get descriptor device}\null@>@;
+    @<Handle {\caps get descriptor device}@>@;
     break;
   case 0x0200: @/
     @<Handle {\caps get descriptor configuration}@>@;
@@ -120,9 +65,9 @@ case 0x0680: @/
   case 0x0300 | SERIAL_NUMBER: @/
     @<Handle {\caps get descriptor string} (serial)@>@;
     break;
-  case 0x0600: @/
-    @<Handle {\caps get descriptor device qualifier}@>@;
-    break;
+  default: @/
+    UECONX |= _BV(STALLRQ);
+    UEINTX &= ~_BV(RXSTPI);
   }
   break;
 case 0x0900: @/
@@ -136,62 +81,35 @@ case 0x2221: @/
   break;
 }
 
-@ No OUT packet arrives after SETUP packet, because there is no DATA stage
-in this request. IN packet arrives after SETUP packet, and we get ready to
-send a ZLP in advance.
-
-@<Handle {\caps set address}@>=
+@ @<Handle {\caps set address}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-UEINTX &= ~_BV(TXINI); /* magic packet? */
-UDADDR = wValue & 0x7f;
-while (!(UEINTX & 1 << TXINI)) { }
 UEINTX &= ~_BV(TXINI);
-UDADDR |= _BV(ADDEN); /* see \S22.7 in datasheet */
+UDADDR = wValue & 0x7f;
+while (!(UEINTX & 1 << TXINI)) { } /* see \S22.7 in datasheet */
+UDADDR |= _BV(ADDEN);
 
-@ @<Handle {\caps get descriptor device}\null@>=
+@ @<Handle {\caps get descriptor device}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
 if (wLength > sizeof dev_desc) size = sizeof dev_desc;
+  /* 18 bytes\footnote*{It is not necessary to implment checking if ZLP from \S5.5.3 of USB
+     spec needs to be sent.} */
 else size = wLength;
 buf = &dev_desc;
-while (!(UEINTX & _BV(TXINI))) { }
 while (size) UEDATX = pgm_read_byte(buf++), size--;
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { } 
 UEINTX &= ~_BV(RXOUTI);                  
-
-@ A high-speed capable device that has different device information for full-speed and high-speed
-must have a Device Qualifier Descriptor. For example, if the device is currently operating at
-full-speed, the Device Qualifier returns information about how it would operate at high-speed and
-vice-versa. So as this device is full-speed, it tells the host not to request
-device information for high-speed by using ``protocol stall'' (such stall
-does not indicate an error with the device ---~it serves as a means of
-extending USB requests).
-
-The host sends an IN token to the control pipe to initiate the DATA stage.
-
-$$\epsfbox{../usb/stall-control-read-with-data-stage.eps}$$
-
-Note, that next token comes after \.{RXSTPI} is cleared, so we set \.{STALLRQ} before
-clearing \.{RXSTPI}, to make sure that \.{STALLRQ} is already set when next token arrives.
-
-This STALL condition is automatically cleared on the receipt of the
-next SETUP token.
-
-USB\S8.5.3.4, datasheet\S22.11.
-
-@<Handle {\caps get descriptor device qualifier}@>=
-UECONX |= 1 << STALLRQ; /* prepare to send STALL handshake in response to IN token of the DATA
-  stage */
-UEINTX &= ~(1 << RXSTPI);
 
 @ @<Handle {\caps get descriptor configuration}@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXSTPI);
 if (wLength > sizeof conf_desc) size = sizeof conf_desc;
+  /* 62 bytes\footnote*{It is not necessary to implment checking if ZLP from \S5.5.3 of USB
+     spec needs to be sent.} */
 else size = wLength;
 buf = &conf_desc;
 while (size) {
@@ -208,25 +126,23 @@ UEINTX &= ~_BV(RXOUTI);
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
 if (wLength > sizeof lang_desc) size = sizeof lang_desc;
+  /* 4 bytes\footnote*{It is not necessary to implment checking if ZLP from \S5.5.3 of USB
+     spec needs to be sent.} */
 else size = wLength;
-buf = lang_desc;
-while (!(UEINTX & _BV(TXINI))) { }
+buf = &lang_desc;
 while (size) UEDATX = pgm_read_byte(buf++), size--;
 UEINTX &= ~_BV(TXINI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
 
-@ This is the only get descriptor request where |wIndex| is non-zero (Language ID).
-
-@d SIZEOF_SN (1 + 1 + SN_LENGTH * 2) /* multiply because Unicode */
-
-@<Handle {\caps get descriptor string} (serial)@>=
+@ @<Handle {\caps get descriptor string} (serial)@>=
 (void) UEDATX; @+ (void) UEDATX;
 wLength = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-if (wLength > SIZEOF_SN) size = SIZEOF_SN;
+if (wLength > sizeof sn_desc) size = sizeof sn_desc;
+  /* 42 bytes\footnote*{It is not necessary to implment checking if ZLP from \S5.5.3 of USB
+     spec needs to be sent.} */
 else size = wLength;
-@<Fill in |sn_desc| with serial number@>@;
 buf = &sn_desc;
 while (size) {
   U8 nb_byte = 0;
@@ -275,7 +191,6 @@ UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP3_SIZE|.
 UECFG1X |= 1 << ALLOC;
 
 UENUM = 0;
-while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 
 @ This is data (7 bytes): 80 25 00 00 00 00 08
@@ -286,7 +201,6 @@ This is the last request after attachment to host.
 UEINTX &= ~_BV(RXSTPI);
 while (!(UEINTX & _BV(RXOUTI))) { }
 UEINTX &= ~_BV(RXOUTI);
-while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 
 @ {\caps set control line state} requests are sent automatically by the driver when
@@ -297,7 +211,6 @@ See \S6.2.14 in CDC spec.
 @<Handle {\caps set control line state}@>=
 wValue = UEDATX | UEDATX << 8;
 UEINTX &= ~_BV(RXSTPI);
-while (!(UEINTX & _BV(TXINI))) { }
 UEINTX &= ~_BV(TXINI);
 if (wValue == 0) { /* blank the display when TTY is closed */
   for (uint8_t row = 0; row < 8; row++)
@@ -642,11 +555,15 @@ struct {
 It is necessary to transmit serial number.
 
 @<Global variables@>=
-const U8 lang_desc[]
+struct {
+    U8 bLength;
+    U8 bDescriptorType;
+    int wString;
+} const lang_desc
 @t\hskip2.5pt@> @=PROGMEM@> = { @t\1@> @/
   0x04, /* size of this structure */
-  0x03, /* type (string) */
-@t\2@> 0x09,0x04 /* id (English) */
+  0x03, /* string */
+@t\2@> 0x0000 /* language id */
 };
 
 @*1 Serial number descriptor.
@@ -654,7 +571,9 @@ const U8 lang_desc[]
 This one is different in that its content cannot be prepared in compile time,
 only in execution time. So, it cannot be stored in program memory.
 
-@d SN_LENGTH 20 /* length of device signature, multiplied by two (because each byte in hex) */
+@d DS_LENGTH 10 /* length of device signature */
+@d DS_START_ADDRESS 0x0E
+@d SN_LENGTH (DS_LENGTH * 2) /* length of serial number (multiply because each value in hex) */
 
 @<Global variables@>=
 struct {
@@ -663,13 +582,12 @@ struct {
   int wString[SN_LENGTH];
 } sn_desc;
 
-@ @d SN_START_ADDRESS 0x0E
-@d hex(c) c<10 ? c+'0' : c-10+'A'
+@ @d hex(c) c<10 ? c+'0' : c-10+'A'
 
 @<Fill in |sn_desc| with serial number@>=
-sn_desc.bLength = SIZEOF_SN;
+sn_desc.bLength = sizeof sn_desc;
 sn_desc.bDescriptorType = 0x03;
-U8 addr = SN_START_ADDRESS;
+U8 addr = DS_START_ADDRESS;
 for (U8 i = 0; i < SN_LENGTH; i++) {
   U8 c = boot_signature_byte_get(addr);
   if (i & 1) { /* we divide each byte of signature into halves, each of
