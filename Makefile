@@ -27,10 +27,3 @@ asm:
 	avr-gcc -mmcu=atmega32u4 -g -o asm.elf asm.S
 	@avr-objdump -S asm.elf >x
 	avr-objcopy -O ihex asm.elf fw.hex
-
-.PHONY: $(wildcard *.eps)
-
-usb.eps:
-	@$(inkscape) usb.svg
-
-inkscape=inkscape --export-type=eps --export-ps-level=2 -T -o $@ 2>/dev/null
