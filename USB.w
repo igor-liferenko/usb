@@ -395,9 +395,12 @@ This is the last request after attachment to host.
 
 @<Handle {\caps set line coding}@>=
 UEINTX &= ~(1 << RXSTPI);
-while (!(UEINTX & 1 << RXOUTI)) ; /* wait for DATA stage */
+while (!(UEINTX & 1 << RXOUTI)) { }
+int speed = UEDATX | UEDATX << 8;
 UEINTX &= ~(1 << RXOUTI);
-UEINTX &= ~(1 << TXINI); /* STATUS stage */
+UEINTX &= ~(1 << TXINI);
+if (speed == 50 || speed == 75)
+  PORTD &= ~(1 << PD5); /* go off-line */
 connected = 1;
 
 @ @<Global variables@>=
