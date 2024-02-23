@@ -1,0 +1,24 @@
+When reboot is done in cdc_task() via watchdog, WDRF (WatchDog Reset Flag) is set.
+
+WDE (WatchDog system reset Enable) is always set when WDRF is set. To clear
+WDE, WDRF must be cleared first. This ensures multiple resets during conditions
+causing failure, and a safe start-up after the failure.
+
+To avoid unintentional changes of WDE, a special write procedure must be followed
+to change the WDE bit.
+If you revert reboot to cdc_task() (if green led is turned on), put the following
+lines to the very beginning of main() (see "The sequence for clearing WDE" in datasheet):
+MCUSR &= ~(1<<WDRF);
+WDTCSR |= (1<<WDCE) | (1<<WDE);
+WDTCSR &= ~((1<<WDCE) | (1<<WDE));
+
+--------------------------------------------------
+
+in cdc_task wdt_reset() is necessary - see Note to "function for changing the time-out
+value of the Watchdog Timer" in datasheet
+
+#include <avr/wdt.h> /* |wdt_reset| */
+
+--------------------------------------------------
+
+TODO: google what is "brown-out"

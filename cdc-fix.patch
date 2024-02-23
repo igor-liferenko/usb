@@ -1,0 +1,144 @@
+How this patch was created:
+
+1. fix demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c like this:
+-extern U8   code *pbuffer;
++#ifdef __GNUC__
++  extern PGM_VOID_P pbuffer;
++#else
++  extern U8   code *pbuffer;
++#endif
+
+2. add "const"
+
+3. remove ".exe" from Makefile
+
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile b/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
+index 775cf60..f5859f7 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/gcc/Makefile
+@@ -6,7 +6,7 @@ OUTPUT = default
+ 
+ # General Flags
+ TARGET = $(PROJECT).elf
+-CC = avr-gcc.exe
++CC = avr-gcc
+ MAKECFG   = config.mk
+ 
+ # Options common to compile, link and assembly rules
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_descriptors.c b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_descriptors.c
+index 56b7d12..95b7586 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_descriptors.c
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_descriptors.c
+@@ -61,7 +61,7 @@
+ //_____ D E F I N I T I O N ________________________________________________
+ 
+ // usb_user_device_descriptor
+-code S_usb_device_descriptor usb_dev_desc =
++code const S_usb_device_descriptor usb_dev_desc =
+ {
+   sizeof(usb_dev_desc)
+ , DESCRIPTOR_DEVICE
+@@ -80,7 +80,7 @@ code S_usb_device_descriptor usb_dev_desc =
+ };
+ 
+ // usb_user_configuration_descriptor FS
+-code S_usb_user_configuration_descriptor usb_conf_desc = {
++code const S_usb_user_configuration_descriptor usb_conf_desc = {
+  { sizeof(S_usb_configuration_descriptor)
+  , DESCRIPTOR_CONFIGURATION
+  //, Usb_write_word_enum_struc(sizeof(usb_conf_desc_kbd))
+@@ -146,7 +146,7 @@ code S_usb_user_configuration_descriptor usb_conf_desc = {
+ 
+ 
+                                       // usb_user_manufacturer_string_descriptor
+-code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor = {
++code const S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor = {
+   sizeof(usb_user_manufacturer_string_descriptor)
+ , DESCRIPTOR_STRING
+ , USB_MANUFACTURER_NAME
+@@ -155,7 +155,7 @@ code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descripto
+ 
+                                       // usb_user_product_string_descriptor
+ 
+-code S_usb_product_string_descriptor usb_user_product_string_descriptor = {
++code const S_usb_product_string_descriptor usb_user_product_string_descriptor = {
+   sizeof(usb_user_product_string_descriptor)
+ , DESCRIPTOR_STRING
+ , USB_PRODUCT_NAME
+@@ -164,7 +164,7 @@ code S_usb_product_string_descriptor usb_user_product_string_descriptor = {
+ 
+                                       // usb_user_serial_number
+ 
+-code S_usb_serial_number usb_user_serial_number = {
++code const S_usb_serial_number usb_user_serial_number = {
+   sizeof(usb_user_serial_number)
+ , DESCRIPTOR_STRING
+ , USB_SERIAL_NUMBER
+@@ -173,7 +173,7 @@ code S_usb_serial_number usb_user_serial_number = {
+ 
+                                       // usb_user_language_id
+ 
+-code S_usb_language_id usb_user_language_id = {
++code const S_usb_language_id usb_user_language_id = {
+   sizeof(usb_user_language_id)
+ , DESCRIPTOR_STRING
+ , Usb_write_word_enum_struc(LANGUAGE_ID)
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
+index 351dc82..05c84d1 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.c
+@@ -58,7 +58,11 @@
+ 
+ //_____ P R I V A T E   D E C L A R A T I O N ______________________________
+ 
+-extern U8   code *pbuffer;
++#ifdef __GNUC__
++  extern PGM_VOID_P pbuffer;
++#else
++  extern U8   code *pbuffer;
++#endif
+ extern U8   data_to_transfer;
+ extern S_line_coding   line_coding;
+ extern S_line_status line_status;
+diff --git a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h
+index 14f8ef4..3b4897a 100644
+--- a/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h
++++ b/demo/EVK527-ATMega32U4-usbdevice_cdc/usb_specific_request.h
+@@ -47,14 +47,14 @@
+ 
+ /*_____ M A C R O S ________________________________________________________*/
+ 
+-extern  code S_usb_device_descriptor usb_dev_desc;
+-extern  code S_usb_user_configuration_descriptor usb_conf_desc;
+-extern  code S_usb_user_configuration_descriptor usb_other_conf_desc;
+-extern  code S_usb_device_qualifier_descriptor usb_qual_desc;
+-extern  code S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor;
+-extern  code S_usb_product_string_descriptor usb_user_product_string_descriptor;
+-extern  code S_usb_serial_number usb_user_serial_number;
+-extern  code S_usb_language_id usb_user_language_id;
++extern  code const S_usb_device_descriptor usb_dev_desc;
++extern  code const S_usb_user_configuration_descriptor usb_conf_desc;
++extern  code const S_usb_user_configuration_descriptor usb_other_conf_desc;
++extern  code const S_usb_device_qualifier_descriptor usb_qual_desc;
++extern  code const S_usb_manufacturer_string_descriptor usb_user_manufacturer_string_descriptor;
++extern  code const S_usb_product_string_descriptor usb_user_product_string_descriptor;
++extern  code const S_usb_serial_number usb_user_serial_number;
++extern  code const S_usb_language_id usb_user_language_id;
+ 
+ 
+ 
+diff --git a/modules/usb/device_chap9/usb_standard_request.c b/modules/usb/device_chap9/usb_standard_request.c
+index 0c8d9bc..055973a 100644
+--- a/modules/usb/device_chap9/usb_standard_request.c
++++ b/modules/usb/device_chap9/usb_standard_request.c
+@@ -101,8 +101,8 @@ static  U8   bmRequestType;
+         U8      remote_wakeup_feature=DISABLE; 
+         U8   usb_configuration_nb;
+ extern  bit     usb_connected;
+-extern  code    S_usb_device_descriptor             usb_user_device_descriptor;
+-extern  code    S_usb_user_configuration_descriptor usb_user_configuration_descriptor;
++extern  code    const S_usb_device_descriptor             usb_user_device_descriptor;
++extern  code    const S_usb_user_configuration_descriptor usb_user_configuration_descriptor;
+ 
+ U8      usb_remote_wup_feature;  // Store ENABLED value if a SetFeature(RemoteWakeUp) has been received
+ 

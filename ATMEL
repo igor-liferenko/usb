@@ -1,0 +1,30 @@
+Proper steps to cleanup original Atmel's code:
+* github init demo
+* download cdc archive from ub0ali dropbox avr-usb/ directory
+* unpack and cd
+* rm -r doc/html/
+* find . -type f | xargs perl -i -pe 's/\r$//'
+* patch -p1 <~/usb/cdc-fix.patch
+* git init
+* git add .
+* git clean -d -f &>/dev/null; find . -type f | grep -v '\.git' >/tmp/x
+* for i in `cat /tmp/x`; do rm $i; cd demo/E*/gcc; make &>/dev/null && echo git reset $i; cd ../../../; git checkout .; git clean -d -f &>/dev/null; done
+* run printed commands
+* git clean -d -f
+* cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../
+* git add objdump
+* git ci -m "initial import"
+* git clean -d -f
+* ~/usb/mksurrogatehdr.sh $(~/usb/listsyshdrs.sh)
+* Change "demo" to required directory in the following command and set __AVR_LIBC_VERSION__ to what is in /usr/lib/avr/include/avr/version.h and run it:
+* for i in $(find . -name \*.c); do mcpp -Dinclude=#include -P -W 0 -D__GNUC__ -D__AVR_LIBC_VERSION__=20000UL -I- -I ~/demo/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/conf/ -I ~/demo/demo/EVK527-ATMega32U4-usbdevice_cdc/ -I ~/demo/system-headers/ $i | sponge $i; done
+* find . -name \*.h | xargs rm
+* git clean -d -f
+* git add .
+* git ci -m "run preprocessor"
+* cd demo/E*/gcc/; make &>/dev/null && avr-objdump -d *.elf >../../../objdump; cd ../../../
+* git diff objdump # must be empty - if not, fix
+* move all *.c and *.s files to toplevel directory (compare objdump before and after moving - must be equal) - remove @ from commands in Makefile + rm echo + change $(shell mkdir... to mkdir -p and copy output to new Makefile and git rm config.mk, then via gedit's "find and replace" remove all "-I"
+* for i in *.c; do cat -s $i | sponge $i; indent -kr -i2 -ci2 -lp -ss -bs --no-tabs -nce $i; done; git clean -f
+* perl -i -ne 'print unless /^\s*;\s*$/' *.c
+* beginning with main.c replace each function body one by one until only main.c is left - do not remove anything and check all values in datasheet as you go (do not change config.h before mcpp)

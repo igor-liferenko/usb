@@ -1,0 +1,8 @@
+sudo modprobe usbmon
+sudo setfacl -m u:$USER:r /dev/usbmon*
+plug device into bus which has no other devices and find bus number via lsusb
+run wireshark
+if "lsusb|grep 'Bus 00N'" shows 'root hub'
+whose device number is 001, use this filter in wireshark '!(usb.device_address == 1)'
+Note, that in wireshark start sniffing before device is connected, otherwise wireshark
+will not recognize set control line state and set line coding requests.

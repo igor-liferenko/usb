@@ -1,0 +1,9 @@
+see avr/COM-PORT
+
+All the USB chips have separate memory to buffer sending and receiving data on the various endpoints.  The AT90USB162 chip has 176 bytes of this memory, which Atmel calls "DPRAM" (DP = dual port, because it can be accessed by both the processor and USB hardware), and it also has 512 bytes of regular RAM.
+
+USB also includes flow control implemented at the hardware level (in all the Atmel USB chips), so it is not necessary (if done properly) to buffer incoming data in regular RAM.  For example, the regular serial port via FTDI has no flow control (CTS/RTS is not used), so a 128 byte receive buffer is allocated in memory to hold characters your PC might send before your sketch has a chance to read them, like if it's sitting inside a delay() for quite some time.  With USB, the data will be buffered inside the dedicated DPRAM and when that buffer is full, the USB hardware will automatically prevent your PC from transmitting more until your sketch finishes that long delay() and reads the data from the buffer.  (actually, in reality the hardware sends "nak" packets that make your PC retransmit the data, but the point is it's all done at the hardware level so you don't need to consume regular RAM for buffering like would be necessary with regular serial).
+
+A small amount of RAM is needed to hold a few variables related to the USB configuration.  It's surprisingly small.
+
+The USB chips do have a regular UART built in, and if you use that the regular serial buffer memory will be needed.

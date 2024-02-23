@@ -1,0 +1,16 @@
+PLLCSR (PLL Control and Status Register)
+UDADDR (Usb Device ADDRess)
+UDCON (Usb Device CONfiguration)
+UDIEN (Usb Device Interrupt ENable)
+UDINT (Usb Device INTerrupt)
+UECONX (Usb Endpoint CONfiguration X)
+UEDATX (Usb Endpoint DATa X)
+UEIENX (Usb Endpoint Interupt ENable X)
+UEINT (Usb Endpoint INTerrupt)
+UEINTX (Usb Endpoint INTerrupt X)
+UENUM (Usb Endpoint NUMber)
+UHWCON (UsbHardWareCONfiguration)
+USBCON (USB CONfiguration)
+USBSTA (USBSTAtus)
+
+http://caves.org/section/commelect/DUSI/openmag/src/avrdrivers/usbdrv/usb_drv.h
