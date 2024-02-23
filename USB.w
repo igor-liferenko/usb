@@ -40,7 +40,9 @@ matter because device is reset.
 @.ISR@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=ISR@>
   (@.USB\_GEN\_vect@>@t}\begingroup\def\vb#1{\.{#1}\endgroup@>@=USB_GEN_vect@>)
 {
-  UDINT &= ~(1 << EORSTI); /* for the interrupt handler to be called for next USB\_RESET */
+  UDINT &= ~(1 << EORSTI);
+  PORTB |= 1 << PB0;
+  PORTD &= ~(1 << PD5); /* go off-line */
   if (!connected) {
     UECONX |= 1 << EPEN;
     UECFG1X = 1 << EPSIZE1; /* 32 bytes\footnote\ddag{Must correspond to |EP0_SIZE|.} */
