@@ -99,7 +99,7 @@ What the above code does: zero r1 register, clear SREG, initialize program stack
 (to the stack processor writes addresses for returning from subroutines and interrupt
 handlers). To the stack pointer is written address of last cell of RAM.
 
-Note, that ns is $10^{-9}$, \kern1pt{\greek u}s is $10^{-6}$ and ms is $10^{-3}$.
+Note, that ns is $10^{-9}$, us is $10^{-6}$ and ms is $10^{-3}$.
 
 @<Disable WDT@>=
 if (MCUSR & 1 << WDRF) /* takes 2 instructions if |WDRF| is set to one:
