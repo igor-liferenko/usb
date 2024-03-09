@@ -396,13 +396,13 @@ UEINTX &= ~(1 << TXINI); /* STATUS stage */
 This is the last request after attachment to host.
 
 @<Handle {\caps set line coding}@>=
-UEINTX &= ~(1 << RXSTPI);
-while (!(UEINTX & 1 << RXOUTI)) { }
-int speed = UEDATX | UEDATX << 8;
-UEINTX &= ~(1 << RXOUTI);
-UEINTX &= ~(1 << TXINI);
-if (speed == 50 || speed == 75)
-  PORTD &= ~(1 << PD5); /* go off-line */
+UEINTX &= ~_BV(RXSTPI);
+while (!(UEINTX & _BV(RXOUTI))) { }
+uint32_t dwDTERate = UEDATX | (uint32_t) UEDATX << 8 |
+(uint32_t) UEDATX << 16 | (uint32_t) UEDATX << 24;
+UEINTX &= ~_BV(RXOUTI);
+UEINTX &= ~_BV(TXINI);
+if (dwDTERate == 50) PORTD &= ~_BV(PD5); /* turn LED off */
 connected = 1;
 
 @ @<Global variables@>=
