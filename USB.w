@@ -398,11 +398,12 @@ This is the last request after attachment to host.
 @<Handle {\caps set line coding}@>=
 UEINTX &= ~_BV(RXSTPI);
 while (!(UEINTX & _BV(RXOUTI))) { }
-uint32_t dwDTERate = UEDATX | (uint32_t) UEDATX << 8 |
-(uint32_t) UEDATX << 16 | (uint32_t) UEDATX << 24;
+(void) UEDATX; @+ (void) UEDATX; @+ (void) UEDATX; @+ (void) UEDATX;
+(void) UEDATX;
+U8 bParityType = UEDATX;
 UEINTX &= ~_BV(RXOUTI);
 UEINTX &= ~_BV(TXINI);
-if (dwDTERate == 50) PORTD &= ~_BV(PD5); /* turn LED off */
+if (bParityType) PORTD &= ~_BV(PD5); /* turn LED off */
 connected = 1;
 
 @ @<Global variables@>=
