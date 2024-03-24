@@ -1,4 +1,1 @@
-For a usage example see
-
-  OUT: http://github.com/igor-liferenko/time
-  IN:  http://github.com/igor-liferenko/matrix
+stty -F /dev/ttyUSB0 -icanon SPEED; printf +++; cat /dev/ttyUSB0
