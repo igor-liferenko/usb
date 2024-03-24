@@ -1,1 +1,1 @@
-stty -F /dev/ttyUSB0 -icanon SPEED; printf ===; cat /dev/ttyUSB0
+stty -F /dev/ttyUSB0 -icanon SPEED; printf Connected.; cat /dev/ttyUSB0
