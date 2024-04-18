@@ -166,28 +166,10 @@ endpoint to read {\it and\/} write control data.)}
 @*1 Control read (by host). There are the folowing
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
 
-$$\epsfbox{../usb/direction.eps}$$
-
-$$\epsfbox{../usb/control-read-stages.eps}$$
-
-$$\epsfxsize 12.5cm \epsfbox{../usb/control-IN.eps}$$
-
 @ This corresponds to the following transactions:
-
-$$\epsfbox{../usb/transaction-SETUP.eps}$$
-
-$$\epsfbox{../usb/transaction-IN.eps}$$
-
-$$\epsfbox{../usb/transaction-OUT.eps}$$
 
 @*1 Control write (by host). There are the following
 stages\footnote*{Setup transaction $\equiv$ Setup stage}:
-
-$$\epsfbox{../usb/direction.eps}$$
-
-$$\epsfbox{../usb/control-write-stages.eps}$$
-
-$$\epsfxsize 16cm \epsfbox{../usb/control-OUT.eps}$$
 
 Commentary to the drawing why ``controller will not necessarily send a NAK at the first IN token''
 (see \S22.12.1 in datasheet): If TXINI is already cleared when IN packet arrives, NAKINI is not
@@ -195,12 +177,6 @@ set. This corresponds to case 1. If TXINI is not yet cleared when IN packet arri
 is set. This corresponds to case 2.
 
 @ This corresponds to the following transactions:
-
-$$\epsfbox{../usb/transaction-SETUP.eps}$$
-
-$$\epsfbox{../usb/transaction-OUT.eps}$$
-
-$$\epsfbox{../usb/transaction-IN.eps}$$
 
 @* Connection protocol.
 
@@ -292,8 +268,6 @@ does not indicate an error with the device ---~it serves as a means of
 extending USB requests).
 
 The host sends an IN token to the control pipe to initiate the DATA stage.
-
-$$\epsfbox{../usb/stall-control-read-with-data-stage.eps}$$
 
 Note, that next token comes after \.{RXSTPI} is cleared, so we set \.{STALLRQ} before
 clearing \.{RXSTPI}, to make sure that \.{STALLRQ} is already set when next token arrives.
@@ -522,8 +496,6 @@ Theh Data Class interface consists of two endpoints to implement
 channels over which to carry data.
 
 \S3.4 in CDC spec.
-
-$$\epsfxsize 7cm \epsfbox{../usb/usb.eps}$$
 
 @<Type definitions@>=
 @<Type definition{s} used in configuration descriptor@>@;
