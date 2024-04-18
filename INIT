@@ -1,6 +1,0 @@
-After the device is attached, the host will request the USB device descriptor using the default device address zero. On
-successful transmission, it will send a USB reset. After that, it sends an address to be configured for the device. All
-further transactions will be directed to this device address. This address should be configured in the Device Address field
-in the Device Address register (DADD.DADD) and the Address Enable bit in DADD (DADD.ADDEN) should be written to
-one to accept the communications directed to this address. DADD.ADDEN is automatically cleared on receiving a USB
-reset.

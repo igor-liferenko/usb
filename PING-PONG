@@ -1,6 +1,0 @@
-When an endpoint is configured for ping-pong operation, it uses both the input and output data buffers (banks) for a given
-endpoint in a single direction. The direction is selected by enabling one of the IN or OUT direction in EPCFG.EPTYPE0/1
-and configuring the opposite direction in EPCFG.EPTYPE1/0 as Dual Bank.
-When ping-pong operation is enabled for an endpoint, the endpoint in the opposite direction must be configured as dual
-bank. The data buffer, data address pointer and byte counter from the enabled endpoint are used as Bank 0, while the
-matching registers from the disabled endpoint are used as Bank 1.
